@@ -6,7 +6,7 @@ Le dossier contient une nouvelle copie interactive du plan. Le HTML de présenta
 
 - index.html : coque publique sans contenu stratégique; elle affiche la barrière de connexion et ne charge le plan qu’après autorisation Firebase.
 - firebase-client.js : SDK Web Firebase modulaire, version CDN 12.15.0, persistance IndexedDB, Auth et Firestore.
-- cockpit-ui.js : couche d’interface et de pilotage, choix d’option par journée, rétroaction par section, boîte à idées flottante et dictée progressive Chrome / Edge / Safari.
+- cockpit-ui.js : couche d’interface et de pilotage, choix d’option par journée, rétroaction par section, boîte à idées flottante, dictée progressive Chrome / Edge / Safari et retour sur le mode de collaboration.
 - admin_sync.js : pont local Firebase Admin pour lire les modifications du calendrier, les commentaires et les rétroactions du cockpit.
 - seed_private_content.js : charge localement le plan, les 28 publications principales, les six alternatives et leurs états dans Firestore, après configuration du compte de service.
 - ../refine_calendar.js : réorganise les dates pour éviter les répétitions voisines et génère les six journées à choix exclusif.

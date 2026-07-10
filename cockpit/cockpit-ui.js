@@ -208,6 +208,7 @@ function buildAdminSidebar() {
 const feedbackSectionLabels = {
   cap: "Le cap",
   cadence: "La cadence choisie",
+  collaboration: "Le mode de collaboration",
   validation: "Validation avant diffusion",
   calendrier: "Calendrier opérationnel",
   production: "Production durable",

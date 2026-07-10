@@ -8,6 +8,8 @@
 
 **Textes finaux à programmer :** `TEXTES_COMPLETS_PUBLICATIONS_13_JUILLET_9_AOUT_2026.md` contient les 28 publications principales et six alternatives complètes. Les six journées à choix demandent une seule option cochée par la direction; le plan source `index.html` est synchronisé avec ce document, puis chargé de façon privée dans Firebase par `cockpit/seed_private_content.js`.
 
+La synthèse `SYNTHESE_TRANSCRIPT_COORDINATION_DG_COMMUNICATIONS_2026-07-10.md` distingue les orientations claires du transcript vocal et les éléments qui doivent encore être vérifiés. Le cockpit intègre désormais le mode de collaboration, la priorité aux formats soutenables, la stratégie d’alliés et les garde-fous renforcés pour les sujets scientifiques, historiques, autochtones, environnementaux et financiers.
+
 ## Ce qui est nouveau
 
 Ce dossier est une nouvelle itération autonome. Il ne remplace, ne modifie ni ne supprime les plans V1/V2, les calendriers, les rapports ou les visuels existants.
