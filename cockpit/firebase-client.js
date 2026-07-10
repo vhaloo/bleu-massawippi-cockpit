@@ -10,7 +10,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import {
   getFirestore,
-  enableIndexedDbPersistence,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   collection,
   query,
   orderBy,
@@ -40,15 +42,17 @@ let persistenceState = "not-configured";
 if (configured) {
   app = getApps().length ? getApps()[0] : initializeApp(config);
   auth = getAuth(app);
-  db = getFirestore(app);
+  try {
+    db = initializeFirestore(app, {
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+    });
+    persistenceState = "enabled";
+  } catch {
+    db = getFirestore(app);
+    persistenceState = "unavailable";
+  }
   setPersistence(auth, browserLocalPersistence).catch(() => {
     persistenceState = "unavailable";
-  });
-
-  enableIndexedDbPersistence(db).then(() => {
-    persistenceState = "enabled";
-  }).catch((error) => {
-    persistenceState = error?.code === "failed-precondition" ? "another-tab" : "unavailable";
   });
 }
 
