@@ -17,7 +17,7 @@ import {
   upsertActionTask,
   completeActionTask,
   subscribeActionTasks
-} from "./firebase-client.js?v=20260710-tasks";
+} from "./firebase-client.js?v=20260710-persistence-v2";
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
