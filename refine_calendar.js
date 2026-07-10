@@ -204,6 +204,7 @@ function sortPosts(posts) {
 function updateStaticCalendarCopy(html) {
   const calendarIntro = "Les angles sont bilingues et prêts à être finalisés une fois la preuve, le visuel et l’approbation confirmés. Certaines journées proposent deux options exclusives : la direction en choisit une seule. Toutes les publications FB/IG doivent rester sous 2 200 caractères au total; les heures sont des créneaux à tester dans Insights.";
   return html
+    .replace("Photos, vidéos, gestes et voix réels. L’IA ne sert qu’en soutien, jamais en camouflage.", "Photos, vidéos, gestes et voix réels. L’authenticité prime sur les effets de présentation.")
     .replace("28 jours, 28 raisons de revenir vers le lac.", "28 jours, avec des choix éditoriaux quand deux angles se défendent.")
     .replace(/<p>Les angles sont bilingues[\s\S]*?créneaux à tester dans Insights\.<\/p>/, `<p>${calendarIntro}</p>`)
     .replace('<span><b id="done">0</b> / 28 prêts ou publiés</span>', '<span><b id="done">0</b> / 28 journées prêtes ou publiées</span>');
