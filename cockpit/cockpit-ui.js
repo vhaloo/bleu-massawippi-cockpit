@@ -245,7 +245,7 @@ function submitFeedbackForm(form) {
 function enhanceSectionFeedback() {
   document.querySelectorAll("#cockpit-content main > section[id]").forEach((section) => {
     if (section.querySelector("[data-section-feedback]")) return;
-    const heading = section.querySelector(".heading");
+    const heading = section.querySelector(".heading") || section.firstElementChild;
     if (!heading) return;
     const details = document.createElement("details");
     details.className = "section-feedback";
