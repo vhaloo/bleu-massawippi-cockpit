@@ -14,7 +14,7 @@ import {
   addCockpitFeedback,
   subscribeCockpitFeedback,
   updateCockpitFeedbackStatus
-} from "./firebase-client.js";
+} from "./firebase-client.js?v=971a7ad";
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
