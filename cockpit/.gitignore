@@ -1,8 +1,4 @@
-firebase-config.local.js
-service-account*.json
-*-service-account*.json
+secrets/
 sync-output/
 node_modules/
-.firebase/
-firebase-debug.log
-.DS_Store
+firebase-config.local.js

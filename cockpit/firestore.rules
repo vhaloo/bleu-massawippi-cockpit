@@ -52,19 +52,6 @@ service cloud.firestore {
         && data.createdAt is timestamp;
     }
 
-    function validAttachment(data) {
-      return data.keys().hasAll(['sectionId', 'storagePath', 'fileName', 'contentType', 'size', 'downloaded_locally', 'authorUid', 'createdAt'])
-        && data.keys().hasOnly(['sectionId', 'storagePath', 'fileName', 'contentType', 'size', 'downloaded_locally', 'authorUid', 'createdAt'])
-        && data.sectionId is string && data.sectionId.size() <= 120
-        && data.storagePath is string && data.storagePath.matches('uploads/[^/]+/[^/]+')
-        && data.fileName is string && data.fileName.size() > 0 && data.fileName.size() <= 255
-        && data.contentType is string && data.contentType.size() <= 120
-        && data.size is int && data.size > 0 && data.size <= 25 * 1024 * 1024
-        && data.downloaded_locally == false
-        && data.authorUid == request.auth.uid
-        && data.createdAt is timestamp;
-    }
-
     function validAuditLog(data) {
       return data.keys().hasAll(['sectionId', 'action', 'userUid', 'userLabel', 'createdAt'])
         && data.keys().hasOnly(['sectionId', 'action', 'userUid', 'userLabel', 'createdAt'])
@@ -98,12 +85,6 @@ service cloud.firestore {
     match /comments/{commentId} {
       allow read: if isEditor();
       allow create: if isEditor() && validComment(request.resource.data);
-      allow update, delete: if false;
-    }
-
-    match /attachments/{attachmentId} {
-      allow read: if isEditor();
-      allow create: if isEditor() && validAttachment(request.resource.data);
       allow update, delete: if false;
     }
 

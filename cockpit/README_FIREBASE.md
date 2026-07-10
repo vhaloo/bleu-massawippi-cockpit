@@ -5,12 +5,12 @@ Le dossier contient une nouvelle copie interactive du plan. Le HTML de présenta
 ## État livré
 
 - index.html : coque publique sans contenu stratégique; elle affiche la barrière de connexion et ne charge le plan qu’après autorisation Firebase.
-- firebase-client.js : SDK Web Firebase modulaire, version CDN 12.15.0, persistance IndexedDB, Auth, Firestore et Storage.
+- firebase-client.js : SDK Web Firebase modulaire, version CDN 12.15.0, persistance IndexedDB, Auth et Firestore.
 - cockpit-ui.js : couche d’interface et de pilotage.
-- admin_sync.js : pont local Firebase Admin pour lire les modifications et télécharger les pièces jointes.
+- admin_sync.js : pont local Firebase Admin pour lire les modifications du calendrier et les commentaires.
 - seed_private_content.js : charge localement le plan et les 28 états initiaux dans Firestore, après configuration du compte de service.
 - provision_users.js : crée ou raccorde les deux comptes autorisés et leurs rôles, en lisant les adresses et mots de passe uniquement depuis des variables de session.
-- firestore.rules et storage.rules : règles d’accès strictes, à publier et tester dans la console avant production.
+- firestore.rules : règles d’accès strictes, à publier et tester dans la console avant production.
 - firebase-config.example.js : modèle de configuration publique.
 - firebase-config.js : configuration publique de l’application Web, nécessaire au site GitHub Pages. Cette configuration identifie le projet; elle n’est pas une clé d’administration.
 - firebase-config.local.js : ancien fichier local de compatibilité, ignoré par Git.
@@ -26,10 +26,10 @@ Activez ensuite :
 
 1. Authentication → Sign-in method → Email/Password.
 2. Firestore Database en mode production.
-3. Storage avec les règles du fichier storage.rules.
+3. Les ressources statiques sont ajoutées et versionnées dans le dépôt GitHub Pages; aucune pièce jointe dynamique n’est téléversée depuis le navigateur.
 4. Ajoutez votre domaine GitHub Pages dans Authentication → Settings → Authorized domains. Un domaine *.github.io doit utiliser HTTPS.
 
-Enregistrez une application Web et copiez sa configuration dans firebase-config.js. La configuration Web est nécessairement visible côté navigateur; elle ne remplace pas les règles Firestore/Storage, qui constituent la barrière réelle.
+Enregistrez une application Web et copiez sa configuration dans firebase-config.js. La configuration Web est nécessairement visible côté navigateur; elle ne remplace pas les règles Firestore, qui constituent la barrière réelle.
 
 ## 2. Créer les comptes et les rôles
 
@@ -45,7 +45,7 @@ Dans Firestore, créez un document users/{uid} pour chaque compte :
 
 Rôles acceptés :
 
-- director : arbitrage du calendrier, commentaires et pièces jointes.
+- director : arbitrage du calendrier et commentaires.
 - admin : mêmes droits + panneau de journal technique.
 - viewer : lecture seule.
 
@@ -72,7 +72,6 @@ Dans Firebase :
 
     $env:GOOGLE_APPLICATION_CREDENTIALS="C:\Users\Vhaloo\Documents\Firebase\bleu-massawippi-service-account.json"
     $env:GOOGLE_CLOUD_PROJECT="identifiant-du-projet"
-    $env:FIREBASE_STORAGE_BUCKET="identifiant-du-projet.firebasestorage.app"
 
 Cette procédure suit la documentation officielle Firebase Admin (https://firebase.google.com/docs/admin/setup). La clé donne des privilèges élevés : ne la transmettez pas dans le chat et ne la commitez jamais.
 
@@ -87,16 +86,14 @@ Options :
 
 - --days=14 : fenêtre de changements à lire.
 - --output=sync-output : destination locale du résumé et des fichiers, obligatoirement dans le dossier cockpit.
-- --no-download=true : lire les pièces jointes sans les télécharger.
 
 Le script lit :
 
 - scheduleItems : statuts et suppressions virtuelles.
 - comments : commentaires, badges et dictées.
 - auditLogs : journal technique.
-- attachments : pièces dont downloaded_locally vaut false.
 
-Après un téléchargement réussi, il marque la pièce jointe downloaded_locally: true. Le résumé est écrit dans sync-output/sync-summary.json, dossier ignoré par Git.
+Le résumé de synchronisation est écrit dans sync-output/sync-summary.json, dossier ignoré par Git.
 
 ## 4.1 Charger le contenu sécurisé initial
 
@@ -124,7 +121,7 @@ Le fichier firebase.json est inclus pour publier uniquement les règles Firebase
     npm install --global firebase-tools
     firebase login
     firebase use identifiant-du-projet
-    firebase deploy --only firestore:rules,storage
+    firebase deploy --only firestore:rules
 
 ## Modèle de données Firestore
 
@@ -132,10 +129,9 @@ Le fichier firebase.json est inclus pour publier uniquement les règles Firebase
 - privateContent/plan : HTML, styles et données du plan; lecture réservée aux comptes actifs.
 - scheduleItems/{sectionId} : title, dateKey, status, deleted, updatedAt, updatedBy.
 - comments/{commentId} : sectionId, comment, quickTag, dictated, authorUid, createdAt.
-- attachments/{attachmentId} : sectionId, storagePath, fileName, contentType, size, downloaded_locally, authorUid, createdAt; le script local ajoute downloadedAt et downloadedBy après une récupération réussie.
 - auditLogs/{logId} : action, sectionId, userUid, userLabel, createdAt.
 
-Le frontend crée un journal opérationnel append-only pour chaque statut, commentaire, badge ou pièce jointe. Seuls les rôles director et admin peuvent l’écrire; seul admin peut le lire. Ce journal sert au pilotage humain, pas à fournir une preuve médico-légale : un journal infalsifiable nécessiterait une fonction serveur de confiance.
+Le frontend crée un journal opérationnel append-only pour chaque statut, commentaire ou badge. Seuls les rôles director et admin peuvent l’écrire; seul admin peut le lire. Ce journal sert au pilotage humain, pas à fournir une preuve médico-légale : un journal infalsifiable nécessiterait une fonction serveur de confiance.
 
 ## Limites assumées
 

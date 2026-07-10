@@ -4,7 +4,6 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { applicationDefault, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
-import { getStorage } from "firebase-admin/storage";
 
 const args = new Map();
 for (const raw of process.argv.slice(2)) {
@@ -15,7 +14,6 @@ for (const raw of process.argv.slice(2)) {
 const workspaceDir = path.dirname(fileURLToPath(import.meta.url));
 const days = Number(args.get("days") || 14);
 const outputDir = path.resolve(workspaceDir, args.get("output") || "./sync-output");
-const noDownload = args.get("no-download") === "true";
 if (!Number.isFinite(days) || days < 1 || days > 366) {
   console.error("--days doit être un nombre entre 1 et 366.");
   process.exit(2);
@@ -34,8 +32,7 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
 
 const app = initializeApp({
   credential: applicationDefault(),
-  projectId: process.env.GOOGLE_CLOUD_PROJECT || undefined,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET || undefined
+  projectId: process.env.GOOGLE_CLOUD_PROJECT || undefined
 });
 const db = getFirestore(app);
 
@@ -55,10 +52,6 @@ function isRecent(data) {
   return changed ? changed.valueOf() >= sinceMs : true;
 }
 
-function safeName(value) {
-  return String(value || "piece-jointe").replace(/[^a-zA-Z0-9._-]/g, "_").slice(-160);
-}
-
 async function readRecent(collectionName) {
   const snapshot = await db.collection(collectionName).get();
   return snapshot.docs
@@ -66,28 +59,12 @@ async function readRecent(collectionName) {
     .filter(isRecent);
 }
 
-async function downloadAttachment(row) {
-  if (!row.storagePath) return { id: row.id, ok: false, reason: "storagePath manquant" };
-  const bucketName = process.env.FIREBASE_STORAGE_BUCKET;
-  if (!bucketName) return { id: row.id, ok: false, reason: "FIREBASE_STORAGE_BUCKET manquant" };
-  const target = path.join(outputDir, "attachments", row.id + "-" + safeName(row.fileName));
-  await fs.mkdir(path.dirname(target), { recursive: true });
-  await getStorage(app).bucket(bucketName).file(row.storagePath).download({ destination: target });
-  await db.collection("attachments").doc(row.id).update({
-    downloaded_locally: true,
-    downloadedAt: new Date(),
-    downloadedBy: "admin_sync"
-  });
-  return { id: row.id, ok: true, path: target };
-}
-
 await fs.mkdir(outputDir, { recursive: true });
 
-const [scheduleItems, comments, logs, attachments] = await Promise.all([
+const [scheduleItems, comments, logs] = await Promise.all([
   readRecent("scheduleItems"),
   readRecent("comments"),
-  readRecent("auditLogs"),
-  readRecent("attachments")
+  readRecent("auditLogs")
 ]);
 
 const changedScheduleItems = scheduleItems.filter((row) =>
@@ -103,18 +80,6 @@ const dictatedComments = comments
     quickTag: row.quickTag || null,
     createdAt: dateValue(row.createdAt)?.toISOString() || null
   }));
-
-const attachmentsToDownload = attachments.filter((row) => row.downloaded_locally === false);
-const downloaded = [];
-if (!noDownload) {
-  for (const row of attachmentsToDownload) {
-    try {
-      downloaded.push(await downloadAttachment(row));
-    } catch (error) {
-      downloaded.push({ id: row.id, ok: false, reason: error.message });
-    }
-  }
-}
 
 const summary = {
   generatedAt: new Date().toISOString(),
@@ -142,11 +107,7 @@ const summary = {
     sectionId: row.sectionId || null,
     userUid: row.userUid || null,
     createdAt: dateValue(row.createdAt)?.toISOString() || null
-  })),
-  attachments: {
-    pending: attachmentsToDownload.length,
-    results: downloaded
-  }
+  }))
 };
 
 const outputFile = path.join(outputDir, "sync-summary.json");
@@ -155,7 +116,5 @@ console.log(JSON.stringify({
   outputFile,
   scheduleItems: summary.scheduleItems.length,
   comments: summary.comments.length,
-  dictatedComments: summary.dictatedComments.length,
-  pendingAttachments: summary.attachments.pending,
-  downloaded: downloaded.filter((item) => item.ok).length
+  dictatedComments: summary.dictatedComments.length
 }, null, 2));

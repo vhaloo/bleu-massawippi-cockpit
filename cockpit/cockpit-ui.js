@@ -8,7 +8,6 @@ import {
   subscribeScheduleItems,
   upsertScheduleItem,
   addComment,
-  uploadAttachment,
   writeAuditLog,
   subscribeAuditLogs
 } from "./firebase-client.js";
@@ -53,10 +52,6 @@ style.textContent = `
   .cockpit-quick-row button[data-tag="cancel"] { color: #9a4035; }
   .cockpit-quick-row button[data-tag="delay"] { color: #956a16; }
   .cockpit-quick-row button[data-tag="perfect"] { color: #26705f; }
-  .cockpit-drop { margin-top: 8px; padding: 8px; border: 1px dashed #a6cdd2; border-radius: 9px; color: #587680; background: #fbfefe; font-size: .73rem; text-align: center; }
-  .cockpit-drop.dragging { border-color: #0b7895; background: #eaf7f8; }
-  .cockpit-drop input { display: none; }
-  .cockpit-drop label { cursor: pointer; text-decoration: underline; }
   .post.is-deleted { display: none; }
   body.cockpit-admin .post.is-deleted { display: block; opacity: .45; }
   .cockpit-admin .post.is-deleted h4 { text-decoration: line-through; }
@@ -225,8 +220,7 @@ function enhanceCards() {
         <button type="button" data-tag="cancel">🔴 À annuler</button>
         <button type="button" data-tag="delay">🟡 À décaler</button>
         <button type="button" data-tag="perfect">🟢 Parfait</button>
-      </div>
-      <div class="cockpit-drop" data-drop>Glisser une pièce jointe ici ou <label>la choisir<input type="file" data-file accept="image/*,video/*,application/pdf"></label></div>`;
+      </div>`;
     card.appendChild(controls);
   });
   applyRemoteRows();
@@ -314,20 +308,6 @@ async function saveCardComment(card, quickTag = null) {
   }
 }
 
-async function uploadCardFile(card, file) {
-  if (!state.profile || !["director", "admin"].includes(state.profile.role)) {
-    toast("Votre session est en lecture seule.", true);
-    return;
-  }
-  try {
-    await uploadAttachment(card.dataset.itemId, file, state.profile);
-    await recordAudit(card, "pièce jointe ajoutée");
-    toast("Pièce jointe transférée; elle sera récupérée par la synchronisation locale.");
-  } catch (error) {
-    toast(error.message, true);
-  }
-}
-
 function enhanceCardEvents() {
   document.addEventListener("click", (event) => {
     const card = event.target.closest(".post[data-item-id]");
@@ -355,30 +335,6 @@ function enhanceCardEvents() {
     }
     const copyButton = event.target.closest(".copybtn");
     if (copyButton) return;
-  });
-
-  document.addEventListener("change", (event) => {
-    const card = event.target.closest(".post[data-item-id]");
-    if (!card || !event.target.matches("[data-file]")) return;
-    const file = event.target.files?.[0];
-    if (file) uploadCardFile(card, file);
-  });
-
-  document.addEventListener("dragover", (event) => {
-    const drop = event.target.closest("[data-drop]");
-    if (!drop) return;
-    event.preventDefault();
-    drop.classList.add("dragging");
-  });
-  document.addEventListener("dragleave", (event) => event.target.closest("[data-drop]")?.classList.remove("dragging"));
-  document.addEventListener("drop", (event) => {
-    const drop = event.target.closest("[data-drop]");
-    if (!drop) return;
-    event.preventDefault();
-    drop.classList.remove("dragging");
-    const card = drop.closest(".post[data-item-id]");
-    const file = event.dataTransfer.files?.[0];
-    if (card && file) uploadCardFile(card, file);
   });
 }
 

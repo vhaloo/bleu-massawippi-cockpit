@@ -23,17 +23,9 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import {
-  getStorage,
-  ref,
-  uploadBytes
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js";
-
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
-const required = ["apiKey", "authDomain", "projectId", "storageBucket", "messagingSenderId", "appId"];
+const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
-const maxAttachmentBytes = 25 * 1024 * 1024;
-const allowedAttachmentTypes = /^(image\/|video\/|application\/pdf$)/;
 const configured = required.every((key) => {
   const value = config[key];
   return typeof value === "string" && value.length > 0 && !value.includes("REMPLACER");
@@ -42,15 +34,12 @@ const configured = required.every((key) => {
 let app;
 let auth;
 let db;
-let storage;
 let persistenceState = "not-configured";
 
 if (configured) {
   app = getApps().length ? getApps()[0] : initializeApp(config);
   auth = getAuth(app);
   db = getFirestore(app);
-  storage = getStorage(app);
-
   setPersistence(auth, browserLocalPersistence).catch(() => {
     persistenceState = "unavailable";
   });
@@ -93,7 +82,7 @@ async function getProfile(user) {
 }
 
 export function getClientState() {
-  return { configured, persistenceState, auth, db, storage };
+  return { configured, persistenceState, auth, db };
 }
 
 export async function fetchPrivateContent() {
@@ -209,35 +198,6 @@ export async function writeAuditLog(sectionId, action, profile) {
     userLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
     createdAt: serverTimestamp()
   });
-}
-
-export async function uploadAttachment(itemId, file, profile) {
-  requireConfigured();
-  if (!profile || !["director", "admin"].includes(profile.role)) {
-    throw new Error("Ce compte n’a pas le droit d’ajouter une pièce jointe.");
-  }
-  if (!file) return null;
-  if (file.size > maxAttachmentBytes) {
-    throw new Error("La pièce jointe dépasse la limite de 25 Mo.");
-  }
-  if (!allowedAttachmentTypes.test(file.type || "")) {
-    throw new Error("Format non accepté. Ajoutez une image, une vidéo ou un PDF.");
-  }
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-160);
-  const path = "uploads/" + itemId + "/" + Date.now() + "-" + safeName;
-  const storageRef = ref(storage, path);
-  await uploadBytes(storageRef, file, { contentType: file.type || "application/octet-stream" });
-  const record = await addDoc(collection(db, "attachments"), {
-    sectionId: itemId,
-    storagePath: path,
-    fileName: file.name,
-    contentType: file.type || null,
-    size: file.size,
-    downloaded_locally: false,
-    authorUid: profile.uid,
-    createdAt: serverTimestamp()
-  });
-  return { id: record.id, path };
 }
 
 export function subscribeAuditLogs(callback, onError) {
