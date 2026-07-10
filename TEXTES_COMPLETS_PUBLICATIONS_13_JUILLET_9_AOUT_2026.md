@@ -35,36 +35,36 @@ Read the reports and briefs: https://bleumassawippi.com/rapports-et-memoires
 #BleuMassawippi #LakeMassawippi #WaterQuality #EasternTownships
 ```
 
-## Mardi 14 juillet — Une donnée commence ici
+## Lundi 13 juillet — La rive qui travaille en silence
 
-**Thème :** Éducation  
-**Format :** Reel 12–15 s · gestes de terrain réels  
-**Objectif :** Rendre visible le travail qui précède une donnée : observer, mesurer, noter, recommencer.  
-**CTA :** Regarder jusqu’à la fin  
-**Visuel final :** Reel vertical réel : mains qui étiquettent un échantillon, outil de mesure, carnet puis surface du lac; sous-titres intégrés FR/EN.  
-**Texte alternatif :** FR — Des mains étiquettent un échantillon d’eau et notent une observation de terrain. / EN — Hands label a water sample and record a field observation.  
-**Source de référence :** Documentation interne — captation de terrain autorisée  
-**Préparation :** Monter 12 à 15 secondes, sans visage identifiable, avec son naturel ou musique sous licence.
+**Thème :** Nature  
+**Format :** Photo terrain + légende en trois gestes  
+**Objectif :** Montrer le rôle d’une rive végétalisée avant de parler de chiffres ou d’analyses.  
+**CTA :** Observer sa rive  
+**Visuel final :** Photo réelle d’une rive végétalisée, sans terrain privé identifiable; trois repères discrets : racines, ombre, sol.  
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.  
+**Source de référence :** https://bleumassawippi.com/accueil-1  
+**Préparation :** Choisir une image autorisée et décrire les fonctions visibles sans promettre de résultat chiffré.
 
 ### Légende prête à programmer
 
 ```text
-FR — Avant un graphique, il y a un geste. Observer. Prélever. Noter. Revenir. Comparer.
+FR — Une rive vivante travaille en silence. Ses racines retiennent le sol, ses plantes ralentissent l’eau et son ombre crée un refuge pour le vivant.
 
-Une donnée utile ne tombe pas du ciel : elle se construit avec une méthode, des repères et du temps. C’est ainsi que le suivi du lac devient une base pour mieux le protéger.
+Avant de regarder le large, regardons ce qui protège le lac au bord de l’eau.
 
-#BleuMassawippi #LacMassawippi #ScienceDuLac #Estrie
+#BandesRiveraines #BleuMassawippi #LacMassawippi #BassinVersant
 
 =========================================
 
-EN — Before a chart, there is a gesture. Observe. Sample. Record. Return. Compare.
+EN — A living shoreline works quietly. Its roots hold soil, its plants slow water and its shade creates shelter for life.
 
-Useful data does not appear out of nowhere: it is built through method, reference points and time. That is how lake monitoring becomes a foundation for better protection.
+Before looking out across the lake, let’s notice what protects it at the water’s edge.
 
-#BleuMassawippi #LakeMassawippi #LakeScience #EasternTownships
+#ShorelineProtection #BleuMassawippi #LakeMassawippi #Watershed
 ```
 
-## Mercredi 15 juillet — Un visage, un geste, un lac
+## Mardi 14 juillet — Un visage, un geste, un lac
 
 **Thème :** Humanité  
 **Format :** Portrait photo ou capsule selfie de bénévole  
@@ -93,7 +93,36 @@ Discover ways to get involved: https://bleumassawippi.com/benevolat
 #BleuMassawippi #Volunteer #LakeMassawippi #EasternTownships
 ```
 
-## Jeudi 16 juillet — Le moment où le lac vous appelle
+## Mardi 14 juillet — Une sortie qui commence bien
+
+**Thème :** Prévention  
+**Format :** Checklist photo · avant de partir  
+**Objectif :** Remplacer l’explication scientifique par un rappel pratique, calme et immédiatement utile.  
+**CTA :** Enregistrer la checklist  
+**Visuel final :** Photo réelle d’une embarcation à quai avec trois éléments vérifiables : débris retirés, eau vidée, équipement prêt.  
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.  
+**Source de référence :** https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques  
+**Préparation :** Relier vers la page gouvernementale à jour et ne pas présenter le visuel comme un règlement local.
+
+### Légende prête à programmer
+
+```text
+FR — Avant de profiter du lac, prenons trente secondes pour regarder l’embarcation et la remorque. Retirer les débris visibles et vider l’eau retenue aide à limiter les déplacements indésirables d’un plan d’eau à l’autre.
+
+La checklist officielle : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+
+#Prévention #BleuMassawippi #NautismeResponsable #LacMassawippi
+
+=========================================
+
+EN — Before enjoying the lake, take thirty seconds to check the boat and trailer. Removing visible debris and draining retained water helps reduce unwanted movement from one body of water to another.
+
+Official guidance: https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+
+#Prevention #BleuMassawippi #ResponsibleBoating #LakeMassawippi
+```
+
+## Mercredi 15 juillet — Le moment où le lac vous appelle
 
 **Thème :** Interaction  
 **Format :** Photo forte + question ouverte · Story sondage  
@@ -122,7 +151,7 @@ Answer with one word in the comments. We would love to hear what the lake brings
 #BleuMassawippi #LakeMassawippi #OurLake #EasternTownships
 ```
 
-## Vendredi 17 juillet — Quiz du lac : à quoi sert le disque blanc?
+## Jeudi 16 juillet — Quiz du lac : à quoi sert le disque blanc?
 
 **Thème :** Interaction  
 **Format :** Carrousel Vrai / Faux · réponse en 2e carte  
@@ -151,7 +180,7 @@ False. Transparency is a useful indicator, but it never tells the whole story on
 #LakeQuiz #BleuMassawippi #LakeMassawippi #WaterQuality
 ```
 
-## Samedi 18 juillet — Minute bleue : regarder avant de parler
+## Vendredi 17 juillet — Minute bleue : regarder avant de parler
 
 **Thème :** Humanité  
 **Format :** Reel contemplatif 10–20 s · vidéo réelle  
@@ -184,7 +213,7 @@ Take a breath. Then carry that attention into your next outing.
 #BlueMinute #BleuMassawippi #LakeMassawippi #EasternTownships
 ```
 
-## Dimanche 19 juillet — Vos souvenirs dessinent le lac
+## Samedi 18 juillet — Vos souvenirs dessinent le lac
 
 **Thème :** Interaction  
 **Format :** Photo archive ou paysage + invitation à raconter  
@@ -217,6 +246,35 @@ Share your memory in the comments.
 #BleuMassawippi #LakeMemories #LakeMassawippi #EasternTownships
 ```
 
+## Dimanche 19 juillet — Le lac en cinq sons
+
+**Thème :** Humanité  
+**Format :** Reel sonore 12–15 s · écoute du terrain  
+**Objectif :** Créer une respiration sensorielle qui fait aimer le lac avant d’expliquer une notion.  
+**CTA :** Écouter jusqu’à la fin  
+**Visuel final :** Reel vertical réel : mains qui étiquettent un échantillon, outil de mesure, carnet puis surface du lac; sous-titres intégrés FR/EN.  
+**Texte alternatif :** FR — Des mains étiquettent un échantillon d’eau et notent une observation de terrain. / EN — Hands label a water sample and record a field observation.  
+**Source de référence :** Documentation interne — captation de terrain autorisée  
+**Préparation :** Monter 12 à 15 secondes, sans visage identifiable, avec son naturel ou musique sous licence.
+
+### Légende prête à programmer
+
+```text
+FR — Avant un graphique, il y a un geste. Observer. Prélever. Noter. Revenir. Comparer.
+
+Une donnée utile ne tombe pas du ciel : elle se construit avec une méthode, des repères et du temps. C’est ainsi que le suivi du lac devient une base pour mieux le protéger.
+
+#BleuMassawippi #LacMassawippi #ScienceDuLac #Estrie
+
+=========================================
+
+EN — Before a chart, there is a gesture. Observe. Sample. Record. Return. Compare.
+
+Useful data does not appear out of nowhere: it is built through method, reference points and time. That is how lake monitoring becomes a foundation for better protection.
+
+#BleuMassawippi #LakeMassawippi #LakeScience #EasternTownships
+```
+
 ## Lundi 20 juillet — Zoom nature : l’iris versicolore
 
 **Thème :** Nature  
@@ -246,33 +304,70 @@ The lake does not end at its shoreline. The environments around it slow water, s
 #NatureZoom #BleuMassawippi #BlueFlagIris #LakeMassawippi
 ```
 
-## Mardi 21 juillet — Une rive vivante fait plus qu’être belle
+## Lundi 20 juillet — Le quiz des milieux humides
 
-**Thème :** Nature  
-**Format :** Carrousel avant / détail / geste  
-**Objectif :** Relier la beauté des bandes riveraines à des services écologiques concrets.  
-**CTA :** Voir le geste qui vous ressemble  
-**Visuel final :** Photo d’une rive végétalisée réelle : herbes, arbustes et sol stabilisé; titre : Une rive vivante travaille pour le lac.  
-**Texte alternatif :** FR — Une rive végétalisée borde l’eau et protège le sol. / EN — A vegetated shoreline borders the water and protects the soil.  
-**Source de référence :** https://bleumassawippi.com/accueil-1  
-**Préparation :** Choisir une rive continue et naturelle; éviter toute image de terrain privé sans autorisation.
+**Thème :** Interaction  
+**Format :** Story quiz · trois réponses  
+**Objectif :** Faire observer le bassin versant par une question simple plutôt que par une fiche descriptive.  
+**CTA :** Choisir la bonne réponse  
+**Visuel final :** Story avec photo réelle d’un milieu humide et question : Que fait-il pour le bassin versant? A, B ou C.  
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.  
+**Source de référence :** https://bleumassawippi.com/rapports-et-memoires  
+**Préparation :** Valider la formulation scientifique avant diffusion et expliquer la réponse sans exagérer le rôle d’un seul milieu.
 
 ### Légende prête à programmer
 
 ```text
-FR — Une rive végétalisée fait plus qu’être belle. Ses racines aident à retenir le sol, sa végétation ralentit le ruissellement et son ombre crée des conditions plus accueillantes pour le vivant.
+FR — Question du jour : un milieu humide peut-il aider le lac?
 
-Chaque rive protégée est un geste concret pour le lac.
+A — Oui, il peut ralentir l’eau et offrir un habitat.
+B — Non, il ne sert qu’à retenir la boue.
+C — Seulement quand il pleut.
 
-#BandesRiveraines #BleuMassawippi #LacMassawippi #BassinVersant
+Réponse : A. Les milieux humides rendent plusieurs services à la fois.
+
+#QuizDuLac #BleuMassawippi #MilieuxHumides #LacMassawippi
 
 =========================================
 
-EN — A vegetated shoreline does more than look beautiful. Its roots help hold soil in place, its vegetation slows runoff and its shade creates more welcoming conditions for life.
+EN — Today’s question: can a wetland help the lake?
 
-Every protected shoreline is a practical action for the lake.
+A — Yes, it can slow water and provide habitat.
+B — No, it only holds back mud.
+C — Only when it rains.
 
-#ShorelineProtection #BleuMassawippi #LakeMassawippi #Watershed
+Answer: A. Wetlands provide several services at once.
+
+#LakeQuiz #BleuMassawippi #Wetlands #LakeMassawippi
+```
+
+## Mardi 21 juillet — Une image, une époque, le même lac
+
+**Thème :** Patrimoine  
+**Format :** Photo historique avec contexte court  
+**Objectif :** Faire exister le patrimoine comme un lien affectif qui nourrit la protection actuelle.  
+**CTA :** Raconter ce que cette image vous évoque  
+**Visuel final :** Photo d’archive avec crédit visible, accompagnée d’une photo actuelle du même angle si les droits le permettent; titre : Une image, une époque, le même lac.  
+**Texte alternatif :** FR — Une image d’archive du lac Massawippi invite à comparer les époques. / EN — An archival image of Lake Massawippi invites a comparison across time.  
+**Source de référence :** Archives Bleu Massawippi — droits documentés  
+**Préparation :** Conserver le crédit de l’image dans la publication et dans les métadonnées; ne pas dater l’image si la date n’est pas confirmée.
+
+### Légende prête à programmer
+
+```text
+FR — Cette image nous ramène à une autre époque du Massawippi. Le paysage change, les usages évoluent, mais l’attachement au lac traverse les générations.
+
+Que remarquez-vous en premier?
+
+#Patrimoine #BleuMassawippi #LacMassawippi #MémoireDuLac
+
+=========================================
+
+EN — This image takes us back to another time at Massawippi. The landscape changes and our uses evolve, yet attachment to the lake crosses generations.
+
+What do you notice first?
+
+#Heritage #BleuMassawippi #LakeMassawippi #LakeMemories
 ```
 
 ## Mercredi 22 juillet — Le bon départ commence avant la mise à l’eau
@@ -308,7 +403,36 @@ Detailed guidance: https://www.quebec.ca/agriculture-environnement-et-ressources
 #Prevention #BleuMassawippi #ResponsibleBoating #LakeMassawippi
 ```
 
-## Jeudi 23 juillet — Après la pluie, chaque geste en amont compte
+## Jeudi 23 juillet — Une rive vivante fait plus qu’être belle
+
+**Thème :** Nature  
+**Format :** Carrousel avant / détail / geste  
+**Objectif :** Relier la beauté des bandes riveraines à des services écologiques concrets.  
+**CTA :** Voir le geste qui vous ressemble  
+**Visuel final :** Photo d’une rive végétalisée réelle : herbes, arbustes et sol stabilisé; titre : Une rive vivante travaille pour le lac.  
+**Texte alternatif :** FR — Une rive végétalisée borde l’eau et protège le sol. / EN — A vegetated shoreline borders the water and protects the soil.  
+**Source de référence :** https://bleumassawippi.com/accueil-1  
+**Préparation :** Choisir une rive continue et naturelle; éviter toute image de terrain privé sans autorisation.
+
+### Légende prête à programmer
+
+```text
+FR — Une rive végétalisée fait plus qu’être belle. Ses racines aident à retenir le sol, sa végétation ralentit le ruissellement et son ombre crée des conditions plus accueillantes pour le vivant.
+
+Chaque rive protégée est un geste concret pour le lac.
+
+#BandesRiveraines #BleuMassawippi #LacMassawippi #BassinVersant
+
+=========================================
+
+EN — A vegetated shoreline does more than look beautiful. Its roots help hold soil in place, its vegetation slows runoff and its shade creates more welcoming conditions for life.
+
+Every protected shoreline is a practical action for the lake.
+
+#ShorelineProtection #BleuMassawippi #LakeMassawippi #Watershed
+```
+
+## Vendredi 24 juillet — Après la pluie, chaque geste en amont compte
 
 **Thème :** Prévention  
 **Format :** Photo de pluie ou jardin de pluie + micro-explication  
@@ -337,7 +461,7 @@ A rain garden helps slow, hold and infiltrate some of that water at its source.
 #RainGardens #BleuMassawippi #Watershed #LakeMassawippi
 ```
 
-## Vendredi 24 juillet — Le respect se voit aussi dans le sillage
+## Samedi 25 juillet — Le respect se voit aussi dans le sillage
 
 **Thème :** Prévention  
 **Format :** Photo de bateau responsable ou visuel typographique  
@@ -366,7 +490,7 @@ Adjusting speed, leaving space around shorelines and other users, and staying aw
 #ResponsibleBoating #BleuMassawippi #LakeMassawippi #BoatingCourtesy
 ```
 
-## Samedi 25 juillet — La sécurité fait partie du plaisir
+## Dimanche 26 juillet — La sécurité fait partie du plaisir
 
 **Thème :** Prévention  
 **Format :** Photo réelle · prévention de la noyade  
@@ -393,35 +517,6 @@ EN — Safety is part of the fun. Before leaving, take a moment to check the wea
 A good start leaves more room for great memories.
 
 #BoatingSafety #BleuMassawippi #LakeMassawippi #Prevention
-```
-
-## Dimanche 26 juillet — Une image, une époque, le même lac
-
-**Thème :** Patrimoine  
-**Format :** Photo historique avec contexte court  
-**Objectif :** Faire exister le patrimoine comme un lien affectif qui nourrit la protection actuelle.  
-**CTA :** Raconter ce que cette image vous évoque  
-**Visuel final :** Photo d’archive avec crédit visible, accompagnée d’une photo actuelle du même angle si les droits le permettent; titre : Une image, une époque, le même lac.  
-**Texte alternatif :** FR — Une image d’archive du lac Massawippi invite à comparer les époques. / EN — An archival image of Lake Massawippi invites a comparison across time.  
-**Source de référence :** Archives Bleu Massawippi — droits documentés  
-**Préparation :** Conserver le crédit de l’image dans la publication et dans les métadonnées; ne pas dater l’image si la date n’est pas confirmée.
-
-### Légende prête à programmer
-
-```text
-FR — Cette image nous ramène à une autre époque du Massawippi. Le paysage change, les usages évoluent, mais l’attachement au lac traverse les générations.
-
-Que remarquez-vous en premier?
-
-#Patrimoine #BleuMassawippi #LacMassawippi #MémoireDuLac
-
-=========================================
-
-EN — This image takes us back to another time at Massawippi. The landscape changes and our uses evolve, yet attachment to the lake crosses generations.
-
-What do you notice first?
-
-#Heritage #BleuMassawippi #LakeMassawippi #LakeMemories
 ```
 
 ## Lundi 27 juillet — Ce que l’on suit, cet été
@@ -451,6 +546,35 @@ EN — This summer, lake monitoring continues in the field. We observe, sample, 
 Monitoring is not an alarm; it is a rigorous way to stay attentive and better guide decisions.
 
 #LakeHealth #BleuMassawippi #LakeMassawippi #LakeScience
+```
+
+## Lundi 27 juillet — La question qui ouvre la semaine
+
+**Thème :** Communauté  
+**Format :** Photo du lac + question courte  
+**Objectif :** Commencer la semaine par l’écoute de la communauté plutôt que par un indicateur.  
+**CTA :** Répondre en une phrase  
+**Visuel final :** Photo réelle du lac ou d’un sentier; question en surimpression : Qu’aimeriez-vous mieux comprendre cet été?  
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.  
+**Source de référence :** Banque photo de l’association — droits documentés  
+**Préparation :** Classer les réponses par thème et ne pas transformer une réponse individuelle en position officielle.
+
+### Légende prête à programmer
+
+```text
+FR — Pour mieux parler du lac, il faut aussi savoir ce que vous cherchez à comprendre.
+
+Quelle question sur le Massawippi aimeriez-vous voir expliquée cet été? Une question simple suffit.
+
+#VoixDuLac #BleuMassawippi #LacMassawippi #Communauté
+
+=========================================
+
+EN — To speak about the lake better, we also need to know what you want to understand.
+
+What question about Massawippi would you like to see explained this summer? One simple question is enough.
+
+#LakeVoices #BleuMassawippi #LakeMassawippi #Community
 ```
 
 ## Mardi 28 juillet — Bilan 2025 : lire trois indicateurs ensemble
@@ -486,36 +610,7 @@ Read the 2025 annual report: https://bleumassawippi.com/rapports-et-memoires
 #WaterQuality #BleuMassawippi #LakeMassawippi #LakeScience
 ```
 
-## Mercredi 29 juillet — Vos regards sur le Massawippi
-
-**Thème :** Communauté  
-**Format :** Appel éditorial · photo + souvenir, sans prix  
-**Objectif :** Transformer l’écoute en participation structurée, sans lancer un concours prématuré.  
-**CTA :** Envoyer une photo avec votre histoire  
-**Visuel final :** Visuel texte sur fond de photo autorisée du lac : Un regard. Une histoire. Un lac.  
-**Texte alternatif :** FR — Le lac Massawippi est photographié au coucher du soleil avec un appel à partager une image. / EN — Lake Massawippi is photographed at sunset with an invitation to share an image.  
-**Source de référence :** info@bleumassawippi.com  
-**Préparation :** Traiter chaque envoi comme confidentiel; demander une autorisation explicite distincte avant toute republication ou adaptation.
-
-### Légende prête à programmer
-
-```text
-FR — Le Massawippi se raconte aussi par celles et ceux qui le regardent chaque jour.
-
-Partagez une photo prise par vous et une phrase sur ce qu’elle représente à info@bleumassawippi.com, objet : Photo Massawippi. Indiquez simplement si l’image peut être publiée. Nous confirmerons toujours avant toute diffusion.
-
-#VosRegards #BleuMassawippi #LacMassawippi #Communauté
-
-=========================================
-
-EN — Massawippi is also told through the people who see it every day.
-
-Share a photo you took and one sentence about what it means to you at info@bleumassawippi.com, subject: Massawippi Photo. Please indicate whether the image may be published. We will always confirm before sharing it.
-
-#YourView #BleuMassawippi #LakeMassawippi #Community
-```
-
-## Jeudi 30 juillet — Vigilance après la pluie : observer sans paniquer
+## Mercredi 29 juillet — Vigilance après la pluie : observer sans paniquer
 
 **Thème :** Actualité  
 **Format :** Carrousel 3 gestes · après fortes pluies  
@@ -542,6 +637,35 @@ EN — After heavy rain, the right reflex is to observe without jumping to concl
 If a situation concerns you, note the location and time, then contact the association: info@bleumassawippi.com.
 
 #Awareness #BleuMassawippi #LakeMassawippi #Watershed
+```
+
+## Jeudi 30 juillet — Vos regards sur le Massawippi
+
+**Thème :** Communauté  
+**Format :** Appel éditorial · photo + souvenir, sans prix  
+**Objectif :** Transformer l’écoute en participation structurée, sans lancer un concours prématuré.  
+**CTA :** Envoyer une photo avec votre histoire  
+**Visuel final :** Visuel texte sur fond de photo autorisée du lac : Un regard. Une histoire. Un lac.  
+**Texte alternatif :** FR — Le lac Massawippi est photographié au coucher du soleil avec un appel à partager une image. / EN — Lake Massawippi is photographed at sunset with an invitation to share an image.  
+**Source de référence :** info@bleumassawippi.com  
+**Préparation :** Traiter chaque envoi comme confidentiel; demander une autorisation explicite distincte avant toute republication ou adaptation.
+
+### Légende prête à programmer
+
+```text
+FR — Le Massawippi se raconte aussi par celles et ceux qui le regardent chaque jour.
+
+Partagez une photo prise par vous et une phrase sur ce qu’elle représente à info@bleumassawippi.com, objet : Photo Massawippi. Indiquez simplement si l’image peut être publiée. Nous confirmerons toujours avant toute diffusion.
+
+#VosRegards #BleuMassawippi #LacMassawippi #Communauté
+
+=========================================
+
+EN — Massawippi is also told through the people who see it every day.
+
+Share a photo you took and one sentence about what it means to you at info@bleumassawippi.com, subject: Massawippi Photo. Please indicate whether the image may be published. We will always confirm before sharing it.
+
+#YourView #BleuMassawippi #LakeMassawippi #Community
 ```
 
 ## Vendredi 31 juillet — Une donnée ne vit jamais seule
@@ -686,40 +810,36 @@ A small habit before departure can help avoid carrying fragments or water from o
 #MiniComic #BleuMassawippi #Prevention #LakeMassawippi
 ```
 
-## Mardi 4 août — Le plaisir partagé a son radar
+## Lundi 3 août — Le terrain en un détail
 
-**Thème :** Humour  
-**Format :** Photo réelle + micro-conseil plaisancier  
-**Objectif :** Faire sourire tout en gardant un message de coexistence sur l’eau.  
-**CTA :** Garder l’œil ouvert  
-**Visuel final :** Photo réelle d’un lac partagé par plusieurs usages, avec une discrète icône radar; titre : Le plaisir partagé a son radar.  
-**Texte alternatif :** FR — Des usagers profitent du lac en gardant de l’espace entre eux. / EN — Lake users enjoy the water while keeping space between one another.  
-**Source de référence :** https://bleumassawippi.com/laccessible/en  
-**Préparation :** Employer un ton léger sans caricaturer les usagers; privilégier une image calme, dégagée et crédible.
+**Thème :** Coulisses  
+**Format :** Photo coulisses + légende très courte  
+**Objectif :** Montrer une preuve concrète de travail sans reprendre le ton humoristique de la mini-BD.  
+**CTA :** Regarder le détail  
+**Visuel final :** Photo rapprochée d’un carnet, d’une botte ou d’un instrument réellement utilisé; aucun visage ni résultat non validé.  
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.  
+**Source de référence :** https://bleumassawippi.com/rapports-et-memoires  
+**Préparation :** Identifier l’objet et son rôle sans révéler un lieu sensible ni afficher de donnée non approuvée.
 
 ### Légende prête à programmer
 
 ```text
-FR — Le plaisir partagé a son radar.
+FR — Dans les coulisses, un détail compte : un carnet ouvert, une mesure notée, un outil rangé avec soin.
 
-Il détecte les rives, les baigneurs, les embarcations plus lentes, les pêcheurs, les paddles et les moments où lever le pied rend tout le monde plus heureux.
+Le suivi du lac avance par ces gestes modestes, répétés et vérifiables.
 
-Le meilleur sillage? Celui qui laisse de la place aux autres.
-
-#HumourDuLac #BleuMassawippi #NautismeResponsable #LacMassawippi
+#Coulisses #BleuMassawippi #LacMassawippi #ScienceDuLac
 
 =========================================
 
-EN — Shared enjoyment has its own radar.
+EN — Behind the scenes, one detail matters: an open notebook, a recorded measurement, a carefully stored tool.
 
-It notices shorelines, swimmers, slower boats, anglers, paddlers and the moments when easing off makes everyone happier.
+Lake monitoring moves forward through these modest, repeated and verifiable actions.
 
-The best wake? The one that leaves room for others.
-
-#LakeHumour #BleuMassawippi #ResponsibleBoating #LakeMassawippi
+#BehindTheScenes #BleuMassawippi #LakeMassawippi #LakeScience
 ```
 
-## Mercredi 5 août — Avant une décision, il y a du terrain
+## Mardi 4 août — Avant une décision, il y a du terrain
 
 **Thème :** Coulisses  
 **Format :** Carrousel coulisses · outils, bottes, cahier, rive  
@@ -752,7 +872,7 @@ Support Bleu Massawippi: https://bleumassawippi.com/home-1
 #BehindTheScenes #BleuMassawippi #LakeMassawippi #SupportTheLake
 ```
 
-## Jeudi 6 août — Cherchez les trois détails qui protègent le lac
+## Mercredi 5 août — Cherchez les trois détails qui protègent le lac
 
 **Thème :** Créatif  
 **Format :** Jeu visuel / carrousel d’observation  
@@ -787,6 +907,39 @@ Clue 3: a lake user who also thinks upstream.
 Did you find them?
 
 #LakeGame #BleuMassawippi #EveryActionCounts #LakeMassawippi
+```
+
+## Jeudi 6 août — Le plaisir partagé a son radar
+
+**Thème :** Humour  
+**Format :** Photo réelle + micro-conseil plaisancier  
+**Objectif :** Faire sourire tout en gardant un message de coexistence sur l’eau.  
+**CTA :** Garder l’œil ouvert  
+**Visuel final :** Photo réelle d’un lac partagé par plusieurs usages, avec une discrète icône radar; titre : Le plaisir partagé a son radar.  
+**Texte alternatif :** FR — Des usagers profitent du lac en gardant de l’espace entre eux. / EN — Lake users enjoy the water while keeping space between one another.  
+**Source de référence :** https://bleumassawippi.com/laccessible/en  
+**Préparation :** Employer un ton léger sans caricaturer les usagers; privilégier une image calme, dégagée et crédible.
+
+### Légende prête à programmer
+
+```text
+FR — Le plaisir partagé a son radar.
+
+Il détecte les rives, les baigneurs, les embarcations plus lentes, les pêcheurs, les paddles et les moments où lever le pied rend tout le monde plus heureux.
+
+Le meilleur sillage? Celui qui laisse de la place aux autres.
+
+#HumourDuLac #BleuMassawippi #NautismeResponsable #LacMassawippi
+
+=========================================
+
+EN — Shared enjoyment has its own radar.
+
+It notices shorelines, swimmers, slower boats, anglers, paddlers and the moments when easing off makes everyone happier.
+
+The best wake? The one that leaves room for others.
+
+#LakeHumour #BleuMassawippi #ResponsibleBoating #LakeMassawippi
 ```
 
 ## Vendredi 7 août — Tout ce qui arrive au lac vient de quelque part
@@ -886,4 +1039,33 @@ D — A fieldwork behind-the-scenes post
 Reply A, B, C or D. Your feedback will help shape what comes next.
 
 #BleuMassawippi #LakeMassawippi #Community #MonthlyRecap
+```
+
+## Dimanche 9 août — Merci pour vos regards
+
+**Thème :** Humanité  
+**Format :** Carrousel de remerciement · quatre images réelles  
+**Objectif :** Clore le mois par la gratitude et l’écoute, sans transformer le bilan en tableau de performance.  
+**CTA :** Partager ce qui vous a marqué  
+**Visuel final :** Quatre images réelles du mois : terrain, rive, geste et communauté; une phrase de remerciement par carte.  
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.  
+**Source de référence :** Archives de la campagne — droits documentés  
+**Préparation :** Choisir les images les plus représentatives et ne publier aucun chiffre interne sans contexte et validation.
+
+### Légende prête à programmer
+
+```text
+FR — Merci d’avoir regardé, questionné, partagé et pris le temps de penser au Massawippi avec nous.
+
+Quel moment ou quel sujet aimeriez-vous retrouver dans la suite? Votre regard aidera à choisir les prochains angles.
+
+#BleuMassawippi #LacMassawippi #Merci #Communauté
+
+=========================================
+
+EN — Thank you for watching, asking questions, sharing and taking time to think about Massawippi with us.
+
+Which moment or topic would you like to see again? Your perspective will help shape the next angles.
+
+#BleuMassawippi #LakeMassawippi #ThankYou #Community
 ```

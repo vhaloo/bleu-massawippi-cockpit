@@ -31,12 +31,13 @@ service cloud.firestore {
     }
 
     function validSchedule(data) {
-      return data.keys().hasAll(['title', 'dateKey', 'status', 'deleted', 'updatedAt', 'updatedBy'])
-        && data.keys().hasOnly(['title', 'dateKey', 'status', 'deleted', 'updatedAt', 'updatedBy'])
+      return data.keys().hasAll(['title', 'dateKey', 'status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
+        && data.keys().hasOnly(['title', 'dateKey', 'status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
         && data.title is string && data.title.size() <= 220
         && data.dateKey is string && data.dateKey.size() <= 80
         && knownStatus(data.status)
         && data.deleted is bool && data.deleted == (data.status == 'deleted')
+        && data.selected is bool
         && data.updatedAt is timestamp
         && data.updatedBy == request.auth.uid;
     }
@@ -62,6 +63,20 @@ service cloud.firestore {
         && data.createdAt is timestamp;
     }
 
+    function validFeedback(data) {
+      return data.keys().hasAll(['sectionId', 'message', 'category', 'page', 'authorUid', 'authorLabel', 'status', 'createdAt', 'updatedAt', 'updatedBy'])
+        && data.keys().hasOnly(['sectionId', 'message', 'category', 'page', 'authorUid', 'authorLabel', 'status', 'createdAt', 'updatedAt', 'updatedBy'])
+        && data.sectionId is string && data.sectionId.size() <= 120
+        && data.message is string && data.message.size() > 0 && data.message.size() <= 5000
+        && data.category is string && data.category.size() > 0 && data.category.size() <= 80
+        && data.page is string && data.page.size() <= 240
+        && data.authorUid is string
+        && data.authorLabel is string && data.authorLabel.size() > 0 && data.authorLabel.size() <= 120
+        && data.status in ['open', 'in_review', 'done']
+        && data.createdAt is timestamp && data.updatedAt is timestamp
+        && data.updatedBy is string;
+    }
+
     match /users/{uid} {
       allow read: if activeUser() && (request.auth.uid == uid || isAdmin());
       allow write: if false;
@@ -77,7 +92,7 @@ service cloud.firestore {
       allow create: if isEditor() && validSchedule(request.resource.data);
       allow update: if isEditor()
         && request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['status', 'deleted', 'updatedAt', 'updatedBy'])
+          .hasOnly(['status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
         && validSchedule(request.resource.data);
       allow delete: if false;
     }
@@ -92,6 +107,20 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow create: if isEditor() && validAuditLog(request.resource.data);
       allow update, delete: if false;
+    }
+
+    match /cockpitFeedback/{feedbackId} {
+      allow read: if isAdmin();
+      allow create: if isEditor()
+        && validFeedback(request.resource.data)
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt', 'updatedBy'])
+        && validFeedback(request.resource.data)
+        && request.resource.data.status in ['open', 'in_review', 'done']
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow delete: if false;
     }
   }
 }

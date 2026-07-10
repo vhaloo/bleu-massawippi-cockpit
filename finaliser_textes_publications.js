@@ -348,17 +348,16 @@ function replaceField(objectText, key, value) {
 
 function synchronizeHtml(file) {
   let html = fs.readFileSync(file, "utf8");
-  for (const item of final) {
-    const expression = new RegExp('\\{\\"id\\":\\"' + item.id + '\\"[\\s\\S]*?\\}(?=,\\n|\\n\\];\\nvar meta=)');
-    let count = 0;
-    html = html.replace(expression, (objectText) => {
-      count += 1;
-      let next = objectText;
-      for (const key of ["visual", "source", "task", "copy"]) next = replaceField(next, key, item[key]);
-      return next;
-    });
-    if (count !== 1) throw new Error(item.id + " doit être trouvé une seule fois dans " + file);
-  }
+  const currentPosts = readPosts(file);
+  const finalById = new Map(final.map((item) => [item.id, item]));
+  const mergedPosts = currentPosts.map((post) => {
+    const item = finalById.get(post.id);
+    if (!item) return post;
+    return { ...post, visual: item.visual, source: item.source, task: item.task, copy: item.copy };
+  });
+  const expression = /var posts=(\[[\s\S]*?\]);\nvar meta=/;
+  if (!expression.test(html)) throw new Error("Calendrier introuvable dans " + file);
+  html = html.replace(expression, `var posts=${JSON.stringify(mergedPosts)};\nvar meta=`);
   fs.writeFileSync(file, html, "utf8");
 }
 
@@ -375,8 +374,7 @@ function renderMarkdown(posts) {
     ""
   ];
   for (const post of posts) {
-    const item = details.get(post.id);
-    if (!item) throw new Error("Texte final absent pour " + post.id);
+    const item = details.get(post.id) || post;
     headings.push(
       "## " + post.date + " — " + post.title,
       "",
@@ -385,7 +383,7 @@ function renderMarkdown(posts) {
       "**Objectif :** " + post.role + "  ",
       "**CTA :** " + post.cta + "  ",
       "**Visuel final :** " + item.visual + "  ",
-      "**Texte alternatif :** " + item.alt + "  ",
+      "**Texte alternatif :** " + (item.alt || "Décrire précisément le visuel retenu et son contexte.") + "  ",
       "**Source de référence :** " + item.source + "  ",
       "**Préparation :** " + item.task,
       "",

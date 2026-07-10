@@ -61,10 +61,11 @@ async function readRecent(collectionName) {
 
 await fs.mkdir(outputDir, { recursive: true });
 
-const [scheduleItems, comments, logs] = await Promise.all([
+const [scheduleItems, comments, logs, feedback] = await Promise.all([
   readRecent("scheduleItems"),
   readRecent("comments"),
-  readRecent("auditLogs")
+  readRecent("auditLogs"),
+  readRecent("cockpitFeedback")
 ]);
 
 const changedScheduleItems = scheduleItems.filter((row) =>
@@ -107,6 +108,16 @@ const summary = {
     sectionId: row.sectionId || null,
     userUid: row.userUid || null,
     createdAt: dateValue(row.createdAt)?.toISOString() || null
+  })),
+  cockpitFeedback: feedback.map((row) => ({
+    id: row.id,
+    sectionId: row.sectionId || null,
+    category: row.category || "recommendation",
+    status: row.status || "open",
+    message: row.message || "",
+    authorLabel: row.authorLabel || null,
+    createdAt: dateValue(row.createdAt)?.toISOString() || null,
+    updatedAt: dateValue(row.updatedAt)?.toISOString() || null
   }))
 };
 
@@ -116,5 +127,6 @@ console.log(JSON.stringify({
   outputFile,
   scheduleItems: summary.scheduleItems.length,
   comments: summary.comments.length,
-  dictatedComments: summary.dictatedComments.length
+  dictatedComments: summary.dictatedComments.length,
+  cockpitFeedback: summary.cockpitFeedback.length
 }, null, 2));

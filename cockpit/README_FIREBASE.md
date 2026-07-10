@@ -6,9 +6,10 @@ Le dossier contient une nouvelle copie interactive du plan. Le HTML de présenta
 
 - index.html : coque publique sans contenu stratégique; elle affiche la barrière de connexion et ne charge le plan qu’après autorisation Firebase.
 - firebase-client.js : SDK Web Firebase modulaire, version CDN 12.15.0, persistance IndexedDB, Auth et Firestore.
-- cockpit-ui.js : couche d’interface et de pilotage.
-- admin_sync.js : pont local Firebase Admin pour lire les modifications du calendrier et les commentaires.
-- seed_private_content.js : charge localement le plan et les 28 états initiaux dans Firestore, après configuration du compte de service.
+- cockpit-ui.js : couche d’interface et de pilotage, choix d’option par journée, rétroaction par section, boîte à idées flottante et dictée progressive Chrome / Edge / Safari.
+- admin_sync.js : pont local Firebase Admin pour lire les modifications du calendrier, les commentaires et les rétroactions du cockpit.
+- seed_private_content.js : charge localement le plan, les 28 publications principales, les six alternatives et leurs états dans Firestore, après configuration du compte de service.
+- ../refine_calendar.js : réorganise les dates pour éviter les répétitions voisines et génère les six journées à choix exclusif.
 - provision_users.js : crée ou raccorde les deux comptes autorisés et leurs rôles, en lisant les adresses et mots de passe uniquement depuis des variables de session.
 - firestore.rules : règles d’accès strictes, à publier et tester dans la console avant production.
 - firebase-config.example.js : modèle de configuration publique.
@@ -92,6 +93,7 @@ Le script lit :
 - scheduleItems : statuts et suppressions virtuelles.
 - comments : commentaires, badges et dictées.
 - auditLogs : journal technique.
+- cockpitFeedback : avis, recommandations et idées déposés depuis les sections ou la boîte à idées.
 
 Le résumé de synchronisation est écrit dans sync-output/sync-summary.json, dossier ignoré par Git.
 
@@ -102,7 +104,7 @@ Le plan détaillé n’est pas envoyé dans GitHub Pages. Après la publication 
     npm run seed -- --dry-run
     npm run seed
 
-Le premier appel vérifie localement les 28 publications et la taille du document; le second écrit le contenu privé et crée uniquement les états de calendrier encore absents. Les futurs changements de statut sont donc préservés.
+Le premier appel vérifie localement les 28 publications principales, les alternatives et la taille du document; le second écrit le contenu privé et met à jour les choix éditoriaux sans écraser les statuts déjà arbitrés.
 
 ## 5. Déployer sur GitHub Pages
 
@@ -114,7 +116,7 @@ Pour publier le cockpit :
 2. Ajoutez la configuration Web Firebase dans firebase-config.js; ne publiez jamais le compte de service.
 3. Publiez la branche/dossier configuré par GitHub Pages.
 4. Ajoutez l’URL https://<organisation>.github.io/<depot>/ aux domaines autorisés Firebase.
-5. Testez la connexion, les règles Firestore, la dictée, le dépôt de fichier et la synchronisation locale avant de diffuser le lien.
+5. Testez la connexion, les règles Firestore, la dictée, les boîtes de rétroaction et la synchronisation locale avant de diffuser le lien.
 
 Le fichier firebase.json est inclus pour publier uniquement les règles Firebase avec la CLI, sans héberger le site chez Firebase :
 
@@ -127,9 +129,10 @@ Le fichier firebase.json est inclus pour publier uniquement les règles Firebase
 
 - users/{uid} : rôle et libellé d’affichage.
 - privateContent/plan : HTML, styles et données du plan; lecture réservée aux comptes actifs.
-- scheduleItems/{sectionId} : title, dateKey, status, deleted, updatedAt, updatedBy.
+- scheduleItems/{sectionId} : title, dateKey, status, deleted, selected, updatedAt, updatedBy. Les journées à choix partagent un groupe côté plan; une seule option est sélectionnée à la fois.
 - comments/{commentId} : sectionId, comment, quickTag, dictated, authorUid, createdAt.
 - auditLogs/{logId} : action, sectionId, userUid, userLabel, createdAt.
+- cockpitFeedback/{feedbackId} : sectionId, message, category, page, authorUid, authorLabel, status, createdAt, updatedAt, updatedBy. La direction peut déposer une note; l’administration la classe dans le journal.
 
 Le frontend crée un journal opérationnel append-only pour chaque statut, commentaire ou badge. Seuls les rôles director et admin peuvent l’écrire; seul admin peut le lire. Ce journal sert au pilotage humain, pas à fournir une preuve médico-légale : un journal infalsifiable nécessiterait une fonction serveur de confiance.
 
@@ -138,5 +141,5 @@ Le frontend crée un journal opérationnel append-only pour chaque statut, comme
 - Tant que firebase-config.js conserve REMPLACER, le cockpit reste bloqué sur la connexion et n’effectue aucune lecture distante.
 - GitHub Pages ne protège jamais les fichiers statiques à elle seule : le plan détaillé est donc stocké dans privateContent/plan, dont les règles n’autorisent la lecture qu’aux comptes actifs.
 - Le mode local ?demo=1 vérifie uniquement la barrière de connexion; aucun contenu stratégique ni aucune modification ne sont disponibles sans Firebase.
-- La dictée repose sur webkitSpeechRecognition/SpeechRecognition; Chrome est le navigateur recommandé.
+- La dictée utilise SpeechRecognition ou webkitSpeechRecognition quand le navigateur les expose, redémarre les sessions interrompues et affiche un repli explicite vers la dictée native du système lorsque Safari ou un autre navigateur ne fournit pas l’API. Aucun site web ne peut garantir une reconnaissance vocale programmatique si le navigateur la bloque.
 - Les règles Firebase doivent être publiées puis testées avec les comptes director, admin et viewer avant une mise en ligne réelle.

@@ -20,6 +20,7 @@ import {
   getDoc,
   setDoc,
   updateDoc,
+  writeBatch,
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
@@ -171,6 +172,25 @@ export async function upsertScheduleItem(itemId, payload, profile) {
   }, { merge: true });
 }
 
+export async function setScheduleSelection(itemId, groupIds, selected, profile) {
+  requireConfigured();
+  if (!profile || !["director", "admin"].includes(profile.role)) {
+    throw new Error("Ce compte n’a pas le droit d’arbitrer le calendrier.");
+  }
+  const ids = [...new Set([itemId, ...(Array.isArray(groupIds) ? groupIds : [])])]
+    .filter((id) => /^[a-z0-9-]{3,80}$/i.test(String(id)));
+  if (!ids.includes(itemId)) throw new Error("Groupe de choix invalide.");
+  const batch = writeBatch(db);
+  for (const id of ids) {
+    batch.update(doc(db, "scheduleItems", id), {
+      selected: Boolean(selected) && id === itemId,
+      updatedAt: serverTimestamp(),
+      updatedBy: profile.uid
+    });
+  }
+  await batch.commit();
+}
+
 export async function addComment(itemId, comment, profile, quickTag = null, dictated = false) {
   requireConfigured();
   if (!profile || !["director", "admin"].includes(profile.role)) {
@@ -198,6 +218,52 @@ export async function writeAuditLog(sectionId, action, profile) {
     userLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
     createdAt: serverTimestamp()
   });
+}
+
+export async function addCockpitFeedback(sectionId, message, category, profile) {
+  requireConfigured();
+  if (!profile || !["director", "admin"].includes(profile.role)) {
+    throw new Error("Ce compte n’a pas le droit d’envoyer une rétroaction.");
+  }
+  const text = String(message || "").trim();
+  if (!text) return;
+  const now = serverTimestamp();
+  await addDoc(collection(db, "cockpitFeedback"), {
+    sectionId: String(sectionId || "cockpit").slice(0, 120),
+    message: text.slice(0, 5000),
+    category: String(category || "recommandation").slice(0, 80),
+    page: location.pathname.slice(0, 240),
+    authorUid: profile.uid,
+    authorLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
+    status: "open",
+    createdAt: now,
+    updatedAt: now,
+    updatedBy: profile.uid
+  });
+}
+
+export async function updateCockpitFeedbackStatus(feedbackId, status, profile) {
+  requireConfigured();
+  if (!profile || profile.role !== "admin") {
+    throw new Error("Seule l’administration peut classer une rétroaction.");
+  }
+  if (!/^[A-Za-z0-9_-]{3,160}$/.test(String(feedbackId || ""))) throw new Error("Rétroaction invalide.");
+  if (!["open", "in_review", "done"].includes(status)) throw new Error("Statut de rétroaction invalide.");
+  await updateDoc(doc(db, "cockpitFeedback", feedbackId), {
+    status,
+    updatedAt: serverTimestamp(),
+    updatedBy: profile.uid
+  });
+}
+
+export function subscribeCockpitFeedback(callback, onError) {
+  requireConfigured();
+  const feedbackQuery = query(collection(db, "cockpitFeedback"), orderBy("createdAt", "desc"), limit(100));
+  return onSnapshot(
+    feedbackQuery,
+    (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
+    onError
+  );
 }
 
 export function subscribeAuditLogs(callback, onError) {

@@ -6,7 +6,7 @@
 
 **Cockpit de collaboration :** le sous-dossier `cockpit/` contient la version sécurisée et connectable à Firebase. Il ne contient aucun texte stratégique avant une connexion autorisée; consulter `cockpit/README_FIREBASE.md` avant toute mise en ligne.
 
-**Textes finaux à programmer :** `TEXTES_COMPLETS_PUBLICATIONS_13_JUILLET_9_AOUT_2026.md` est la source éditoriale complète des 28 légendes, avec le visuel, le texte alternatif, la source et la préparation de chaque publication. Le plan source `index.html` est synchronisé avec ce document, puis chargé de façon privée dans Firebase par `cockpit/seed_private_content.js`.
+**Textes finaux à programmer :** `TEXTES_COMPLETS_PUBLICATIONS_13_JUILLET_9_AOUT_2026.md` contient les 28 publications principales et six alternatives complètes. Les six journées à choix demandent une seule option cochée par la direction; le plan source `index.html` est synchronisé avec ce document, puis chargé de façon privée dans Firebase par `cockpit/seed_private_content.js`.
 
 ## Ce qui est nouveau
 
@@ -19,7 +19,8 @@ Le plan retient une cadence d’une publication principale par jour, mais l’en
 1. Ouvrir `index.html`.
 2. Présenter d’abord la section « Cap stratégique », puis le calendrier de la semaine 1.
 3. Confirmer les contenus qui demandent une personne, une photo, une donnée ou une validation scientifique.
-4. Utiliser les cases à cocher et les filtres pour piloter la production sans modifier le plan source.
+4. Utiliser les cases « prêt » et, lorsqu’elles existent, les cases « option choisie » pour piloter la production sans modifier le plan source.
+5. Déposer un avis dans la boîte de rétroaction de la section ou dans la boîte à idées flottante; ces notes servent à préparer une nouvelle mouture sans modifier immédiatement le contenu institutionnel.
 
 ## Garde-fous essentiels
 

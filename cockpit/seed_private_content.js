@@ -19,8 +19,9 @@ if (!css || !html || !script || !postsJson) {
 }
 
 const posts = JSON.parse(postsJson);
-if (!Array.isArray(posts) || posts.length !== 28) {
-  throw new Error("Le plan source doit contenir exactement 28 publications.");
+const mainPosts = Array.isArray(posts) ? posts.filter((post) => post.isAlternative !== true) : [];
+if (!Array.isArray(posts) || mainPosts.length !== 28 || posts.length < 28) {
+  throw new Error("Le plan source doit contenir 28 publications principales et ses alternatives éventuelles.");
 }
 
 const privateContent = {
@@ -53,22 +54,26 @@ batch.set(db.collection("privateContent").doc("plan"), {
 });
 
 let createdStates = 0;
+let updatedStates = 0;
 for (const post of posts) {
   if (!/^[a-z0-9-]{3,80}$/i.test(post.id)) throw new Error("Identifiant de publication invalide : " + post.id);
   const ref = db.collection("scheduleItems").doc(post.id);
   const existing = await ref.get();
-  if (!existing.exists) {
-    batch.set(ref, {
-      title: String(post.title).slice(0, 220),
-      dateKey: String(post.date).slice(0, 80),
-      status: "pending",
-      deleted: false,
-      updatedAt: FieldValue.serverTimestamp(),
-      updatedBy: "system_seed"
-    });
-    createdStates += 1;
-  }
+  const existingData = existing.exists ? existing.data() : {};
+  const status = ["approved", "needs_work", "pending", "deleted"].includes(existingData.status) ? existingData.status : "pending";
+  const selected = typeof existingData.selected === "boolean" ? existingData.selected : post.choiceRequired !== true;
+  batch.set(ref, {
+    title: String(post.title).slice(0, 220),
+    dateKey: String(post.date).slice(0, 80),
+    status,
+    deleted: status === "deleted",
+    selected,
+    updatedAt: FieldValue.serverTimestamp(),
+    updatedBy: "system_seed"
+  }, { merge: true });
+  if (existing.exists) updatedStates += 1;
+  else createdStates += 1;
 }
 
 await batch.commit();
-console.log(JSON.stringify({ seeded: true, posts: posts.length, createdStates, privateContentBytes: size }, null, 2));
+console.log(JSON.stringify({ seeded: true, posts: posts.length, mainPosts: mainPosts.length, createdStates, updatedStates, privateContentBytes: size }, null, 2));
