@@ -1,0 +1,59 @@
+name: Publier le cockpit
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+      - name: Installer Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: cockpit/package-lock.json
+      - name: Vérifier le contenu et le code
+        run: |
+          npm ci --prefix cockpit
+          node --check finaliser_textes_publications.js
+          node finaliser_textes_publications.js
+          git diff --exit-code
+          npm --prefix cockpit run check
+      - name: Vérifier l’absence de secrets locaux
+        run: |
+          ! git ls-files | grep -E '(^|/)(service-account[^/]*\.json|[^/]*-service-account[^/]*\.json|firebase-config\.local\.js)$'
+  deploy:
+    needs: validate
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+      - name: Préparer le site public
+        run: |
+          mkdir -p public
+          cp -R cockpit/. public/
+          cp SOURCES_ET_GARDES_FOUS.md public/
+      - name: Préparer l’artefact Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - name: Déployer
+        id: deployment
+        uses: actions/deploy-pages@v4

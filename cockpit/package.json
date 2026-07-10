@@ -1,0 +1,15 @@
+{
+  "name": "bleu-massawippi-cockpit-sync",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "node admin_sync.js",
+    "check": "node --check admin_sync.js && node --check firebase-client.js && node --check cockpit-ui.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^14.1.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

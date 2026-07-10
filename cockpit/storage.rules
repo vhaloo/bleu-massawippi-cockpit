@@ -1,0 +1,28 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function profile() {
+      return firestore.get(/databases/(default)/documents/users/$(request.auth.uid));
+    }
+
+    function activeEditor() {
+      return signedIn()
+        && profile().data.active == true
+        && profile().data.role in ['director', 'admin'];
+    }
+
+    match /uploads/{itemId}/{fileName} {
+      allow read: if activeEditor();
+      allow create: if activeEditor()
+        && request.resource.size > 0
+        && request.resource.size <= 25 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*|video/.*|application/pdf');
+      allow update, delete: if false;
+    }
+  }
+}

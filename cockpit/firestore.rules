@@ -1,0 +1,111 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function profile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function activeUser() {
+      return signedIn() && profile().data.active == true;
+    }
+
+    function userRole() {
+      return profile().data.role;
+    }
+
+    function isEditor() {
+      return activeUser() && userRole() in ['director', 'admin'];
+    }
+
+    function isAdmin() {
+      return activeUser() && userRole() == 'admin';
+    }
+
+    function knownStatus(status) {
+      return status in ['approved', 'needs_work', 'pending', 'deleted'];
+    }
+
+    function validSchedule(data) {
+      return data.keys().hasAll(['title', 'dateKey', 'status', 'deleted', 'updatedAt', 'updatedBy'])
+        && data.keys().hasOnly(['title', 'dateKey', 'status', 'deleted', 'updatedAt', 'updatedBy'])
+        && data.title is string && data.title.size() <= 220
+        && data.dateKey is string && data.dateKey.size() <= 80
+        && knownStatus(data.status)
+        && data.deleted is bool && data.deleted == (data.status == 'deleted')
+        && data.updatedAt is timestamp
+        && data.updatedBy == request.auth.uid;
+    }
+
+    function validComment(data) {
+      return data.keys().hasAll(['sectionId', 'comment', 'quickTag', 'dictated', 'authorUid', 'createdAt'])
+        && data.keys().hasOnly(['sectionId', 'comment', 'quickTag', 'dictated', 'authorUid', 'createdAt'])
+        && data.sectionId is string && data.sectionId.size() <= 120
+        && data.comment is string && data.comment.size() > 0 && data.comment.size() <= 5000
+        && (data.quickTag == null || data.quickTag in ['cancel', 'delay', 'perfect'])
+        && data.dictated is bool
+        && data.authorUid == request.auth.uid
+        && data.createdAt is timestamp;
+    }
+
+    function validAttachment(data) {
+      return data.keys().hasAll(['sectionId', 'storagePath', 'fileName', 'contentType', 'size', 'downloaded_locally', 'authorUid', 'createdAt'])
+        && data.keys().hasOnly(['sectionId', 'storagePath', 'fileName', 'contentType', 'size', 'downloaded_locally', 'authorUid', 'createdAt'])
+        && data.sectionId is string && data.sectionId.size() <= 120
+        && data.storagePath is string && data.storagePath.matches('uploads/[^/]+/[^/]+')
+        && data.fileName is string && data.fileName.size() > 0 && data.fileName.size() <= 255
+        && data.contentType is string && data.contentType.size() <= 120
+        && data.size is int && data.size > 0 && data.size <= 25 * 1024 * 1024
+        && data.downloaded_locally == false
+        && data.authorUid == request.auth.uid
+        && data.createdAt is timestamp;
+    }
+
+    function validAuditLog(data) {
+      return data.keys().hasAll(['sectionId', 'action', 'userUid', 'userLabel', 'createdAt'])
+        && data.keys().hasOnly(['sectionId', 'action', 'userUid', 'userLabel', 'createdAt'])
+        && data.sectionId is string && data.sectionId.size() <= 120
+        && data.action is string && data.action.size() > 0 && data.action.size() <= 120
+        && data.userUid == request.auth.uid
+        && data.userLabel is string && data.userLabel.size() > 0 && data.userLabel.size() <= 120
+        && data.createdAt is timestamp;
+    }
+
+    match /users/{uid} {
+      allow read: if activeUser() && (request.auth.uid == uid || isAdmin());
+      allow write: if false;
+    }
+
+    match /scheduleItems/{itemId} {
+      allow read: if activeUser();
+      allow create: if isEditor() && validSchedule(request.resource.data);
+      allow update: if isEditor()
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['status', 'deleted', 'updatedAt', 'updatedBy'])
+        && validSchedule(request.resource.data);
+      allow delete: if false;
+    }
+
+    match /comments/{commentId} {
+      allow read: if isEditor();
+      allow create: if isEditor() && validComment(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    match /attachments/{attachmentId} {
+      allow read: if isEditor();
+      allow create: if isEditor() && validAttachment(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isEditor() && validAuditLog(request.resource.data);
+      allow update, delete: if false;
+    }
+  }
+}
