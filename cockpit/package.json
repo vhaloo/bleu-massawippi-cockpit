@@ -5,9 +5,11 @@
   "scripts": {
     "sync": "node admin_sync.js",
     "seed": "node seed_private_content.js",
+    "seed:attachments": "node seed_open_house_attachments.js",
     "provision-users": "node provision_users.js",
+    "test:contract": "node test_contract.mjs",
     "refine": "node ../refine_calendar.js",
-    "check": "node --check admin_sync.js && node --check firebase-client.js && node --check cockpit-ui.js"
+    "check": "node --check admin_sync.js && node --check firebase-client.js && node --check cockpit-ui.js && node --check plan-overrides.js && node --check seed_open_house_attachments.js"
   },
   "dependencies": {
     "firebase-admin": "^14.1.0"

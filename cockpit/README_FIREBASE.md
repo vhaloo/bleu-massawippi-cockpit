@@ -27,7 +27,7 @@ Activez ensuite :
 
 1. Authentication → Sign-in method → Email/Password.
 2. Firestore Database en mode production.
-3. Les ressources statiques sont ajoutées et versionnées dans le dépôt GitHub Pages; aucune pièce jointe dynamique n’est téléversée depuis le navigateur.
+3. Les ressources statiques restent versionnées dans le dépôt GitHub Pages; les photos dynamiques passent par la conversion locale puis Firebase Storage.
 4. Ajoutez votre domaine GitHub Pages dans Authentication → Settings → Authorized domains. Un domaine *.github.io doit utiliser HTTPS.
 
 Enregistrez une application Web et copiez sa configuration dans firebase-config.js. La configuration Web est nécessairement visible côté navigateur; elle ne remplace pas les règles Firestore, qui constituent la barrière réelle.
@@ -136,6 +136,7 @@ Le fichier firebase.json est inclus pour publier uniquement les règles Firebase
 - tasks/{taskId} : titre, message, cible cliquable, responsabilités, statut pending/done et timestamps. Une acceptation de la direction peut clore la tâche; l’administration dispose aussi d’un bouton « Marquer complétée ».
 - changeArchive/{archiveId} : événement immuable avec état avant/après, action, personne et date. Les documents ne peuvent être ni modifiés ni supprimés depuis le frontend.
 - privateContentVersions/{versionId} : copie versionnée du contenu privé chargée à chaque préparation du plan, identifiée par une empreinte de contenu.
+- attachments/{attachmentId} : métadonnées non destructives d’un visuel JPEG converti localement en format 4:5, avec son chemin Firebase Storage, ses dimensions, son poids et son association à un événement. Le binaire original n’est pas envoyé; le JPEG optimisé sous 1 Mo devient la version de travail réutilisable.
 
 Le frontend crée un journal opérationnel append-only pour chaque statut, choix, commentaire, rétroaction et tâche. Les versions du contenu source restent aussi dans Git et les versions chargées dans privateContentVersions. Seuls les rôles director et admin peuvent créer ces traces; seul admin peut les lire depuis l’interface. La synchronisation locale Codex lit changeArchive, tasks, comments, auditLogs et cockpitFeedback pour reconstruire le contexte sans supprimer une ancienne idée.
 
@@ -147,3 +148,4 @@ Le frontend crée un journal opérationnel append-only pour chaque statut, choix
 - La dictée utilise SpeechRecognition ou webkitSpeechRecognition quand le navigateur les expose, redémarre les sessions interrompues et affiche un repli explicite vers la dictée native du système lorsque Safari ou un autre navigateur ne fournit pas l’API. Aucun site web ne peut garantir une reconnaissance vocale programmatique si le navigateur la bloque.
 - Les règles Firebase doivent être publiées puis testées avec les comptes director, admin et viewer avant une mise en ligne réelle.
 - L’installation en application repose sur le manifeste et le service worker du sous-dossier cockpit. Le bouton d’installation peut être masqué; ce choix est conservé localement sur l’appareil. Sur Safari, si le bouton système n’est pas exposé, le cockpit indique le chemin « Ajouter à l’écran d’accueil » du menu du navigateur.
+- Les photos ajoutées dans un événement sont recadrées au ratio 4:5 et converties en JPEG dans le navigateur avant téléversement. Les règles Storage refusent tout fichier qui dépasse 1 Mo ou qui n’est pas un JPEG; la limite de volume affichée dans le cockpit est une estimation interne et non un relevé de facturation Firebase.

@@ -16,20 +16,27 @@ import {
   updateCockpitFeedbackStatus,
   upsertActionTask,
   completeActionTask,
-  subscribeActionTasks
-} from "./firebase-client.js?v=20260710-persistence-v2";
+  subscribeActionTasks,
+  uploadImageAttachment,
+  subscribeImageAttachments,
+  MAX_ATTACHMENT_BYTES
+} from "./firebase-client.js?v=20260710-media-v1";
+import { applyPlanOverridesToPosts } from "./plan-overrides.js";
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
-const state = { user: null, profile: null, rows: new Map(), tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, contentLoaded: false };
+const state = { user: null, profile: null, rows: new Map(), attachments: [], tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, attachmentUnsubscribe: null, scheduleUnsubscribe: null, contentLoaded: false };
+let pastEventsVisible = false;
 let activeRecognition = null;
 let activeTextarea = null;
 let recognitionRestart = false;
 let recognitionRestartTimer = null;
+let recognitionWatchdogTimer = null;
+let recognitionPermissionPromise = null;
 let recognitionLanguageIndex = 0;
 let recognitionRestartAttempts = 0;
-const recognitionLanguages = ["fr-CA", "fr-FR", "en-CA", "en-US"];
-const terminalRecognitionErrors = new Set(["not-allowed", "service-not-allowed", "audio-capture", "network", "aborted"]);
+const recognitionLanguages = ["fr-CA", "fr-FR", "fr", "en-CA", "en-US"];
+const terminalRecognitionErrors = new Set(["not-allowed", "service-not-allowed", "audio-capture", "network"]);
 
 const style = document.createElement("style");
 style.textContent = `
@@ -76,6 +83,28 @@ style.textContent = `
   .cockpit-voice-status.live { color: #0b7895; font-weight: 800; }
   .cockpit-voice-status.error { color: #9a4035; }
   .cockpit-voice-help { flex-basis: 100%; color: #6b858d; font-size: .68rem; line-height: 1.35; }
+  .cockpit-attachments { margin-top: 14px; padding-top: 13px; border-top: 1px solid #d6e8ea; }
+  .cockpit-attachments-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px; margin-bottom: 9px; }
+  .cockpit-attachments-head b { color: #073a52; font-size: .8rem; }
+  .cockpit-attachments-head span { color: #6b858d; font-size: .68rem; }
+  .cockpit-attachment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); gap: 9px; margin-bottom: 9px; }
+  .cockpit-attachment { position: relative; overflow: hidden; min-width: 0; border: 1px solid #cbe1e4; border-radius: 11px; background: #eef7f7; }
+  .cockpit-attachment a { display: block; color: inherit; text-decoration: none; }
+  .cockpit-attachment img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; background: #dcecee; }
+  .cockpit-attachment figcaption { padding: 6px 7px 7px; color: #54717d; font-size: .64rem; line-height: 1.25; }
+  .cockpit-attachment figcaption strong { display: block; overflow: hidden; color: #315564; text-overflow: ellipsis; white-space: nowrap; }
+  .cockpit-attachment-empty { grid-column: 1 / -1; margin: 0; color: #78919a; font-size: .72rem; }
+  .cockpit-attachment-upload { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .cockpit-attachment-upload input { max-width: 100%; padding: 6px; border: 1px dashed #a9cfd3; border-radius: 9px; color: #315564; background: #f8fcfc; font-size: .71rem; }
+  .cockpit-attachment-note { margin: 6px 0 0; color: #6b858d; font-size: .67rem; line-height: 1.35; }
+  .cockpit-attachment-status { flex-basis: 100%; min-height: 17px; color: #54717d; font-size: .69rem; }
+  .cockpit-attachment-status.error { color: #9a4035; }
+  .cockpit-attachment-status.success { color: #26705f; }
+  .cockpit-past-toggle { margin-left: auto; padding: 7px 10px; border: 1px solid #b9d7da; border-radius: 999px; color: #315564; background: #f8fcfc; font-size: .72rem; font-weight: 800; cursor: pointer; }
+  .cockpit-past-toggle.active { color: #fff; background: #0b7895; border-color: #0b7895; }
+  .day-group.cockpit-past-visible { opacity: .82; }
+  .cockpit-past-badge { margin-left: 8px; padding: 3px 7px; border-radius: 999px; color: #6b858d; background: #eef3f3; font-size: .65rem; font-weight: 800; }
+  #cockpit-past-empty { margin: 12px 0; padding: 14px; border: 1px dashed #b9d7da; border-radius: 13px; color: #54717d; background: #f8fcfc; font-size: .78rem; }
   #cockpit-feedback-launch { position: fixed; left: 15px; bottom: 15px; z-index: 31; min-height: 42px; padding: 0 14px; border: 1px solid #073a52; border-radius: 999px; color: #fff; background: #073a52; box-shadow: 0 8px 22px rgba(7,58,82,.2); font-weight: 850; cursor: pointer; }
   #cockpit-feedback-panel { position: fixed; left: 15px; bottom: 68px; z-index: 32; display: none; width: min(390px, calc(100vw - 30px)); padding: 16px; border: 1px solid #cbe1e4; border-radius: 18px; color: #234b5a; background: #f8fcfc; box-shadow: 0 18px 42px rgba(7,58,82,.2); }
   #cockpit-feedback-panel.open { display: block; }
@@ -117,6 +146,20 @@ style.textContent = `
   .cockpit-task-actions button[data-complete-task] { border-color: #0b7895; color: #fff; background: #0b7895; }
   #cockpit-task-launch { position: fixed; right: 15px; bottom: 68px; z-index: 31; min-height: 42px; padding: 0 13px; border: 1px solid #073a52; border-radius: 999px; color: #fff; background: #073a52; box-shadow: 0 8px 22px rgba(7,58,82,.2); font-weight: 850; cursor: pointer; }
   #cockpit-task-launch[data-has-tasks="true"] { background: #c26b50; }
+  #cockpit-debug-launch { position: fixed; right: 15px; bottom: 174px; z-index: 31; min-height: 36px; padding: 0 11px; border: 1px solid #8eaab1; border-radius: 999px; color: #315564; background: #eef5f5; box-shadow: 0 8px 22px rgba(7,58,82,.14); font-size: .72rem; font-weight: 850; cursor: pointer; }
+  #cockpit-debug-launch[data-has-errors="true"] { border-color: #c26b50; color: #fff; background: #9a4035; }
+  #cockpit-debug-panel { position: fixed; right: 15px; bottom: 219px; z-index: 32; display: none; width: min(480px, calc(100vw - 30px)); max-height: min(460px, calc(100vh - 250px)); overflow: hidden; border: 1px solid #b9cfd3; border-radius: 16px; color: #284c59; background: #f8fcfc; box-shadow: 0 18px 42px rgba(7,58,82,.22); }
+  #cockpit-debug-panel.open { display: block; }
+  .cockpit-debug-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 11px 13px; border-bottom: 1px solid #d6e8ea; background: #edf6f6; }
+  .cockpit-debug-head strong { color: #073a52; font-size: .8rem; }
+  .cockpit-debug-actions { display: flex; gap: 5px; }
+  .cockpit-debug-actions button { padding: 4px 7px; border: 1px solid #cbe1e4; border-radius: 7px; color: #315564; background: #fff; font-size: .67rem; font-weight: 800; cursor: pointer; }
+  #cockpit-debug-list { max-height: 380px; overflow: auto; padding: 9px 12px; }
+  .cockpit-debug-line { padding: 7px 0; border-bottom: 1px solid #e0ecee; font-size: .68rem; line-height: 1.35; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .cockpit-debug-line b { margin-right: 5px; color: #78919a; font-size: .62rem; }
+  .cockpit-debug-line.error strong { color: #9a4035; }
+  .cockpit-debug-line.warn strong { color: #956a16; }
+  .cockpit-debug-empty { margin: 3px 0; color: #6b858d; font-size: .7rem; }
   .task-focus { outline: 3px solid #2ab6bb; outline-offset: 5px; animation: cockpit-task-pulse 1.4s ease; }
   @keyframes cockpit-task-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(42,182,187,0); } 35% { box-shadow: 0 0 0 8px rgba(42,182,187,.23); } }
   #cockpit-install-launch { position: fixed; right: 15px; bottom: 121px; z-index: 31; display: flex; align-items: center; gap: 8px; max-width: min(340px, calc(100vw - 30px)); padding: 10px 12px; border: 1px solid #b9dde2; border-radius: 14px; color: #073a52; background: #f8fcfc; box-shadow: 0 11px 28px rgba(7,58,82,.16); font-size: .76rem; }
@@ -134,6 +177,8 @@ style.textContent = `
     .cockpit-status-row button[data-status="deleted"] { margin-left: 0; }
     #cockpit-task-launch { right: 12px; bottom: 68px; }
     #cockpit-install-launch { right: 12px; bottom: 120px; }
+    #cockpit-debug-launch { right: 12px; bottom: 174px; }
+    #cockpit-debug-panel { right: 12px; bottom: 219px; }
   }
 `;
 document.head.appendChild(style);
@@ -145,6 +190,7 @@ function esc(value) {
 }
 
 function toast(message, error = false) {
+  if (error) recordDebugEvent("error", [message]);
   const existing = document.querySelector(".cockpit-toast");
   if (existing) existing.remove();
   const node = document.createElement("div");
@@ -152,6 +198,66 @@ function toast(message, error = false) {
   node.textContent = message;
   document.body.appendChild(node);
   setTimeout(() => node.remove(), 4200);
+}
+
+const debugState = { events: [], open: false };
+const nativeConsole = {
+  warn: console.warn?.bind(console),
+  error: console.error?.bind(console)
+};
+
+function debugValue(value) {
+  if (value instanceof Error) return value.stack || value.message;
+  if (typeof value === "string") return value;
+  try { return JSON.stringify(value); } catch { return String(value); }
+}
+
+function renderDebugWidget() {
+  const launch = document.querySelector("#cockpit-debug-launch");
+  const list = document.querySelector("#cockpit-debug-list");
+  if (!launch || !list) return;
+  const errors = debugState.events.filter((entry) => entry.level === "error").length;
+  launch.dataset.hasErrors = String(errors > 0);
+  launch.innerHTML = `Diagnostic <span>${debugState.events.length ? `· ${debugState.events.length}` : ""}</span>`;
+  list.innerHTML = debugState.events.length ? debugState.events.map((entry) => `<div class="cockpit-debug-line ${esc(entry.level)}"><b>${esc(entry.when)}</b><strong>${esc(entry.level === "error" ? "Erreur" : "Avertissement")}</strong> · ${esc(entry.message)}</div>`).join("") : "<p class=\"cockpit-debug-empty\">Aucun avertissement capturé depuis l’ouverture de la session.</p>";
+}
+
+function recordDebugEvent(level, values) {
+  const message = (Array.isArray(values) ? values : [values]).map(debugValue).join(" ").slice(0, 4000);
+  debugState.events.unshift({ level, message, when: new Date().toLocaleTimeString("fr-CA") });
+  if (debugState.events.length > 80) debugState.events.length = 80;
+  renderDebugWidget();
+}
+
+console.warn = (...values) => {
+  nativeConsole.warn?.(...values);
+  recordDebugEvent("warn", values);
+};
+console.error = (...values) => {
+  nativeConsole.error?.(...values);
+  recordDebugEvent("error", values);
+};
+window.addEventListener("error", (event) => recordDebugEvent("error", [event.message || "Erreur JavaScript", event.filename ? `${event.filename}:${event.lineno || "?"}` : ""]));
+window.addEventListener("unhandledrejection", (event) => recordDebugEvent("error", ["Promesse non gérée", event.reason]));
+
+function buildDebugWidget() {
+  if (state.profile?.role !== "admin" || document.querySelector("#cockpit-debug-launch")) return;
+  const launch = document.createElement("button");
+  launch.id = "cockpit-debug-launch";
+  launch.type = "button";
+  launch.title = "Ouvrir le diagnostic technique";
+  launch.addEventListener("click", () => {
+    debugState.open = !debugState.open;
+    document.querySelector("#cockpit-debug-panel")?.classList.toggle("open", debugState.open);
+  });
+  const panel = document.createElement("aside");
+  panel.id = "cockpit-debug-panel";
+  panel.innerHTML = `<div class="cockpit-debug-head"><strong>Diagnostic technique local</strong><div class="cockpit-debug-actions"><button type="button" data-clear-debug>Effacer</button><button type="button" data-close-debug>Réduire</button></div></div><div id="cockpit-debug-list"></div>`;
+  panel.querySelector("[data-clear-debug]").addEventListener("click", () => { debugState.events = []; renderDebugWidget(); });
+  panel.querySelector("[data-close-debug]").addEventListener("click", () => { debugState.open = false; panel.classList.remove("open"); });
+  document.body.appendChild(panel);
+  document.body.appendChild(launch);
+  renderDebugWidget();
 }
 
 let deferredInstallPrompt = null;
@@ -268,7 +374,7 @@ function buildAdminSidebar() {
   if (document.querySelector("#cockpit-sidebar")) return;
   const sidebar = document.createElement("aside");
   sidebar.id = "cockpit-sidebar";
-  sidebar.innerHTML = "<div id=\"cockpit-task-heading\"><h2>À accomplir</h2><span id=\"cockpit-task-count\">0</span></div><p class=\"cockpit-sidebar-note\">Les décisions et recommandations reçues de la direction restent ici jusqu’à leur validation ou leur achèvement forcé.</p><div id=\"cockpit-task-list\"></div><h2>Journal de modifications</h2><p class=\"cockpit-sidebar-note\">Lecture technique des changements synchronisés.</p><div id=\"cockpit-log-list\"></div><h2 style=\"margin-top:24px\">Rétroactions du cockpit</h2><p class=\"cockpit-sidebar-note\">Les avis déposés dans les sections et la boîte à idées.</p><div id=\"cockpit-feedback-list\"></div>";
+  sidebar.innerHTML = "<div id=\"cockpit-task-heading\"><h2>À accomplir</h2><span id=\"cockpit-task-count\">0</span></div><p class=\"cockpit-sidebar-note\">Les décisions et recommandations reçues de la direction restent ici jusqu’à leur validation ou leur achèvement forcé.</p><div id=\"cockpit-task-list\"></div><h2>Journal de modifications</h2><p class=\"cockpit-sidebar-note\">Lecture technique des changements synchronisés.</p><div id=\"cockpit-log-list\"></div><h2 style=\"margin-top:24px\">Rétroactions du cockpit</h2><p class=\"cockpit-sidebar-note\">Les avis déposés dans les sections et la boîte à idées.</p><div id=\"cockpit-feedback-list\"></div><h2 style=\"margin-top:24px\">Volume des visuels</h2><p id=\"cockpit-attachment-usage\" class=\"cockpit-sidebar-note\">Calcul en cours…</p>";
   document.body.appendChild(sidebar);
   const toggle = document.createElement("button");
   toggle.id = "cockpit-sidebar-toggle";
@@ -695,7 +801,7 @@ function isChoiceSelected(planItem) {
 function syncCardAccess() {
   const editable = canEdit();
   document.body.classList.toggle("cockpit-readonly", !editable);
-  document.querySelectorAll(".cockpit-controls button, .cockpit-controls textarea, .cockpit-controls input").forEach((control) => {
+  document.querySelectorAll(".cockpit-controls button, .cockpit-controls textarea, .cockpit-controls input, .cockpit-attachments input").forEach((control) => {
     control.disabled = !editable;
   });
 }
@@ -732,7 +838,259 @@ function enhanceCards() {
     card.appendChild(controls);
   });
   applyRemoteRows();
+  renderAttachmentBlocks();
+  applyPastEventFilter();
   syncCardAccess();
+}
+
+function formatAttachmentBytes(bytes) {
+  const value = Number(bytes || 0);
+  if (value < 1024) return `${value} o`;
+  if (value < 1024 * 1024) return `${(value / 1024).toFixed(0)} Ko`;
+  return `${(value / (1024 * 1024)).toFixed(2)} Mo`;
+}
+
+function attachmentBlockMarkup(planItem) {
+  return `<section class="cockpit-attachments" data-attachments-for="${esc(planItem.id)}">
+    <div class="cockpit-attachments-head"><b>Visuels liés à cet événement</b><span>JPEG optimisé · format 4:5</span></div>
+    <div class="cockpit-attachment-grid" data-attachment-grid></div>
+    <label class="cockpit-attachment-upload"><span>Ajouter une ou plusieurs photos</span><input type="file" data-attachment-input accept="image/*" multiple></label>
+    <p class="cockpit-attachment-note">Chaque image est cadrée automatiquement pour Facebook / Instagram (4:5, jusqu’à 1080 × 1350), convertie en JPEG et gardée sous 1 Mo. L’image optimisée devient la version de travail réutilisable.</p>
+    <div class="cockpit-attachment-status" data-attachment-status aria-live="polite"></div>
+  </section>`;
+}
+
+function renderAttachmentBlocks() {
+  document.querySelectorAll(".post[data-item-id]").forEach((card) => {
+    const planItem = getPlanItem(card);
+    const detail = card.querySelector(".detail");
+    if (!planItem || !detail) return;
+    let block = detail.querySelector("[data-attachments-for]");
+    if (!block) {
+      detail.insertAdjacentHTML("beforeend", attachmentBlockMarkup(planItem));
+      block = detail.querySelector(`[data-attachments-for="${planItem.id}"]`);
+    }
+    const grid = block?.querySelector("[data-attachment-grid]");
+    if (!grid) return;
+    const rows = state.attachments.filter((attachment) => attachment.eventId === planItem.id && attachment.archived !== true);
+    grid.innerHTML = rows.length ? rows.map((attachment) => {
+      const image = attachment.downloadUrl
+        ? `<a href="${esc(attachment.downloadUrl)}" target="_blank" rel="noopener noreferrer" title="Ouvrir le visuel optimisé en pleine qualité"><img src="${esc(attachment.downloadUrl)}" alt="${esc(attachment.filename || "Visuel lié")}" loading="lazy"></a>`
+        : `<div class="cockpit-attachment-missing">Visuel temporairement indisponible</div>`;
+      return `<figure class="cockpit-attachment">${image}<figcaption><strong>${esc(attachment.filename || "Visuel optimisé")}</strong>${formatAttachmentBytes(attachment.sizeBytes)} · ${esc(attachment.width || 1080)} × ${esc(attachment.height || 1350)}</figcaption></figure>`;
+    }).join("") : `<p class="cockpit-attachment-empty">Aucun visuel lié pour le moment. Les photos ajoutées ici restent associées à cet événement.</p>`;
+  });
+  const usage = document.querySelector("#cockpit-attachment-usage");
+  if (usage) {
+    const activeAttachments = state.attachments.filter((attachment) => attachment.archived !== true);
+    const bytes = activeAttachments.reduce((total, attachment) => total + Number(attachment.sizeBytes || 0), 0);
+    usage.textContent = `${activeAttachments.length} visuel${activeAttachments.length === 1 ? "" : "s"} · ${formatAttachmentBytes(bytes)} suivis par le cockpit. Estimation interne; le quota Firebase facturé se vérifie dans la console.`;
+  }
+  syncCardAccess();
+}
+
+async function loadImageSource(file) {
+  if (typeof createImageBitmap === "function") {
+    try {
+      return await createImageBitmap(file, { imageOrientation: "from-image" });
+    } catch {
+      try { return await createImageBitmap(file); } catch {}
+    }
+  }
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => { URL.revokeObjectURL(objectUrl); resolve(image); };
+    image.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error("Le navigateur ne peut pas lire cette image.")); };
+    image.src = objectUrl;
+  });
+}
+
+function canvasToJpeg(canvas, quality) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("La conversion JPEG a échoué.")), "image/jpeg", quality);
+  });
+}
+
+async function convertImageForSocial(file) {
+  if (!file || !String(file.type || "").startsWith("image/")) throw new Error("Sélectionnez uniquement des fichiers image.");
+  const source = await loadImageSource(file);
+  const sourceWidth = Number(source.width || source.naturalWidth || 0);
+  const sourceHeight = Number(source.height || source.naturalHeight || 0);
+  if (!sourceWidth || !sourceHeight) throw new Error("Les dimensions de cette image sont illisibles.");
+  const dimensions = [[1080, 1350], [960, 1200], [840, 1050], [720, 900]];
+  const qualities = [0.84, 0.78, 0.72, 0.66, 0.60, 0.54];
+  let lastBlob = null;
+  let lastWidth = 0;
+  let lastHeight = 0;
+  for (const [width, height] of dimensions) {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d", { alpha: false });
+    if (!context) throw new Error("Le navigateur ne peut pas préparer le visuel.");
+    context.fillStyle = "#eef7f7";
+    context.fillRect(0, 0, width, height);
+    const scale = Math.max(width / sourceWidth, height / sourceHeight);
+    const drawWidth = sourceWidth * scale;
+    const drawHeight = sourceHeight * scale;
+    context.drawImage(source, (width - drawWidth) / 2, (height - drawHeight) / 2, drawWidth, drawHeight);
+    for (const quality of qualities) {
+      const blob = await canvasToJpeg(canvas, quality);
+      lastBlob = blob;
+      lastWidth = width;
+      lastHeight = height;
+      if (blob.size < Math.min(MAX_ATTACHMENT_BYTES, 980 * 1024)) {
+        source.close?.();
+        return { blob, width, height, originalWidth: sourceWidth, originalHeight: sourceHeight };
+      }
+    }
+  }
+  source.close?.();
+  if (!lastBlob || lastBlob.size >= MAX_ATTACHMENT_BYTES) throw new Error("Cette image reste trop lourde après optimisation. Choisissez une image plus simple.");
+  return { blob: lastBlob, width: lastWidth, height: lastHeight, originalWidth: sourceWidth, originalHeight: sourceHeight };
+}
+
+function attachmentFilename(name) {
+  const stem = String(name || "visuel").replace(/\.[^.]+$/, "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 54) || "visuel";
+  return `${stem}-meta-4x5.jpg`;
+}
+
+async function uploadAttachmentFiles(input) {
+  const block = input.closest("[data-attachments-for]");
+  const eventId = block?.dataset.attachmentsFor;
+  const status = block?.querySelector("[data-attachment-status]");
+  if (!eventId || !state.profile || !canEdit()) return;
+  const files = [...(input.files || [])];
+  input.value = "";
+  if (!files.length || input.dataset.busy === "true") return;
+  input.dataset.busy = "true";
+  try {
+    for (let index = 0; index < files.length; index += 1) {
+      const file = files[index];
+      if (status) {
+        status.className = "cockpit-attachment-status";
+        status.textContent = `Optimisation du visuel ${index + 1} / ${files.length}…`;
+      }
+      const prepared = await convertImageForSocial(file);
+      const uploaded = await uploadImageAttachment({
+        eventId,
+        blob: prepared.blob,
+        filename: attachmentFilename(file.name),
+        width: prepared.width,
+        height: prepared.height,
+        originalName: file.name,
+        originalWidth: prepared.originalWidth,
+        originalHeight: prepared.originalHeight
+      }, state.profile);
+      state.attachments = [uploaded, ...state.attachments];
+    }
+    renderAttachmentBlocks();
+    if (status) {
+      status.className = "cockpit-attachment-status success";
+      status.textContent = `${files.length} visuel${files.length > 1 ? "s" : ""} optimisé${files.length > 1 ? "s" : ""} et associé${files.length > 1 ? "s" : ""} à cet événement.`;
+    }
+    toast("Visuel ajouté au brief.");
+  } catch (error) {
+    if (status) {
+      status.className = "cockpit-attachment-status error";
+      status.textContent = error.message || "Le visuel n’a pas pu être ajouté.";
+    }
+    toast(error.message || "Le visuel n’a pas pu être ajouté.", true);
+  } finally {
+    delete input.dataset.busy;
+  }
+}
+
+function enhanceAttachmentEvents() {
+  if (document.body.dataset.attachmentEventsReady === "true") return;
+  document.body.dataset.attachmentEventsReady = "true";
+  document.addEventListener("change", (event) => {
+    const input = event.target.closest("[data-attachment-input]");
+    if (!input) return;
+    uploadAttachmentFiles(input);
+  });
+}
+
+const calendarMonthNumbers = {
+  janvier: 0, février: 1, fevrier: 1, mars: 2, avril: 3, mai: 4, juin: 5,
+  juillet: 6, août: 7, aout: 7, septembre: 8, octobre: 9, novembre: 10, décembre: 11, decembre: 11
+};
+
+function parseCalendarDayLabel(value) {
+  const match = String(value || "").toLocaleLowerCase("fr-CA").match(/(\d{1,2})(?:er)?\s+([a-zéûô]+)/i);
+  if (!match) return null;
+  const month = calendarMonthNumbers[match[2]];
+  if (typeof month !== "number") return null;
+  return new Date(2026, month, Number(match[1]), 0, 0, 0, 0);
+}
+
+function ensurePastFilterControl() {
+  const toolbar = document.querySelector("#calendrier .toolbar");
+  if (!toolbar || toolbar.querySelector("[data-past-toggle]")) return;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.dataset.pastToggle = "true";
+  button.className = "cockpit-past-toggle";
+  button.addEventListener("click", () => {
+    pastEventsVisible = !pastEventsVisible;
+    applyPastEventFilter();
+  });
+  toolbar.appendChild(button);
+}
+
+function applyPastEventFilter() {
+  ensurePastFilterControl();
+  const today = new Date();
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const groups = [...document.querySelectorAll("#calendrier #posts .day-group")];
+  let visibleCards = 0;
+  groups.forEach((group) => {
+    const dayLabel = group.querySelector(".day-heading strong")?.textContent || "";
+    const date = parseCalendarDayLabel(dayLabel);
+    const past = Boolean(date && date < todayStart);
+    group.dataset.past = String(past);
+    group.hidden = past && !pastEventsVisible;
+    group.classList.toggle("cockpit-past-visible", past && pastEventsVisible);
+    let badge = group.querySelector("[data-past-badge]");
+    if (past && pastEventsVisible) {
+      if (!badge) {
+        badge = document.createElement("span");
+        badge.dataset.pastBadge = "true";
+        badge.className = "cockpit-past-badge";
+        badge.textContent = "Historique";
+        group.querySelector(".day-heading")?.appendChild(badge);
+      }
+    } else {
+      badge?.remove();
+    }
+    if (!group.hidden) visibleCards += group.querySelectorAll(".post").length;
+  });
+  document.querySelectorAll("#calendrier #posts .week-group").forEach((week) => {
+    week.hidden = [...week.querySelectorAll(".day-group")].every((group) => group.hidden);
+  });
+  const button = document.querySelector("[data-past-toggle]");
+  if (button) {
+    button.classList.toggle("active", pastEventsVisible);
+    button.setAttribute("aria-pressed", String(pastEventsVisible));
+    button.textContent = pastEventsVisible ? "Masquer l’historique" : "Afficher les événements passés";
+  }
+  const postsHost = document.querySelector("#calendrier #posts");
+  const noVisible = groups.length > 0 && groups.every((group) => group.hidden);
+  let empty = document.querySelector("#cockpit-past-empty");
+  if (noVisible && !pastEventsVisible) {
+    if (!empty) {
+      empty = document.createElement("div");
+      empty.id = "cockpit-past-empty";
+      postsHost?.appendChild(empty);
+    }
+    empty.innerHTML = "Aucun événement aujourd’hui ou à venir dans ce filtre. <button type=\"button\" data-past-empty-toggle>Afficher l’historique</button>";
+    empty.querySelector("[data-past-empty-toggle]")?.addEventListener("click", () => { pastEventsVisible = true; applyPastEventFilter(); });
+  } else {
+    empty?.remove();
+  }
+  const shown = document.querySelector("#shown");
+  if (shown) shown.textContent = `${visibleCards} carte${visibleCards === 1 ? "" : "s"} affichée${visibleCards === 1 ? "" : "s"}${pastEventsVisible ? " · historique inclus" : " · aujourd’hui et à venir"}`;
 }
 
 function applyRemoteRows() {
@@ -843,6 +1201,29 @@ function clearRecognitionRestartTimer() {
   recognitionRestartTimer = null;
 }
 
+function clearRecognitionWatchdog() {
+  if (recognitionWatchdogTimer) window.clearTimeout(recognitionWatchdogTimer);
+  recognitionWatchdogTimer = null;
+}
+
+async function ensureMicrophonePermission(textarea) {
+  if (!navigator.mediaDevices?.getUserMedia) return true;
+  if (!recognitionPermissionPromise) {
+    recognitionPermissionPromise = navigator.mediaDevices.getUserMedia({ audio: true })
+      .then((stream) => {
+        stream.getTracks().forEach((track) => track.stop());
+        return true;
+      })
+      .catch((error) => {
+        const code = error?.name || "permission-denied";
+        setVoiceStatus(textarea, code === "NotAllowedError" ? "Autorisation du microphone refusée. Autorisez le micro pour ce site puis réessayez." : "Le microphone n’est pas accessible sur cet appareil.", "error");
+        return false;
+      })
+      .finally(() => { recognitionPermissionPromise = null; });
+  }
+  return recognitionPermissionPromise;
+}
+
 function voiceFallback(textarea, message) {
   textarea?.focus();
   setVoiceButtonState(textarea, false);
@@ -863,6 +1244,7 @@ function finishDictation(recognition, textarea, message, kind = "") {
   if (activeRecognition !== recognition) return;
   recognitionRestart = false;
   clearRecognitionRestartTimer();
+  clearRecognitionWatchdog();
   activeRecognition = null;
   activeTextarea = null;
   setVoiceButtonState(textarea, false);
@@ -872,6 +1254,7 @@ function finishDictation(recognition, textarea, message, kind = "") {
 function stopDictation(message = "Dictée arrêtée.") {
   recognitionRestart = false;
   clearRecognitionRestartTimer();
+  clearRecognitionWatchdog();
   const recognition = activeRecognition;
   const textarea = activeTextarea;
   activeRecognition = null;
@@ -906,7 +1289,7 @@ function scheduleRecognitionRestart(recognition, textarea) {
   }, delay);
 }
 
-function startDictation(textarea) {
+async function startDictation(textarea) {
   if (!textarea) return;
   if (activeRecognition && activeTextarea === textarea) {
     stopDictation();
@@ -915,7 +1298,7 @@ function startDictation(textarea) {
   if (activeRecognition) stopDictation();
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!Recognition) {
-    voiceFallback(textarea, "La reconnaissance vocale n’est pas exposée par ce navigateur.");
+    voiceFallback(textarea, "La reconnaissance vocale intégrée n’est pas exposée par ce navigateur.");
     toast("Utilisez la dictée du clavier ou du système dans ce navigateur.", true);
     return;
   }
@@ -923,31 +1306,45 @@ function startDictation(textarea) {
     voiceFallback(textarea, "La dictée exige une connexion HTTPS.");
     return;
   }
+  activeTextarea = textarea;
+  setVoiceButtonState(textarea, true);
+  setVoiceStatus(textarea, "Vérification du microphone…", "live");
+  if (!(await ensureMicrophonePermission(textarea))) {
+    activeTextarea = null;
+    setVoiceButtonState(textarea, false);
+    voiceFallback(textarea, "Autorisation du microphone refusée ou microphone indisponible.");
+    return;
+  }
   let recognition;
   try {
     recognition = new Recognition();
   } catch (error) {
+    activeTextarea = null;
     voiceFallback(textarea, "Impossible d’ouvrir le service vocal de ce navigateur.");
     return;
   }
   activeRecognition = recognition;
-  activeTextarea = textarea;
   recognitionRestart = true;
   recognitionLanguageIndex = 0;
   recognitionRestartAttempts = 0;
   recognition.lang = recognitionLanguages[recognitionLanguageIndex];
-  // Une session courte, relancée proprement, est plus fiable que continuous=true
-  // sur Chrome, Edge et Safari, qui interrompent tous trois les longues sessions.
-  recognition.continuous = false;
+  recognition.continuous = true;
   recognition.interimResults = true;
   recognition.maxAlternatives = 1;
   setVoiceButtonState(textarea, true);
   setVoiceStatus(textarea, "Autorisez le microphone si le navigateur le demande…", "live");
   recognition.onstart = () => {
     recognitionRestartAttempts = 0;
+    clearRecognitionWatchdog();
+    recognitionWatchdogTimer = window.setTimeout(() => {
+      if (activeRecognition !== recognition || !recognitionRestart) return;
+      setVoiceStatus(textarea, "Reprise automatique de l’écoute…", "live");
+      try { recognition.stop(); } catch {}
+    }, 52000);
     setVoiceButtonState(textarea, true);
     setVoiceStatus(textarea, "Écoute en cours… cliquez de nouveau sur le micro pour arrêter.", "live");
   };
+  recognition.onaudiostart = () => setVoiceStatus(textarea, "Microphone actif… parlez naturellement.", "live");
   recognition.onresult = (event) => {
     let interim = "";
     let finalText = "";
@@ -967,12 +1364,13 @@ function startDictation(textarea) {
   recognition.onerror = (event) => {
     const errorCode = event.error || "unknown";
     if (errorCode === "no-speech") {
-      setVoiceStatus(textarea, "Aucune parole détectée; continuez à parler…", "live");
+      setVoiceStatus(textarea, "Aucune parole détectée; l’écoute reprend automatiquement…", "live");
       return;
     }
     if (errorCode === "language-not-supported" && recognitionLanguageIndex < recognitionLanguages.length - 1) {
       recognitionLanguageIndex += 1;
       setVoiceStatus(textarea, "La langue régionale n’est pas disponible; nouvel essai en français…", "live");
+      try { recognition.stop(); } catch {}
       return;
     }
     if (errorCode === "not-allowed" || errorCode === "service-not-allowed") {
@@ -983,7 +1381,8 @@ function startDictation(textarea) {
       finishDictation(recognition, textarea, "Aucun microphone n’est disponible. Vérifiez le micro choisi dans le navigateur.", "error");
       return;
     }
-    if (terminalRecognitionErrors.has(errorCode) || errorCode === "network") {
+    if (errorCode === "aborted" && recognitionRestart) return;
+    if (terminalRecognitionErrors.has(errorCode)) {
       finishDictation(recognition, textarea, "Le service vocal est indisponible. Utilisez la dictée du clavier ou du système.", "error");
       return;
     }
@@ -991,6 +1390,7 @@ function startDictation(textarea) {
   };
   recognition.onnomatch = () => setVoiceStatus(textarea, "Aucun mot reconnu; continuez à parler…", "live");
   recognition.onend = () => {
+    clearRecognitionWatchdog();
     if (!recognitionRestart || activeRecognition !== recognition) return;
     setVoiceStatus(textarea, "Reprise de l’écoute…", "live");
     scheduleRecognitionRestart(recognition, textarea);
@@ -1095,10 +1495,29 @@ async function loadPrivateContent() {
   privateStyle.textContent = content.css;
   document.head.appendChild(privateStyle);
   host.innerHTML = content.html;
+  const mastNote = host.querySelector(".mast span:last-child");
+  if (mastNote) mastNote.textContent = "Cockpit permanent · première séquence du 13 juillet au 9 août 2026";
+  const heroEyebrow = host.querySelector(".hero .eyebrow");
+  if (heroEyebrow) heroEyebrow.textContent = "Cadence permanente · première séquence du 13 juillet au 9 août 2026";
+  const heroTitle = host.querySelector(".hero h1");
+  if (heroTitle) heroTitle.innerHTML = "Plan d’attaque<br><em>2026</em><br>cockpit permanent.";
+  const calendarTitle = host.querySelector("#calendrier .heading h2");
+  if (calendarTitle) calendarTitle.textContent = "Calendrier opérationnel permanent";
+  const calendarIntro = host.querySelector("#calendrier .heading p:last-child");
+  if (calendarIntro) calendarIntro.textContent = "Les 28 premières journées forment la séquence de lancement; la page reste le registre permanent des idées, validations, visuels et publications à venir. Les options déplacées alimentent les semaines suivantes sans rien supprimer.";
+  const weekSelect = host.querySelector("#week");
+  if (weekSelect && !weekSelect.querySelector("option[value='5']")) weekSelect.insertAdjacentHTML("beforeend", "<option value=\"5\">Semaine 5 · Réserve éditoriale</option>");
+  const footerTitle = host.querySelector("footer strong");
+  if (footerTitle) footerTitle.textContent = "Bleu Massawippi — Plan d’attaque 2026 · cockpit permanent.";
   const planScript = document.createElement("script");
   planScript.textContent = content.script;
   document.body.appendChild(planScript);
   planScript.remove();
+  if (Array.isArray(globalThis.posts)) {
+    applyPlanOverridesToPosts(globalThis.posts);
+    if (globalThis.meta) globalThis.meta[5] = ["Semaine 5 · Réserve éditoriale", "10 au 16 août"];
+    globalThis.render?.();
+  }
   state.contentLoaded = true;
 }
 
@@ -1121,6 +1540,7 @@ async function applyProfile(profile) {
     document.body.classList.add("cockpit-admin");
     buildAdminSidebar();
     buildTaskWidget();
+    buildDebugWidget();
     enhanceTaskEvents();
     state.auditUnsubscribe?.();
     state.feedbackUnsubscribe?.();
@@ -1149,6 +1569,15 @@ async function applyProfile(profile) {
   enhanceCards();
   enhanceSectionFeedback();
   enhanceCalendarButtons();
+  enhanceAttachmentEvents();
+  state.attachmentUnsubscribe?.();
+  state.attachmentUnsubscribe = null;
+  if (configured) {
+    state.attachmentUnsubscribe = subscribeImageAttachments((rows) => {
+      state.attachments = rows;
+      renderAttachmentBlocks();
+    }, (error) => toast("Les visuels ne sont pas accessibles : " + error.message, true));
+  }
   buildFeedbackWidget();
   syncCardAccess();
 }
@@ -1162,20 +1591,28 @@ function applySignedOut(message = "") {
   state.auditUnsubscribe?.();
   state.feedbackUnsubscribe?.();
   state.tasksUnsubscribe?.();
+  state.attachmentUnsubscribe?.();
   state.scheduleUnsubscribe = null;
   state.auditUnsubscribe = null;
   state.feedbackUnsubscribe = null;
   state.tasksUnsubscribe = null;
+  state.attachmentUnsubscribe = null;
+  state.attachments = [];
   state.tasks = [];
+  pastEventsVisible = false;
   clearPrivateContent();
   document.body.classList.add("cockpit-locked");
   document.querySelector("#cockpit-session")?.remove();
   document.querySelector("#cockpit-sidebar")?.remove();
   document.querySelector("#cockpit-sidebar-toggle")?.remove();
   document.querySelector("#cockpit-task-launch")?.remove();
+  document.querySelector("#cockpit-debug-launch")?.remove();
+  document.querySelector("#cockpit-debug-panel")?.remove();
   document.querySelector("#cockpit-feedback-launch")?.remove();
   document.querySelector("#cockpit-feedback-panel")?.remove();
   document.body.classList.remove("cockpit-admin");
+  debugState.events = [];
+  debugState.open = false;
   document.body.classList.add("cockpit-readonly");
   const login = document.querySelector("#cockpit-login") || buildLogin();
   login.removeAttribute("hidden");
@@ -1204,6 +1641,7 @@ function start() {
   buildLogin();
   enhanceCardEvents();
   enhanceFeedbackListEvents();
+  enhanceAttachmentEvents();
   const observer = new MutationObserver(() => enhanceCards());
   observer.observe(document.body, { childList: true, subtree: true });
 

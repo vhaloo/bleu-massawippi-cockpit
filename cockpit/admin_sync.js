@@ -3,7 +3,8 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { applicationDefault, initializeApp } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { FieldValue, getFirestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 
 const args = new Map();
 for (const raw of process.argv.slice(2)) {
@@ -32,9 +33,12 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
 
 const app = initializeApp({
   credential: applicationDefault(),
-  projectId: process.env.GOOGLE_CLOUD_PROJECT || undefined
+  projectId: process.env.GOOGLE_CLOUD_PROJECT || undefined,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET || undefined
 });
 const db = getFirestore(app);
+const storageBucketName = process.env.FIREBASE_STORAGE_BUCKET || `${process.env.GOOGLE_CLOUD_PROJECT || app.options.projectId}.firebasestorage.app`;
+const bucket = getStorage(app).bucket(storageBucketName);
 
 function dateValue(value) {
   if (!value) return null;
@@ -61,14 +65,15 @@ async function readRecent(collectionName) {
 
 await fs.mkdir(outputDir, { recursive: true });
 
-const [scheduleItems, comments, logs, feedback, tasks, changeArchive, contentVersions] = await Promise.all([
+const [scheduleItems, comments, logs, feedback, tasks, changeArchive, contentVersions, attachments] = await Promise.all([
   readRecent("scheduleItems"),
   readRecent("comments"),
   readRecent("auditLogs"),
   readRecent("cockpitFeedback"),
   readRecent("tasks"),
   readRecent("changeArchive"),
-  readRecent("privateContentVersions")
+  readRecent("privateContentVersions"),
+  readRecent("attachments")
 ]);
 
 const changedScheduleItems = scheduleItems.filter((row) =>
@@ -84,6 +89,25 @@ const dictatedComments = comments
     quickTag: row.quickTag || null,
     createdAt: dateValue(row.createdAt)?.toISOString() || null
   }));
+
+const attachmentOutputDir = path.join(outputDir, "attachments");
+await fs.mkdir(attachmentOutputDir, { recursive: true });
+const attachmentSync = [];
+for (const row of attachments.filter((item) => item.downloadedLocally !== true && item.storagePath)) {
+  const safeName = path.basename(String(row.filename || `${row.id}.jpg`)).replace(/[^a-zA-Z0-9._-]+/g, "-") || `${row.id}.jpg`;
+  const localPath = path.join(attachmentOutputDir, `${row.id}-${safeName}`);
+  try {
+    await bucket.file(String(row.storagePath)).download({ destination: localPath });
+    await db.collection("attachments").doc(row.id).update({
+      downloadedLocally: true,
+      downloadedAt: FieldValue.serverTimestamp(),
+      localPath: path.relative(workspaceDir, localPath).replaceAll("\\", "/")
+    });
+    attachmentSync.push({ id: row.id, eventId: row.eventId || null, localPath: path.relative(workspaceDir, localPath).replaceAll("\\", "/"), status: "downloaded" });
+  } catch (error) {
+    attachmentSync.push({ id: row.id, eventId: row.eventId || null, storagePath: row.storagePath, status: "error", error: String(error?.message || error) });
+  }
+}
 
 const summary = {
   generatedAt: new Date().toISOString(),
@@ -156,7 +180,20 @@ const summary = {
     source: row.source || null,
     createdAt: dateValue(row.createdAt)?.toISOString() || null,
     bytes: Buffer.byteLength(JSON.stringify({ css: row.css || "", html: row.html || "", script: row.script || "" }), "utf8")
-  }))
+  })),
+  attachments: attachments.map((row) => ({
+    id: row.id,
+    eventId: row.eventId || null,
+    filename: row.filename || null,
+    storagePath: row.storagePath || null,
+    sizeBytes: row.sizeBytes || null,
+    width: row.width || null,
+    height: row.height || null,
+    downloadedLocally: row.downloadedLocally === true,
+    archived: row.archived === true,
+    createdAt: dateValue(row.createdAt)?.toISOString() || null
+  })),
+  attachmentSync
 };
 
 const outputFile = path.join(outputDir, "sync-summary.json");
@@ -169,5 +206,8 @@ console.log(JSON.stringify({
   cockpitFeedback: summary.cockpitFeedback.length,
   tasks: summary.tasks.length,
   changeArchive: summary.changeArchive.length,
-  privateContentVersions: summary.privateContentVersions.length
+  privateContentVersions: summary.privateContentVersions.length,
+  attachments: summary.attachments.length,
+  attachmentsDownloaded: attachmentSync.filter((item) => item.status === "downloaded").length,
+  attachmentsErrors: attachmentSync.filter((item) => item.status === "error").length
 }, null, 2));

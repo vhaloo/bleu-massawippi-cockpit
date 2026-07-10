@@ -102,6 +102,25 @@ service cloud.firestore {
         && data.updatedBy is string && data.updatedBy.size() > 0;
     }
 
+    function validAttachment(data) {
+      return data.keys().hasAll(['eventId', 'storagePath', 'filename', 'contentType', 'sizeBytes', 'width', 'height', 'originalName', 'conversionPreset', 'downloadedLocally', 'archived', 'createdByUid', 'createdByLabel', 'createdAt'])
+        && data.keys().hasOnly(['eventId', 'storagePath', 'filename', 'contentType', 'sizeBytes', 'width', 'height', 'originalName', 'originalWidth', 'originalHeight', 'conversionPreset', 'downloadedLocally', 'archived', 'createdByUid', 'createdByLabel', 'createdAt'])
+        && data.eventId is string && data.eventId.size() >= 3 && data.eventId.size() <= 80
+        && data.storagePath is string && data.storagePath.size() > 0 && data.storagePath.size() <= 240
+        && data.filename is string && data.filename.size() > 0 && data.filename.size() <= 120
+        && data.contentType == 'image/jpeg'
+        && data.sizeBytes is int && data.sizeBytes > 0 && data.sizeBytes <= 1048576
+        && data.width is int && data.width > 0 && data.width <= 1080
+        && data.height is int && data.height > 0 && data.height <= 1350
+        && data.originalName is string && data.originalName.size() <= 180
+        && data.conversionPreset == 'meta-feed-4x5'
+        && data.downloadedLocally is bool
+        && data.archived is bool
+        && data.createdByUid == request.auth.uid
+        && data.createdByLabel is string && data.createdByLabel.size() > 0 && data.createdByLabel.size() <= 120
+        && data.createdAt is timestamp;
+    }
+
     match /users/{uid} {
       allow read: if activeUser() && (request.auth.uid == uid || isAdmin());
       allow write: if false;
@@ -168,6 +187,15 @@ service cloud.firestore {
           && validTask(request.resource.data)
           && request.resource.data.createdByUid == resource.data.createdByUid
           && request.resource.data.updatedBy == request.auth.uid);
+      allow delete: if false;
+    }
+
+    match /attachments/{attachmentId} {
+      allow read: if activeUser();
+      allow create: if isEditor() && validAttachment(request.resource.data);
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['archived'])
+        && request.resource.data.archived is bool;
       allow delete: if false;
     }
 

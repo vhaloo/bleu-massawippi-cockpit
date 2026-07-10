@@ -16,12 +16,16 @@ service firebase.storage {
         && profile().data.role in ['director', 'admin'];
     }
 
+    function activeUser() {
+      return signedIn() && profile().data.active == true;
+    }
+
     match /uploads/{itemId}/{fileName} {
-      allow read: if activeEditor();
+      allow read: if activeUser();
       allow create: if activeEditor()
         && request.resource.size > 0
-        && request.resource.size <= 25 * 1024 * 1024
-        && request.resource.contentType.matches('image/.*|video/.*|application/pdf');
+        && request.resource.size <= 1024 * 1024
+        && request.resource.contentType == 'image/jpeg';
       allow update, delete: if false;
     }
   }

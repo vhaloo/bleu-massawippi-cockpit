@@ -5,6 +5,7 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { applicationDefault, initializeApp } from "firebase-admin/app";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
+import { applyPlanOverridesToPosts, preparePlanScript } from "./plan-overrides.js";
 
 const workspaceDir = path.dirname(fileURLToPath(import.meta.url));
 const sourcePath = path.resolve(workspaceDir, "..", "index.html");
@@ -19,7 +20,7 @@ if (!css || !html || !script || !postsJson) {
   throw new Error("La structure du plan source ne permet pas de préparer le contenu sécurisé.");
 }
 
-const posts = JSON.parse(postsJson);
+const posts = applyPlanOverridesToPosts(JSON.parse(postsJson));
 const mainPosts = Array.isArray(posts) ? posts.filter((post) => post.isAlternative !== true) : [];
 if (!Array.isArray(posts) || mainPosts.length !== 28 || posts.length < 28) {
   throw new Error("Le plan source doit contenir 28 publications principales et ses alternatives éventuelles.");
@@ -29,7 +30,7 @@ const privateContent = {
   schemaVersion: 1,
   css,
   html,
-  script
+  script: preparePlanScript(script, posts)
 };
 const size = Buffer.byteLength(JSON.stringify(privateContent), "utf8");
 if (size > 900000) throw new Error("Le contenu privé dépasse la limite de sécurité de 900 Ko.");
