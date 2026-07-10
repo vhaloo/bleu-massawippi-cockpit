@@ -80,6 +80,11 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    match /privateContent/{contentId} {
+      allow read: if activeUser();
+      allow write: if false;
+    }
+
     match /scheduleItems/{itemId} {
       allow read: if activeUser();
       allow create: if isEditor() && validSchedule(request.resource.data);

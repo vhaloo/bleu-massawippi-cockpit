@@ -4,17 +4,19 @@ Le dossier contient une nouvelle copie interactive du plan. Le HTML de présenta
 
 ## État livré
 
-- index.html : plan institutionnel avec barrière de connexion, barre de session, statuts Firestore, suppression virtuelle, commentaires, dictée vocale, dépôt de fichiers et journal administrateur.
+- index.html : coque publique sans contenu stratégique; elle affiche la barrière de connexion et ne charge le plan qu’après autorisation Firebase.
 - firebase-client.js : SDK Web Firebase modulaire, version CDN 12.15.0, persistance IndexedDB, Auth, Firestore et Storage.
 - cockpit-ui.js : couche d’interface et de pilotage.
 - admin_sync.js : pont local Firebase Admin pour lire les modifications et télécharger les pièces jointes.
+- seed_private_content.js : charge localement le plan et les 28 états initiaux dans Firestore, après configuration du compte de service.
+- provision_users.js : crée ou raccorde les deux comptes autorisés et leurs rôles, en lisant les adresses et mots de passe uniquement depuis des variables de session.
 - firestore.rules et storage.rules : règles d’accès strictes, à publier et tester dans la console avant production.
 - firebase-config.example.js : modèle de configuration publique.
 - firebase-config.js : configuration publique de l’application Web, nécessaire au site GitHub Pages. Cette configuration identifie le projet; elle n’est pas une clé d’administration.
 - firebase-config.local.js : ancien fichier local de compatibilité, ignoré par Git.
 - SOURCES_ET_GARDES_FOUS.md : registre de sources et décisions éditoriales.
 
-Pour un aperçu local, servez le dossier parent avec un serveur HTTP (un module JavaScript ne fonctionne pas de façon fiable en ouvrant directement le fichier `file://`). Exemple : depuis `Plan_d_attaque_Ete_2026_V2_strategique`, lancez `python -m http.server 8765`, puis ouvrez `http://127.0.0.1:8765/cockpit/index.html?demo=1`. Le paramètre `demo=1` garde l’interface en lecture seule.
+Pour vérifier la barrière locale, servez le dossier parent avec un serveur HTTP (un module JavaScript ne fonctionne pas de façon fiable en ouvrant directement le fichier `file://`). Exemple : depuis `Plan_d_attaque_Ete_2026_V2_strategique`, lancez `python -m http.server 8765`, puis ouvrez `http://127.0.0.1:8765/cockpit/index.html`. Le plan ne peut apparaître qu’après connexion Firebase autorisée.
 
 ## 1. Créer ou sélectionner le projet Firebase
 
@@ -48,6 +50,14 @@ Rôles acceptés :
 - viewer : lecture seule.
 
 Le mot de passe générique proposé dans la directive n’est pas utilisé : un secret partagé serait trop facile à deviner et à réutiliser. Utilisez un mot de passe unique par compte et le mécanisme de réinitialisation Firebase. Seuls les comptes dont le document users/{uid} contient active: true peuvent accéder au cockpit.
+
+Après avoir défini les variables de compte de service, le script de provisionnement peut créer les deux accès et leurs profils Firestore sans enregistrer les mots de passe dans un fichier :
+
+    $env:COCKPIT_ADMIN_EMAIL="adresse du compte administrateur"
+    $env:COCKPIT_ADMIN_PASSWORD="mot de passe unique de 16 caractères ou plus"
+    $env:COCKPIT_DIRECTOR_EMAIL="adresse du compte direction"
+    $env:COCKPIT_DIRECTOR_PASSWORD="mot de passe unique de 16 caractères ou plus"
+    npm run provision-users
 
 ## 3. Générer la clé de synchronisation locale
 
@@ -88,6 +98,15 @@ Le script lit :
 
 Après un téléchargement réussi, il marque la pièce jointe downloaded_locally: true. Le résumé est écrit dans sync-output/sync-summary.json, dossier ignoré par Git.
 
+## 4.1 Charger le contenu sécurisé initial
+
+Le plan détaillé n’est pas envoyé dans GitHub Pages. Après la publication des règles et la préparation du compte de service, chargez-le une fois dans Firestore :
+
+    npm run seed -- --dry-run
+    npm run seed
+
+Le premier appel vérifie localement les 28 publications et la taille du document; le second écrit le contenu privé et crée uniquement les états de calendrier encore absents. Les futurs changements de statut sont donc préservés.
+
 ## 5. Déployer sur GitHub Pages
 
 Aucun dépôt GitHub ni identifiant de projet n’a été fourni, donc aucun déploiement externe n’est lancé automatiquement.
@@ -110,6 +129,7 @@ Le fichier firebase.json est inclus pour publier uniquement les règles Firebase
 ## Modèle de données Firestore
 
 - users/{uid} : rôle et libellé d’affichage.
+- privateContent/plan : HTML, styles et données du plan; lecture réservée aux comptes actifs.
 - scheduleItems/{sectionId} : title, dateKey, status, deleted, updatedAt, updatedBy.
 - comments/{commentId} : sectionId, comment, quickTag, dictated, authorUid, createdAt.
 - attachments/{attachmentId} : sectionId, storagePath, fileName, contentType, size, downloaded_locally, authorUid, createdAt; le script local ajoute downloadedAt et downloadedBy après une récupération réussie.
@@ -120,6 +140,7 @@ Le frontend crée un journal opérationnel append-only pour chaque statut, comme
 ## Limites assumées
 
 - Tant que firebase-config.js conserve REMPLACER, le cockpit reste bloqué sur la connexion et n’effectue aucune lecture distante.
-- Le mode local ?demo=1 permet seulement de vérifier l’interface; aucune modification n’est envoyée à Firebase.
+- GitHub Pages ne protège jamais les fichiers statiques à elle seule : le plan détaillé est donc stocké dans privateContent/plan, dont les règles n’autorisent la lecture qu’aux comptes actifs.
+- Le mode local ?demo=1 vérifie uniquement la barrière de connexion; aucun contenu stratégique ni aucune modification ne sont disponibles sans Firebase.
 - La dictée repose sur webkitSpeechRecognition/SpeechRecognition; Chrome est le navigateur recommandé.
 - Les règles Firebase doivent être publiées puis testées avec les comptes director, admin et viewer avant une mise en ligne réelle.

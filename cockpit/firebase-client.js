@@ -96,6 +96,19 @@ export function getClientState() {
   return { configured, persistenceState, auth, db, storage };
 }
 
+export async function fetchPrivateContent() {
+  requireConfigured();
+  const snapshot = await getDoc(doc(db, "privateContent", "plan"));
+  if (!snapshot.exists()) {
+    throw new Error("Le contenu sécurisé n’a pas encore été préparé.");
+  }
+  const data = snapshot.data();
+  if (typeof data.html !== "string" || typeof data.css !== "string" || typeof data.script !== "string") {
+    throw new Error("Le contenu sécurisé est incomplet.");
+  }
+  return data;
+}
+
 export function observeAuth(callback) {
   if (!configured) {
     callback(null, null, new Error("Firebase non configuré."));

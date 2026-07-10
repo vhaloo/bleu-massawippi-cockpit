@@ -4,9 +4,9 @@
 **Statut :** proposition opérationnelle prête à présenter et à ajuster avec la direction générale  
 **Livrable principal :** ouvrir `index.html` dans un navigateur.
 
-**Cockpit de collaboration :** le sous-dossier `cockpit/` contient la version sécurisée et connectable à Firebase. Utiliser `cockpit/index.html?demo=1` uniquement pour un aperçu local sans données distantes; consulter `cockpit/README_FIREBASE.md` avant toute mise en ligne.
+**Cockpit de collaboration :** le sous-dossier `cockpit/` contient la version sécurisée et connectable à Firebase. Il ne contient aucun texte stratégique avant une connexion autorisée; consulter `cockpit/README_FIREBASE.md` avant toute mise en ligne.
 
-**Textes finaux à programmer :** `TEXTES_COMPLETS_PUBLICATIONS_13_JUILLET_9_AOUT_2026.md` est la source éditoriale complète des 28 légendes, avec le visuel, le texte alternatif, la source et la préparation de chaque publication. Les légendes de `index.html` et de `cockpit/index.html` sont synchronisées avec ce document.
+**Textes finaux à programmer :** `TEXTES_COMPLETS_PUBLICATIONS_13_JUILLET_9_AOUT_2026.md` est la source éditoriale complète des 28 légendes, avec le visuel, le texte alternatif, la source et la préparation de chaque publication. Le plan source `index.html` est synchronisé avec ce document, puis chargé de façon privée dans Firebase par `cockpit/seed_private_content.js`.
 
 ## Ce qui est nouveau
 

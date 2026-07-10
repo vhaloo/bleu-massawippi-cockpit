@@ -31,6 +31,8 @@ jobs:
           npm ci --prefix cockpit
           node --check finaliser_textes_publications.js
           node finaliser_textes_publications.js
+          npm --prefix cockpit run seed -- --dry-run
+          ! grep -q 'var posts=' cockpit/index.html
           git diff --exit-code
           npm --prefix cockpit run check
       - name: Vérifier l’absence de secrets locaux
@@ -48,7 +50,10 @@ jobs:
       - name: Préparer le site public
         run: |
           mkdir -p public
-          cp -R cockpit/. public/
+          cp cockpit/index.html public/
+          cp cockpit/cockpit-ui.js public/
+          cp cockpit/firebase-client.js public/
+          cp cockpit/firebase-config.js public/
           cp SOURCES_ET_GARDES_FOUS.md public/
       - name: Préparer l’artefact Pages
         uses: actions/upload-pages-artifact@v3

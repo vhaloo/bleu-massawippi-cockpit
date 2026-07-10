@@ -401,13 +401,11 @@ function renderMarkdown(posts) {
 }
 
 const planHtml = path.join(directory, "index.html");
-const cockpitHtml = path.join(directory, "cockpit", "index.html");
 const originalPosts = readPosts(planHtml);
 const ids = new Set(originalPosts.map((post) => post.id));
 for (const item of final) if (!ids.has(item.id)) throw new Error("Identifiant inconnu : " + item.id);
 
 synchronizeHtml(planHtml);
-synchronizeHtml(cockpitHtml);
 const updatedPosts = readPosts(planHtml);
 const markdownPath = path.join(directory, "TEXTES_COMPLETS_PUBLICATIONS_13_JUILLET_9_AOUT_2026.md");
 fs.writeFileSync(markdownPath, renderMarkdown(updatedPosts), "utf8");
@@ -415,7 +413,7 @@ fs.writeFileSync(markdownPath, renderMarkdown(updatedPosts), "utf8");
 const invalid = updatedPosts.filter((post) => post.copy.length > 2200 || /\[(?:CITATION|PRÉNOM|LIEN|APPROVED|NAME|VERIFIED|ANNÉE|CANAL)/i.test(post.copy));
 if (invalid.length) throw new Error("Texte final incomplet ou trop long : " + invalid.map((post) => post.id).join(", "));
 console.log(JSON.stringify({
-  synchronized: [planHtml, cockpitHtml],
+  synchronized: [planHtml],
   markdownPath,
   posts: updatedPosts.length,
   longestCaption: Math.max(...updatedPosts.map((post) => post.copy.length))

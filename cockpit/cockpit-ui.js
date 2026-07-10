@@ -1,5 +1,6 @@
 import {
   getClientState,
+  fetchPrivateContent,
   observeAuth,
   signIn,
   sendPasswordReset,
@@ -14,7 +15,7 @@ import {
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
-const state = { user: null, profile: null, rows: new Map(), auditUnsubscribe: null, scheduleUnsubscribe: null };
+const state = { user: null, profile: null, rows: new Map(), auditUnsubscribe: null, scheduleUnsubscribe: null, contentLoaded: false };
 
 const style = document.createElement("style");
 style.textContent = `
@@ -143,12 +144,17 @@ function buildSession() {
   session.id = "cockpit-session";
   session.innerHTML = `<span id="cockpit-session-label"></span><button id="cockpit-logout" type="button">Se déconnecter</button>`;
   document.body.prepend(session);
-  session.querySelector("#cockpit-logout").addEventListener("click", () => {
+  session.querySelector("#cockpit-logout").addEventListener("click", async () => {
     if (demoMode) {
       toast("Aperçu local : aucune session à fermer.");
       return;
     }
-    logOut().catch((error) => toast(error.message, true));
+    try {
+      await logOut();
+      location.reload();
+    } catch (error) {
+      toast(error.message, true);
+    }
   });
   return session;
 }
@@ -376,8 +382,34 @@ function enhanceCardEvents() {
   });
 }
 
-function applyProfile(profile) {
+async function loadPrivateContent() {
+  if (state.contentLoaded) return;
+  const content = await fetchPrivateContent();
+  const host = document.querySelector("#cockpit-content");
+  if (!host) throw new Error("Conteneur du cockpit introuvable.");
+  document.querySelector("#cockpit-private-style")?.remove();
+  const privateStyle = document.createElement("style");
+  privateStyle.id = "cockpit-private-style";
+  privateStyle.textContent = content.css;
+  document.head.appendChild(privateStyle);
+  host.innerHTML = content.html;
+  const planScript = document.createElement("script");
+  planScript.textContent = content.script;
+  document.body.appendChild(planScript);
+  planScript.remove();
+  state.contentLoaded = true;
+}
+
+function clearPrivateContent() {
+  document.querySelector("#cockpit-content")?.replaceChildren();
+  document.querySelector("#cockpit-private-style")?.remove();
+  state.contentLoaded = false;
+  globalThis.posts = [];
+}
+
+async function applyProfile(profile) {
   state.profile = profile;
+  await loadPrivateContent();
   document.body.classList.remove("cockpit-locked");
   document.body.classList.remove("cockpit-readonly");
   document.querySelector("#cockpit-login")?.setAttribute("hidden", "");
@@ -411,6 +443,7 @@ function applySignedOut(message = "") {
   state.rows = new Map();
   state.scheduleUnsubscribe?.();
   state.auditUnsubscribe?.();
+  clearPrivateContent();
   document.body.classList.add("cockpit-locked");
   document.querySelector("#cockpit-session")?.remove();
   document.body.classList.remove("cockpit-admin");
@@ -419,13 +452,7 @@ function applySignedOut(message = "") {
   login.removeAttribute("hidden");
   const note = login.querySelector("#cockpit-login-note");
   if (demoMode) {
-    note.textContent = "Aperçu local activé : les modifications ne sont pas synchronisées.";
-    login.setAttribute("hidden", "");
-    document.body.classList.remove("cockpit-locked");
-    buildSession().querySelector("#cockpit-session-label").innerHTML = "Aperçu local · lecture seule";
-    addFooterCredit();
-    enhanceCards();
-    syncCardAccess();
+    note.textContent = "L’aperçu local ne charge pas de contenu stratégique.";
     return;
   }
   note.textContent = configured
@@ -470,8 +497,12 @@ function start() {
       return;
     }
     state.user = user;
-    applyProfile(profile);
-    subscribeRemoteData();
+    applyProfile(profile)
+      .then(() => subscribeRemoteData())
+      .catch((reason) => {
+        logOut().catch(() => {});
+        applySignedOut(reason.message || "Le contenu sécurisé est indisponible.");
+      });
   });
 }
 

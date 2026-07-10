@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "sync": "node admin_sync.js",
+    "seed": "node seed_private_content.js",
+    "provision-users": "node provision_users.js",
     "check": "node --check admin_sync.js && node --check firebase-client.js && node --check cockpit-ui.js"
   },
   "dependencies": {
