@@ -6,12 +6,12 @@ Le dossier contient une nouvelle copie interactive du plan. Le HTML de présenta
 
 - index.html : coque publique sans contenu stratégique; elle affiche la barrière de connexion et ne charge le plan qu’après autorisation Firebase.
 - firebase-client.js : SDK Web Firebase modulaire, version CDN 12.15.0, persistance IndexedDB, Auth et Firestore.
-- cockpit-ui.js : couche d’interface et de pilotage, choix d’option par journée, rétroaction par section, boîte à idées flottante, dictée progressive Chrome / Edge / Safari et retour sur le mode de collaboration.
-- admin_sync.js : pont local Firebase Admin pour lire les modifications du calendrier, les commentaires et les rétroactions du cockpit.
+- cockpit-ui.js : couche d’interface et de pilotage, choix d’option par journée, responsabilités Valentin / Annie pour chaque événement, tâches administratives cliquables, rétroaction par section, boîte à idées flottante, dictée progressive Chrome / Edge / Safari, calendrier contextualisé et installation PWA.
+- admin_sync.js : pont local Firebase Admin pour lire les modifications du calendrier, les commentaires, les rétroactions, les tâches et l’archive append-only.
 - seed_private_content.js : charge localement le plan, les 28 publications principales, les six alternatives et leurs états dans Firestore, après configuration du compte de service.
 - ../refine_calendar.js : réorganise les dates pour éviter les répétitions voisines et génère les six journées à choix exclusif.
 - provision_users.js : crée ou raccorde les deux comptes autorisés et leurs rôles, en lisant les adresses et mots de passe uniquement depuis des variables de session.
-- firestore.rules : règles d’accès strictes, à publier et tester dans la console avant production.
+- firestore.rules : règles d’accès strictes pour les contenus, tâches, versions et archive append-only.
 - firebase-config.example.js : modèle de configuration publique.
 - firebase-config.js : configuration publique de l’application Web, nécessaire au site GitHub Pages. Cette configuration identifie le projet; elle n’est pas une clé d’administration.
 - firebase-config.local.js : ancien fichier local de compatibilité, ignoré par Git.
@@ -129,12 +129,15 @@ Le fichier firebase.json est inclus pour publier uniquement les règles Firebase
 
 - users/{uid} : rôle et libellé d’affichage.
 - privateContent/plan : HTML, styles et données du plan; lecture réservée aux comptes actifs.
-- scheduleItems/{sectionId} : title, dateKey, status, deleted, selected, updatedAt, updatedBy. Les journées à choix partagent un groupe côté plan; une seule option est sélectionnée à la fois.
+- scheduleItems/{sectionId} : title, dateKey, format, role, cta, source, tasksValentin, tasksAnnie, calendarTime, calendarDurationMinutes, calendarLocation, calendarCost, status, deleted, selected, updatedAt, updatedBy. Les journées à choix partagent un groupe côté plan; une seule option est sélectionnée à la fois.
 - comments/{commentId} : sectionId, comment, quickTag, dictated, authorUid, createdAt.
 - auditLogs/{logId} : action, sectionId, userUid, userLabel, createdAt.
 - cockpitFeedback/{feedbackId} : sectionId, message, category, page, authorUid, authorLabel, status, createdAt, updatedAt, updatedBy. La direction peut déposer une note; l’administration la classe dans le journal.
+- tasks/{taskId} : titre, message, cible cliquable, responsabilités, statut pending/done et timestamps. Une acceptation de la direction peut clore la tâche; l’administration dispose aussi d’un bouton « Marquer complétée ».
+- changeArchive/{archiveId} : événement immuable avec état avant/après, action, personne et date. Les documents ne peuvent être ni modifiés ni supprimés depuis le frontend.
+- privateContentVersions/{versionId} : copie versionnée du contenu privé chargée à chaque préparation du plan, identifiée par une empreinte de contenu.
 
-Le frontend crée un journal opérationnel append-only pour chaque statut, commentaire ou badge. Seuls les rôles director et admin peuvent l’écrire; seul admin peut le lire. Ce journal sert au pilotage humain, pas à fournir une preuve médico-légale : un journal infalsifiable nécessiterait une fonction serveur de confiance.
+Le frontend crée un journal opérationnel append-only pour chaque statut, choix, commentaire, rétroaction et tâche. Les versions du contenu source restent aussi dans Git et les versions chargées dans privateContentVersions. Seuls les rôles director et admin peuvent créer ces traces; seul admin peut les lire depuis l’interface. La synchronisation locale Codex lit changeArchive, tasks, comments, auditLogs et cockpitFeedback pour reconstruire le contexte sans supprimer une ancienne idée.
 
 ## Limites assumées
 
@@ -143,3 +146,4 @@ Le frontend crée un journal opérationnel append-only pour chaque statut, comme
 - Le mode local ?demo=1 vérifie uniquement la barrière de connexion; aucun contenu stratégique ni aucune modification ne sont disponibles sans Firebase.
 - La dictée utilise SpeechRecognition ou webkitSpeechRecognition quand le navigateur les expose, redémarre les sessions interrompues et affiche un repli explicite vers la dictée native du système lorsque Safari ou un autre navigateur ne fournit pas l’API. Aucun site web ne peut garantir une reconnaissance vocale programmatique si le navigateur la bloque.
 - Les règles Firebase doivent être publiées puis testées avec les comptes director, admin et viewer avant une mise en ligne réelle.
+- L’installation en application repose sur le manifeste et le service worker du sous-dossier cockpit. Le bouton d’installation peut être masqué; ce choix est conservé localement sur l’appareil. Sur Safari, si le bouton système n’est pas exposé, le cockpit indique le chemin « Ajouter à l’écran d’accueil » du menu du navigateur.

@@ -13,15 +13,23 @@ import {
   subscribeAuditLogs,
   addCockpitFeedback,
   subscribeCockpitFeedback,
-  updateCockpitFeedbackStatus
-} from "./firebase-client.js?v=971a7ad";
+  updateCockpitFeedbackStatus,
+  upsertActionTask,
+  completeActionTask,
+  subscribeActionTasks
+} from "./firebase-client.js?v=20260710-tasks";
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
-const state = { user: null, profile: null, rows: new Map(), auditUnsubscribe: null, feedbackUnsubscribe: null, scheduleUnsubscribe: null, contentLoaded: false };
+const state = { user: null, profile: null, rows: new Map(), tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, contentLoaded: false };
 let activeRecognition = null;
 let activeTextarea = null;
 let recognitionRestart = false;
+let recognitionRestartTimer = null;
+let recognitionLanguageIndex = 0;
+let recognitionRestartAttempts = 0;
+const recognitionLanguages = ["fr-CA", "fr-FR", "en-CA", "en-US"];
+const terminalRecognitionErrors = new Set(["not-allowed", "service-not-allowed", "audio-capture", "network", "aborted"]);
 
 const style = document.createElement("style");
 style.textContent = `
@@ -67,6 +75,7 @@ style.textContent = `
   .cockpit-voice-status { min-height: 18px; margin-top: 4px; color: #54717d; font-size: .7rem; }
   .cockpit-voice-status.live { color: #0b7895; font-weight: 800; }
   .cockpit-voice-status.error { color: #9a4035; }
+  .cockpit-voice-help { flex-basis: 100%; color: #6b858d; font-size: .68rem; line-height: 1.35; }
   #cockpit-feedback-launch { position: fixed; left: 15px; bottom: 15px; z-index: 31; min-height: 42px; padding: 0 14px; border: 1px solid #073a52; border-radius: 999px; color: #fff; background: #073a52; box-shadow: 0 8px 22px rgba(7,58,82,.2); font-weight: 850; cursor: pointer; }
   #cockpit-feedback-panel { position: fixed; left: 15px; bottom: 68px; z-index: 32; display: none; width: min(390px, calc(100vw - 30px)); padding: 16px; border: 1px solid #cbe1e4; border-radius: 18px; color: #234b5a; background: #f8fcfc; box-shadow: 0 18px 42px rgba(7,58,82,.2); }
   #cockpit-feedback-panel.open { display: block; }
@@ -95,6 +104,26 @@ style.textContent = `
   #cockpit-sidebar { position: fixed; top: 45px; right: 0; bottom: 0; z-index: 30; width: min(390px, 94vw); padding: 18px; overflow: auto; border-left: 1px solid #cbe1e4; background: #f8fcfc; box-shadow: -15px 0 35px rgba(7,58,82,.13); transform: translateX(100%); transition: transform .22s ease; }
   #cockpit-sidebar.open { transform: translateX(0); }
   #cockpit-sidebar h2 { margin: 0; color: #073a52; font-size: 1.2rem; }
+  #cockpit-task-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  #cockpit-task-count { display: inline-grid; min-width: 25px; height: 25px; padding: 0 6px; place-items: center; border-radius: 999px; color: #fff; background: #c26b50; font-size: .75rem; }
+  #cockpit-task-list { margin: 10px 0 22px; }
+  .cockpit-task-empty { margin: 8px 0 0; color: #587680; font-size: .76rem; }
+  .cockpit-task-item { margin-top: 8px; padding: 10px; border: 1px solid #d6e8ea; border-radius: 11px; background: #fff; }
+  .cockpit-task-item b { display: block; color: #073a52; font-size: .78rem; }
+  .cockpit-task-item p { margin: 4px 0 7px; color: #587680; font-size: .72rem; line-height: 1.38; white-space: pre-wrap; }
+  .cockpit-task-item small { display: block; margin-bottom: 7px; color: #78919a; font-size: .66rem; }
+  .cockpit-task-actions { display: flex; gap: 6px; }
+  .cockpit-task-actions button { padding: 5px 7px; border: 1px solid #cbe1e4; border-radius: 7px; color: #315564; background: #fff; font-size: .68rem; font-weight: 800; cursor: pointer; }
+  .cockpit-task-actions button[data-complete-task] { border-color: #0b7895; color: #fff; background: #0b7895; }
+  #cockpit-task-launch { position: fixed; right: 15px; bottom: 68px; z-index: 31; min-height: 42px; padding: 0 13px; border: 1px solid #073a52; border-radius: 999px; color: #fff; background: #073a52; box-shadow: 0 8px 22px rgba(7,58,82,.2); font-weight: 850; cursor: pointer; }
+  #cockpit-task-launch[data-has-tasks="true"] { background: #c26b50; }
+  .task-focus { outline: 3px solid #2ab6bb; outline-offset: 5px; animation: cockpit-task-pulse 1.4s ease; }
+  @keyframes cockpit-task-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(42,182,187,0); } 35% { box-shadow: 0 0 0 8px rgba(42,182,187,.23); } }
+  #cockpit-install-launch { position: fixed; right: 15px; bottom: 121px; z-index: 31; display: flex; align-items: center; gap: 8px; max-width: min(340px, calc(100vw - 30px)); padding: 10px 12px; border: 1px solid #b9dde2; border-radius: 14px; color: #073a52; background: #f8fcfc; box-shadow: 0 11px 28px rgba(7,58,82,.16); font-size: .76rem; }
+  #cockpit-install-launch[hidden] { display: none; }
+  #cockpit-install-launch p { margin: 0; line-height: 1.3; }
+  #cockpit-install-launch button { padding: 6px 8px; border: 0; border-radius: 8px; color: #fff; background: #0b7895; font-size: .7rem; font-weight: 850; cursor: pointer; white-space: nowrap; }
+  #cockpit-install-launch button[data-dismiss-install] { padding: 2px 4px; color: #55727d; background: transparent; font-size: 1rem; }
   #cockpit-sidebar .cockpit-log { padding: 10px 0; border-bottom: 1px solid #d6e8ea; color: #4f6c77; font-size: .76rem; }
   #cockpit-sidebar .cockpit-log b { display: block; color: #073a52; }
   #cockpit-sidebar-toggle { position: fixed; right: 15px; bottom: 15px; z-index: 31; display: none; min-height: 42px; padding: 0 13px; border: 1px solid #073a52; border-radius: 999px; color: #fff; background: #073a52; font-weight: 850; cursor: pointer; }
@@ -103,6 +132,8 @@ style.textContent = `
   @media (max-width: 700px) {
     #cockpit-session { padding: 8px 12px; }
     .cockpit-status-row button[data-status="deleted"] { margin-left: 0; }
+    #cockpit-task-launch { right: 12px; bottom: 68px; }
+    #cockpit-install-launch { right: 12px; bottom: 120px; }
   }
 `;
 document.head.appendChild(style);
@@ -122,6 +153,48 @@ function toast(message, error = false) {
   document.body.appendChild(node);
   setTimeout(() => node.remove(), 4200);
 }
+
+let deferredInstallPrompt = null;
+const installDismissKey = "bleu-massawippi-install-dismissed";
+
+function buildInstallWidget() {
+  if (document.querySelector("#cockpit-install-launch") || localStorage.getItem(installDismissKey) === "1") return;
+  if (window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true) return;
+  const node = document.createElement("aside");
+  node.id = "cockpit-install-launch";
+  node.setAttribute("aria-label", "Installer le cockpit");
+  node.innerHTML = `<p><strong>Accès rapide</strong><br>Ajouter le cockpit comme application sur cet appareil.</p><button type="button" data-install-app>Installer</button><button type="button" data-dismiss-install aria-label="Masquer ce conseil">×</button>`;
+  node.querySelector("[data-dismiss-install]").addEventListener("click", () => {
+    localStorage.setItem(installDismissKey, "1");
+    node.remove();
+  });
+  node.querySelector("[data-install-app]").addEventListener("click", async () => {
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      if (choice?.outcome === "accepted") {
+        localStorage.setItem(installDismissKey, "1");
+        node.remove();
+      }
+      return;
+    }
+    toast("Dans le menu du navigateur, choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil ».");
+  });
+  document.body.appendChild(node);
+}
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  buildInstallWidget();
+});
+window.addEventListener("appinstalled", () => {
+  localStorage.setItem(installDismissKey, "1");
+  document.querySelector("#cockpit-install-launch")?.remove();
+});
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", buildInstallWidget, { once: true });
+else buildInstallWidget();
 
 function buildLogin() {
   const login = document.createElement("div");
@@ -195,7 +268,7 @@ function buildAdminSidebar() {
   if (document.querySelector("#cockpit-sidebar")) return;
   const sidebar = document.createElement("aside");
   sidebar.id = "cockpit-sidebar";
-  sidebar.innerHTML = "<h2>Journal de modifications</h2><p class=\"cockpit-sidebar-note\">Lecture technique des changements synchronisés.</p><div id=\"cockpit-log-list\"></div><h2 style=\"margin-top:24px\">Rétroactions du cockpit</h2><p class=\"cockpit-sidebar-note\">Les avis déposés dans les sections et la boîte à idées.</p><div id=\"cockpit-feedback-list\"></div>";
+  sidebar.innerHTML = "<div id=\"cockpit-task-heading\"><h2>À accomplir</h2><span id=\"cockpit-task-count\">0</span></div><p class=\"cockpit-sidebar-note\">Les décisions et recommandations reçues de la direction restent ici jusqu’à leur validation ou leur achèvement forcé.</p><div id=\"cockpit-task-list\"></div><h2>Journal de modifications</h2><p class=\"cockpit-sidebar-note\">Lecture technique des changements synchronisés.</p><div id=\"cockpit-log-list\"></div><h2 style=\"margin-top:24px\">Rétroactions du cockpit</h2><p class=\"cockpit-sidebar-note\">Les avis déposés dans les sections et la boîte à idées.</p><div id=\"cockpit-feedback-list\"></div>";
   document.body.appendChild(sidebar);
   const toggle = document.createElement("button");
   toggle.id = "cockpit-sidebar-toggle";
@@ -203,6 +276,78 @@ function buildAdminSidebar() {
   toggle.textContent = "Ouvrir le journal";
   toggle.addEventListener("click", () => sidebar.classList.toggle("open"));
   document.body.appendChild(toggle);
+}
+
+function buildTaskWidget() {
+  if (document.querySelector("#cockpit-task-launch")) return;
+  const button = document.createElement("button");
+  button.id = "cockpit-task-launch";
+  button.type = "button";
+  button.dataset.hasTasks = "false";
+  button.innerHTML = "À accomplir <span data-task-count>0</span>";
+  button.addEventListener("click", () => {
+    const sidebar = document.querySelector("#cockpit-sidebar");
+    sidebar?.classList.add("open");
+    document.querySelector("#cockpit-task-heading")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  document.body.appendChild(button);
+}
+
+function taskWhen(task) {
+  return task.createdAt?.toDate ? task.createdAt.toDate().toLocaleString("fr-CA") : "date en attente";
+}
+
+function renderActionTasks(tasks) {
+  state.tasks = Array.isArray(tasks) ? tasks : [];
+  const pending = state.tasks.filter((task) => task.status === "pending");
+  const count = String(pending.length);
+  document.querySelectorAll("[data-task-count]").forEach((node) => { node.textContent = count; });
+  const launch = document.querySelector("#cockpit-task-launch");
+  if (launch) {
+    launch.dataset.hasTasks = String(pending.length > 0);
+    launch.setAttribute("aria-label", `${pending.length} tâche${pending.length > 1 ? "s" : ""} à accomplir`);
+  }
+  const list = document.querySelector("#cockpit-task-list");
+  if (!list) return;
+  if (!pending.length) {
+    list.innerHTML = "<p class=\"cockpit-task-empty\">Aucune tâche en attente. Les décisions acceptées et les éléments marqués comme complétés disparaissent de cette liste.</p>";
+    return;
+  }
+  list.innerHTML = pending.map((task) => `<article class="cockpit-task-item" data-task-id="${esc(task.id)}"><b>${esc(task.title || "Tâche à accomplir")}</b><small>${esc(task.targetLabel || task.targetId || "Cible non précisée")} · ${esc(taskWhen(task))}</small><p>${esc(task.message || "")}</p><div class="cockpit-task-actions"><button type="button" data-open-task="${esc(task.id)}" data-task-target-type="${esc(task.targetType || "schedule")}" data-task-target="${esc(task.targetId || "")}">Ouvrir</button><button type="button" data-complete-task="${esc(task.id)}">Marquer complétée</button></div></article>`).join("");
+}
+
+function findTaskTarget(type, id) {
+  if (!id) return null;
+  if (type === "section") return document.getElementById(id);
+  return [...document.querySelectorAll("[data-item-id]")].find((node) => node.dataset.itemId === id) || document.getElementById(id);
+}
+
+function enhanceTaskEvents() {
+  if (document.body.dataset.taskEventsReady === "true") return;
+  document.body.dataset.taskEventsReady = "true";
+  document.addEventListener("click", (event) => {
+    const openButton = event.target.closest("[data-open-task]");
+    if (openButton) {
+      const target = findTaskTarget(openButton.dataset.taskTargetType, openButton.dataset.taskTarget);
+      if (!target) {
+        toast("La cible de cette tâche n’est plus visible dans le cockpit.", true);
+        return;
+      }
+      target.closest("details")?.setAttribute("open", "");
+      target.closest(".context-fold")?.setAttribute("open", "");
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.classList.add("task-focus");
+      window.setTimeout(() => target.classList.remove("task-focus"), 1800);
+      return;
+    }
+    const completeButton = event.target.closest("[data-complete-task]");
+    if (!completeButton || !state.profile || state.profile.role !== "admin") return;
+    completeButton.disabled = true;
+    completeActionTask(completeButton.dataset.completeTask, state.profile)
+      .then(() => toast("Tâche marquée comme complétée."))
+      .catch((error) => toast(error.message, true))
+      .finally(() => { completeButton.disabled = false; });
+  });
 }
 
 const feedbackSectionLabels = {
@@ -234,7 +379,17 @@ function submitFeedbackForm(form) {
   }
   submitButton.disabled = true;
   addCockpitFeedback(sectionId, message, categoryField.value, state.profile)
-    .then(() => writeAuditLog("cockpit:" + sectionId, "rétroaction déposée", state.profile))
+    .then(async (feedbackId) => {
+      await writeAuditLog("cockpit:" + sectionId, "rétroaction déposée", state.profile);
+      await recordActionTask(`feedback-${feedbackId}`, {
+        status: "pending",
+        title: `Rétroaction à intégrer — ${feedbackSectionLabels[sectionId] || sectionId}`,
+        targetType: "section",
+        targetId: sectionId,
+        targetLabel: feedbackSectionLabels[sectionId] || sectionId,
+        message: `${message}\n\nLa rétroaction concerne une prochaine mouture; elle ne modifie pas le texte immédiatement.`
+      });
+    })
     .then(() => {
       messageField.value = "";
       toast("Rétroaction enregistrée pour la prochaine mouture.");
@@ -244,7 +399,7 @@ function submitFeedbackForm(form) {
 }
 
 function enhanceSectionFeedback() {
-  document.querySelectorAll("#cockpit-content main > section[id]").forEach((section) => {
+  document.querySelectorAll("#cockpit-content main section[id]").forEach((section) => {
     if (section.querySelector("[data-section-feedback]")) return;
     const heading = section.querySelector(".heading") || section.firstElementChild;
     if (!heading) return;
@@ -256,6 +411,203 @@ function enhanceSectionFeedback() {
     details.querySelector("[data-feedback-form]").addEventListener("submit", (event) => {
       event.preventDefault();
       submitFeedbackForm(event.currentTarget);
+    });
+  });
+}
+
+function escapeCalendarText(value) {
+  return String(value ?? "")
+    .replace(/\\/g, "\\\\")
+    .replace(/\r?\n/g, "\\n")
+    .replace(/([,;])/g, "\\$1");
+}
+
+function calendarUtcStamp(date) {
+  const pad = (value) => String(value).padStart(2, "0");
+  return `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}T${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}${pad(date.getUTCSeconds())}Z`;
+}
+
+function nextCalendarDate(weekday, hour, minute = 0) {
+  const now = new Date();
+  const target = new Date(now);
+  const currentDay = target.getDay();
+  let daysAhead = (weekday - currentDay + 7) % 7;
+  if (daysAhead === 0 && (now.getHours() > hour || (now.getHours() === hour && now.getMinutes() >= minute))) daysAhead = 7;
+  target.setDate(target.getDate() + daysAhead);
+  target.setHours(hour, minute, 0, 0);
+  return target;
+}
+
+function downloadCalendarFile(filename, content) {
+  const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
+  const objectUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = objectUrl;
+  anchor.download = filename;
+  anchor.rel = "noopener";
+  anchor.setAttribute("aria-hidden", "true");
+  document.body.appendChild(anchor);
+  anchor.click();
+  window.setTimeout(() => {
+    anchor.remove();
+    URL.revokeObjectURL(objectUrl);
+  }, 1200);
+}
+
+const frenchMonthNumbers = {
+  janvier: 0, février: 1, fevrier: 1, mars: 2, avril: 3, mai: 4, juin: 5,
+  juillet: 6, août: 7, aout: 7, septembre: 8, octobre: 9, novembre: 10, décembre: 11, decembre: 11
+};
+
+function parsePlanDate(value) {
+  const match = String(value || "").toLocaleLowerCase("fr-CA").match(/(\d{1,2})(?:er)?\s+([a-zéûô]+)/i);
+  if (!match) return null;
+  const month = frenchMonthNumbers[match[2]];
+  if (typeof month !== "number") return null;
+  return new Date(2026, month, Number(match[1]), 12, 0, 0, 0);
+}
+
+function postCalendarStart(planItem) {
+  const start = parsePlanDate(planItem?.date) || new Date(2026, 6, 13, 9, 0, 0, 0);
+  const hoursByDay = { 0: 9, 1: 9, 2: 12, 3: 18, 4: 12, 5: 17, 6: 10 };
+  start.setHours(hoursByDay[start.getDay()] ?? 12, 0, 0, 0);
+  return start;
+}
+
+function profileTaskLabel() {
+  if (state.profile?.role === "director") return "Annie — Directrice générale";
+  if (state.profile?.role === "admin") return "Valentin — Directeur des communications";
+  return "Répartition des tâches";
+}
+
+function profileTasks(planItem) {
+  const valentin = Array.isArray(planItem?.tasksValentin) ? planItem.tasksValentin : [planItem?.task].filter(Boolean);
+  const annie = Array.isArray(planItem?.tasksAnnie) ? planItem.tasksAnnie : [];
+  if (state.profile?.role === "director") return annie.length ? annie : ["Aucune tâche assignée à la direction générale pour ce contenu; prendre connaissance au besoin."];
+  if (state.profile?.role === "admin") return valentin;
+  return [...valentin.map((task) => "Valentin : " + task), ...(annie.length ? annie.map((task) => "Annie : " + task) : ["Annie : aucune tâche assignée pour ce contenu."])];
+}
+
+function buildPostCalendarIcs(planItem) {
+  const start = postCalendarStart(planItem);
+  const end = new Date(start.getTime() + 30 * 60000);
+  const roleLabel = profileTaskLabel();
+  const taskLines = profileTasks(planItem).map((task) => "• " + task).join("\n");
+  const description = [
+    `Publication prévue — créneau à tester (${start.toLocaleString("fr-CA", { dateStyle: "full", timeStyle: "short", timeZone: "America/Toronto" })})`,
+    "",
+    `Tâches de ${roleLabel} :`,
+    taskLines,
+    "",
+    `Format : ${planItem.format || "à confirmer"}`,
+    `Objectif : ${planItem.role || "à confirmer"}`,
+    `CTA : ${planItem.cta || "à confirmer"}`,
+    `Source / validation : ${planItem.source || "à confirmer"}`,
+    "Lieu : en ligne — Facebook / Instagram",
+    "Coût prévu : aucun coût de diffusion; confirmer les droits, la production et tout achat éventuel avant programmation.",
+    "Cet événement est une aide de coordination : il ne programme pas automatiquement la publication."
+  ].join("\n");
+  const uid = `bleu-massawippi-post-${planItem.id}-${start.getTime()}@bleumassawippi.com`;
+  return {
+    filename: `bleu-massawippi-${planItem.id}-${start.toISOString().slice(0, 10)}.ics`,
+    content: [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Bleu Massawippi//Cockpit//FR",
+      "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH",
+      "BEGIN:VEVENT",
+      `UID:${uid}`,
+      `DTSTAMP:${calendarUtcStamp(new Date())}`,
+      `DTSTART:${calendarUtcStamp(start)}`,
+      `DTEND:${calendarUtcStamp(end)}`,
+      `SUMMARY:${escapeCalendarText("Publication — " + (planItem.title || "Bleu Massawippi"))}`,
+      `DESCRIPTION:${escapeCalendarText(description)}`,
+      "LOCATION:En ligne — Facebook / Instagram",
+      `URL:${escapeCalendarText(planItem.source || "https://bleumassawippi.com")}`,
+      "CATEGORIES:BLEU MASSAWIPPI,SOCIAL",
+      "STATUS:CONFIRMED",
+      "TRANSP:TRANSPARENT",
+      "END:VEVENT",
+      "END:VCALENDAR"
+    ].join("\r\n")
+  };
+}
+
+function enhancePostCalendarEvents() {
+  if (document.body.dataset.postCalendarEventsReady === "true") return;
+  document.body.dataset.postCalendarEventsReady = "true";
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-add-post-calendar]");
+    if (!button) return;
+    const itemId = button.dataset.addPostCalendar;
+    const planItem = Array.isArray(globalThis.posts) ? globalThis.posts.find((item) => item.id === itemId) : null;
+    if (!planItem) {
+      toast("Cet événement n’est plus disponible dans le calendrier.", true);
+      return;
+    }
+    const calendar = buildPostCalendarIcs(planItem);
+    downloadCalendarFile(calendar.filename, calendar.content);
+    const feedback = button.parentElement?.querySelector("[data-post-calendar-feedback]");
+    if (feedback) feedback.textContent = `Fichier prêt pour ${profileTaskLabel()}.`;
+    button.textContent = "Fichier calendrier prêt";
+    window.setTimeout(() => { button.textContent = "Ajouter cet événement à mon agenda"; }, 3200);
+  });
+}
+
+function enhanceCalendarButtons() {
+  enhancePostCalendarEvents();
+  document.querySelectorAll("[data-calendar-event][data-add-calendar]").forEach((card) => {
+    if (card.dataset.calendarReady === "true") return;
+    const button = card.querySelector("[data-add-calendar]");
+    if (!button) return;
+    card.dataset.calendarReady = "true";
+    button.addEventListener("click", () => {
+      const weekday = Math.max(0, Math.min(6, Number(card.dataset.calendarWeekday || 1)));
+      const hour = Math.max(0, Math.min(23, Number(card.dataset.calendarHour || 10)));
+      const minute = Math.max(0, Math.min(59, Number(card.dataset.calendarMinute || 0)));
+      const duration = Math.max(15, Number(card.dataset.calendarDuration || 60));
+      const start = nextCalendarDate(weekday, hour, minute);
+      const end = new Date(start.getTime() + duration * 60000);
+      const uid = `bleu-massawippi-${start.getTime()}@bleumassawippi.com`;
+      const summary = "Point de coordination — Bleu Massawippi";
+      const weeklyTasks = state.profile?.role === "director"
+        ? ["Arbitrer les choix éditoriaux et les sujets sensibles.", "Confirmer les validations, partenaires et décisions qui exigent la direction générale."]
+        : ["Préparer la synthèse des choix, commentaires et tâches en attente.", "Mettre à jour le calendrier, les sources, les visuels et les suivis après l’arbitrage."];
+      const description = [
+        "Point de coordination hebdomadaire proposé autour de 10 h. L’horaire demeure modifiable dans l’agenda partagé.",
+        "",
+        `Tâches de ${profileTaskLabel()} :`,
+        weeklyTasks.map((task) => "• " + task).join("\n"),
+        "",
+        "Ordre du jour : décisions à prendre, validations sensibles, contenu de la semaine et suivis.",
+        "Lieu : en ligne ou lieu confirmé dans l’agenda partagé.",
+        "Coût prévu : aucun."
+      ].join("\n");
+      const ics = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//Bleu Massawippi//Cockpit//FR",
+        "CALSCALE:GREGORIAN",
+        "METHOD:PUBLISH",
+        "BEGIN:VEVENT",
+        `UID:${uid}`,
+        `DTSTAMP:${calendarUtcStamp(new Date())}`,
+        `DTSTART:${calendarUtcStamp(start)}`,
+        `DTEND:${calendarUtcStamp(end)}`,
+        `SUMMARY:${escapeCalendarText(summary)}`,
+        `DESCRIPTION:${escapeCalendarText(description)}`,
+        "LOCATION:En ligne ou lieu confirmé dans l’agenda partagé",
+        "STATUS:CONFIRMED",
+        "TRANSP:TRANSPARENT",
+        "END:VEVENT",
+        "END:VCALENDAR"
+      ].join("\r\n");
+      downloadCalendarFile(`coordination-bleu-massawippi-${start.toISOString().slice(0, 10)}.ics`, ics);
+      const feedback = card.querySelector("[data-calendar-feedback]");
+      if (feedback) feedback.textContent = "Fichier prêt : choisissez l’application de calendrier proposée par votre appareil.";
+      button.textContent = "Fichier calendrier prêt";
+      window.setTimeout(() => { button.textContent = "Ajouter à mon agenda"; }, 3200);
     });
   });
 }
@@ -367,10 +719,10 @@ function enhanceCards() {
         <button type="button" data-status="deleted" aria-label="Masquer virtuellement cette ligne" title="Masquer virtuellement cette ligne">✕</button>
       </div>
       <div class="cockpit-comment-row">
-        <textarea data-comment maxlength="5000" placeholder="Ajouter une consigne ou un commentaire…" aria-label="Commentaire de pilotage"></textarea>
-        <button type="button" data-dictate aria-label="Dicter un commentaire" title="Dicter un commentaire">🎙️</button>
+        <textarea data-comment maxlength="5000" spellcheck="true" autocapitalize="sentences" inputmode="text" placeholder="Ajouter une consigne ou un commentaire…" aria-label="Commentaire de pilotage"></textarea>
+        <button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire" title="Dicter un commentaire">🎙️</button>
         <button class="save" type="button" data-save-comment>Enregistrer</button>
-        <div class="cockpit-voice-status" data-voice-status aria-live="polite">La dictée utilise la reconnaissance vocale native disponible.</div>
+        <div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro, puis autorisez le microphone si demandé.</div>
       </div>
       <div class="cockpit-quick-row" aria-label="Badges rapides">
         <button type="button" data-tag="cancel">🔴 À annuler</button>
@@ -411,6 +763,44 @@ async function recordAudit(card, action) {
   }
 }
 
+function taskKeyForPlanItem(planItem) {
+  const key = planItem?.optionGroup ? `choice-${planItem.optionGroup}` : `post-${planItem?.id || "unknown"}`;
+  return `schedule-${key}`.replace(/[^a-z0-9-]/gi, "-");
+}
+
+function responsibilitySummary(planItem) {
+  if (!planItem) return "";
+  const valentin = Array.isArray(planItem.tasksValentin) ? planItem.tasksValentin : [planItem.task].filter(Boolean);
+  const annie = Array.isArray(planItem.tasksAnnie) ? planItem.tasksAnnie : [];
+  const parts = ["Répartition pour cet événement :", `Valentin — Directeur des communications :\n${valentin.map((task) => "• " + task).join("\n")}`];
+  if (annie.length) parts.push(`Annie — Direction générale :\n${annie.map((task) => "• " + task).join("\n")}`);
+  return parts.join("\n\n");
+}
+
+async function recordActionTask(taskId, payload) {
+  if (!state.profile || state.profile.role !== "director") return;
+  try {
+    await upsertActionTask(taskId, payload, state.profile);
+  } catch (error) {
+    console.warn("Tâche de suivi non enregistrée", error);
+    toast("L’action est enregistrée, mais la tâche de suivi n’a pas pu être créée.", true);
+  }
+}
+
+async function syncScheduleTask(card, status, planItem, reason = "") {
+  if (!planItem) return;
+  const accepted = status === "approved";
+  const action = accepted ? "Acceptation à intégrer" : status === "deleted" ? "Ligne à retirer ou remplacer" : status === "needs_work" ? "Révision demandée" : "Décision à traiter";
+  await recordActionTask(taskKeyForPlanItem(planItem), {
+    status: accepted ? "done" : "pending",
+    title: `${action} — ${planItem.title}`,
+    targetType: "schedule",
+    targetId: planItem.id,
+    targetLabel: `${planItem.date || "Date à confirmer"} · ${planItem.title}`,
+    message: `${reason || "Une interaction de la direction demande un suivi."}\n\n${responsibilitySummary(planItem)}`
+  });
+}
+
 async function changeStatus(card, status) {
   if (!state.profile || !["director", "admin"].includes(state.profile.role)) {
     toast("Votre session est en lecture seule.", true);
@@ -426,6 +816,7 @@ async function changeStatus(card, status) {
       deleted: status === "deleted"
     }, state.profile);
     await recordAudit(card, "statut : " + status);
+    await syncScheduleTask(card, status, planItem, `Statut choisi : ${status}.`);
     toast("Statut enregistré.");
   } catch (error) {
     toast(error.message, true);
@@ -439,8 +830,48 @@ function setVoiceStatus(textarea, message, kind = "") {
   status.className = "cockpit-voice-status" + (kind ? " " + kind : "");
 }
 
+function setVoiceButtonState(textarea, active) {
+  const button = textarea?.closest(".cockpit-comment-row")?.querySelector("[data-dictate]");
+  if (!button) return;
+  button.setAttribute("aria-pressed", String(active));
+  button.textContent = active ? "⏹️" : "🎙️";
+  button.title = active ? "Arrêter la dictée" : "Dicter un commentaire";
+}
+
+function clearRecognitionRestartTimer() {
+  if (recognitionRestartTimer) window.clearTimeout(recognitionRestartTimer);
+  recognitionRestartTimer = null;
+}
+
+function voiceFallback(textarea, message) {
+  textarea?.focus();
+  setVoiceButtonState(textarea, false);
+  setVoiceStatus(textarea, message, "error");
+  const row = textarea?.closest(".cockpit-comment-row");
+  if (!row) return;
+  let help = row.querySelector("[data-voice-help]");
+  if (!help) {
+    help = document.createElement("small");
+    help.dataset.voiceHelp = "true";
+    help.className = "cockpit-voice-help";
+    row.appendChild(help);
+  }
+  help.textContent = "Solution de secours : utilisez la dictée du clavier ou du système (Windows : Win+H, macOS/iPhone : touche microphone).";
+}
+
+function finishDictation(recognition, textarea, message, kind = "") {
+  if (activeRecognition !== recognition) return;
+  recognitionRestart = false;
+  clearRecognitionRestartTimer();
+  activeRecognition = null;
+  activeTextarea = null;
+  setVoiceButtonState(textarea, false);
+  setVoiceStatus(textarea, message, kind);
+}
+
 function stopDictation(message = "Dictée arrêtée.") {
   recognitionRestart = false;
+  clearRecognitionRestartTimer();
   const recognition = activeRecognition;
   const textarea = activeTextarea;
   activeRecognition = null;
@@ -448,10 +879,35 @@ function stopDictation(message = "Dictée arrêtée.") {
   if (recognition) {
     try { recognition.stop(); } catch {}
   }
-  if (textarea) setVoiceStatus(textarea, message);
+  if (textarea) {
+    setVoiceButtonState(textarea, false);
+    setVoiceStatus(textarea, message);
+  }
+}
+
+function scheduleRecognitionRestart(recognition, textarea) {
+  if (!recognitionRestart || activeRecognition !== recognition) return;
+  clearRecognitionRestartTimer();
+  const delay = Math.min(1200, 220 + recognitionRestartAttempts * 120);
+  recognitionRestartTimer = window.setTimeout(() => {
+    recognitionRestartTimer = null;
+    if (!recognitionRestart || activeRecognition !== recognition) return;
+    try {
+      recognition.lang = recognitionLanguages[recognitionLanguageIndex] || "fr-CA";
+      recognition.start();
+    } catch (error) {
+      recognitionRestartAttempts += 1;
+      if (recognitionRestartAttempts < 4) {
+        scheduleRecognitionRestart(recognition, textarea);
+      } else {
+        finishDictation(recognition, textarea, "Le navigateur a interrompu la dictée. Cliquez sur le micro pour reprendre.", "error");
+      }
+    }
+  }, delay);
 }
 
 function startDictation(textarea) {
+  if (!textarea) return;
   if (activeRecognition && activeTextarea === textarea) {
     stopDictation();
     return;
@@ -459,25 +915,39 @@ function startDictation(textarea) {
   if (activeRecognition) stopDictation();
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!Recognition) {
-    textarea.focus();
-    setVoiceStatus(textarea, "Ce navigateur ne propose pas l’API vocale. Utilisez la dictée intégrée au clavier ou au système.", "error");
-    toast("La dictée native n’est pas exposée par ce navigateur; le champ reste utilisable avec la dictée du système.", true);
+    voiceFallback(textarea, "La reconnaissance vocale n’est pas exposée par ce navigateur.");
+    toast("Utilisez la dictée du clavier ou du système dans ce navigateur.", true);
     return;
   }
-  if (!window.isSecureContext && !["localhost", "127.0.0.1"].includes(location.hostname)) {
-    setVoiceStatus(textarea, "La dictée exige une connexion HTTPS.", "error");
+  if (window.isSecureContext === false && !["localhost", "127.0.0.1"].includes(location.hostname)) {
+    voiceFallback(textarea, "La dictée exige une connexion HTTPS.");
     return;
   }
-  const recognition = new Recognition();
-  const webkitOnly = !window.SpeechRecognition && Boolean(window.webkitSpeechRecognition);
+  let recognition;
+  try {
+    recognition = new Recognition();
+  } catch (error) {
+    voiceFallback(textarea, "Impossible d’ouvrir le service vocal de ce navigateur.");
+    return;
+  }
   activeRecognition = recognition;
   activeTextarea = textarea;
   recognitionRestart = true;
-  recognition.lang = "fr-CA";
-  recognition.continuous = !webkitOnly;
+  recognitionLanguageIndex = 0;
+  recognitionRestartAttempts = 0;
+  recognition.lang = recognitionLanguages[recognitionLanguageIndex];
+  // Une session courte, relancée proprement, est plus fiable que continuous=true
+  // sur Chrome, Edge et Safari, qui interrompent tous trois les longues sessions.
+  recognition.continuous = false;
   recognition.interimResults = true;
   recognition.maxAlternatives = 1;
-  recognition.onstart = () => setVoiceStatus(textarea, "Écoute en cours… cliquez de nouveau sur le micro pour arrêter.", "live");
+  setVoiceButtonState(textarea, true);
+  setVoiceStatus(textarea, "Autorisez le microphone si le navigateur le demande…", "live");
+  recognition.onstart = () => {
+    recognitionRestartAttempts = 0;
+    setVoiceButtonState(textarea, true);
+    setVoiceStatus(textarea, "Écoute en cours… cliquez de nouveau sur le micro pour arrêter.", "live");
+  };
   recognition.onresult = (event) => {
     let interim = "";
     let finalText = "";
@@ -487,33 +957,48 @@ function startDictation(textarea) {
       else interim += transcript;
     }
     if (finalText.trim()) {
-      textarea.value = (textarea.value ? textarea.value.trimEnd() + " " : "") + finalText.trim();
+      const existing = textarea.value.trimEnd();
+      textarea.value = existing + (existing ? " " : "") + finalText.trim();
       textarea.dataset.dictated = "true";
       textarea.focus();
     }
     setVoiceStatus(textarea, interim ? `Écoute… ${interim}` : "Écoute en cours…", "live");
   };
   recognition.onerror = (event) => {
-    const permissionError = ["not-allowed", "service-not-allowed"].includes(event.error);
-    if (permissionError) recognitionRestart = false;
-    setVoiceStatus(textarea, permissionError ? "Autorisation du microphone refusée. Autorisez le micro pour ce site puis réessayez." : `Dictée interrompue (${event.error || "erreur inconnue"}).`, "error");
+    const errorCode = event.error || "unknown";
+    if (errorCode === "no-speech") {
+      setVoiceStatus(textarea, "Aucune parole détectée; continuez à parler…", "live");
+      return;
+    }
+    if (errorCode === "language-not-supported" && recognitionLanguageIndex < recognitionLanguages.length - 1) {
+      recognitionLanguageIndex += 1;
+      setVoiceStatus(textarea, "La langue régionale n’est pas disponible; nouvel essai en français…", "live");
+      return;
+    }
+    if (errorCode === "not-allowed" || errorCode === "service-not-allowed") {
+      finishDictation(recognition, textarea, "Autorisation du microphone refusée. Autorisez le micro pour ce site puis réessayez.", "error");
+      return;
+    }
+    if (errorCode === "audio-capture") {
+      finishDictation(recognition, textarea, "Aucun microphone n’est disponible. Vérifiez le micro choisi dans le navigateur.", "error");
+      return;
+    }
+    if (terminalRecognitionErrors.has(errorCode) || errorCode === "network") {
+      finishDictation(recognition, textarea, "Le service vocal est indisponible. Utilisez la dictée du clavier ou du système.", "error");
+      return;
+    }
+    finishDictation(recognition, textarea, `Dictée interrompue (${errorCode}). Cliquez sur le micro pour reprendre.`, "error");
   };
-  recognition.onnomatch = () => setVoiceStatus(textarea, "Aucun mot reconnu; continuez à parler.", "error");
+  recognition.onnomatch = () => setVoiceStatus(textarea, "Aucun mot reconnu; continuez à parler…", "live");
   recognition.onend = () => {
     if (!recognitionRestart || activeRecognition !== recognition) return;
     setVoiceStatus(textarea, "Reprise de l’écoute…", "live");
-    window.setTimeout(() => {
-      if (!recognitionRestart || activeRecognition !== recognition) return;
-      try { recognition.start(); } catch { setVoiceStatus(textarea, "Le navigateur a interrompu la dictée. Cliquez sur le micro pour reprendre.", "error"); }
-    }, 180);
+    scheduleRecognitionRestart(recognition, textarea);
   };
   try {
     recognition.start();
   } catch {
-    recognitionRestart = false;
-    activeRecognition = null;
-    activeTextarea = null;
-    setVoiceStatus(textarea, "Le microphone est occupé. Fermez une autre dictée puis réessayez.", "error");
+    finishDictation(recognition, textarea, "Le microphone est occupé. Fermez une autre dictée puis réessayez.", "error");
   }
 }
 
@@ -526,8 +1011,17 @@ async function saveCardComment(card, quickTag = null) {
   const text = textarea.value.trim();
   if (!text && !quickTag) return;
   try {
-    await addComment(card.dataset.itemId, text || quickTag, state.profile, quickTag, textarea.dataset.dictated === "true");
+    const commentId = await addComment(card.dataset.itemId, text || quickTag, state.profile, quickTag, textarea.dataset.dictated === "true");
     await recordAudit(card, quickTag ? "badge : " + quickTag : (textarea.dataset.dictated === "true" ? "commentaire dicté" : "commentaire ajouté"));
+    const planItem = getPlanItem(card);
+    await recordActionTask(`comment-${commentId}`, {
+      status: "pending",
+      title: `Commentaire à traiter — ${planItem?.title || card.dataset.itemId}`,
+      targetType: "schedule",
+      targetId: card.dataset.itemId,
+      targetLabel: `${planItem?.date || "Date à confirmer"} · ${planItem?.title || card.dataset.itemId}`,
+      message: `${text || quickTag}\n\n${responsibilitySummary(planItem)}`
+    });
     textarea.value = "";
     delete textarea.dataset.dictated;
     toast("Commentaire enregistré.");
@@ -580,6 +1074,7 @@ function enhanceCardEvents() {
     setScheduleSelection(planItem.id, choiceGroupIds(planItem), selected, state.profile)
       .then(async () => {
         await recordAudit(card, selected ? "option choisie : " + (planItem.optionLabel || planItem.title) : "option désélectionnée");
+        await syncScheduleTask(card, "pending", planItem, selected ? `Option choisie : ${planItem.optionLabel || planItem.title}.` : "Option désélectionnée : un arbitrage reste à faire.");
         toast(selected ? "Option choisie pour cette journée." : "Aucune option sélectionnée pour cette journée.");
       })
       .catch((error) => {
@@ -625,8 +1120,11 @@ async function applyProfile(profile) {
   if (profile.role === "admin") {
     document.body.classList.add("cockpit-admin");
     buildAdminSidebar();
+    buildTaskWidget();
+    enhanceTaskEvents();
     state.auditUnsubscribe?.();
     state.feedbackUnsubscribe?.();
+    state.tasksUnsubscribe?.();
     if (configured) {
       state.auditUnsubscribe = subscribeAuditLogs((logs) => {
         const list = document.querySelector("#cockpit-log-list");
@@ -637,34 +1135,44 @@ async function applyProfile(profile) {
         }).join("") : "<p>Aucun journal accessible pour le moment.</p>";
       }, (error) => toast("Le journal n’est pas accessible : " + error.message, true));
       state.feedbackUnsubscribe = subscribeCockpitFeedback(renderFeedbackList, (error) => toast("Les rétroactions ne sont pas accessibles : " + error.message, true));
+      state.tasksUnsubscribe = subscribeActionTasks(renderActionTasks, (error) => toast("La liste des tâches n’est pas accessible : " + error.message, true));
     }
   } else {
     document.body.classList.remove("cockpit-admin");
     state.feedbackUnsubscribe?.();
+    state.tasksUnsubscribe?.();
     state.feedbackUnsubscribe = null;
+    state.tasksUnsubscribe = null;
+    document.querySelector("#cockpit-task-launch")?.remove();
   }
   addFooterCredit();
   enhanceCards();
   enhanceSectionFeedback();
+  enhanceCalendarButtons();
   buildFeedbackWidget();
   syncCardAccess();
 }
 
 function applySignedOut(message = "") {
+  if (activeRecognition) stopDictation("Session fermée.");
   state.profile = null;
   state.user = null;
   state.rows = new Map();
   state.scheduleUnsubscribe?.();
   state.auditUnsubscribe?.();
   state.feedbackUnsubscribe?.();
+  state.tasksUnsubscribe?.();
   state.scheduleUnsubscribe = null;
   state.auditUnsubscribe = null;
   state.feedbackUnsubscribe = null;
+  state.tasksUnsubscribe = null;
+  state.tasks = [];
   clearPrivateContent();
   document.body.classList.add("cockpit-locked");
   document.querySelector("#cockpit-session")?.remove();
   document.querySelector("#cockpit-sidebar")?.remove();
   document.querySelector("#cockpit-sidebar-toggle")?.remove();
+  document.querySelector("#cockpit-task-launch")?.remove();
   document.querySelector("#cockpit-feedback-launch")?.remove();
   document.querySelector("#cockpit-feedback-panel")?.remove();
   document.body.classList.remove("cockpit-admin");

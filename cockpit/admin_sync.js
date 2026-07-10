@@ -61,11 +61,14 @@ async function readRecent(collectionName) {
 
 await fs.mkdir(outputDir, { recursive: true });
 
-const [scheduleItems, comments, logs, feedback] = await Promise.all([
+const [scheduleItems, comments, logs, feedback, tasks, changeArchive, contentVersions] = await Promise.all([
   readRecent("scheduleItems"),
   readRecent("comments"),
   readRecent("auditLogs"),
-  readRecent("cockpitFeedback")
+  readRecent("cockpitFeedback"),
+  readRecent("tasks"),
+  readRecent("changeArchive"),
+  readRecent("privateContentVersions")
 ]);
 
 const changedScheduleItems = scheduleItems.filter((row) =>
@@ -89,6 +92,12 @@ const summary = {
     id: row.id,
     title: row.title || null,
     dateKey: row.dateKey || null,
+    tasksValentin: Array.isArray(row.tasksValentin) ? row.tasksValentin : [],
+    tasksAnnie: Array.isArray(row.tasksAnnie) ? row.tasksAnnie : [],
+    calendarTime: row.calendarTime || null,
+    calendarDurationMinutes: row.calendarDurationMinutes || null,
+    calendarLocation: row.calendarLocation || null,
+    calendarCost: row.calendarCost || null,
     status: row.status || "pending",
     deleted: row.deleted === true,
     updatedAt: dateValue(row.updatedAt)?.toISOString() || null
@@ -118,6 +127,35 @@ const summary = {
     authorLabel: row.authorLabel || null,
     createdAt: dateValue(row.createdAt)?.toISOString() || null,
     updatedAt: dateValue(row.updatedAt)?.toISOString() || null
+  })),
+  tasks: tasks.map((row) => ({
+    id: row.id,
+    title: row.title || null,
+    status: row.status || "pending",
+    targetType: row.targetType || null,
+    targetId: row.targetId || null,
+    targetLabel: row.targetLabel || null,
+    message: row.message || "",
+    createdByLabel: row.createdByLabel || null,
+    createdAt: dateValue(row.createdAt)?.toISOString() || null,
+    updatedAt: dateValue(row.updatedAt)?.toISOString() || null
+  })),
+  changeArchive: changeArchive.map((row) => ({
+    id: row.id,
+    entityType: row.entityType || null,
+    entityId: row.entityId || null,
+    action: row.action || null,
+    before: row.before || {},
+    after: row.after || {},
+    actorLabel: row.actorLabel || null,
+    createdAt: dateValue(row.createdAt)?.toISOString() || null
+  })),
+  privateContentVersions: contentVersions.map((row) => ({
+    id: row.id,
+    contentHash: row.contentHash || null,
+    source: row.source || null,
+    createdAt: dateValue(row.createdAt)?.toISOString() || null,
+    bytes: Buffer.byteLength(JSON.stringify({ css: row.css || "", html: row.html || "", script: row.script || "" }), "utf8")
   }))
 };
 
@@ -128,5 +166,8 @@ console.log(JSON.stringify({
   scheduleItems: summary.scheduleItems.length,
   comments: summary.comments.length,
   dictatedComments: summary.dictatedComments.length,
-  cockpitFeedback: summary.cockpitFeedback.length
+  cockpitFeedback: summary.cockpitFeedback.length,
+  tasks: summary.tasks.length,
+  changeArchive: summary.changeArchive.length,
+  privateContentVersions: summary.privateContentVersions.length
 }, null, 2));

@@ -10,6 +10,8 @@
 
 La synthèse `SYNTHESE_TRANSCRIPT_COORDINATION_DG_COMMUNICATIONS_2026-07-10.md` distingue les orientations claires du transcript vocal et les éléments qui doivent encore être vérifiés. Le cockpit intègre désormais le mode de collaboration, la priorité aux formats soutenables, la stratégie d’alliés et les garde-fous renforcés pour les sujets scientifiques, historiques, autochtones, environnementaux et financiers.
 
+Le haut du cockpit commence par un « Lire-moi » repliable et un schéma du flux asynchrone. Le contexte stratégique peut être minimisé pour accéder directement au calendrier; chaque événement affiche maintenant les tâches respectives de Valentin et de la direction générale, avec un bouton d’ajout au calendrier qui adapte sa description au rôle connecté.
+
 ## Ce qui est nouveau
 
 Ce dossier est une nouvelle itération autonome. Il ne remplace, ne modifie ni ne supprime les plans V1/V2, les calendriers, les rapports ou les visuels existants.
@@ -23,6 +25,7 @@ Le plan retient une cadence d’une publication principale par jour, mais l’en
 3. Confirmer les contenus qui demandent une personne, une photo, une donnée ou une validation scientifique.
 4. Utiliser les cases « prêt » et, lorsqu’elles existent, les cases « option choisie » pour piloter la production sans modifier le plan source.
 5. Déposer un avis dans la boîte de rétroaction de la section ou dans la boîte à idées flottante; ces notes servent à préparer une nouvelle mouture sans modifier immédiatement le contenu institutionnel.
+6. Pour préserver l’historique, considérer les suppressions comme virtuelles et utiliser les archives Firestore / Git avant toute réécriture; aucune action du cockpit ne supprime une ancienne version.
 
 ## Garde-fous essentiels
 

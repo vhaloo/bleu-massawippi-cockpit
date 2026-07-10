@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Bleu Massawippi</title>
+  <rect width="512" height="512" rx="112" fill="#073a52"/>
+  <path d="M0 322c82-42 147-32 215 5 71 39 132 52 205 12 37-20 67-29 92-29v202H0Z" fill="#2ab6bb"/>
+  <path d="M0 368c87-35 151-12 211 19 74 39 145 35 214-2 36-19 64-25 87-25v152H0Z" fill="#0b7895" opacity=".75"/>
+  <circle cx="350" cy="145" r="54" fill="#e8ae4b"/>
+  <path d="M102 152h125M102 200h78" fill="none" stroke="#f8fcfc" stroke-linecap="round" stroke-width="24"/>
+</svg>

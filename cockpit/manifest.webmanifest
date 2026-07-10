@@ -1,0 +1,14 @@
+{
+  "name": "Bleu Massawippi — Cockpit de collaboration",
+  "short_name": "Bleu Massawippi",
+  "lang": "fr-CA",
+  "start_url": "./?source=application",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8fcfc",
+  "theme_color": "#073a52",
+  "description": "Espace sécurisé de coordination des communications de Bleu Massawippi.",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

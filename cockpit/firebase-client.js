@@ -58,6 +58,28 @@ function requireConfigured() {
   }
 }
 
+async function appendChangeArchive(entityType, entityId, action, before, after, profile) {
+  if (!profile || !["director", "admin"].includes(profile.role)) return;
+  const compact = (value) => {
+    if (!value || typeof value !== "object") return {};
+    return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined).map(([key, item]) => [key, typeof item === "string" ? item.slice(0, 5000) : item]));
+  };
+  try {
+    await addDoc(collection(db, "changeArchive"), {
+      entityType: String(entityType || "unknown").slice(0, 80),
+      entityId: String(entityId || "unknown").slice(0, 160),
+      action: String(action || "modification").slice(0, 160),
+      before: compact(before),
+      after: compact(after),
+      actorUid: profile.uid,
+      actorLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
+      createdAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.warn("Archive de changement non écrite", error);
+  }
+}
+
 async function getProfile(user) {
   if (!user) return null;
   const fallback = {
@@ -164,12 +186,29 @@ export async function upsertScheduleItem(itemId, payload, profile) {
   if (!["approved", "needs_work", "pending", "deleted"].includes(payload.status)) {
     throw new Error("Statut de publication invalide.");
   }
-  await setDoc(doc(db, "scheduleItems", itemId), {
+  const reference = doc(db, "scheduleItems", itemId);
+  const existing = await getDoc(reference);
+  const before = existing.exists() ? existing.data() : {};
+  const after = { ...before, ...payload, deleted: payload.status === "deleted" };
+  await setDoc(reference, {
     ...payload,
     deleted: payload.status === "deleted",
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid
   }, { merge: true });
+  await appendChangeArchive("scheduleItem", itemId, "calendrier : " + payload.status, {
+    title: before.title || "",
+    dateKey: before.dateKey || "",
+    status: before.status || "pending",
+    deleted: before.deleted === true,
+    selected: before.selected === true
+  }, {
+    title: after.title || "",
+    dateKey: after.dateKey || "",
+    status: after.status || "pending",
+    deleted: after.deleted === true,
+    selected: after.selected === true
+  }, profile);
 }
 
 export async function setScheduleSelection(itemId, groupIds, selected, profile) {
@@ -180,6 +219,7 @@ export async function setScheduleSelection(itemId, groupIds, selected, profile) 
   const ids = [...new Set([itemId, ...(Array.isArray(groupIds) ? groupIds : [])])]
     .filter((id) => /^[a-z0-9-]{3,80}$/i.test(String(id)));
   if (!ids.includes(itemId)) throw new Error("Groupe de choix invalide.");
+  const beforeDocs = await Promise.all(ids.map((id) => getDoc(doc(db, "scheduleItems", id))));
   const batch = writeBatch(db);
   for (const id of ids) {
     batch.update(doc(db, "scheduleItems", id), {
@@ -189,6 +229,22 @@ export async function setScheduleSelection(itemId, groupIds, selected, profile) 
     });
   }
   await batch.commit();
+  await Promise.all(ids.map((id, index) => {
+    const before = beforeDocs[index].exists() ? beforeDocs[index].data() : {};
+    return appendChangeArchive("scheduleItem", id, "choix éditorial : " + (selected && id === itemId ? "sélectionné" : "désélectionné"), {
+      title: before.title || "",
+      dateKey: before.dateKey || "",
+      status: before.status || "pending",
+      deleted: before.deleted === true,
+      selected: before.selected === true
+    }, {
+      title: before.title || "",
+      dateKey: before.dateKey || "",
+      status: before.status || "pending",
+      deleted: before.deleted === true,
+      selected: Boolean(selected) && id === itemId
+    }, profile);
+  }));
 }
 
 export async function addComment(itemId, comment, profile, quickTag = null, dictated = false) {
@@ -198,7 +254,7 @@ export async function addComment(itemId, comment, profile, quickTag = null, dict
   }
   const text = String(comment || "").trim();
   if (!text) return;
-  await addDoc(collection(db, "comments"), {
+  const reference = await addDoc(collection(db, "comments"), {
     sectionId: itemId,
     comment: text.slice(0, 5000),
     quickTag,
@@ -206,6 +262,13 @@ export async function addComment(itemId, comment, profile, quickTag = null, dict
     authorUid: profile.uid,
     createdAt: serverTimestamp()
   });
+  await appendChangeArchive("comment", reference.id, dictated ? "commentaire dicté" : "commentaire ajouté", {}, {
+    sectionId: itemId,
+    comment: text,
+    quickTag: quickTag || null,
+    dictated: Boolean(dictated)
+  }, profile);
+  return reference.id;
 }
 
 export async function writeAuditLog(sectionId, action, profile) {
@@ -228,7 +291,7 @@ export async function addCockpitFeedback(sectionId, message, category, profile) 
   const text = String(message || "").trim();
   if (!text) return;
   const now = serverTimestamp();
-  await addDoc(collection(db, "cockpitFeedback"), {
+  const reference = await addDoc(collection(db, "cockpitFeedback"), {
     sectionId: String(sectionId || "cockpit").slice(0, 120),
     message: text.slice(0, 5000),
     category: String(category || "recommandation").slice(0, 80),
@@ -240,6 +303,106 @@ export async function addCockpitFeedback(sectionId, message, category, profile) 
     updatedAt: now,
     updatedBy: profile.uid
   });
+  await appendChangeArchive("cockpitFeedback", reference.id, "rétroaction déposée", {}, {
+    sectionId,
+    message: text,
+    category: String(category || "recommandation")
+  }, profile);
+  return reference.id;
+}
+
+export async function upsertActionTask(taskId, payload, profile) {
+  requireConfigured();
+  if (!profile || !["director", "admin"].includes(profile.role)) {
+    throw new Error("Ce compte n’a pas le droit de signaler une tâche.");
+  }
+  if (!/^[a-z0-9-]{3,160}$/i.test(String(taskId || ""))) throw new Error("Identifiant de tâche invalide.");
+  const status = payload.status === "done" ? "done" : "pending";
+  const reference = doc(db, "tasks", taskId);
+  let existing = { exists: () => false };
+  try {
+    existing = await getDoc(reference);
+  } catch (error) {
+    if (error?.code !== "permission-denied") throw error;
+  }
+  const before = existing.exists() ? existing.data() : {};
+  const after = {
+    ...before,
+    ...payload,
+    status,
+    title: String(payload.title || "Tâche à traiter").slice(0, 220),
+    targetType: payload.targetType === "section" ? "section" : "schedule",
+    targetId: String(payload.targetId || "").slice(0, 160),
+    targetLabel: String(payload.targetLabel || "").slice(0, 220)
+  };
+  await setDoc(reference, {
+    title: String(payload.title || "Tâche à traiter").slice(0, 220),
+    message: String(payload.message || "").slice(0, 5000),
+    targetType: payload.targetType === "section" ? "section" : "schedule",
+    targetId: String(payload.targetId || "").slice(0, 160),
+    targetLabel: String(payload.targetLabel || "").slice(0, 220),
+    status,
+    createdByUid: profile.uid,
+    createdByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    updatedBy: profile.uid
+  }, { merge: true });
+  await appendChangeArchive("task", taskId, "tâche : " + status, {
+    title: before.title || "",
+    message: before.message || "",
+    status: before.status || "pending",
+    targetType: before.targetType || "schedule",
+    targetId: before.targetId || "",
+    targetLabel: before.targetLabel || ""
+  }, {
+    title: after.title || "",
+    message: after.message || "",
+    status: after.status || "pending",
+    targetType: after.targetType || "schedule",
+    targetId: after.targetId || "",
+    targetLabel: after.targetLabel || ""
+  }, profile);
+}
+
+export async function completeActionTask(taskId, profile) {
+  requireConfigured();
+  if (!profile || profile.role !== "admin") {
+    throw new Error("Seule l’administration peut forcer l’achèvement d’une tâche.");
+  }
+  if (!/^[a-z0-9-]{3,160}$/i.test(String(taskId || ""))) throw new Error("Identifiant de tâche invalide.");
+  const reference = doc(db, "tasks", taskId);
+  const existing = await getDoc(reference);
+  await updateDoc(reference, {
+    status: "done",
+    updatedAt: serverTimestamp(),
+    updatedBy: profile.uid
+  });
+  await appendChangeArchive("task", taskId, "tâche complétée manuellement", {
+    title: existing.data()?.title || "",
+    message: existing.data()?.message || "",
+    status: existing.data()?.status || "pending",
+    targetType: existing.data()?.targetType || "schedule",
+    targetId: existing.data()?.targetId || "",
+    targetLabel: existing.data()?.targetLabel || ""
+  }, {
+    title: existing.data()?.title || "",
+    message: existing.data()?.message || "",
+    status: "done",
+    targetType: existing.data()?.targetType || "schedule",
+    targetId: existing.data()?.targetId || "",
+    targetLabel: existing.data()?.targetLabel || ""
+  }, profile);
+}
+
+export function subscribeActionTasks(callback, onError) {
+  requireConfigured();
+  const tasksQuery = query(collection(db, "tasks"), orderBy("createdAt", "desc"), limit(200));
+  return onSnapshot(
+    tasksQuery,
+    (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
+    onError
+  );
 }
 
 export async function updateCockpitFeedbackStatus(feedbackId, status, profile) {

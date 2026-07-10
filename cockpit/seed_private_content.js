@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { applicationDefault, initializeApp } from "firebase-admin/app";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
@@ -32,6 +33,7 @@ const privateContent = {
 };
 const size = Buffer.byteLength(JSON.stringify(privateContent), "utf8");
 if (size > 900000) throw new Error("Le contenu privé dépasse la limite de sécurité de 900 Ko.");
+const contentHash = crypto.createHash("sha256").update(JSON.stringify(privateContent)).digest("hex");
 
 if (dryRun) {
   console.log(JSON.stringify({ sourcePath, posts: posts.length, privateContentBytes: size, ready: true }, null, 2));
@@ -48,8 +50,16 @@ const app = initializeApp({
 });
 const db = getFirestore(app);
 const batch = db.batch();
+const versionRef = db.collection("privateContentVersions").doc();
+batch.set(versionRef, {
+  ...privateContent,
+  contentHash,
+  source: "index.html",
+  createdAt: FieldValue.serverTimestamp()
+});
 batch.set(db.collection("privateContent").doc("plan"), {
   ...privateContent,
+  contentHash,
   updatedAt: FieldValue.serverTimestamp()
 });
 
@@ -65,6 +75,16 @@ for (const post of posts) {
   batch.set(ref, {
     title: String(post.title).slice(0, 220),
     dateKey: String(post.date).slice(0, 80),
+    format: String(post.format || "").slice(0, 220),
+    role: String(post.role || "").slice(0, 5000),
+    cta: String(post.cta || "").slice(0, 220),
+    source: String(post.source || "").slice(0, 500),
+    tasksValentin: Array.isArray(post.tasksValentin) ? post.tasksValentin.map((task) => String(task).slice(0, 1000)).slice(0, 8) : [String(post.task || "").slice(0, 1000)],
+    tasksAnnie: Array.isArray(post.tasksAnnie) ? post.tasksAnnie.map((task) => String(task).slice(0, 1000)).slice(0, 8) : [],
+    calendarTime: ({ "Lundi": "09:00", "Mardi": "12:00", "Mercredi": "18:00", "Jeudi": "12:00", "Vendredi": "17:00", "Samedi": "10:00", "Dimanche": "09:00" })[String(post.date || "").split(" ")[0]] || "12:00",
+    calendarDurationMinutes: 30,
+    calendarLocation: "En ligne — Facebook / Instagram",
+    calendarCost: "Aucun coût de diffusion; confirmer les droits, la production et tout achat éventuel.",
     status,
     deleted: status === "deleted",
     selected,
@@ -76,4 +96,4 @@ for (const post of posts) {
 }
 
 await batch.commit();
-console.log(JSON.stringify({ seeded: true, posts: posts.length, mainPosts: mainPosts.length, createdStates, updatedStates, privateContentBytes: size }, null, 2));
+console.log(JSON.stringify({ seeded: true, posts: posts.length, mainPosts: mainPosts.length, createdStates, updatedStates, privateContentBytes: size, contentHash, versionId: versionRef.id }, null, 2));

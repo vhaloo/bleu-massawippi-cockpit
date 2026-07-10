@@ -62,6 +62,9 @@ jobs:
           cp cockpit/cockpit-ui.js public/
           cp cockpit/firebase-client.js public/
           cp cockpit/firebase-config.js public/
+          cp cockpit/manifest.webmanifest public/
+          cp cockpit/sw.js public/
+          cp cockpit/icon.svg public/
           cp SOURCES_ET_GARDES_FOUS.md public/
       - name: Préparer l’artefact Pages
         uses: actions/upload-pages-artifact@v3

@@ -31,10 +31,20 @@ service cloud.firestore {
     }
 
     function validSchedule(data) {
-      return data.keys().hasAll(['title', 'dateKey', 'status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
-        && data.keys().hasOnly(['title', 'dateKey', 'status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
+      return data.keys().hasAll(['title', 'dateKey', 'format', 'role', 'cta', 'source', 'tasksValentin', 'tasksAnnie', 'calendarTime', 'calendarDurationMinutes', 'calendarLocation', 'calendarCost', 'status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
+        && data.keys().hasOnly(['title', 'dateKey', 'format', 'role', 'cta', 'source', 'tasksValentin', 'tasksAnnie', 'calendarTime', 'calendarDurationMinutes', 'calendarLocation', 'calendarCost', 'status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
         && data.title is string && data.title.size() <= 220
         && data.dateKey is string && data.dateKey.size() <= 80
+        && data.format is string && data.format.size() <= 220
+        && data.role is string && data.role.size() <= 5000
+        && data.cta is string && data.cta.size() <= 220
+        && data.source is string && data.source.size() <= 500
+        && data.tasksValentin is list && data.tasksValentin.size() <= 8
+        && data.tasksAnnie is list && data.tasksAnnie.size() <= 8
+        && data.calendarTime is string && data.calendarTime.size() <= 20
+        && data.calendarDurationMinutes is int && data.calendarDurationMinutes > 0 && data.calendarDurationMinutes <= 1440
+        && data.calendarLocation is string && data.calendarLocation.size() <= 220
+        && data.calendarCost is string && data.calendarCost.size() <= 500
         && knownStatus(data.status)
         && data.deleted is bool && data.deleted == (data.status == 'deleted')
         && data.selected is bool
@@ -77,6 +87,21 @@ service cloud.firestore {
         && data.updatedBy is string;
     }
 
+    function validTask(data) {
+      return data.keys().hasAll(['title', 'message', 'targetType', 'targetId', 'targetLabel', 'status', 'createdByUid', 'createdByLabel', 'createdAt', 'updatedAt', 'updatedBy'])
+        && data.keys().hasOnly(['title', 'message', 'targetType', 'targetId', 'targetLabel', 'status', 'createdByUid', 'createdByLabel', 'createdAt', 'updatedAt', 'updatedBy'])
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 220
+        && data.message is string && data.message.size() <= 5000
+        && data.targetType in ['schedule', 'section']
+        && data.targetId is string && data.targetId.size() > 0 && data.targetId.size() <= 160
+        && data.targetLabel is string && data.targetLabel.size() <= 220
+        && data.status in ['pending', 'done']
+        && data.createdByUid is string && data.createdByUid.size() > 0
+        && data.createdByLabel is string && data.createdByLabel.size() > 0 && data.createdByLabel.size() <= 120
+        && data.createdAt is timestamp && data.updatedAt is timestamp
+        && data.updatedBy is string && data.updatedBy.size() > 0;
+    }
+
     match /users/{uid} {
       allow read: if activeUser() && (request.auth.uid == uid || isAdmin());
       allow write: if false;
@@ -84,6 +109,11 @@ service cloud.firestore {
 
     match /privateContent/{contentId} {
       allow read: if activeUser();
+      allow write: if false;
+    }
+
+    match /privateContentVersions/{versionId} {
+      allow read: if isAdmin();
       allow write: if false;
     }
 
@@ -121,6 +151,39 @@ service cloud.firestore {
         && request.resource.data.status in ['open', 'in_review', 'done']
         && request.resource.data.updatedBy == request.auth.uid;
       allow delete: if false;
+    }
+
+    match /tasks/{taskId} {
+      allow read: if activeUser() && (isAdmin() || resource.data.createdByUid == request.auth.uid);
+      allow create: if isEditor()
+        && validTask(request.resource.data)
+        && request.resource.data.createdByUid == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if (isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt', 'updatedBy'])
+          && request.resource.data.status == 'done'
+          && request.resource.data.updatedBy == request.auth.uid)
+        || (isEditor()
+          && resource.data.createdByUid == request.auth.uid
+          && validTask(request.resource.data)
+          && request.resource.data.createdByUid == resource.data.createdByUid
+          && request.resource.data.updatedBy == request.auth.uid);
+      allow delete: if false;
+    }
+
+    match /changeArchive/{archiveId} {
+      allow read: if isAdmin();
+      allow create: if isEditor()
+        && request.resource.data.keys().hasAll(['entityType', 'entityId', 'action', 'before', 'after', 'actorUid', 'actorLabel', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['entityType', 'entityId', 'action', 'before', 'after', 'actorUid', 'actorLabel', 'createdAt'])
+        && request.resource.data.entityType is string && request.resource.data.entityType.size() > 0 && request.resource.data.entityType.size() <= 80
+        && request.resource.data.entityId is string && request.resource.data.entityId.size() > 0 && request.resource.data.entityId.size() <= 160
+        && request.resource.data.action is string && request.resource.data.action.size() > 0 && request.resource.data.action.size() <= 160
+        && request.resource.data.before is map && request.resource.data.after is map
+        && request.resource.data.actorUid == request.auth.uid
+        && request.resource.data.actorLabel is string && request.resource.data.actorLabel.size() > 0 && request.resource.data.actorLabel.size() <= 120
+        && request.resource.data.createdAt is timestamp;
+      allow update, delete: if false;
     }
   }
 }
