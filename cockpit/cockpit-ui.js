@@ -111,6 +111,7 @@ style.textContent = `
   .cockpit-media-preview { display: grid; min-height: 128px; place-items: center; overflow: hidden; color: #0b6077; background: #e9f4f5; text-decoration: none; }
   .cockpit-media-preview img { display: block; width: 100%; height: 150px; object-fit: cover; }
   .cockpit-media-icon { font-size: 2rem; }
+  .cockpit-media-open-label { display:block; margin-top:5px; color:#0b6077; font-size:.7rem; font-weight:900; }
   .cockpit-media-meta { padding: 8px 9px 10px; }
   .cockpit-media-meta b { display: block; overflow: hidden; color: #174e62; font-size: .73rem; text-overflow: ellipsis; white-space: nowrap; }
   .cockpit-media-meta p { margin: 3px 0 0; color: #64808a; font-size: .66rem; line-height: 1.35; }
@@ -1003,6 +1004,7 @@ const mediaStageLabels = {
 };
 
 const mediaKindIcons = {
+  image: "🖼️",
   video: "🎬",
   pdf: "📄",
   document: "📎",
@@ -1027,8 +1029,7 @@ function mediaPreviewUrl(row) {
   if (!url || row.kind !== "image") return "";
   const parsed = new URL(url);
   if (parsed.hostname.toLowerCase().endsWith(".sharepoint.com") && parsed.pathname.includes("/:i:/")) {
-    parsed.searchParams.set("download", "1");
-    return parsed.href;
+    return "";
   }
   return /\.(jpe?g|png|webp|gif)(?:$|\?)/i.test(url) ? url : "";
 }
@@ -1050,7 +1051,7 @@ function renderMediaForCard(card) {
     const preview = mediaPreviewUrl(row);
     const visual = preview
       ? `<img data-media-preview src="${esc(preview)}" alt="${esc(row.label || "Aperçu du média")}" loading="lazy">`
-      : `<span class="cockpit-media-icon" aria-hidden="true">${mediaKindIcons[row.kind] || "🔗"}</span>`;
+      : `<span><span class="cockpit-media-icon" aria-hidden="true">${mediaKindIcons[row.kind] || "🔗"}</span><span class="cockpit-media-open-label">Ouvrir ${row.kind === "image" ? "l’image" : "le média"}</span></span>`;
     const isFinal = latestDecision.startsWith(`[MÉDIA RETENU:${row.id}]`);
     return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}" data-media-id="${esc(row.id)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>

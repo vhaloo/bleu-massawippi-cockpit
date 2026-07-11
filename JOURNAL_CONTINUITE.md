@@ -23,7 +23,9 @@ Six publications bilingues utilisant des documents du domaine public de la banqu
 
 Les textes distinguent explicitement photographie, estampe et carte postale; ils n’identifient aucun bâtiment, trajet ou personne sans source. Les six originaux ont été copiés dans le dossier SharePoint synchronisé `Media Cockpit\Photos historiques`, tandis que les fichiers maîtres et le catalogue des droits restent dans le dossier local `Photos historiques`. La synchronisation Firestore a créé l’état du nouvel événement du 10 août et préservé les 56 états déjà présents.
 
-Chaque capsule possède maintenant son propre document `mediaLinks` dans Firestore, relié au fichier SharePoint exact et non à un dossier générique. Les liens sont en lecture institutionnelle selon les permissions SharePoint existantes; aucune permission ni aucun nouveau lien anonyme n’a été créé. Les six entrées sont réexécutables sans doublon avec `npm --prefix cockpit run seed:history-media`.
+Chaque capsule possède maintenant son propre document `mediaLinks` dans Firestore, relié au fichier SharePoint exact et non à un dossier générique. Les six entrées sont réexécutables sans doublon avec `npm --prefix cockpit run seed:history-media`.
+
+Mise à jour des permissions : l’ancien lien anonyme modifiable du dossier `Media Cockpit` a été révoqué. Le dossier possède désormais un lien anonyme **lecture seule**, tandis que les groupes internes Membres et Propriétaires conservent respectivement leurs droits d’écriture et d’administration. Les six photos historiques disposent aussi de liens anonymes individuels en lecture seule. Un test dans une session indépendante non connectée a confirmé l’ouverture du dossier comme « Collaborateur invité » et l’ouverture de l’aperçu SharePoint d’une image. Le cockpit affiche volontairement un bouton clair « Ouvrir l’image » plutôt qu’un faux aperçu direct instable; SharePoint fournit l’aperçu et le téléchargement.
 
 ## Régression de stabilité — 11 juillet 2026
 
