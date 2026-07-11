@@ -26,6 +26,10 @@ service cloud.firestore {
       return activeUser() && userRole() == 'admin';
     }
 
+    function isDirector() {
+      return activeUser() && userRole() == 'director';
+    }
+
     function knownStatus(status) {
       return status in ['approved', 'needs_work', 'pending', 'deleted'];
     }
@@ -70,7 +74,16 @@ service cloud.firestore {
       return data.keys().hasAll(['eventId', 'stage', 'updatedAt', 'updatedBy', 'updatedByLabel'])
         && data.keys().hasOnly(['eventId', 'stage', 'updatedAt', 'updatedBy', 'updatedByLabel'])
         && data.eventId is string && data.eventId.size() >= 3 && data.eventId.size() <= 80
-        && data.stage in ['proposal', 'content_review', 'changes_requested', 'content_approved', 'media_review', 'final_approved', 'scheduled', 'published']
+        && data.stage in ['proposal', 'content_review', 'changes_requested', 'content_changes_requested', 'content_approved', 'media_in_progress', 'media_review', 'media_changes_requested', 'final_approved', 'scheduled', 'published']
+        && data.updatedAt is timestamp && data.updatedBy == request.auth.uid
+        && data.updatedByLabel is string && data.updatedByLabel.size() > 0 && data.updatedByLabel.size() <= 120;
+    }
+
+    function validOpportunityState(data) {
+      return data.keys().hasAll(['opportunityId', 'stage', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+        && data.keys().hasOnly(['opportunityId', 'stage', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+        && data.opportunityId is string && data.opportunityId.size() >= 3 && data.opportunityId.size() <= 80
+        && data.stage in ['watch', 'research', 'active', 'submitted', 'completed']
         && data.updatedAt is timestamp && data.updatedBy == request.auth.uid
         && data.updatedByLabel is string && data.updatedByLabel.size() > 0 && data.updatedByLabel.size() <= 120;
     }
@@ -116,7 +129,7 @@ service cloud.firestore {
 
     function validMediaLink(data) {
       return data.keys().hasAll(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy'])
-        && data.keys().hasOnly(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy'])
+        && data.keys().hasOnly(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy', 'selectedFinal', 'approvedAt', 'approvedBy', 'approvedByLabel'])
         && data.eventId is string && data.eventId.size() >= 3 && data.eventId.size() <= 80
         && data.label is string && data.label.size() > 0 && data.label.size() <= 180
         && data.url is string && data.url.size() > 8 && data.url.size() <= 2048
@@ -127,6 +140,9 @@ service cloud.firestore {
         && data.authorUid is string && data.authorUid.size() > 0
         && data.authorLabel is string && data.authorLabel.size() > 0 && data.authorLabel.size() <= 120
         && data.createdAt is timestamp && data.updatedAt is timestamp
+        && (!('selectedFinal' in data) || data.selectedFinal is bool)
+        && (!('approvedBy' in data) || data.approvedBy is string)
+        && (!('approvedByLabel' in data) || data.approvedByLabel is string)
         && data.updatedBy is string && data.updatedBy.size() > 0;
     }
 
@@ -177,6 +193,12 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    match /opportunityStates/{opportunityId} {
+      allow read: if activeUser();
+      allow create, update: if isEditor() && validOpportunityState(request.resource.data) && request.resource.data.opportunityId == opportunityId;
+      allow delete: if false;
+    }
+
     match /auditLogs/{logId} {
       allow read: if isAdmin();
       allow create: if isEditor() && validAuditLog(request.resource.data);
@@ -223,9 +245,10 @@ service cloud.firestore {
         && request.resource.data.authorUid == request.auth.uid
         && request.resource.data.updatedBy == request.auth.uid;
       allow update: if isEditor()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['archived', 'updatedAt', 'updatedBy'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['archived', 'selectedFinal', 'approvedAt', 'approvedBy', 'approvedByLabel', 'updatedAt', 'updatedBy'])
         && validMediaLink(request.resource.data)
-        && request.resource.data.archived == true
+        && ((request.resource.data.archived == true && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['archived', 'updatedAt', 'updatedBy']))
+          || (isEditor() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['selectedFinal', 'approvedAt', 'approvedBy', 'approvedByLabel', 'updatedAt', 'updatedBy'])))
         && request.resource.data.updatedBy == request.auth.uid;
       allow delete: if false;
     }

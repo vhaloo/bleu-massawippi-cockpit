@@ -25,12 +25,14 @@ import {
   updateOwnComment,
   archiveOwnComment,
   setWorkflowStage,
-  subscribeWorkflowStates
-} from "./firebase-client.js?v=20260711-workflow-v1";
+  subscribeWorkflowStates,
+  setOpportunityStage,
+  subscribeOpportunityStates
+} from "./firebase-client.js?v=20260711-opportunities-v2";
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
-const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), commentsByEvent: new Map(), workflows: new Map(), mediaConfig: null, tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, contentLoaded: false };
+const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), mediaConfig: null, tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, contentLoaded: false };
 let activeRecognition = null;
 let activeTextarea = null;
 let recognitionRestart = false;
@@ -42,6 +44,8 @@ const recognitionLanguages = ["fr-CA", "fr-FR", "en-CA", "en-US"];
 const terminalRecognitionErrors = new Set(["not-allowed", "service-not-allowed", "audio-capture", "network", "aborted"]);
 const guideCollapsedKey = "bleu-massawippi-guide-collapsed";
 const guideSeenVersionKey = "bleu-massawippi-guide-seen-version";
+const projectCollapsedKey = "bleu-massawippi-projects-collapsed";
+const projectSeenVersionKey = "bleu-massawippi-projects-seen-version";
 
 const style = document.createElement("style");
 style.textContent = `
@@ -854,6 +858,109 @@ function setupGuidePreference() {
   });
 }
 
+const opportunityStageLabels = {
+  watch: "Repéré",
+  research: "Éligibilité à vérifier",
+  active: "En préparation",
+  submitted: "Déposé · réponse attendue",
+  completed: "Finalisé · archivé"
+};
+
+function setupProjectPreference() {
+  const project = document.querySelector("[data-project-register]");
+  const summary = project?.querySelector(":scope > summary");
+  if (!project || !summary || project.dataset.preferenceReady === "true") return;
+  project.dataset.preferenceReady = "true";
+  const version = project.dataset.layoutVersion || "1";
+  const storedPreference = localStorage.getItem(projectCollapsedKey);
+  const lastSeenVersion = localStorage.getItem(projectSeenVersionKey);
+  const firstVisit = storedPreference === null && lastSeenVersion === null;
+  const collapseAtStartup = storedPreference === null ? true : storedPreference === "1";
+  const hasUpdate = !firstVisit && lastSeenVersion !== version;
+  if (storedPreference === null) localStorage.setItem(projectCollapsedKey, "1");
+
+  const oldHint = summary.querySelector("small");
+  const actions = document.createElement("span");
+  actions.className = "project-summary-actions";
+  if (oldHint) actions.appendChild(oldHint);
+  actions.insertAdjacentHTML("beforeend", `<label class="guide-startup-control" title="Conserver les projets repliés lors des prochaines visites"><input type="checkbox" data-project-collapse-default ${collapseAtStartup ? "checked" : ""}><span>Masquer au démarrage</span></label><b class="project-new-badge" data-project-new-badge ${hasUpdate ? "" : "hidden"}>✨ Nouveau</b>`);
+  summary.appendChild(actions);
+  const checkbox = actions.querySelector("[data-project-collapse-default]");
+  const badge = actions.querySelector("[data-project-new-badge]");
+  const updateHint = () => { if (oldHint) oldHint.textContent = project.open ? "Réduire" : "Afficher"; };
+  const markSeen = () => {
+    localStorage.setItem(projectSeenVersionKey, version);
+    badge.hidden = true;
+    project.classList.remove("has-project-update");
+  };
+  project.open = firstVisit ? true : !collapseAtStartup;
+  if (firstVisit) localStorage.setItem(projectSeenVersionKey, version);
+  if (hasUpdate) project.classList.add("has-project-update");
+  updateHint();
+  actions.addEventListener("click", (event) => event.stopPropagation());
+  checkbox.addEventListener("change", () => {
+    localStorage.setItem(projectCollapsedKey, checkbox.checked ? "1" : "0");
+    project.open = !checkbox.checked;
+    if (project.open) markSeen();
+    updateHint();
+  });
+  badge.addEventListener("click", () => { project.open = true; markSeen(); updateHint(); });
+  project.addEventListener("toggle", () => { updateHint(); if (project.open && hasUpdate) markSeen(); });
+}
+
+function opportunityWhen(row) {
+  return row?.updatedAt?.toDate ? row.updatedAt.toDate().toLocaleString("fr-CA", { dateStyle:"short", timeStyle:"short" }) : "état initial du registre";
+}
+
+function renderOpportunityStates() {
+  const project = document.querySelector("[data-project-register]");
+  if (!project) return;
+  let archived = 0;
+  document.querySelectorAll(".opportunity[data-opportunity-id]").forEach((card) => {
+    const row = state.opportunities.get(card.dataset.opportunityId);
+    const stage = row?.stage || card.dataset.initialStage || "watch";
+    const completed = stage === "completed";
+    if (completed) archived += 1;
+    card.classList.toggle("is-archived", completed);
+    const label = card.querySelector("[data-opportunity-stage-label]");
+    if (label) label.textContent = opportunityStageLabels[stage] || "Repéré";
+    const host = card.querySelector("[data-opportunity-controls]");
+    if (!host) return;
+    const buttons = Object.entries(opportunityStageLabels).map(([value, text]) => `<button type="button" data-opportunity-stage="${value}" class="${stage === value ? "active" : ""}" aria-pressed="${stage === value}">${text}</button>`).join("");
+    host.innerHTML = `<div class="opportunity-stage-controls"><b>Où en sommes-nous? Choix partagé entre la direction et les communications.</b><div class="opportunity-stage-buttons">${buttons}</div><span class="opportunity-stage-meta">${row ? `Mis à jour par ${esc(row.updatedByLabel || "un utilisateur")} · ${esc(opportunityWhen(row))}` : "État proposé à confirmer dans le cockpit."}</span></div>`;
+  });
+  const count = project.querySelector("[data-opportunity-archive-count]");
+  if (count) count.textContent = String(archived);
+}
+
+function setupOpportunityEvents() {
+  if (document.body.dataset.opportunityEventsReady === "true") return;
+  document.body.dataset.opportunityEventsReady = "true";
+  document.addEventListener("click", (event) => {
+    const archiveToggle = event.target.closest("[data-toggle-opportunity-archives]");
+    if (archiveToggle) {
+      const project = document.querySelector("[data-project-register]");
+      const active = !project.classList.contains("show-opportunity-archives");
+      project.classList.toggle("show-opportunity-archives", active);
+      archiveToggle.setAttribute("aria-pressed", String(active));
+      archiveToggle.firstChild.textContent = active ? "Masquer les archives " : "Voir les archives ";
+      return;
+    }
+    const button = event.target.closest("button[data-opportunity-stage]");
+    if (!button || !state.profile || !["director", "admin"].includes(state.profile.role)) return;
+    const card = button.closest(".opportunity[data-opportunity-id]");
+    if (!card) return;
+    button.disabled = true;
+    setOpportunityStage(card.dataset.opportunityId, button.dataset.opportunityStage, state.profile)
+      .then(async () => {
+        await writeAuditLog("opportunity:" + card.dataset.opportunityId, "étape : " + button.dataset.opportunityStage, state.profile);
+        toast(button.dataset.opportunityStage === "completed" ? "Occasion finalisée et classée dans les archives." : "Étape de l’occasion enregistrée.");
+      })
+      .catch((error) => toast(error.message, true))
+      .finally(() => { button.disabled = false; });
+  });
+}
+
 const mediaStageLabels = {
   source: "Source",
   draft: "En révision",
@@ -915,7 +1022,7 @@ function renderMediaForCard(card) {
     return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}" data-media-id="${esc(row.id)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
       <div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span>${isFinal ? `<span class="cockpit-media-final-badge">✓ Média final retenu par la direction</span>` : ""}</div>
-      ${state.profile?.role === "director" ? `<button type="button" class="cockpit-media-final-action" data-select-final-media="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${isFinal}">${isFinal ? "✓ Média final choisi" : "Choisir ce média"}</button><div class="cockpit-media-comment"><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button></div>` : ""}
+      ${["director","admin"].includes(state.profile?.role) ? `<button type="button" class="cockpit-media-final-action" data-select-final-media="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${isFinal}">${isFinal ? "✓ Média final choisi" : "Choisir ce média"}</button><div class="cockpit-media-comment"><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button></div>` : ""}
       ${canEdit() ? `<button type="button" data-archive-media="${esc(row.id)}" aria-label="Archiver ce lien média" title="Archiver sans supprimer">×</button>` : ""}
     </article>`;
   }).join("");
@@ -956,7 +1063,7 @@ const workflowOrder = ["proposal", "content_review", "changes_requested", "conte
 function workflowRank(stage) { return workflowOrder.indexOf(stage || "proposal"); }
 
 function workflowMarkup(planItem) {
-  return `<section class="cockpit-workflow" data-workflow><h5>Les 3 feux verts</h5><p class="cockpit-workflow-intro">La direction valide d’abord le texte, puis le visuel. Lorsque les deux cases sont vertes, les communications peuvent publier et terminer l’événement.</p><div class="cockpit-workflow-gates"><div class="cockpit-workflow-gate" data-gate="content"><b>1 · Texte</b><span data-gate-label>À valider par la direction</span></div><div class="cockpit-workflow-gate" data-gate="media"><b>2 · Visuel</b><span data-gate-label>Commence après le texte</span></div><div class="cockpit-workflow-gate" data-gate="publication"><b>3 · Terminé</b><span data-gate-label>Publié ou programmé</span></div></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
+  return `<section class="cockpit-workflow" data-workflow><h5>Les 3 feux verts</h5><p class="cockpit-workflow-intro">Le texte et le visuel sont validés par la direction, ou par les communications lorsque son aval a déjà été donné. Une fois les deux feux verts obtenus, la publication peut être programmée puis terminée.</p><div class="cockpit-workflow-gates"><div class="cockpit-workflow-gate" data-gate="content"><b>1 · Texte</b><span data-gate-label>À valider</span></div><div class="cockpit-workflow-gate" data-gate="media"><b>2 · Visuel</b><span data-gate-label>Commence après le texte</span></div><div class="cockpit-workflow-gate" data-gate="publication"><b>3 · Terminé</b><span data-gate-label>Publié ou programmé</span></div></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
 }
 
 function renderWorkflow(card) {
@@ -976,8 +1083,8 @@ function renderWorkflow(card) {
   const contentLabel = contentGate?.querySelector("[data-gate-label]");
   const mediaLabel = mediaGate?.querySelector("[data-gate-label]");
   const publicationLabel = publicationGate?.querySelector("[data-gate-label]");
-  if (contentLabel) contentLabel.textContent = contentDone ? "Approuvé par la direction" : (stage === "changes_requested" ? "Corrections demandées" : stage === "content_review" ? "Prêt pour la direction" : "En préparation");
-  if (mediaLabel) mediaLabel.textContent = mediaDone ? "Approuvé par la direction" : (stage === "media_review" ? "Prêt pour la direction" : contentDone ? "En production" : "Attend le texte");
+  if (contentLabel) contentLabel.textContent = contentDone ? "Approuvé" : (stage === "changes_requested" ? "Corrections demandées" : stage === "content_review" ? "Prêt pour validation" : "En préparation");
+  if (mediaLabel) mediaLabel.textContent = mediaDone ? "Approuvé" : (stage === "media_review" ? "Prêt pour validation" : contentDone ? "En production" : "Attend le texte");
   if (publicationLabel) publicationLabel.textContent = publicationDone ? "Publié ou programmé" : mediaDone ? "Prêt à publier" : "Attend les 2 validations";
   card.classList.toggle("workflow-complete", publicationDone);
   const completeNote = card.querySelector("[data-workflow-complete]");
@@ -987,7 +1094,9 @@ function renderWorkflow(card) {
   const buttons = [];
   if (state.profile?.role === "admin") {
     if (["proposal","changes_requested"].includes(stage)) buttons.push(["content_review","Texte prêt — envoyer à la direction","primary"]);
+    if (["proposal","content_review","changes_requested"].includes(stage)) buttons.push(["content_approved","✓ Valider le texte avec l’aval de la direction","primary"]);
     if (["content_approved"].includes(stage)) buttons.push(["media_review","Visuel prêt — envoyer à la direction","primary"]);
+    if (["content_approved","media_review"].includes(stage)) buttons.push(["final_approved","✓ Valider le visuel avec l’aval de la direction","primary"]);
     if (["final_approved","scheduled"].includes(stage)) buttons.push(["published","✓ Terminer — publié ou programmé","primary"]);
   }
   if (state.profile?.role === "director") {
@@ -1563,6 +1672,7 @@ async function loadPrivateContent() {
   document.body.appendChild(planScript);
   planScript.remove();
   setupGuidePreference();
+  setupProjectPreference();
   state.contentLoaded = true;
 }
 
@@ -1621,6 +1731,8 @@ async function applyProfile(profile) {
   enhanceSectionFeedback();
   enhanceCalendarButtons();
   buildFeedbackWidget();
+  setupOpportunityEvents();
+  renderOpportunityStates();
   syncCardAccess();
 }
 
@@ -1632,6 +1744,7 @@ function applySignedOut(message = "") {
   state.mediaByEvent = new Map();
   state.commentsByEvent = new Map();
   state.workflows = new Map();
+  state.opportunities = new Map();
   state.mediaConfig = null;
   state.scheduleUnsubscribe?.();
   state.auditUnsubscribe?.();
@@ -1640,6 +1753,7 @@ function applySignedOut(message = "") {
   state.mediaUnsubscribe?.();
   state.commentsUnsubscribe?.();
   state.workflowUnsubscribe?.();
+  state.opportunityUnsubscribe?.();
   state.scheduleUnsubscribe = null;
   state.auditUnsubscribe = null;
   state.feedbackUnsubscribe = null;
@@ -1647,6 +1761,7 @@ function applySignedOut(message = "") {
   state.mediaUnsubscribe = null;
   state.commentsUnsubscribe = null;
   state.workflowUnsubscribe = null;
+  state.opportunityUnsubscribe = null;
   state.tasks = [];
   clearPrivateContent();
   document.body.classList.add("cockpit-locked");
@@ -1700,6 +1815,11 @@ function subscribeRemoteData() {
   state.workflowUnsubscribe = subscribeWorkflowStates((rows) => {
     state.workflows = new Map(rows.map((row) => [row.eventId || row.id, row])); renderAllCollaboration();
   }, (error) => toast("Le cycle de validation n’est pas accessible : " + error.message, true));
+  state.opportunityUnsubscribe?.();
+  state.opportunityUnsubscribe = subscribeOpportunityStates((rows) => {
+    state.opportunities = new Map(rows.map((row) => [row.opportunityId || row.id, row]));
+    renderOpportunityStates();
+  }, (error) => toast("Le suivi des occasions n’est pas accessible : " + error.message, true));
 }
 
 function start() {

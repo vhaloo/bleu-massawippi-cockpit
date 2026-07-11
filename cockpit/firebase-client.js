@@ -344,7 +344,7 @@ export async function archiveOwnComment(commentId, profile) {
   await appendChangeArchive("comment", commentId, "commentaire archivé", { deleted: false, comment: existing.data().comment || "" }, { deleted: true, comment: existing.data().comment || "" }, profile);
 }
 
-const workflowStages = new Set(["proposal", "content_review", "changes_requested", "content_approved", "media_review", "final_approved", "scheduled", "published"]);
+const workflowStages = new Set(["proposal", "content_review", "changes_requested", "content_changes_requested", "content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"]);
 
 export async function setWorkflowStage(eventId, stage, profile) {
   requireConfigured();
@@ -366,6 +366,30 @@ export async function setWorkflowStage(eventId, stage, profile) {
 export function subscribeWorkflowStates(callback, onError) {
   requireConfigured();
   return onSnapshot(collection(db, "workflowStates"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+}
+
+const opportunityStages = new Set(["watch", "research", "active", "submitted", "completed"]);
+
+export async function setOpportunityStage(opportunityId, stage, profile) {
+  requireConfigured();
+  if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas modifier le suivi des occasions.");
+  if (!/^[a-z0-9-]{3,80}$/i.test(String(opportunityId || "")) || !opportunityStages.has(stage)) throw new Error("Étape de projet invalide.");
+  const reference = doc(db, "opportunityStates", opportunityId);
+  const existing = await getDoc(reference);
+  const before = existing.exists() ? existing.data() : {};
+  await setDoc(reference, {
+    opportunityId,
+    stage,
+    updatedAt: serverTimestamp(),
+    updatedBy: profile.uid,
+    updatedByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120)
+  }, { merge: true });
+  await appendChangeArchive("opportunityState", opportunityId, "occasion : " + stage, { stage: before.stage || "watch" }, { stage }, profile);
+}
+
+export function subscribeOpportunityStates(callback, onError) {
+  requireConfigured();
+  return onSnapshot(collection(db, "opportunityStates"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
 }
 
 function normalizeMediaUrl(value) {
@@ -429,6 +453,26 @@ export async function archiveMediaLink(mediaId, profile) {
   }, {
     eventId: before.eventId || "", label: before.label || "", url: before.url || "", kind: before.kind || "other", stage: before.stage || "reference", note: before.note || "", archived: true
   }, profile);
+}
+
+export async function setMediaFinalChoice(mediaId, selected, profile) {
+  requireConfigured();
+  if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas retenir le média final.");
+  if (!/^[A-Za-z0-9_-]{3,160}$/.test(String(mediaId || ""))) throw new Error("Média invalide.");
+  const reference = doc(db, "mediaLinks", mediaId);
+  const existing = await getDoc(reference);
+  if (!existing.exists()) throw new Error("Ce média n’existe plus.");
+  const before = existing.data();
+  const next = {
+    selectedFinal: Boolean(selected),
+    approvedAt: selected ? serverTimestamp() : null,
+    approvedBy: selected ? profile.uid : "",
+    approvedByLabel: selected ? String(profile.displayLabel || "Direction").slice(0, 120) : "",
+    updatedAt: serverTimestamp(),
+    updatedBy: profile.uid
+  };
+  await updateDoc(reference, next);
+  await appendChangeArchive("mediaLink", mediaId, selected ? "média final retenu" : "média retiré du choix final", { selectedFinal: before.selectedFinal === true }, { selectedFinal: Boolean(selected) }, profile);
 }
 
 export function subscribeMediaLinks(callback, onError) {
