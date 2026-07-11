@@ -5,16 +5,16 @@ const OPEN_HOUSE_POST = {
   date: "Lundi 13 juillet",
   t: "Communauté",
   tier: "Pilier",
-  title: "Portes ouvertes : venez nous rencontrer",
-  format: "Visuel photo 4:5 · horaires + lien Google Maps",
-  role: "Rendre le point de contact de l’association visible et accessible, avec des heures précises et un itinéraire simple.",
-  cta: "Trouver le local sur Google Maps",
-  visual: "Photo authentique du local fournie par l’association, recadrée en 4:5; titre discret : Portes ouvertes · Venez nous rencontrer.",
+  title: "Nous sommes là, si vous voulez nous parler",
+  format: "Note manuscrite 4:5 · photo réelle + horaire variable",
+  role: "Faire savoir simplement quand une personne de l’équipe est présente cette semaine, sans présenter ces disponibilités comme des portes ouvertes ni comme un horaire fixe.",
+  cta: "Passer nous parler ou trouver le local",
+  visual: "Photo authentique du local en noir et blanc doux; note personnelle façon rappel sur le frigo, écriture blanche en lettres détachées et petit sourire dessiné.",
   source: `Photo fournie par l’association; adresse publique vérifiée auprès de la Municipalité d’Ayer’s Cliff : église Saint-Barthélemy, 911, rue Clough, Ayer’s Cliff, Québec J0B 1C0 · ${OPEN_HOUSE_MAP_URL}`,
-  fallback: "Visuel typographique sobre avec les trois plages horaires et le lien Google Maps, si la photo ne peut pas être publiée.",
+  fallback: "Photo réelle légèrement pâlie avec les trois plages horaires en écriture blanche; aucune mention de portes ouvertes.",
   kpi: "Clics Google Maps / messages reçus / visites au local",
   task: "Préparer le visuel photo 4:5, vérifier une dernière fois les horaires et rendre le lien Google Maps cliquable dans la légende.",
-  copy: `FR — Vous souhaitez venir nous rencontrer ou en apprendre davantage sur les actions de Bleu Massawippi? Les portes du local sont ouvertes cette semaine :
+  copy: `FR — Vous avez une question sur le lac, nos projets ou l’association? Cette semaine, une personne de l’équipe sera au local aux moments suivants :
 
 Lundi 13 juillet : 8 h 30 à 16 h
 Mercredi 15 juillet : 8 h 30 à 15 h
@@ -23,13 +23,13 @@ Jeudi 16 juillet : 8 h 30 à 16 h
 📍 Église Saint-Barthélemy, 911, rue Clough, Ayer’s Cliff (Québec) J0B 1C0
 Itinéraire : ${OPEN_HOUSE_MAP_URL}
 
-Passez nous voir pour poser une question, découvrir le travail de l’association ou simplement venir échanger au sujet du lac Massawippi. Au plaisir de vous accueillir!
+Ce n’est pas une activité programmée ni un horaire fixe : ce sont simplement les moments où nous sommes là si vous avez envie de passer nous parler. Les disponibilités changeront chaque semaine; consultez toujours l’horaire le plus récent avant de vous déplacer.
 
-#BleuMassawippi #LacMassawippi #Communauté #NorthHatley #PortesOuvertes
+#BleuMassawippi #LacMassawippi #Communauté #AyersCliff #NousSommesLà
 
 =========================================
 
-EN — Would you like to meet us or learn more about Bleu Massawippi’s work? Our local office is open this week:
+EN — Do you have a question about the lake, our projects or the association? This week, someone from our team will be at the local office at the following times:
 
 Monday, July 13: 8:30 a.m. to 4 p.m.
 Wednesday, July 15: 8:30 a.m. to 3 p.m.
@@ -38,23 +38,23 @@ Thursday, July 16: 8:30 a.m. to 4 p.m.
 📍 Saint-Barthélemy Church, 911 Clough Street, Ayer’s Cliff, Quebec J0B 1C0
 Directions: ${OPEN_HOUSE_MAP_URL}
 
-Stop by to ask a question, learn about the association’s work or simply talk about Lake Massawippi. We look forward to welcoming you!
+This is not a scheduled event or a permanent office schedule. These are simply the times when we are here if you would like to stop by and talk. Availability will change from week to week, so please check the latest schedule before coming.
 
-#BleuMassawippi #LakeMassawippi #Community #NorthHatley #OpenDoors`,
+#BleuMassawippi #LakeMassawippi #Community #AyersCliff #WeAreHere`,
   choiceRequired: false,
   optionGroup: null,
   optionLabel: null,
   isAlternative: false,
   tasksValentin: [
-    "Transformer la photo fournie en visuel 4:5 optimisé pour Facebook et Instagram, avec un texte lisible sur mobile et un texte alternatif.",
-    "Vérifier les dates, heures, adresse et lien Google Maps; finaliser la légende FR / EN puis programmer uniquement après validation.",
+    "Transformer la photo fournie en note personnelle 4:5 optimisée pour Facebook et Instagram, avec une écriture manuscrite lisible sur mobile et un texte alternatif.",
+    "Vérifier les dates, heures, adresse et lien Google Maps; préciser que l’horaire change chaque semaine; programmer uniquement après validation.",
     "Surveiller les messages et commentaires liés aux heures d’accueil et consigner les demandes nécessitant un suivi."
   ],
   tasksAnnie: [
     "Confirmer les heures d’accueil, la disponibilité réelle du local et la personne qui peut recevoir les visiteurs.",
     "Préparer l’accueil et signaler rapidement tout changement d’horaire ou toute demande qui exige une réponse de la direction générale."
   ],
-  taskOwnersVersion: "event-task-owners-2026-07-10-open-house-v1"
+  taskOwnersVersion: "event-task-owners-2026-07-11-weekly-presence-v2"
 };
 
 export function applyPlanOverridesToPosts(posts) {
