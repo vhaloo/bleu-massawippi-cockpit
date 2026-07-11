@@ -23,6 +23,8 @@ Six publications bilingues utilisant des documents du domaine public de la banqu
 
 Les textes distinguent explicitement photographie, estampe et carte postale; ils n’identifient aucun bâtiment, trajet ou personne sans source. Les six originaux ont été copiés dans le dossier SharePoint synchronisé `Media Cockpit\Photos historiques`, tandis que les fichiers maîtres et le catalogue des droits restent dans le dossier local `Photos historiques`. La synchronisation Firestore a créé l’état du nouvel événement du 10 août et préservé les 56 états déjà présents.
 
+Chaque capsule possède maintenant son propre document `mediaLinks` dans Firestore, relié au fichier SharePoint exact et non à un dossier générique. Les liens sont en lecture institutionnelle selon les permissions SharePoint existantes; aucune permission ni aucun nouveau lien anonyme n’a été créé. Les six entrées sont réexécutables sans doublon avec `npm --prefix cockpit run seed:history-media`.
+
 ## Régression de stabilité — 11 juillet 2026
 
 Le frontend est revenu au dernier socle stable antérieur au module photo (`137525a`). Les fonctions textuelles essentielles sont conservées : authentification, calendrier, choix, statuts, commentaires, dictée, rétroactions, tâches, calendrier personnel et installation PWA. Le rescan global de la page a été remplacé par une observation ciblée des cartes pour éviter les boucles et ralentissements.
