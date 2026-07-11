@@ -16,19 +16,13 @@ import {
   updateCockpitFeedbackStatus,
   upsertActionTask,
   completeActionTask,
-  subscribeActionTasks,
-  uploadImageAttachment,
-  subscribeImageAttachments,
-  MAX_ATTACHMENT_BYTES
-} from "./firebase-client.js?v=20260711-auth-fix-v1";
+  subscribeActionTasks
+} from "./firebase-client.js?v=20260711-text-regression-v1";
 import { applyPlanOverridesToPosts } from "./plan-overrides.js";
 
 const { configured } = getClientState();
-// Le volet visuel est conservé dans le dépôt pour une reprise ultérieure, mais
-// reste volontairement suspendu afin que le cockpit demeure entièrement textuel.
-const IMAGE_ATTACHMENTS_ENABLED = false;
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
-const state = { user: null, profile: null, rows: new Map(), attachments: [], tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, attachmentUnsubscribe: null, scheduleUnsubscribe: null, contentLoaded: false };
+const state = { user: null, profile: null, rows: new Map(), tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, contentLoaded: false };
 let pastEventsVisible = false;
 let activeRecognition = null;
 let activeTextarea = null;
@@ -86,23 +80,6 @@ style.textContent = `
   .cockpit-voice-status.live { color: #0b7895; font-weight: 800; }
   .cockpit-voice-status.error { color: #9a4035; }
   .cockpit-voice-help { flex-basis: 100%; color: #6b858d; font-size: .68rem; line-height: 1.35; }
-  .cockpit-attachments { margin-top: 14px; padding-top: 13px; border-top: 1px solid #d6e8ea; }
-  .cockpit-attachments-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px; margin-bottom: 9px; }
-  .cockpit-attachments-head b { color: #073a52; font-size: .8rem; }
-  .cockpit-attachments-head span { color: #6b858d; font-size: .68rem; }
-  .cockpit-attachment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); gap: 9px; margin-bottom: 9px; }
-  .cockpit-attachment { position: relative; overflow: hidden; min-width: 0; border: 1px solid #cbe1e4; border-radius: 11px; background: #eef7f7; }
-  .cockpit-attachment a { display: block; color: inherit; text-decoration: none; }
-  .cockpit-attachment img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; background: #dcecee; }
-  .cockpit-attachment figcaption { padding: 6px 7px 7px; color: #54717d; font-size: .64rem; line-height: 1.25; }
-  .cockpit-attachment figcaption strong { display: block; overflow: hidden; color: #315564; text-overflow: ellipsis; white-space: nowrap; }
-  .cockpit-attachment-empty { grid-column: 1 / -1; margin: 0; color: #78919a; font-size: .72rem; }
-  .cockpit-attachment-upload { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-  .cockpit-attachment-upload input { max-width: 100%; padding: 6px; border: 1px dashed #a9cfd3; border-radius: 9px; color: #315564; background: #f8fcfc; font-size: .71rem; }
-  .cockpit-attachment-note { margin: 6px 0 0; color: #6b858d; font-size: .67rem; line-height: 1.35; }
-  .cockpit-attachment-status { flex-basis: 100%; min-height: 17px; color: #54717d; font-size: .69rem; }
-  .cockpit-attachment-status.error { color: #9a4035; }
-  .cockpit-attachment-status.success { color: #26705f; }
   .cockpit-past-toggle { margin-left: auto; padding: 7px 10px; border: 1px solid #b9d7da; border-radius: 999px; color: #315564; background: #f8fcfc; font-size: .72rem; font-weight: 800; cursor: pointer; }
   .cockpit-past-toggle.active { color: #fff; background: #0b7895; border-color: #0b7895; }
   .day-group.cockpit-past-visible { opacity: .82; }
@@ -204,6 +181,7 @@ function toast(message, error = false) {
 }
 
 const debugState = { events: [], open: false };
+let debugRenderTimer = null;
 const nativeConsole = {
   warn: console.warn?.bind(console),
   error: console.error?.bind(console)
@@ -229,7 +207,12 @@ function recordDebugEvent(level, values) {
   const message = (Array.isArray(values) ? values : [values]).map(debugValue).join(" ").slice(0, 4000);
   debugState.events.unshift({ level, message, when: new Date().toLocaleTimeString("fr-CA") });
   if (debugState.events.length > 80) debugState.events.length = 80;
-  renderDebugWidget();
+  if (!debugRenderTimer) {
+    debugRenderTimer = window.setTimeout(() => {
+      debugRenderTimer = null;
+      renderDebugWidget();
+    }, 120);
+  }
 }
 
 console.warn = (...values) => {
@@ -850,183 +833,8 @@ function enhanceCards() {
     card.appendChild(controls);
   });
   applyRemoteRows();
-  renderAttachmentBlocks();
   applyPastEventFilter();
   syncCardAccess();
-}
-
-function formatAttachmentBytes(bytes) {
-  const value = Number(bytes || 0);
-  if (value < 1024) return `${value} o`;
-  if (value < 1024 * 1024) return `${(value / 1024).toFixed(0)} Ko`;
-  return `${(value / (1024 * 1024)).toFixed(2)} Mo`;
-}
-
-function attachmentBlockMarkup(planItem) {
-  return `<section class="cockpit-attachments" data-attachments-for="${esc(planItem.id)}">
-    <div class="cockpit-attachments-head"><b>Visuels liés à cet événement</b><span>JPEG optimisé · format 4:5</span></div>
-    <div class="cockpit-attachment-grid" data-attachment-grid></div>
-    <label class="cockpit-attachment-upload"><span>Ajouter une ou plusieurs photos</span><input type="file" data-attachment-input accept="image/*" multiple></label>
-    <p class="cockpit-attachment-note">Chaque image est cadrée automatiquement pour Facebook / Instagram (4:5, jusqu’à 1080 × 1350), convertie en JPEG et gardée sous 1 Mo. L’image optimisée devient la version de travail réutilisable.</p>
-    <div class="cockpit-attachment-status" data-attachment-status aria-live="polite"></div>
-  </section>`;
-}
-
-function renderAttachmentBlocks() {
-  if (!IMAGE_ATTACHMENTS_ENABLED) {
-    document.querySelectorAll(".cockpit-attachments").forEach((node) => node.remove());
-    return;
-  }
-  document.querySelectorAll(".post[data-item-id]").forEach((card) => {
-    const planItem = getPlanItem(card);
-    const detail = card.querySelector(".detail");
-    if (!planItem || !detail) return;
-    let block = detail.querySelector("[data-attachments-for]");
-    if (!block) {
-      detail.insertAdjacentHTML("beforeend", attachmentBlockMarkup(planItem));
-      block = detail.querySelector(`[data-attachments-for="${planItem.id}"]`);
-    }
-    const grid = block?.querySelector("[data-attachment-grid]");
-    if (!grid) return;
-    const rows = state.attachments.filter((attachment) => attachment.eventId === planItem.id && attachment.archived !== true);
-    grid.innerHTML = rows.length ? rows.map((attachment) => {
-      const image = attachment.downloadUrl
-        ? `<a href="${esc(attachment.downloadUrl)}" target="_blank" rel="noopener noreferrer" title="Ouvrir le visuel optimisé en pleine qualité"><img src="${esc(attachment.downloadUrl)}" alt="${esc(attachment.filename || "Visuel lié")}" loading="lazy"></a>`
-        : `<div class="cockpit-attachment-missing">Visuel temporairement indisponible</div>`;
-      return `<figure class="cockpit-attachment">${image}<figcaption><strong>${esc(attachment.filename || "Visuel optimisé")}</strong>${formatAttachmentBytes(attachment.sizeBytes)} · ${esc(attachment.width || 1080)} × ${esc(attachment.height || 1350)}</figcaption></figure>`;
-    }).join("") : `<p class="cockpit-attachment-empty">Aucun visuel lié pour le moment. Les photos ajoutées ici restent associées à cet événement.</p>`;
-  });
-  const usage = document.querySelector("#cockpit-attachment-usage");
-  if (usage) {
-    const activeAttachments = state.attachments.filter((attachment) => attachment.archived !== true);
-    const bytes = activeAttachments.reduce((total, attachment) => total + Number(attachment.sizeBytes || 0), 0);
-    usage.textContent = `${activeAttachments.length} visuel${activeAttachments.length === 1 ? "" : "s"} · ${formatAttachmentBytes(bytes)} suivis par le cockpit. Estimation interne; le quota Firebase facturé se vérifie dans la console.`;
-  }
-  syncCardAccess();
-}
-
-async function loadImageSource(file) {
-  if (typeof createImageBitmap === "function") {
-    try {
-      return await createImageBitmap(file, { imageOrientation: "from-image" });
-    } catch {
-      try { return await createImageBitmap(file); } catch {}
-    }
-  }
-  return new Promise((resolve, reject) => {
-    const objectUrl = URL.createObjectURL(file);
-    const image = new Image();
-    image.onload = () => { URL.revokeObjectURL(objectUrl); resolve(image); };
-    image.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error("Le navigateur ne peut pas lire cette image.")); };
-    image.src = objectUrl;
-  });
-}
-
-function canvasToJpeg(canvas, quality) {
-  return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("La conversion JPEG a échoué.")), "image/jpeg", quality);
-  });
-}
-
-async function convertImageForSocial(file) {
-  if (!file || !String(file.type || "").startsWith("image/")) throw new Error("Sélectionnez uniquement des fichiers image.");
-  const source = await loadImageSource(file);
-  const sourceWidth = Number(source.width || source.naturalWidth || 0);
-  const sourceHeight = Number(source.height || source.naturalHeight || 0);
-  if (!sourceWidth || !sourceHeight) throw new Error("Les dimensions de cette image sont illisibles.");
-  const dimensions = [[1080, 1350], [960, 1200], [840, 1050], [720, 900]];
-  const qualities = [0.84, 0.78, 0.72, 0.66, 0.60, 0.54];
-  let lastBlob = null;
-  let lastWidth = 0;
-  let lastHeight = 0;
-  for (const [width, height] of dimensions) {
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const context = canvas.getContext("2d", { alpha: false });
-    if (!context) throw new Error("Le navigateur ne peut pas préparer le visuel.");
-    context.fillStyle = "#eef7f7";
-    context.fillRect(0, 0, width, height);
-    const scale = Math.max(width / sourceWidth, height / sourceHeight);
-    const drawWidth = sourceWidth * scale;
-    const drawHeight = sourceHeight * scale;
-    context.drawImage(source, (width - drawWidth) / 2, (height - drawHeight) / 2, drawWidth, drawHeight);
-    for (const quality of qualities) {
-      const blob = await canvasToJpeg(canvas, quality);
-      lastBlob = blob;
-      lastWidth = width;
-      lastHeight = height;
-      if (blob.size < Math.min(MAX_ATTACHMENT_BYTES, 980 * 1024)) {
-        source.close?.();
-        return { blob, width, height, originalWidth: sourceWidth, originalHeight: sourceHeight };
-      }
-    }
-  }
-  source.close?.();
-  if (!lastBlob || lastBlob.size >= MAX_ATTACHMENT_BYTES) throw new Error("Cette image reste trop lourde après optimisation. Choisissez une image plus simple.");
-  return { blob: lastBlob, width: lastWidth, height: lastHeight, originalWidth: sourceWidth, originalHeight: sourceHeight };
-}
-
-function attachmentFilename(name) {
-  const stem = String(name || "visuel").replace(/\.[^.]+$/, "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 54) || "visuel";
-  return `${stem}-meta-4x5.jpg`;
-}
-
-async function uploadAttachmentFiles(input) {
-  const block = input.closest("[data-attachments-for]");
-  const eventId = block?.dataset.attachmentsFor;
-  const status = block?.querySelector("[data-attachment-status]");
-  if (!eventId || !state.profile || !canEdit()) return;
-  const files = [...(input.files || [])];
-  input.value = "";
-  if (!files.length || input.dataset.busy === "true") return;
-  input.dataset.busy = "true";
-  try {
-    for (let index = 0; index < files.length; index += 1) {
-      const file = files[index];
-      if (status) {
-        status.className = "cockpit-attachment-status";
-        status.textContent = `Optimisation du visuel ${index + 1} / ${files.length}…`;
-      }
-      const prepared = await convertImageForSocial(file);
-      const uploaded = await uploadImageAttachment({
-        eventId,
-        blob: prepared.blob,
-        filename: attachmentFilename(file.name),
-        width: prepared.width,
-        height: prepared.height,
-        originalName: file.name,
-        originalWidth: prepared.originalWidth,
-        originalHeight: prepared.originalHeight
-      }, state.profile);
-      state.attachments = [uploaded, ...state.attachments];
-    }
-    renderAttachmentBlocks();
-    if (status) {
-      status.className = "cockpit-attachment-status success";
-      status.textContent = `${files.length} visuel${files.length > 1 ? "s" : ""} optimisé${files.length > 1 ? "s" : ""} et associé${files.length > 1 ? "s" : ""} à cet événement.`;
-    }
-    toast("Visuel ajouté au brief.");
-  } catch (error) {
-    if (status) {
-      status.className = "cockpit-attachment-status error";
-      status.textContent = error.message || "Le visuel n’a pas pu être ajouté.";
-    }
-    toast(error.message || "Le visuel n’a pas pu être ajouté.", true);
-  } finally {
-    delete input.dataset.busy;
-  }
-}
-
-function enhanceAttachmentEvents() {
-  if (!IMAGE_ATTACHMENTS_ENABLED) return;
-  if (document.body.dataset.attachmentEventsReady === "true") return;
-  document.body.dataset.attachmentEventsReady = "true";
-  document.addEventListener("change", (event) => {
-    const input = event.target.closest("[data-attachment-input]");
-    if (!input) return;
-    uploadAttachmentFiles(input);
-  });
 }
 
 const calendarMonthNumbers = {
@@ -1530,7 +1338,7 @@ async function loadPrivateContent() {
   planScript.textContent = content.script;
   document.body.appendChild(planScript);
   planScript.remove();
-  if (Array.isArray(globalThis.posts)) {
+  if (Array.isArray(globalThis.posts) && !globalThis.posts.some((item) => item.id === "s1d1" && item.title === "Portes ouvertes : venez nous rencontrer")) {
     applyPlanOverridesToPosts(globalThis.posts);
     if (globalThis.meta) globalThis.meta[5] = ["Semaine 5 · Réserve éditoriale", "10 au 16 août"];
     globalThis.render?.();
@@ -1547,6 +1355,8 @@ function clearPrivateContent() {
 
 async function applyProfile(profile) {
   state.profile = profile;
+  const loginNote = document.querySelector("#cockpit-login-note");
+  if (loginNote) loginNote.textContent = "Identifiants vérifiés. Chargement du cockpit…";
   await loadPrivateContent();
   document.body.classList.remove("cockpit-locked");
   document.body.classList.remove("cockpit-readonly");
@@ -1586,15 +1396,6 @@ async function applyProfile(profile) {
   enhanceCards();
   enhanceSectionFeedback();
   enhanceCalendarButtons();
-  if (IMAGE_ATTACHMENTS_ENABLED) enhanceAttachmentEvents();
-  state.attachmentUnsubscribe?.();
-  state.attachmentUnsubscribe = null;
-  if (IMAGE_ATTACHMENTS_ENABLED && configured) {
-    state.attachmentUnsubscribe = subscribeImageAttachments((rows) => {
-      state.attachments = rows;
-      renderAttachmentBlocks();
-    }, (error) => toast("Les visuels ne sont pas accessibles : " + error.message, true));
-  }
   buildFeedbackWidget();
   syncCardAccess();
 }
@@ -1608,13 +1409,10 @@ function applySignedOut(message = "") {
   state.auditUnsubscribe?.();
   state.feedbackUnsubscribe?.();
   state.tasksUnsubscribe?.();
-  state.attachmentUnsubscribe?.();
   state.scheduleUnsubscribe = null;
   state.auditUnsubscribe = null;
   state.feedbackUnsubscribe = null;
   state.tasksUnsubscribe = null;
-  state.attachmentUnsubscribe = null;
-  state.attachments = [];
   state.tasks = [];
   pastEventsVisible = false;
   clearPrivateContent();
@@ -1658,8 +1456,11 @@ function start() {
   buildLogin();
   enhanceCardEvents();
   enhanceFeedbackListEvents();
-  if (IMAGE_ATTACHMENTS_ENABLED) enhanceAttachmentEvents();
-  const observer = new MutationObserver(() => enhanceCards());
+  const observer = new MutationObserver(() => {
+    // Pendant l’injection initiale du plan, on laisse son propre rendu terminer.
+    // Les contrôles de collaboration sont ajoutés une seule fois après le chargement.
+    if (state.contentLoaded) enhanceCards();
+  });
   observer.observe(document.body, { childList: true, subtree: true });
 
   if (demoMode) {
@@ -1669,7 +1470,7 @@ function start() {
 
   observeAuth((user, profile, error) => {
     if (error) {
-      applySignedOut();
+      applySignedOut(error.message || "Le profil Firebase n’a pas pu être chargé. Réessayez.");
       return;
     }
     if (!user || !profile) {

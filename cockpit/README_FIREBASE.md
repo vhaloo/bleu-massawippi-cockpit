@@ -2,7 +2,7 @@
 
 Le dossier contient une nouvelle copie interactive du plan. Le HTML de présentation situé au niveau supérieur n’est pas modifié par le cockpit.
 
-Le volet des pièces jointes est conservé pour une reprise ultérieure, mais il est suspendu dans l’interface actuelle : aucune image n’est chargée ni synchronisée. Le parcours actif est volontairement centré sur le calendrier, les décisions, les commentaires, les tâches et les autres contenus textuels.
+Le volet des pièces jointes est conservé pour une reprise ultérieure, mais il est suspendu dans l’interface actuelle : aucune image n’est chargée ni synchronisée, et le module Firebase Storage n’est plus importé par le chemin de production. Le parcours actif est volontairement centré sur le calendrier, les décisions, les commentaires, les tâches et les autres contenus textuels.
 
 ## État livré
 

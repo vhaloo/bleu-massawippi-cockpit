@@ -27,16 +27,9 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import {
-  getStorage,
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-storage.js";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
-export const MAX_ATTACHMENT_BYTES = 1024 * 1024;
 const configured = required.every((key) => {
   const value = config[key];
   return typeof value === "string" && value.length > 0 && !value.includes("REMPLACER");
@@ -45,9 +38,7 @@ const configured = required.every((key) => {
 let app;
 let auth;
 let db;
-let storage;
 let persistenceState = "not-configured";
-let storageState = "not-configured";
 const REQUEST_TIMEOUT_MS = 15000;
 
 function withTimeout(promise, message, timeoutMs = REQUEST_TIMEOUT_MS) {
@@ -78,12 +69,6 @@ if (configured) {
   } catch {
     db = getFirestore(app);
     persistenceState = "unavailable";
-  }
-  try {
-    storage = getStorage(app);
-    storageState = "enabled";
-  } catch {
-    storageState = "unavailable";
   }
   setPersistence(auth, browserLocalPersistence).catch(() => {
     persistenceState = "unavailable";
@@ -137,13 +122,14 @@ async function getProfile(user) {
       active: profile.active === true,
       displayLabel: String(profile.displayLabel || fallback.displayLabel).slice(0, 120)
     };
-  } catch {
-    return fallback;
+  } catch (error) {
+    console.warn("Profil Firebase indisponible", error);
+    throw error;
   }
 }
 
 export function getClientState() {
-  return { configured, persistenceState, storageState, auth, db, storage };
+  return { configured, persistenceState, auth, db };
 }
 
 export async function fetchPrivateContent() {
@@ -164,15 +150,21 @@ export function observeAuth(callback) {
     callback(null, null, new Error("Firebase non configuré."));
     return () => {};
   }
-  return onAuthStateChanged(auth, async (user) => {
-    callback(user, user ? await getProfile(user) : null, null);
+  return onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      callback(null, null, null);
+      return;
+    }
+    getProfile(user)
+      .then((profile) => callback(user, profile, null))
+      .catch((error) => callback(user, null, error));
   });
 }
 
 export async function signIn(email, password) {
   requireConfigured();
   const credential = await withTimeout(signInWithEmailAndPassword(auth, email, password), "Le service de connexion ne répond pas après 15 secondes. Vérifiez votre réseau puis réessayez.");
-  return getProfile(credential.user);
+  return credential.user;
 }
 
 export async function sendPasswordReset(email) {
@@ -199,97 +191,6 @@ export function subscribeScheduleItems(callback, onError) {
     onError
   );
   return unsubscribe;
-}
-
-function requireStorage() {
-  requireConfigured();
-  if (!storage) throw new Error("Le stockage d’images Firebase n’est pas disponible.");
-}
-
-function validAttachmentId(value) {
-  return /^[a-z0-9-]{3,80}$/i.test(String(value || ""));
-}
-
-export async function uploadImageAttachment({ eventId, blob, filename, width, height, originalName, originalWidth, originalHeight }, profile) {
-  requireStorage();
-  if (!profile || !["director", "admin"].includes(profile.role)) {
-    throw new Error("Seuls les comptes de coordination peuvent ajouter un visuel.");
-  }
-  if (!validAttachmentId(eventId)) throw new Error("Événement invalide pour cette pièce jointe.");
-  if (!(blob instanceof Blob) || blob.type !== "image/jpeg") {
-    throw new Error("Le visuel doit être converti en JPEG avant son envoi.");
-  }
-  if (blob.size <= 0 || blob.size > MAX_ATTACHMENT_BYTES) {
-    throw new Error("Le visuel optimisé doit rester sous 1 Mo.");
-  }
-  const attachmentRef = doc(collection(db, "attachments"));
-  const safeName = String(filename || "visuel.jpg")
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9._-]+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^[-.]+|[-.]+$/g, "")
-    .slice(0, 90) || "visuel.jpg";
-  const storagePath = `uploads/${eventId}/${attachmentRef.id}-${safeName.endsWith(".jpg") ? safeName : safeName + ".jpg"}`;
-  const objectRef = storageRef(storage, storagePath);
-  await uploadBytes(objectRef, blob, {
-    contentType: "image/jpeg",
-    customMetadata: {
-      eventId: String(eventId),
-      uploadedBy: String(profile.uid),
-      conversionPreset: "meta-feed-4x5"
-    }
-  });
-  const downloadUrl = await getDownloadURL(objectRef);
-  const payload = {
-    eventId: String(eventId),
-    storagePath,
-    filename: safeName,
-    contentType: "image/jpeg",
-    sizeBytes: blob.size,
-    width: Number.isInteger(width) ? width : 1080,
-    height: Number.isInteger(height) ? height : 1350,
-    originalName: String(originalName || safeName).slice(0, 180),
-    originalWidth: Number.isInteger(originalWidth) ? originalWidth : null,
-    originalHeight: Number.isInteger(originalHeight) ? originalHeight : null,
-    conversionPreset: "meta-feed-4x5",
-    downloadedLocally: false,
-    archived: false,
-    createdByUid: profile.uid,
-    createdByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
-    createdAt: serverTimestamp()
-  };
-  await setDoc(attachmentRef, payload);
-  await appendChangeArchive("attachment", attachmentRef.id, "visuel optimisé ajouté", {}, {
-    eventId: payload.eventId,
-    filename: payload.filename,
-    sizeBytes: payload.sizeBytes,
-    width: payload.width,
-    height: payload.height,
-    conversionPreset: payload.conversionPreset
-  }, profile);
-  return { id: attachmentRef.id, ...payload, downloadUrl };
-}
-
-export function subscribeImageAttachments(callback, onError) {
-  requireConfigured();
-  const attachmentsQuery = query(collection(db, "attachments"), orderBy("createdAt", "desc"), limit(500));
-  return onSnapshot(
-    attachmentsQuery,
-    (snapshot) => {
-      Promise.all(snapshot.docs.map(async (item) => {
-        const data = item.data();
-        let downloadUrl = null;
-        try {
-          if (data.storagePath) downloadUrl = await getDownloadURL(storageRef(storage, data.storagePath));
-        } catch (error) {
-          console.warn("URL de visuel indisponible", item.id, error);
-        }
-        return { id: item.id, ...data, downloadUrl };
-      })).then(callback).catch(onError);
-    },
-    onError
-  );
 }
 
 export async function updateScheduleItem(itemId, changes, profile) {

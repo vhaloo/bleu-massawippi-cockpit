@@ -9,7 +9,6 @@ const root = path.resolve(here, "..");
 const ui = fs.readFileSync(path.join(here, "cockpit-ui.js"), "utf8");
 const client = fs.readFileSync(path.join(here, "firebase-client.js"), "utf8");
 const firestoreRules = fs.readFileSync(path.join(here, "firestore.rules"), "utf8");
-const storageRules = fs.readFileSync(path.join(here, "storage.rules"), "utf8");
 const source = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const postsJson = source.match(/var posts=(\[[\s\S]*?\]);\s*var meta=/)?.[1];
 assert.ok(postsJson, "Le tableau des publications source doit rester lisible.");
@@ -25,12 +24,12 @@ assert.equal(moved.w, 5);
 assert.equal(posts.filter((post) => !post.isAlternative).length, 28);
 assert.match(preparePlanScript(source.match(/<script>\s*(var posts=[\s\S]*?)<\/script>/i)[1], posts), /\[1,2,3,4,5\]\.forEach/);
 
-for (const token of ["getUserMedia", "SpeechRecognition", "webkitSpeechRecognition", "data-attachment-input", "uploadImageAttachment", "subscribeImageAttachments", "data-past-toggle", "cockpit-debug-launch"]) {
+for (const token of ["getUserMedia", "SpeechRecognition", "webkitSpeechRecognition", "data-past-toggle", "cockpit-debug-launch", "Connexion…"]) {
   assert.ok(ui.includes(token), `Le cockpit doit contenir le contrat ${token}.`);
 }
-for (const token of ["addComment", "addCockpitFeedback", "MAX_ATTACHMENT_BYTES", "match /attachments/{attachmentId}"]) {
+for (const token of ["addComment", "addCockpitFeedback", "memoryLocalCache", "withTimeout", "match /comments/{commentId}"]) {
   assert.ok((client + firestoreRules).includes(token), `Le flux collaboratif doit contenir ${token}.`);
 }
-assert.match(storageRules, /contentType == 'image\/jpeg'/);
-assert.match(storageRules, /size <= 1024 \* 1024/);
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, movedPost: moved.id, contractChecks: 15 }, null, 2));
+assert.doesNotMatch(ui, /data-attachment-input|uploadImageAttachment|subscribeImageAttachments/);
+assert.doesNotMatch(client, /firebase-storage|uploadBytes|getDownloadURL/);
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, movedPost: moved.id, contractChecks: 16 }, null, 2));
