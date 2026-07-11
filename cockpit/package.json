@@ -6,10 +6,11 @@
     "sync": "node admin_sync.js",
     "seed": "node seed_private_content.js",
     "seed:attachments": "node seed_open_house_attachments.js",
+    "check:storage": "node check_firebase_storage.mjs",
     "provision-users": "node provision_users.js",
     "test:contract": "node test_contract.mjs",
     "refine": "node ../refine_calendar.js",
-    "check": "node --check admin_sync.js && node --check firebase-client.js && node --check cockpit-ui.js && node --check plan-overrides.js && node --check seed_open_house_attachments.js"
+    "check": "node --check admin_sync.js && node --check firebase-client.js && node --check cockpit-ui.js && node --check plan-overrides.js && node --check seed_open_house_attachments.js && node --check check_firebase_storage.mjs"
   },
   "dependencies": {
     "firebase-admin": "^14.1.0"

@@ -17,7 +17,8 @@ Ce journal est un point de reprise local. Il ne contient aucun mot de passe, jet
 - Les métadonnées sont dans `attachments/{attachmentId}`; les versions ne sont pas supprimées depuis le frontend.
 - Les deux dérivations de référence du premier post sont conservées localement dans `C:\Users\Vhaloo\Documents\Bleu Massawippi\media\portes-ouvertes\` : la source recadrée et le visuel proposé avec correction légère. Aucune génération ayant inventé l’architecture n’est utilisée.
 - `admin_sync.js` télécharge désormais les pièces jointes non marquées `downloadedLocally` dans `sync-output/attachments` et conserve leur trace dans Firestore.
-- Au 10 juillet 2026, le projet Firebase n’a pas encore de bucket Storage provisionné; `seed:attachments` s’arrête donc proprement sur cette dépendance externe. Le code et les règles sont prêts, mais l’activation de Storage doit être faite dans la console Firebase avec le choix de facturation approprié.
+- Au 10 juillet 2026, le projet Firebase n’a pas encore de bucket Storage provisionné. La vérification directe renvoie `The billing account for the owning project is disabled in state absent`; `seed:attachments` s’arrête donc proprement sur cette dépendance externe. Le code et les règles sont prêts. L’activation de Storage nécessite le forfait Blaze et un compte de facturation; cette décision n’est pas automatisée afin de ne pas engager de frais sans validation.
+- Le diagnostic reproductible est `npm --prefix cockpit run check:storage`; il n’écrit rien et ne révèle aucun secret.
 
 ## Dictée et diagnostic
 

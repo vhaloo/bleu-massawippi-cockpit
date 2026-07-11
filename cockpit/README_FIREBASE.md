@@ -8,6 +8,7 @@ Le dossier contient une nouvelle copie interactive du plan. Le HTML de présenta
 - firebase-client.js : SDK Web Firebase modulaire, version CDN 12.15.0, persistance IndexedDB, Auth et Firestore.
 - cockpit-ui.js : couche d’interface et de pilotage, choix d’option par journée, responsabilités Valentin / Annie pour chaque événement, tâches administratives cliquables, rétroaction par section, boîte à idées flottante, dictée progressive Chrome / Edge / Safari, calendrier contextualisé et installation PWA.
 - admin_sync.js : pont local Firebase Admin pour lire les modifications du calendrier, les commentaires, les rétroactions, les tâches et l’archive append-only.
+- check_firebase_storage.mjs : vérification locale, sans écriture, de la facturation, de l’API Storage et du bucket par défaut; aucune information secrète n’est affichée.
 - seed_private_content.js : charge localement le plan, les 28 publications principales, les six alternatives et leurs états dans Firestore, après configuration du compte de service.
 - ../refine_calendar.js : réorganise les dates pour éviter les répétitions voisines et génère les six journées à choix exclusif.
 - provision_users.js : crée ou raccorde les deux comptes autorisés et leurs rôles, en lisant les adresses et mots de passe uniquement depuis des variables de session.
@@ -27,7 +28,7 @@ Activez ensuite :
 
 1. Authentication → Sign-in method → Email/Password.
 2. Firestore Database en mode production.
-3. Les ressources statiques restent versionnées dans le dépôt GitHub Pages; les photos dynamiques passent par la conversion locale puis Firebase Storage.
+3. Les ressources statiques restent versionnées dans le dépôt GitHub Pages; les photos dynamiques passent par la conversion locale puis Firebase Storage. Depuis la modification du modèle de facturation Firebase, la création d’un bucket Storage exige le forfait Blaze (pay-as-you-go), même si les volumes du cockpit restent volontairement sous le niveau gratuit.
 4. Ajoutez votre domaine GitHub Pages dans Authentication → Settings → Authorized domains. Un domaine *.github.io doit utiliser HTTPS.
 
 Enregistrez une application Web et copiez sa configuration dans firebase-config.js. La configuration Web est nécessairement visible côté navigateur; elle ne remplace pas les règles Firestore, qui constituent la barrière réelle.
@@ -124,6 +125,12 @@ Le fichier firebase.json est inclus pour publier uniquement les règles Firebase
     firebase login
     firebase use identifiant-du-projet
     firebase deploy --only firestore:rules
+
+Avant toute tentative, la vérification non destructive peut être lancée ainsi :
+
+    npm run check:storage
+
+Dans l’état vérifié le 10 juillet 2026, cette commande renvoie `billing account ... absent` et aucun bucket par défaut. L’activation du forfait Blaze et l’ajout d’un moyen de paiement sont une décision de facturation à prendre dans la console Firebase; ils ne sont pas automatisés par le dépôt. Une fois cette décision prise, créer le bucket dans une région américaine couverte par l’offre Always Free (par exemple `us-central1`), puis exécuter `npm run seed:attachments` et publier les règles Storage.
 
 ## Modèle de données Firestore
 
