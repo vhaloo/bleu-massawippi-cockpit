@@ -131,13 +131,15 @@ style.textContent = `
   .cockpit-workflow h5 { margin:0; color:#073a52; font-size:.86rem; }
   .cockpit-workflow-intro { margin:3px 0 10px; color:#587680; font-size:.69rem; line-height:1.4; }
   .cockpit-workflow-gates { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
-  .cockpit-workflow-gate { position:relative; min-height:76px; padding:9px 8px 8px 32px; border:1px solid #d5e6e8; border-radius:10px; color:#607b85; background:#f4f8f9; font-size:.66rem; text-align:left; }
+  .cockpit-workflow-gate { position:relative; min-height:76px; padding:9px 8px 8px 32px; border:1px solid #d5e6e8; border-radius:10px; color:#607b85; background:#f4f8f9; font:inherit; font-size:.66rem; text-align:left; cursor:pointer; }
   .cockpit-workflow-gate:before { position:absolute; left:9px; top:10px; display:grid; width:17px; height:17px; place-items:center; border:2px solid #9db4bc; border-radius:5px; content:""; color:#fff; background:#fff; font-size:.7rem; font-weight:900; }
   .cockpit-workflow-gate b { display:block; margin-bottom:3px; color:#315564; font-size:.7rem; }
   .cockpit-workflow-gate span { display:block; line-height:1.35; }
   .cockpit-workflow-gate.done { color:#155c4e; border-color:#8ec8b5; background:#e3f5ee; font-weight:850; }
   .cockpit-workflow-gate.done:before { border-color:#21866d; content:"✓"; background:#21866d; }
   .cockpit-workflow-gate.current { border-color:#d7a33f; background:#fff8e8; box-shadow:0 0 0 2px rgba(215,163,63,.13); }
+  .cockpit-workflow-gate:focus-visible { outline:3px solid rgba(11,120,149,.3); outline-offset:2px; }
+  .cockpit-workflow-gate:disabled { cursor:not-allowed; opacity:.62; }
   .cockpit-workflow-actions { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
   .cockpit-workflow-actions button { min-height:38px; padding:8px 11px; border:1px solid #0b7895; border-radius:10px; color:#0b6077; background:#fff; font-size:.7rem; font-weight:900; cursor:pointer; }
   .cockpit-workflow-actions button.primary { color:#fff; background:#0b7895; box-shadow:0 5px 13px rgba(11,120,149,.2); }
@@ -1063,7 +1065,7 @@ const workflowOrder = ["proposal", "content_review", "changes_requested", "conte
 function workflowRank(stage) { return workflowOrder.indexOf(stage || "proposal"); }
 
 function workflowMarkup(planItem) {
-  return `<section class="cockpit-workflow" data-workflow><h5>Les 3 feux verts</h5><p class="cockpit-workflow-intro">Le texte et le visuel sont validés par la direction, ou par les communications lorsque son aval a déjà été donné. Une fois les deux feux verts obtenus, la publication peut être programmée puis terminée.</p><div class="cockpit-workflow-gates"><div class="cockpit-workflow-gate" data-gate="content"><b>1 · Texte</b><span data-gate-label>À valider</span></div><div class="cockpit-workflow-gate" data-gate="media"><b>2 · Visuel</b><span data-gate-label>Commence après le texte</span></div><div class="cockpit-workflow-gate" data-gate="publication"><b>3 · Terminé</b><span data-gate-label>Publié ou programmé</span></div></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
+  return `<section class="cockpit-workflow" data-workflow><h5>Les 3 feux verts</h5><p class="cockpit-workflow-intro">Le texte et le visuel sont validés par la direction, ou par les communications lorsque son aval a déjà été donné. Cliquez sur une case pour la cocher; cliquez de nouveau pour revenir en arrière. Chaque changement reste dans l’historique.</p><div class="cockpit-workflow-gates"><button type="button" class="cockpit-workflow-gate" data-gate="content" aria-pressed="false"><b>1 · Texte</b><span data-gate-label>À valider</span></button><button type="button" class="cockpit-workflow-gate" data-gate="media" aria-pressed="false"><b>2 · Visuel</b><span data-gate-label>Commence après le texte</span></button><button type="button" class="cockpit-workflow-gate" data-gate="publication" aria-pressed="false"><b>3 · Terminé</b><span data-gate-label>Publié ou programmé</span></button></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
 }
 
 function renderWorkflow(card) {
@@ -1086,6 +1088,17 @@ function renderWorkflow(card) {
   if (contentLabel) contentLabel.textContent = contentDone ? "Approuvé" : (stage === "changes_requested" ? "Corrections demandées" : stage === "content_review" ? "Prêt pour validation" : "En préparation");
   if (mediaLabel) mediaLabel.textContent = mediaDone ? "Approuvé" : (stage === "media_review" ? "Prêt pour validation" : contentDone ? "En production" : "Attend le texte");
   if (publicationLabel) publicationLabel.textContent = publicationDone ? "Publié ou programmé" : mediaDone ? "Prêt à publier" : "Attend les 2 validations";
+  const configureGate = (gate, done, canCheck, checkStage, uncheckStage, checkedName) => {
+    if (!gate) return;
+    gate.setAttribute("aria-pressed", String(done));
+    gate.disabled = !done && !canCheck;
+    gate.dataset.workflowStage = done ? uncheckStage : checkStage;
+    gate.dataset.workflowDirection = done ? "back" : "forward";
+    gate.title = done ? `Retirer le feu vert « ${checkedName} » et revenir à l’étape précédente` : canCheck ? `Donner le feu vert « ${checkedName} »` : "Terminez d’abord l’étape précédente";
+  };
+  configureGate(contentGate, contentDone, true, "content_approved", "content_review", "Texte");
+  configureGate(mediaGate, mediaDone, contentDone, "final_approved", "media_review", "Visuel");
+  configureGate(publicationGate, publicationDone, mediaDone, "published", "final_approved", "Terminé");
   card.classList.toggle("workflow-complete", publicationDone);
   const completeNote = card.querySelector("[data-workflow-complete]");
   if (completeNote) completeNote.hidden = !publicationDone;
@@ -1540,7 +1553,7 @@ function enhanceCardEvents() {
           if (state.profile.role === "director" && ["content_approved","final_approved","changes_requested"].includes(workflowButton.dataset.workflowStage)) {
             await recordActionTask(`workflow-${card.dataset.itemId}`, { status: "pending", title: workflowButton.dataset.workflowStage === "final_approved" ? `Prêt à publier — ${planItem?.title}` : `Cycle de validation — ${planItem?.title}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${planItem?.title || ""}`, message:`Nouvelle étape : ${workflowButton.textContent.trim()}.\n\n${responsibilitySummary(planItem)}` });
           }
-          toast("Étape de validation enregistrée.");
+          toast(workflowButton.dataset.workflowDirection === "back" ? "Feu vert retiré; l’historique est conservé." : "Étape de validation enregistrée.");
         }).catch((error) => toast(error.message, true));
       return;
     }

@@ -29,7 +29,7 @@ assert.equal(moved.w, 5);
 assert.equal(posts.filter((post) => !post.isAlternative).length, 28);
 assert.match(preparePlanScript(source.match(/<script>\s*(var posts=[\s\S]*?)<\/script>/i)[1], posts), /\[1,2,3,4,5\]\.forEach/);
 
-for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMedia", "button[data-dictate]", "data-add-post-calendar", "data-media-form", "data-workflow-stage", "data-comment-thread", "MutationObserver", "Connexion…", "bleu-massawippi-guide-collapsed", "data-guide-new-badge", "setOpportunityStage", "data-opportunity-stage", "bleu-massawippi-projects-collapsed", "Valider le texte avec l’aval", "Valider le visuel avec l’aval"]) {
+for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMedia", "button[data-dictate]", "data-add-post-calendar", "data-media-form", "data-workflow-stage", "workflowDirection", "aria-pressed=\"false\"", "Feu vert retiré; l’historique est conservé.", "data-comment-thread", "MutationObserver", "Connexion…", "bleu-massawippi-guide-collapsed", "data-guide-new-badge", "setOpportunityStage", "data-opportunity-stage", "bleu-massawippi-projects-collapsed", "Valider le texte avec l’aval", "Valider le visuel avec l’aval"]) {
   assert.ok(ui.includes(token), `Le cockpit doit contenir le contrat ${token}.`);
 }
 for (const token of ["data-theme-toggle", "bleu-massawippi-theme", "prefers-color-scheme"]) {
@@ -45,4 +45,4 @@ assert.doesNotMatch(client, /firebase-storage|uploadBytes|getDownloadURL/);
 assert.doesNotMatch(ui + client, /data-attachment-input|seed_open_house_attachments/);
 assert.match(firebaseConfig, /apiKey:\s*"AIza[A-Za-z0-9_-]{20,}"/);
 assert.doesNotMatch(firebaseConfig, /GEMINI|gemini_api_key/i);
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, opportunities: 8, movedPost: moved.id, contractChecks: 44 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, opportunities: 8, movedPost: moved.id, contractChecks: 47 }, null, 2));
