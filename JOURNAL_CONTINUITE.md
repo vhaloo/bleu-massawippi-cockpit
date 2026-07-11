@@ -10,6 +10,19 @@ Ce journal est un point de reprise local. Il ne contient aucun mot de passe, jet
 - Le contenu nature retiré de ce lundi est conservé et repositionné au lundi 10 août comme réserve éditoriale de la semaine 5.
 - Correction confirmée le 11 juillet 2026 : le local est à l’église Saint-Barthélemy, 911, rue Clough, Ayer’s Cliff, Québec J0B 1C0. Toute mention de Sainte-Élisabeth, de North Hatley ou du chemin Capelton est obsolète.
 
+## Capsules de patrimoine — 11 juillet 2026
+
+Six publications bilingues utilisant des documents du domaine public de la banque `Photos historiques` ont été ajoutées comme choix éditoriaux, sans écraser les publications principales :
+
+- 19 juillet : estampe du Massawippi publiée en 1859;
+- 26 juillet : bateau à vapeur sur le lac vers 1904;
+- 1er août : vue aérienne de North Hatley entre 1930 et 1950;
+- 4 août : chutes de la rivière Massawippi et moulin à scie vers 1865;
+- 7 août : carte postale d’Ayer’s Cliff, environ 1914–1940;
+- 10 août : carte de villégiature de North Hatley, environ 1905–1940.
+
+Les textes distinguent explicitement photographie, estampe et carte postale; ils n’identifient aucun bâtiment, trajet ou personne sans source. Les six originaux ont été copiés dans le dossier SharePoint synchronisé `Media Cockpit\Photos historiques`, tandis que les fichiers maîtres et le catalogue des droits restent dans le dossier local `Photos historiques`. La synchronisation Firestore a créé l’état du nouvel événement du 10 août et préservé les 56 états déjà présents.
+
 ## Régression de stabilité — 11 juillet 2026
 
 Le frontend est revenu au dernier socle stable antérieur au module photo (`137525a`). Les fonctions textuelles essentielles sont conservées : authentification, calendrier, choix, statuts, commentaires, dictée, rétroactions, tâches, calendrier personnel et installation PWA. Le rescan global de la page a été remplacé par une observation ciblée des cartes pour éviter les boucles et ralentissements.

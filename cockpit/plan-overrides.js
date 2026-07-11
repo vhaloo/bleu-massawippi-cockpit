@@ -84,20 +84,21 @@ const VOLUNTEER_INTERVIEW_POST = {
 
 function buildAlternative(spec) {
   const nature = spec.t === "Nature";
+  const heritage = spec.t === "Patrimoine";
   return {
     ...spec,
     tier: "Passerelle",
-    source: nature ? "Illustration originale à valider avec une référence naturaliste fiable avant diffusion; elle ne prouve pas une présence locale." : "Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.",
-    fallback: "Visuel typographique sobre ou photo réelle autorisée correspondant exactement au sujet.",
-    kpi: "Commentaires utiles / enregistrements / partages",
-    task: "Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.",
+    source: spec.source || (nature ? "Illustration originale à valider avec une référence naturaliste fiable avant diffusion; elle ne prouve pas une présence locale." : "Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion."),
+    fallback: spec.fallback || "Visuel typographique sobre ou photo réelle autorisée correspondant exactement au sujet.",
+    kpi: spec.kpi || (heritage ? "Commentaires documentés / partages / nouvelles archives proposées" : "Commentaires utiles / enregistrements / partages"),
+    task: spec.task || (heritage ? "Vérifier la légende, le crédit, la licence et les limites historiques avant de préparer l’image et les deux validations." : "Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations."),
     copy: `FR — ${spec.fr}\n\n#BleuMassawippi #LacMassawippi #Estrie\n\n=========================================\n\nEN — ${spec.en}\n\n#BleuMassawippi #LakeMassawippi #EasternTownships`,
     optionGroup: spec.id.replace("alt-", ""),
     optionLabel: "Option B — " + spec.title,
     choiceRequired: true,
     isAlternative: true,
-    tasksValentin: ["Vérifier la source primaire et les limites du propos.", `Produire le format « ${spec.format} » avec texte alternatif et lisibilité mobile.`, "Finaliser la légende FR / EN, soumettre les validations et programmer seulement après décision."],
-    tasksAnnie: spec.t === "Communauté" || spec.t === "Patrimoine" ? ["Confirmer le contexte institutionnel, les droits et les renseignements sensibles avant diffusion."] : ["Signaler toute limite institutionnelle ou locale nécessitant une correction."],
+    tasksValentin: heritage ? ["Vérifier la fiche source, la date, l’auteur, le crédit et la licence dans le catalogue local des photos historiques.", `Préparer le format « ${spec.format} » sans colorisation ni transformation trompeuse; ajouter un texte alternatif et garantir la lisibilité mobile.`, "Finaliser la légende FR / EN, conserver les nuances historiques, soumettre les validations et programmer seulement après décision."] : ["Vérifier la source primaire et les limites du propos.", `Produire le format « ${spec.format} » avec texte alternatif et lisibilité mobile.`, "Finaliser la légende FR / EN, soumettre les validations et programmer seulement après décision."],
+    tasksAnnie: heritage ? ["Lire l’angle à haut niveau et signaler seulement une identification locale, un enjeu institutionnel ou un repère qui exige une confirmation."] : spec.t === "Communauté" ? ["Confirmer le contexte institutionnel, les droits et les renseignements sensibles avant diffusion."] : ["Signaler toute limite institutionnelle ou locale nécessitant une correction."],
     taskOwnersVersion: "event-task-owners-2026-07-11-alternatives-v1"
   };
 }
