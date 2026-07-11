@@ -17,7 +17,7 @@ import {
   upsertActionTask,
   completeActionTask,
   subscribeActionTasks
-} from "./firebase-client.js?v=20260711-text-regression-v1";
+} from "./firebase-client.js?v=20260711-auth-fix-v2";
 import { applyPlanOverridesToPosts } from "./plan-overrides.js";
 
 const { configured } = getClientState();

@@ -14,10 +14,10 @@
 <body>
   <main id="cockpit-content" aria-live="polite"></main>
   <noscript>Ce cockpit nécessite JavaScript pour ouvrir une session sécurisée.</noscript>
-  <script src="./firebase-config.js"></script>
+  <script src="./firebase-config.js?v=20260711-auth-fix-v2"></script>
   <script>
     if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch((error) => console.warn("Service worker indisponible", error)));
   </script>
-  <script type="module" src="./cockpit-ui.js?v=20260711-text-regression-v1"></script>
+  <script type="module" src="./cockpit-ui.js?v=20260711-auth-fix-v2"></script>
 </body>
 </html>
