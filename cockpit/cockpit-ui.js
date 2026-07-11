@@ -20,12 +20,17 @@ import {
   subscribeActionTasks,
   addMediaLink,
   archiveMediaLink,
-  subscribeMediaLinks
-} from "./firebase-client.js?v=20260711-media-v1";
+  subscribeMediaLinks,
+  subscribeComments,
+  updateOwnComment,
+  archiveOwnComment,
+  setWorkflowStage,
+  subscribeWorkflowStates
+} from "./firebase-client.js?v=20260711-workflow-v1";
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
-const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), mediaConfig: null, tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, contentLoaded: false };
+const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), commentsByEvent: new Map(), workflows: new Map(), mediaConfig: null, tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, contentLoaded: false };
 let activeRecognition = null;
 let activeTextarea = null;
 let recognitionRestart = false;
@@ -104,6 +109,25 @@ style.textContent = `
   .cockpit-media-tools { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; margin-top: 8px; }
   .cockpit-media-folder { display: inline-block; padding: 6px 9px; border: 1px solid #0b7895; border-radius: 999px; color: #0b6077; font-size: .68rem; font-weight: 850; text-decoration: none; }
   .cockpit-media-note { margin: 0; color: #6b858d; font-size: .65rem; }
+  .cockpit-brand-logo { display:block; width:clamp(115px,14vw,190px); height:auto; margin:0 0 14px; object-fit:contain; }
+  .mast .cockpit-brand-logo { display:inline-block; width:96px; margin:0 10px 0 0; vertical-align:middle; }
+  .cockpit-workflow { margin:10px 0 0; padding:10px; border:1px solid #cfe3e6; border-radius:12px; background:#fff; }
+  .cockpit-workflow h5 { margin:0 0 7px; color:#174e62; font-size:.77rem; }
+  .cockpit-workflow-gates { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .cockpit-workflow-gate { padding:7px; border:1px solid #d5e6e8; border-radius:9px; color:#607b85; background:#f4f8f9; font-size:.66rem; text-align:center; }
+  .cockpit-workflow-gate.done { color:#155c4e; border-color:#8ec8b5; background:#e3f5ee; font-weight:850; }
+  .cockpit-workflow-actions { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
+  .cockpit-workflow-actions button { padding:6px 8px; border:1px solid #0b7895; border-radius:999px; color:#0b6077; background:#fff; font-size:.66rem; font-weight:850; cursor:pointer; }
+  .cockpit-workflow-actions button.primary { color:#fff; background:#0b7895; }
+  .cockpit-thread { margin-top:10px; padding-top:9px; border-top:1px solid #d8e8ea; }
+  .cockpit-thread h5 { margin:0 0 7px; color:#174e62; font-size:.76rem; }
+  .cockpit-thread-empty { margin:0; color:#718993; font-size:.68rem; }
+  .cockpit-message { margin-top:6px; padding:8px 9px; border:1px solid #d7e7e9; border-radius:10px; background:#fff; }
+  .cockpit-message header { display:flex; justify-content:space-between; gap:7px; color:#607b85; font-size:.62rem; }
+  .cockpit-message header b { color:#174e62; }
+  .cockpit-message p { margin:4px 0 0; color:#365b69; font-size:.72rem; white-space:pre-wrap; }
+  .cockpit-message-actions { display:flex; gap:5px; margin-top:5px; }
+  .cockpit-message-actions button { padding:3px 6px; border:1px solid #c8dde0; border-radius:6px; color:#315564; background:#f8fbfb; font-size:.6rem; cursor:pointer; }
   #cockpit-feedback-launch { position: fixed; left: 15px; bottom: 15px; z-index: 31; min-height: 42px; padding: 0 14px; border: 1px solid #073a52; border-radius: 999px; color: #fff; background: #073a52; box-shadow: 0 8px 22px rgba(7,58,82,.2); font-weight: 850; cursor: pointer; }
   #cockpit-feedback-panel { position: fixed; left: 15px; bottom: 68px; z-index: 32; display: none; width: min(390px, calc(100vw - 30px)); padding: 16px; border: 1px solid #cbe1e4; border-radius: 18px; color: #234b5a; background: #f8fcfc; box-shadow: 0 18px 42px rgba(7,58,82,.2); }
   #cockpit-feedback-panel.open { display: block; }
@@ -164,6 +188,7 @@ style.textContent = `
     #cockpit-install-launch { right: 12px; bottom: 120px; }
     .cockpit-media-form { grid-template-columns: 1fr; }
     .cockpit-media-form [name="media-note"], .cockpit-media-form button { grid-column: 1; grid-row: auto; }
+    .cockpit-workflow-gates { grid-template-columns:1fr; }
   }
 `;
 document.head.appendChild(style);
@@ -836,6 +861,60 @@ function mediaControlsMarkup(planItem) {
   </details>`;
 }
 
+const workflowOrder = ["proposal", "content_review", "changes_requested", "content_approved", "media_review", "final_approved", "scheduled", "published"];
+function workflowRank(stage) { return workflowOrder.indexOf(stage || "proposal"); }
+
+function workflowMarkup(planItem) {
+  return `<section class="cockpit-workflow" data-workflow><h5>Cycle de validation</h5><div class="cockpit-workflow-gates"><div class="cockpit-workflow-gate" data-gate="content">1 · Texte et concept approuvés</div><div class="cockpit-workflow-gate" data-gate="media">2 · Média final approuvé</div><div class="cockpit-workflow-gate" data-gate="publication">3 · Publication programmée</div></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div></section>`;
+}
+
+function renderWorkflow(card) {
+  const row = state.workflows.get(card.dataset.itemId) || { stage: "proposal" };
+  const stage = row.stage || "proposal";
+  card.querySelector('[data-gate="content"]')?.classList.toggle("done", ["content_approved","media_review","final_approved","scheduled","published"].includes(stage));
+  card.querySelector('[data-gate="media"]')?.classList.toggle("done", ["final_approved","scheduled","published"].includes(stage));
+  card.querySelector('[data-gate="publication"]')?.classList.toggle("done", ["scheduled","published"].includes(stage));
+  const actions = card.querySelector("[data-workflow-actions]");
+  if (!actions) return;
+  const buttons = [];
+  if (state.profile?.role === "admin") {
+    if (workflowRank(stage) < workflowRank("content_approved") || stage === "changes_requested") buttons.push(["content_review","Soumettre texte / concept","primary"]);
+    if (["content_approved","media_review"].includes(stage)) buttons.push(["media_review","Média prêt à valider","primary"]);
+    if (stage === "final_approved") buttons.push(["scheduled","Marquer programmé","primary"]);
+    if (stage === "scheduled") buttons.push(["published","Marquer publié",""]);
+  }
+  if (state.profile?.role === "director") {
+    if (["proposal","content_review","changes_requested"].includes(stage)) buttons.push(["content_approved","Approuver texte + concept","primary"]);
+    if (["media_review","content_approved"].includes(stage)) buttons.push(["final_approved","Approuver l’ensemble final","primary"]);
+    if (!["published"].includes(stage)) buttons.push(["changes_requested","Demander des corrections",""]);
+  }
+  actions.innerHTML = buttons.map(([value,label,kind]) => `<button type="button" class="${kind}" data-workflow-stage="${value}">${label}</button>`).join("") || `<span class="cockpit-media-note">Étape actuelle : ${esc(stage.replaceAll("_", " "))}</span>`;
+}
+
+function renderCommentThread(card) {
+  const host = card.querySelector("[data-comment-thread]");
+  if (!host) return;
+  const rows = (state.commentsByEvent.get(card.dataset.itemId) || []).filter((row) => row.deleted !== true);
+  host.innerHTML = rows.length ? rows.map((row) => {
+    const mine = row.authorUid === state.profile?.uid;
+    const when = row.createdAt?.toDate ? row.createdAt.toDate().toLocaleString("fr-CA", { dateStyle:"short", timeStyle:"short" }) : "à l’instant";
+    const edited = row.updatedAt?.toMillis && row.createdAt?.toMillis && row.updatedAt.toMillis() > row.createdAt.toMillis() + 1000;
+    return `<article class="cockpit-message" data-comment-id="${esc(row.id)}"><header><b>Commentaire · ${esc(row.authorLabel || "Utilisateur")}</b><span>${esc(when)}${edited ? " · modifié" : ""}</span></header><p>${esc(row.comment || "")}</p>${mine ? `<div class="cockpit-message-actions"><button type="button" data-edit-comment="${esc(row.id)}">Modifier</button><button type="button" data-archive-comment="${esc(row.id)}">Archiver</button></div>` : ""}</article>`;
+  }).join("") : `<p class="cockpit-thread-empty">Aucun commentaire pour cet événement.</p>`;
+}
+
+function renderAllCollaboration() {
+  document.querySelectorAll(".post[data-item-id]").forEach((card) => { renderWorkflow(card); renderCommentThread(card); });
+}
+
+function installBrandLogo() {
+  const url = safeMediaUrl(state.mediaConfig?.logoUrl || "");
+  if (!url || document.querySelector(".cockpit-brand-logo")) return;
+  const parsed = new URL(url); parsed.searchParams.set("download", "1");
+  const img = document.createElement("img"); img.className = "cockpit-brand-logo"; img.src = parsed.href; img.alt = "Bleu Massawippi";
+  document.querySelector(".hero > div")?.prepend(img);
+}
+
 function enhanceCards() {
   document.querySelectorAll(".post").forEach((card) => {
     const planItem = getPlanItem(card);
@@ -865,11 +944,14 @@ function enhanceCards() {
         <button type="button" data-tag="delay">🟡 À décaler</button>
         <button type="button" data-tag="perfect">🟢 Parfait</button>
       </div>
-      ${mediaControlsMarkup(planItem)}`;
+      ${workflowMarkup(planItem)}
+      ${mediaControlsMarkup(planItem)}
+      <section class="cockpit-thread"><h5>Fil de collaboration</h5><div data-comment-thread></div></section>`;
     card.appendChild(controls);
   });
   applyRemoteRows();
   renderAllMedia();
+  renderAllCollaboration();
   syncCardAccess();
 }
 
@@ -1224,6 +1306,31 @@ function enhanceCardEvents() {
   document.addEventListener("click", (event) => {
     const card = event.target.closest(".post[data-item-id]");
     if (!card) return;
+    const workflowButton = event.target.closest("button[data-workflow-stage]");
+    if (workflowButton) {
+      setWorkflowStage(card.dataset.itemId, workflowButton.dataset.workflowStage, state.profile)
+        .then(async () => {
+          const planItem = getPlanItem(card);
+          if (state.profile.role === "director" && ["content_approved","final_approved","changes_requested"].includes(workflowButton.dataset.workflowStage)) {
+            await recordActionTask(`workflow-${card.dataset.itemId}`, { status: workflowButton.dataset.workflowStage === "changes_requested" ? "pending" : "pending", title: workflowButton.dataset.workflowStage === "final_approved" ? `Prêt à programmer — ${planItem?.title}` : `Cycle de validation — ${planItem?.title}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${planItem?.title || ""}`, message:`Nouvelle étape : ${workflowButton.textContent.trim()}.\n\n${responsibilitySummary(planItem)}` });
+          }
+          toast("Étape de validation enregistrée.");
+        }).catch((error) => toast(error.message, true));
+      return;
+    }
+    const editCommentButton = event.target.closest("button[data-edit-comment]");
+    if (editCommentButton) {
+      const row = (state.commentsByEvent.get(card.dataset.itemId) || []).find((item) => item.id === editCommentButton.dataset.editComment);
+      const next = prompt("Modifier votre commentaire :", row?.comment || "");
+      if (next !== null) updateOwnComment(editCommentButton.dataset.editComment, next, state.profile).then(() => toast("Commentaire modifié.")).catch((error) => toast(error.message, true));
+      return;
+    }
+    const archiveCommentButton = event.target.closest("button[data-archive-comment]");
+    if (archiveCommentButton) {
+      if (!confirm("Archiver ce commentaire? Son historique sera conservé.")) return;
+      archiveOwnComment(archiveCommentButton.dataset.archiveComment, state.profile).then(() => toast("Commentaire archivé.")).catch((error) => toast(error.message, true));
+      return;
+    }
     const dictateButton = event.target.closest("button[data-dictate]");
     if (dictateButton) {
       event.preventDefault();
@@ -1355,6 +1462,7 @@ async function applyProfile(profile) {
     document.querySelector("#cockpit-task-launch")?.remove();
   }
   addFooterCredit();
+  installBrandLogo();
   enhanceCards();
   enhanceSectionFeedback();
   enhanceCalendarButtons();
@@ -1368,17 +1476,23 @@ function applySignedOut(message = "") {
   state.user = null;
   state.rows = new Map();
   state.mediaByEvent = new Map();
+  state.commentsByEvent = new Map();
+  state.workflows = new Map();
   state.mediaConfig = null;
   state.scheduleUnsubscribe?.();
   state.auditUnsubscribe?.();
   state.feedbackUnsubscribe?.();
   state.tasksUnsubscribe?.();
   state.mediaUnsubscribe?.();
+  state.commentsUnsubscribe?.();
+  state.workflowUnsubscribe?.();
   state.scheduleUnsubscribe = null;
   state.auditUnsubscribe = null;
   state.feedbackUnsubscribe = null;
   state.tasksUnsubscribe = null;
   state.mediaUnsubscribe = null;
+  state.commentsUnsubscribe = null;
+  state.workflowUnsubscribe = null;
   state.tasks = [];
   clearPrivateContent();
   document.body.classList.add("cockpit-locked");
@@ -1421,6 +1535,16 @@ function subscribeRemoteData() {
     state.mediaByEvent = grouped;
     renderAllMedia();
   }, (error) => toast("Les liens médias ne sont pas accessibles : " + error.message, true));
+  state.commentsUnsubscribe?.();
+  state.commentsUnsubscribe = subscribeComments((rows) => {
+    const grouped = new Map();
+    rows.forEach((row) => { const id=String(row.sectionId||""); if(!grouped.has(id)) grouped.set(id,[]); grouped.get(id).push(row); });
+    state.commentsByEvent = grouped; renderAllCollaboration();
+  }, (error) => toast("Le fil de commentaires n’est pas accessible : " + error.message, true));
+  state.workflowUnsubscribe?.();
+  state.workflowUnsubscribe = subscribeWorkflowStates((rows) => {
+    state.workflows = new Map(rows.map((row) => [row.eventId || row.id, row])); renderAllCollaboration();
+  }, (error) => toast("Le cycle de validation n’est pas accessible : " + error.message, true));
 }
 
 function start() {

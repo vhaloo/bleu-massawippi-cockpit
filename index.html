@@ -51,7 +51,11 @@
     .post-calendar-actions button { min-height: 34px; padding: 7px 10px; border: 1px solid #0b7895; border-radius: 999px; color: #0b6077; background: #edfafa; font-size: .73rem; font-weight: 850; cursor: pointer; }
     .post-calendar-actions button:hover { color: #fff; background: #0b7895; }
     [data-post-calendar-feedback] { color: #55727d; font-size: .7rem; }
-    @media(max-width:700px){ .context-body { padding: 0 10px 18px; } .readme-body { padding: 3px 13px 16px; } .readme-grid { grid-template-columns: 1fr; } .workflow-svg { min-height: 130px; } .workflow-node text { font-size: 12px; } .workflow-return { font-size: 10px; } .responsibility-grid { grid-template-columns: 1fr; } }
+    .context-fold > summary, .readme-fold > summary { margin: 5px; border: 1px solid #9fcfd3; border-radius: 14px; background: #eaf8f8; box-shadow: 0 4px 12px rgba(7,58,82,.08); }
+    .context-fold > summary:hover, .readme-fold > summary:hover { background: #dff3f4; }
+    .context-fold > summary span, .readme-fold > summary span { display: inline-flex; align-items: center; gap: 8px; padding: 5px 9px; border-radius: 999px; color: #fff; background: #0b7895; }
+    .context-fold > summary small, .readme-fold > summary small { color: #fff; }
+    @media(max-width:700px){ .context-body { padding: 0 10px 18px; } .readme-body { padding: 3px 13px 16px; } .readme-grid { grid-template-columns: 1fr; } .workflow-svg { min-height: 130px; } .workflow-node text { font-size: 12px; } .workflow-return { font-size: 10px; } .responsibility-grid { grid-template-columns: 1fr; } .context-fold > summary,.readme-fold > summary{padding:11px 12px}.context-fold > summary small,.readme-fold > summary small{font-size:.66rem} }
   </style>
 </head>
 <body>
@@ -75,15 +79,15 @@
  <summary><span>Lire-moi — collaborer dans le cockpit</span><small>Réduire / afficher</small></summary>
  <div class="readme-body">
   <p class="readme-kicker">Point de départ</p>
-  <h2>Un espace de travail asynchrone, clair et réversible.</h2>
-  <p>Ce cockpit rassemble le cap, les choix éditoriaux et le calendrier de Bleu Massawippi. Il sert à lire, commenter, arbitrer et préparer la prochaine mouture; il ne publie rien automatiquement.</p>
+  <h2>Voir vite. Décider clairement. Avancer sans micromanagement.</h2>
+  <p>Le cockpit donne à la direction une vue d’ensemble et aux communications des feux verts précis. Rien n’est publié automatiquement.</p>
   <div class="readme-grid">
-   <article class="readme-step"><b>1 · Se connecter</b><span>Ouvrir une session avec le compte autorisé. Le rôle de la session détermine les actions disponibles.</span></article>
-   <article class="readme-step"><b>2 · Lire et choisir</b><span>Parcourir le contexte, puis sélectionner une seule option lorsqu’une journée propose deux angles.</span></article>
-   <article class="readme-step"><b>3 · Donner une direction</b><span>Utiliser les statuts, les badges rapides, le champ de commentaire ou le micro. La dictée demande l’autorisation du microphone.</span></article>
-   <article class="readme-step"><b>4 · Rétroagir au bon niveau</b><span>Chaque section possède une case Avis / recommandation. La boîte à idées flottante sert aux améliorations générales du cockpit.</span></article>
-   <article class="readme-step"><b>5 · Suivre les décisions</b><span>Les changements sont consignés dans le journal technique visible au rôle d’administration; une prochaine mouture est préparée après arbitrage.</span></article>
-   <article class="readme-step"><b>6 · Ajouter un rendez-vous</b><span>Le bouton d’agenda génère un fichier calendrier compatible avec l’application choisie sur l’appareil, notamment sur mobile.</span></article>
+   <article class="readme-step"><b>1 · Proposition</b><span>Les communications préparent le texte, le concept et les choix.</span></article>
+   <article class="readme-step"><b>2 · Feu vert contenu</b><span>La direction approuve le texte et ce qui devra être produit.</span></article>
+   <article class="readme-step"><b>3 · Production média</b><span>Les communications réalisent l’image ou la vidéo et ajoutent son lien OneDrive.</span></article>
+   <article class="readme-step"><b>4 · Feu vert final</b><span>La direction valide l’ensemble texte + média.</span></article>
+   <article class="readme-step"><b>5 · Programmation</b><span>Les communications programment, publient et confirment l’état.</span></article>
+   <article class="readme-step"><b>6 · Dialogue léger</b><span>Un commentaire suffit; le fil garde le contexte sans multiplier les rencontres.</span></article>
   </div>
   <div class="workflow-label">Flux de travail proposé</div>
   <svg class="workflow-svg" data-workflow-svg viewBox="0 0 920 270" role="img" aria-labelledby="workflow-title workflow-description">

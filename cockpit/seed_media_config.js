@@ -19,7 +19,7 @@ function validSharePointUrl(value) {
   }
 }
 
-if (!validSharePointUrl(config.folderUrl) || !validSharePointUrl(config.folderViewUrl)) {
+if (!validSharePointUrl(config.folderUrl) || !validSharePointUrl(config.folderViewUrl) || !validSharePointUrl(config.logoUrl)) {
   throw new Error("Les liens du dossier Media Cockpit doivent être des liens SharePoint HTTPS.");
 }
 if (!Array.isArray(config.initialMedia)) throw new Error("initialMedia doit être un tableau.");
@@ -42,6 +42,7 @@ const db = getFirestore(app);
 await db.collection("privateConfig").doc("media").set({
   folderUrl: String(config.folderUrl).slice(0, 2048),
   folderViewUrl: String(config.folderViewUrl).slice(0, 2048),
+  logoUrl: String(config.logoUrl).slice(0, 2048),
   provider: "sharepoint-onedrive",
   updatedAt: FieldValue.serverTimestamp()
 }, { merge: true });

@@ -152,7 +152,8 @@ export async function fetchMediaConfig() {
   const data = snapshot.data();
   return {
     folderUrl: String(data.folderUrl || "").slice(0, 2048),
-    folderViewUrl: String(data.folderViewUrl || "").slice(0, 2048)
+    folderViewUrl: String(data.folderViewUrl || "").slice(0, 2048),
+    logoUrl: String(data.logoUrl || "").slice(0, 2048)
   };
 }
 
@@ -295,13 +296,18 @@ export async function addComment(itemId, comment, profile, quickTag = null, dict
   }
   const text = String(comment || "").trim();
   if (!text) return;
+  const now = serverTimestamp();
   const reference = await addDoc(collection(db, "comments"), {
     sectionId: itemId,
     comment: text.slice(0, 5000),
     quickTag,
     dictated: Boolean(dictated),
     authorUid: profile.uid,
-    createdAt: serverTimestamp()
+    authorLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
+    deleted: false,
+    createdAt: now,
+    updatedAt: now,
+    updatedBy: profile.uid
   });
   await appendChangeArchive("comment", reference.id, dictated ? "commentaire dicté" : "commentaire ajouté", {}, {
     sectionId: itemId,
@@ -310,6 +316,56 @@ export async function addComment(itemId, comment, profile, quickTag = null, dict
     dictated: Boolean(dictated)
   }, profile);
   return reference.id;
+}
+
+export function subscribeComments(callback, onError) {
+  requireConfigured();
+  const commentsQuery = query(collection(db, "comments"), orderBy("createdAt", "asc"), limit(500));
+  return onSnapshot(commentsQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+}
+
+export async function updateOwnComment(commentId, text, profile) {
+  requireConfigured();
+  const reference = doc(db, "comments", commentId);
+  const existing = await getDoc(reference);
+  if (!existing.exists() || existing.data().authorUid !== profile?.uid) throw new Error("Vous pouvez modifier uniquement votre propre commentaire.");
+  const comment = String(text || "").trim().slice(0, 5000);
+  if (!comment) throw new Error("Le commentaire ne peut pas être vide.");
+  await updateDoc(reference, { comment, updatedAt: serverTimestamp(), updatedBy: profile.uid });
+  await appendChangeArchive("comment", commentId, "commentaire modifié", { comment: existing.data().comment || "" }, { comment }, profile);
+}
+
+export async function archiveOwnComment(commentId, profile) {
+  requireConfigured();
+  const reference = doc(db, "comments", commentId);
+  const existing = await getDoc(reference);
+  if (!existing.exists() || existing.data().authorUid !== profile?.uid) throw new Error("Vous pouvez archiver uniquement votre propre commentaire.");
+  await updateDoc(reference, { deleted: true, updatedAt: serverTimestamp(), updatedBy: profile.uid });
+  await appendChangeArchive("comment", commentId, "commentaire archivé", { deleted: false, comment: existing.data().comment || "" }, { deleted: true, comment: existing.data().comment || "" }, profile);
+}
+
+const workflowStages = new Set(["proposal", "content_review", "changes_requested", "content_approved", "media_review", "final_approved", "scheduled", "published"]);
+
+export async function setWorkflowStage(eventId, stage, profile) {
+  requireConfigured();
+  if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas modifier le cycle de validation.");
+  if (!/^[a-z0-9-]{3,80}$/i.test(String(eventId || "")) || !workflowStages.has(stage)) throw new Error("Étape de validation invalide.");
+  const reference = doc(db, "workflowStates", eventId);
+  const existing = await getDoc(reference);
+  const before = existing.exists() ? existing.data() : {};
+  await setDoc(reference, {
+    eventId,
+    stage,
+    updatedAt: serverTimestamp(),
+    updatedBy: profile.uid,
+    updatedByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120)
+  }, { merge: true });
+  await appendChangeArchive("workflowState", eventId, "cycle : " + stage, { stage: before.stage || "proposal" }, { stage }, profile);
+}
+
+export function subscribeWorkflowStates(callback, onError) {
+  requireConfigured();
+  return onSnapshot(collection(db, "workflowStates"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
 }
 
 function normalizeMediaUrl(value) {

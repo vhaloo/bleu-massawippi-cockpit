@@ -40,7 +40,7 @@ style.textContent = `
   [data-theme="dark"] :is(h1,h2,h3,h4,.mast strong,.stat b,.panel h3,.principle b,.ev strong,.week-title h3,.post h4,.ready,.box b,.table td:first-child,.channel b,.source h3,footer strong,.readme-body h2,.workflow-label,.responsibility b,.cockpit-feedback-item b,.cockpit-task-item b,#cockpit-sidebar h2,#cockpit-feedback-panel h2) { color:#e9f8fa !important; }
   [data-theme="dark"] a { color:#8ce5f3; }
   [data-theme="dark"] .button.primary, [data-theme="dark"] .toolbar button { color:#07151b !important; background:#75d9e6 !important; border-color:#75d9e6 !important; }
-  [data-theme="dark"] :is(.stats,.panel,.post,.gate,.toolbar,.table,.metric,.source,.context-fold,.readme-fold,.readme-step,.workflow-svg,.day-group,.section-feedback,.cockpit-controls,.cockpit-media,.cockpit-media-card,.cockpit-login-card,#cockpit-sidebar,#cockpit-feedback-panel,#cockpit-task-panel,.feedback-form,.task-owner,.collab-mode,.readme-card) { color:#eef7f8 !important; background:#152c36 !important; border-color:#496873 !important; box-shadow:none; }
+  [data-theme="dark"] :is(.stats,.panel,.post,.gate,.toolbar,.table,.metric,.source,.context-fold,.readme-fold,.readme-step,.workflow-svg,.day-group,.section-feedback,.cockpit-controls,.cockpit-media,.cockpit-media-card,.cockpit-workflow,.cockpit-message,.cockpit-login-card,#cockpit-sidebar,#cockpit-feedback-panel,#cockpit-task-panel,.feedback-form,.task-owner,.collab-mode,.readme-card) { color:#eef7f8 !important; background:#152c36 !important; border-color:#587984 !important; box-shadow:none; }
   [data-theme="dark"] :is(.principle,.ev,.flow div,.box,.channel,.responsibility,.readme-note,.status,.day-heading,.cockpit-login-note,.cockpit-task-item,.cockpit-media-preview) { color:#e7f5f7 !important; background:#1c3944 !important; border-color:#52727d !important; }
   [data-theme="dark"] .principle:nth-child(n), [data-theme="dark"] .responsibility.annie, [data-theme="dark"] .responsibility.valentin { background:#1c3944 !important; border-color:#52727d !important; }
   [data-theme="dark"] .note { color:#ffd9cf !important; background:#402c2a !important; }
@@ -57,6 +57,21 @@ style.textContent = `
   [data-theme="dark"] .table th { color:#e9f8fa !important; background:#1b3944 !important; }
   [data-theme="dark"] .cockpit-media-stage { color:#07202a !important; background:#79d9df !important; }
   [data-theme="dark"] .cockpit-media-folder { color:#bdeff5 !important; border-color:#6bc9d8 !important; }
+  [data-theme="dark"] :is(.context-fold>summary,.readme-fold>summary,.cockpit-media>summary,.section-feedback>summary) { color:#f3fbfc !important; background:#203e49 !important; border-color:#6d909a !important; }
+  [data-theme="dark"] :is(.context-fold>summary small,.readme-fold>summary small) { color:#fff !important; }
+  [data-theme="dark"] :is(.context-fold>summary span,.readme-fold>summary span) { color:#fff !important; background:#126f87 !important; }
+  [data-theme="dark"] :is(.readme-kicker,.eyebrow,.workflow-label) { color:#82e2ef !important; }
+  [data-theme="dark"] .readme-step span { color:#d7e7ea !important; }
+  [data-theme="dark"] .readme-step b { color:#f4fbfc !important; }
+  [data-theme="dark"] .cockpit-media-count { color:#07181e !important; background:#82e2ef !important; }
+  [data-theme="dark"] .cockpit-media-folder { color:#07181e !important; background:#82e2ef !important; border-color:#82e2ef !important; }
+  [data-theme="dark"] :is(.cockpit-media-meta b,.cockpit-media-meta p,.cockpit-media-empty) { color:#d9eaed !important; }
+  [data-theme="dark"] :is(.cockpit-workflow h5,.cockpit-thread h5,.cockpit-message header b,.cockpit-message p) { color:#edf9fa !important; }
+  [data-theme="dark"] .cockpit-workflow-gate { color:#d4e6ea !important; background:#203c47 !important; border-color:#62828c !important; }
+  [data-theme="dark"] .cockpit-workflow-gate.done { color:#dffff3 !important; background:#1e5144 !important; border-color:#76c8aa !important; }
+  [data-theme="dark"] .cockpit-workflow-actions button { color:#dff7fa !important; background:#18343f !important; border-color:#72d9e9 !important; }
+  [data-theme="dark"] .cockpit-workflow-actions button.primary { color:#06151b !important; background:#72d9e9 !important; }
+  [data-theme="dark"] .cockpit-message header, [data-theme="dark"] .cockpit-thread-empty { color:#bcd0d6 !important; }
   [data-theme="dark"] .workflow-node rect { fill:#1c3944 !important; stroke:#76cfd5 !important; }
   [data-theme="dark"] .workflow-node text { fill:#effbfc !important; }
   [data-theme="dark"] .workflow-return { fill:#c4d8dd !important; }

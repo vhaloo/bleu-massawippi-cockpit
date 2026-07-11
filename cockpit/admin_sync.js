@@ -61,7 +61,7 @@ async function readRecent(collectionName) {
 
 await fs.mkdir(outputDir, { recursive: true });
 
-const [scheduleItems, comments, logs, feedback, tasks, changeArchive, contentVersions, mediaLinks] = await Promise.all([
+const [scheduleItems, comments, logs, feedback, tasks, changeArchive, contentVersions, mediaLinks, workflowStates] = await Promise.all([
   readRecent("scheduleItems"),
   readRecent("comments"),
   readRecent("auditLogs"),
@@ -69,7 +69,8 @@ const [scheduleItems, comments, logs, feedback, tasks, changeArchive, contentVer
   readRecent("tasks"),
   readRecent("changeArchive"),
   readRecent("privateContentVersions"),
-  readRecent("mediaLinks")
+  readRecent("mediaLinks"),
+  readRecent("workflowStates")
 ]);
 
 const changedScheduleItems = scheduleItems.filter((row) =>
@@ -170,7 +171,8 @@ const summary = {
     authorLabel: row.authorLabel || null,
     createdAt: dateValue(row.createdAt)?.toISOString() || null,
     updatedAt: dateValue(row.updatedAt)?.toISOString() || null
-  }))
+  })),
+  workflowStates: workflowStates.map((row) => ({ id: row.id, eventId: row.eventId || row.id, stage: row.stage || "proposal", updatedByLabel: row.updatedByLabel || null, updatedAt: dateValue(row.updatedAt)?.toISOString() || null }))
 };
 
 const outputFile = path.join(outputDir, "sync-summary.json");
@@ -184,5 +186,6 @@ console.log(JSON.stringify({
   tasks: summary.tasks.length,
   changeArchive: summary.changeArchive.length,
   privateContentVersions: summary.privateContentVersions.length,
-  mediaLinks: summary.mediaLinks.length
+  mediaLinks: summary.mediaLinks.length,
+  workflowStates: summary.workflowStates.length
 }, null, 2));
