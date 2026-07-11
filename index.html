@@ -55,7 +55,15 @@
     .context-fold > summary:hover, .readme-fold > summary:hover { background: #dff3f4; }
     .context-fold > summary span, .readme-fold > summary span { display: inline-flex; align-items: center; gap: 8px; padding: 5px 9px; border-radius: 999px; color: #fff; background: #0b7895; }
     .context-fold > summary small, .readme-fold > summary small { color: #fff; }
-    @media(max-width:700px){ .context-body { padding: 0 10px 18px; } .readme-body { padding: 3px 13px 16px; } .readme-grid { grid-template-columns: 1fr; } .workflow-svg { min-height: 130px; } .workflow-node text { font-size: 12px; } .workflow-return { font-size: 10px; } .responsibility-grid { grid-template-columns: 1fr; } .context-fold > summary,.readme-fold > summary{padding:11px 12px}.context-fold > summary small,.readme-fold > summary small{font-size:.66rem} }
+    .guide-summary-actions { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; margin-left: auto; }
+    .guide-startup-control { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border: 1px solid #9fcfd3; border-radius: 999px; color: #174e62; background: #fff; font-size: .68rem; font-weight: 800; cursor: pointer; white-space: nowrap; }
+    .guide-startup-control input { width: 16px; height: 16px; margin: 0; accent-color: #0b7895; }
+    .guide-new-badge { display: inline-flex; align-items: center; padding: 5px 9px; border-radius: 999px; color: #6b4300; background: #ffe69a; box-shadow: 0 0 0 3px rgba(255,214,92,.2); font-size: .68rem; font-weight: 900; white-space: nowrap; }
+    .guide-new-badge[hidden] { display: none; }
+    .context-fold.has-guide-update { border-color: #e8b949; box-shadow: 0 0 0 4px rgba(255,214,92,.16), 0 12px 30px rgba(7,58,82,.08); }
+    .context-fold.guide-new-focus { animation: guide-new-focus 1.2s ease; }
+    @keyframes guide-new-focus { 0%,100% { box-shadow: 0 12px 30px rgba(7,58,82,.05); } 45% { box-shadow: 0 0 0 7px rgba(255,214,92,.28), 0 12px 30px rgba(7,58,82,.08); } }
+    @media(max-width:700px){ .context-body { padding: 0 10px 18px; } .readme-body { padding: 3px 13px 16px; } .readme-grid { grid-template-columns: 1fr; } .workflow-svg { min-height: 130px; } .workflow-node text { font-size: 12px; } .workflow-return { font-size: 10px; } .responsibility-grid { grid-template-columns: 1fr; } .context-fold > summary,.readme-fold > summary{padding:11px 12px;align-items:flex-start;flex-wrap:wrap}.context-fold > summary small,.readme-fold > summary small{font-size:.66rem}.guide-summary-actions{width:100%;justify-content:flex-start;flex-wrap:wrap}.guide-startup-control,.guide-new-badge{font-size:.64rem} }
   </style>
 </head>
 <body>
@@ -72,7 +80,7 @@
 <section class="wrap stats"><div class="stat"><b>28</b><span>publications principales<br>séquence de lancement</span></div><div class="stat"><b>12</b><span>thèmes éditoriaux<br>dans le premier cycle</span></div><div class="stat"><b>3 + 4</b><span>piliers + passerelles<br>par semaine</span></div><div class="stat"><b>48 h</b><span>avant la première<br>lecture des résultats</span></div></section>
 <nav class="nav"><div class="wrap"><a href="#readme-collapsible">Lire-moi</a><a href="#collaboration">Collaboration</a><a href="#cap">Cap</a><a href="#cadence">Cadence</a><a href="#validation">Validation</a><a href="#calendrier">Calendrier</a><a href="#production">Production</a><a href="#pilotage">Pilotage</a><a href="#photo">Participation photo</a><a href="#sources">Sources</a></div></nav>
 <main class="wrap">
-<details id="context-collapsible" class="context-fold" data-layout-version="2026-07-10" open>
+<details id="context-collapsible" class="context-fold" data-layout-version="2026-07-11-guide-v1" open>
  <summary><span>Contexte stratégique et collaboration</span><small>Réduire / afficher</small></summary>
  <div class="context-body">
 <details id="readme-collapsible" class="readme-fold" data-readme-version="2026-07-10" open>

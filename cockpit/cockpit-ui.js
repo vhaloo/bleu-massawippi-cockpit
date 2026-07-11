@@ -40,6 +40,8 @@ let recognitionRestartAttempts = 0;
 let microphoneRequestPending = false;
 const recognitionLanguages = ["fr-CA", "fr-FR", "en-CA", "en-US"];
 const terminalRecognitionErrors = new Set(["not-allowed", "service-not-allowed", "audio-capture", "network", "aborted"]);
+const guideCollapsedKey = "bleu-massawippi-guide-collapsed";
+const guideSeenVersionKey = "bleu-massawippi-guide-seen-version";
 
 const style = document.createElement("style");
 style.textContent = `
@@ -767,6 +769,69 @@ function syncCardAccess() {
   });
 }
 
+function setupGuidePreference() {
+  const guide = document.querySelector("#context-collapsible");
+  const summary = guide?.querySelector(":scope > summary");
+  if (!guide || !summary || guide.dataset.preferenceReady === "true") return;
+  guide.dataset.preferenceReady = "true";
+
+  const version = guide.dataset.layoutVersion || "1";
+  const storedPreference = localStorage.getItem(guideCollapsedKey);
+  const lastSeenVersion = localStorage.getItem(guideSeenVersionKey);
+  const collapseAtStartup = storedPreference === "1";
+  const isFirstVisit = storedPreference === null && lastSeenVersion === null;
+  const hasUpdate = !isFirstVisit && lastSeenVersion !== version;
+
+  const oldHint = summary.querySelector("small");
+  const actions = document.createElement("span");
+  actions.className = "guide-summary-actions";
+  if (oldHint) actions.appendChild(oldHint);
+  actions.insertAdjacentHTML("beforeend", `
+    <label class="guide-startup-control" title="Conserver le guide replié lors des prochaines visites">
+      <input type="checkbox" data-guide-collapse-default ${collapseAtStartup ? "checked" : ""}>
+      <span>Masquer au démarrage</span>
+    </label>
+    <b class="guide-new-badge" data-guide-new-badge ${hasUpdate ? "" : "hidden"}>✨ Nouveauté</b>`);
+  summary.appendChild(actions);
+
+  const checkbox = actions.querySelector("[data-guide-collapse-default]");
+  const badge = actions.querySelector("[data-guide-new-badge]");
+  const updateHint = () => { if (oldHint) oldHint.textContent = guide.open ? "Réduire" : "Afficher"; };
+  const markSeen = () => {
+    localStorage.setItem(guideSeenVersionKey, version);
+    badge.hidden = true;
+    guide.classList.remove("has-guide-update");
+  };
+
+  guide.open = !collapseAtStartup;
+  if (hasUpdate) guide.classList.add("has-guide-update");
+  if (isFirstVisit) localStorage.setItem(guideSeenVersionKey, version);
+  updateHint();
+
+  actions.addEventListener("click", (event) => event.stopPropagation());
+  checkbox.addEventListener("change", () => {
+    localStorage.setItem(guideCollapsedKey, checkbox.checked ? "1" : "0");
+    guide.open = !checkbox.checked;
+    if (guide.open) {
+      guide.classList.add("guide-new-focus");
+      markSeen();
+      setTimeout(() => guide.classList.remove("guide-new-focus"), 1300);
+    }
+    updateHint();
+  });
+  badge.addEventListener("click", () => {
+    guide.open = true;
+    guide.classList.add("guide-new-focus");
+    markSeen();
+    updateHint();
+    setTimeout(() => guide.classList.remove("guide-new-focus"), 1300);
+  });
+  guide.addEventListener("toggle", () => {
+    updateHint();
+    if (guide.open && hasUpdate) markSeen();
+  });
+}
+
 const mediaStageLabels = {
   source: "Source",
   draft: "En révision",
@@ -1409,6 +1474,7 @@ async function loadPrivateContent() {
   planScript.textContent = content.script;
   document.body.appendChild(planScript);
   planScript.remove();
+  setupGuidePreference();
   state.contentLoaded = true;
 }
 
