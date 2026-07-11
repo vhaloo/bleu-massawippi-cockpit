@@ -8,7 +8,7 @@ Ce journal est un point de reprise local. Il ne contient aucun mot de passe, jet
 - Le registre est permanent. Les 28 premières journées sont une séquence de lancement, pas une limite du système.
 - Le lundi 13 juillet devient une publication unique : **Portes ouvertes : venez nous rencontrer**.
 - Le contenu nature retiré de ce lundi est conservé et repositionné au lundi 10 août comme réserve éditoriale de la semaine 5.
-- L’adresse publique vérifiée pour le local est : 3115, chemin Capelton, North Hatley, Québec J0B 2C0.
+- Correction confirmée le 11 juillet 2026 : le local est à l’église Saint-Barthélemy, 911, rue Clough, Ayer’s Cliff, Québec J0B 1C0. Toute mention de Sainte-Élisabeth, de North Hatley ou du chemin Capelton est obsolète.
 
 ## Régression de stabilité — 11 juillet 2026
 

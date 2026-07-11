@@ -84,7 +84,7 @@ for (const post of posts) {
     tasksAnnie: Array.isArray(post.tasksAnnie) ? post.tasksAnnie.map((task) => String(task).slice(0, 1000)).slice(0, 8) : [],
     calendarTime: ({ "Lundi": "09:00", "Mardi": "12:00", "Mercredi": "18:00", "Jeudi": "12:00", "Vendredi": "17:00", "Samedi": "10:00", "Dimanche": "09:00" })[String(post.date || "").split(" ")[0]] || "12:00",
     calendarDurationMinutes: 30,
-    calendarLocation: "En ligne — Facebook / Instagram",
+    calendarLocation: post.id === "s1d1" ? "Église Saint-Barthélemy, 911, rue Clough, Ayer’s Cliff, Québec J0B 1C0" : "En ligne — Facebook / Instagram",
     calendarCost: "Aucun coût de diffusion; confirmer les droits, la production et tout achat éventuel.",
     status,
     deleted: status === "deleted",

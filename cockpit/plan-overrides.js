@@ -1,4 +1,4 @@
-const OPEN_HOUSE_MAP_URL = "https://www.google.com/maps/search/?api=1&query=3115+Chemin+Capelton%2C+North+Hatley%2C+QC+J0B+2C0";
+const OPEN_HOUSE_MAP_URL = "https://www.google.com/maps/search/?api=1&query=Eglise+Saint-Barthelemy%2C+911+rue+Clough%2C+Ayer%27s+Cliff%2C+QC+J0B+1C0";
 
 const OPEN_HOUSE_POST = {
   w: 1,
@@ -10,7 +10,7 @@ const OPEN_HOUSE_POST = {
   role: "Rendre le point de contact de l’association visible et accessible, avec des heures précises et un itinéraire simple.",
   cta: "Trouver le local sur Google Maps",
   visual: "Photo authentique du local fournie par l’association, recadrée en 4:5; titre discret : Portes ouvertes · Venez nous rencontrer.",
-  source: `Photo fournie par l’association; adresse publique vérifiée : 3115, chemin Capelton, North Hatley, Québec J0B 2C0 · ${OPEN_HOUSE_MAP_URL}`,
+  source: `Photo fournie par l’association; adresse publique vérifiée auprès de la Municipalité d’Ayer’s Cliff : église Saint-Barthélemy, 911, rue Clough, Ayer’s Cliff, Québec J0B 1C0 · ${OPEN_HOUSE_MAP_URL}`,
   fallback: "Visuel typographique sobre avec les trois plages horaires et le lien Google Maps, si la photo ne peut pas être publiée.",
   kpi: "Clics Google Maps / messages reçus / visites au local",
   task: "Préparer le visuel photo 4:5, vérifier une dernière fois les horaires et rendre le lien Google Maps cliquable dans la légende.",
@@ -20,7 +20,7 @@ Lundi 13 juillet : 8 h 30 à 16 h
 Mercredi 15 juillet : 8 h 30 à 15 h
 Jeudi 16 juillet : 8 h 30 à 16 h
 
-📍 Église Sainte-Élisabeth, 3115, chemin Capelton, North Hatley (Québec) J0B 2C0
+📍 Église Saint-Barthélemy, 911, rue Clough, Ayer’s Cliff (Québec) J0B 1C0
 Itinéraire : ${OPEN_HOUSE_MAP_URL}
 
 Passez nous voir pour poser une question, découvrir le travail de l’association ou simplement venir échanger au sujet du lac Massawippi. Au plaisir de vous accueillir!
@@ -35,7 +35,7 @@ Monday, July 13: 8:30 a.m. to 4 p.m.
 Wednesday, July 15: 8:30 a.m. to 3 p.m.
 Thursday, July 16: 8:30 a.m. to 4 p.m.
 
-📍 Sainte-Élisabeth Church, 3115 Capelton Road, North Hatley, Quebec J0B 2C0
+📍 Saint-Barthélemy Church, 911 Clough Street, Ayer’s Cliff, Quebec J0B 1C0
 Directions: ${OPEN_HOUSE_MAP_URL}
 
 Stop by to ask a question, learn about the association’s work or simply talk about Lake Massawippi. We look forward to welcoming you!
