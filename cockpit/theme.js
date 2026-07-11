@@ -28,7 +28,7 @@ function setTheme(theme, persist = false) {
 const style = document.createElement("style");
 style.id = "cockpit-theme-style";
 style.textContent = `
-  .cockpit-theme-toggle { position:fixed; top:58px; right:12px; z-index:2400; border:1px solid rgba(7,58,82,.25); border-radius:999px; padding:8px 12px; background:#fff; color:#073a52; box-shadow:0 5px 18px rgba(0,0,0,.15); font:700 .78rem/1 system-ui,sans-serif; cursor:pointer; }
+  .cockpit-theme-toggle { position:fixed; top:98px; right:12px; z-index:2400; border:1px solid rgba(7,58,82,.25); border-radius:999px; padding:8px 12px; background:#fff; color:#073a52; box-shadow:0 5px 18px rgba(0,0,0,.15); font:700 .78rem/1 system-ui,sans-serif; cursor:pointer; }
   [data-theme="dark"] body {
     --ink:#eef7f8; --navy:#dff6fa; --blue:#72d9ed; --aqua:#61d9d2; --mist:#10252e;
     --paper:#12262f; --soft:#bfd1d7; --line:#496873; --gold:#f2c66d; --coral:#ff9b89;
@@ -71,6 +71,19 @@ style.textContent = `
   [data-theme="dark"] :is(.cockpit-workflow h5,.cockpit-thread h5,.cockpit-message header b,.cockpit-message p) { color:#edf9fa !important; }
   [data-theme="dark"] .cockpit-workflow-gate { color:#d4e6ea !important; background:#203c47 !important; border-color:#62828c !important; }
   [data-theme="dark"] .cockpit-workflow-gate.done { color:#dffff3 !important; background:#1e5144 !important; border-color:#76c8aa !important; }
+  [data-theme="dark"] :is(.cockpit-decision-guide,.cockpit-workflow-intro,.cockpit-control-help) { color:#d2e5e9 !important; }
+  [data-theme="dark"] .cockpit-decision-guide { background:#1c3944 !important; border-color:#648994 !important; }
+  [data-theme="dark"] :is(.cockpit-decision-guide b,.cockpit-control-label,.cockpit-workflow-gate b) { color:#f2fafb !important; }
+  [data-theme="dark"] .cockpit-workflow-gate.current { color:#ffe7b5 !important; background:#493b24 !important; border-color:#e2b553 !important; }
+  [data-theme="dark"] .cockpit-media-card.is-final { border-color:#79d6b6 !important; }
+  [data-theme="dark"] .cockpit-media-final-action { color:#071b15 !important; background:#79d6b6 !important; border-color:#79d6b6 !important; }
+  [data-theme="dark"] :is(.project-hub,.project-card) { color:#eef7f8 !important; background:#152c36 !important; border-color:#796e50 !important; }
+  [data-theme="dark"] .project-hub>summary { color:#fff1c9 !important; background:#473a21 !important; border-color:#9b7c3c !important; }
+  [data-theme="dark"] .project-decision { color:#dff7ed !important; background:#1e463b !important; border-color:#6ab594 !important; }
+  [data-theme="dark"] :is(.project-card h3,.project-card strong,.project-timeline b) { color:#fff2d0 !important; }
+  [data-theme="dark"] :is(.project-card p,.project-card li,.project-timeline div) { color:#d1e2e6 !important; }
+  [data-theme="dark"] .project-timeline div { background:#203c47 !important; }
+  [data-theme="dark"] .project-links a { color:#fff1c9 !important; background:#263f48 !important; border-color:#b08b43 !important; }
   [data-theme="dark"] .cockpit-workflow-actions button { color:#dff7fa !important; background:#18343f !important; border-color:#72d9e9 !important; }
   [data-theme="dark"] .cockpit-workflow-actions button.primary { color:#06151b !important; background:#72d9e9 !important; }
   [data-theme="dark"] .cockpit-message header, [data-theme="dark"] .cockpit-thread-empty { color:#bcd0d6 !important; }
@@ -78,7 +91,7 @@ style.textContent = `
   [data-theme="dark"] .workflow-node text { fill:#effbfc !important; }
   [data-theme="dark"] .workflow-return { fill:#c4d8dd !important; }
   [data-theme="dark"] .week { color:#fff !important; }
-  @media (max-width:600px) { .cockpit-theme-toggle { top:52px; right:8px; padding:8px 10px; } }
+  @media (max-width:600px) { .cockpit-theme-toggle { top:94px; right:8px; padding:8px 10px; } }
 `;
 document.head.appendChild(style);
 

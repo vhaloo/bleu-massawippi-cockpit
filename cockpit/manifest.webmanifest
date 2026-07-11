@@ -1,6 +1,6 @@
 {
-  "name": "Bleu Massawippi — Cockpit de collaboration",
-  "short_name": "Bleu Massawippi",
+  "name": "Cockpit Communication Bleu Massawippi",
+  "short_name": "Cockpit Bleu",
   "lang": "fr-CA",
   "start_url": "./?source=application",
   "scope": "./",

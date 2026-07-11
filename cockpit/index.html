@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script>try{const t=localStorage.getItem("bleu-massawippi-theme");document.documentElement.dataset.theme=t==="dark"||t==="light"?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch{}</script>
   <link rel="manifest" href="./manifest.webmanifest">
-  <title>Bleu Massawippi — Cockpit de collaboration</title>
+  <title>Cockpit Communication Bleu Massawippi</title>
 </head>
 <body>
   <main id="cockpit-content" aria-live="polite"></main>
@@ -19,7 +19,7 @@
   <script>
     if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch((error) => console.warn("Service worker indisponible", error)));
   </script>
-  <script type="module" src="./theme.js?v=20260711-guide-v1"></script>
-  <script type="module" src="./cockpit-ui.js?v=20260711-guide-v1"></script>
+  <script type="module" src="./theme.js?v=20260711-workflow-v2"></script>
+  <script type="module" src="./cockpit-ui.js?v=20260711-workflow-v2"></script>
 </body>
 </html>
