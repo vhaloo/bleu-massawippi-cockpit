@@ -42,3 +42,4 @@ Ce journal est un point de reprise local. Il ne contient aucun mot de passe, jet
 - Le volume affiché dans le cockpit est une estimation interne des fichiers connus, pas un relevé de facturation Firebase.
 - Ne jamais ajouter de compte de service, mot de passe ou clé API privée au dépôt public.
 - Ne jamais remplacer une photo fournie par une image générée si l’architecture ou l’identité du lieu n’est pas strictement préservée.
+- Vérification d’authentification du 10 juillet : le compte administrateur Valentin répond correctement via Firebase Auth; le mot de passe local associé à l’adresse de la direction générale est refusé par Firebase et devra être réinitialisé avant un test de parcours Annie.
