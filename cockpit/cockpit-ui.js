@@ -20,7 +20,7 @@ import {
   uploadImageAttachment,
   subscribeImageAttachments,
   MAX_ATTACHMENT_BYTES
-} from "./firebase-client.js?v=20260710-media-v1";
+} from "./firebase-client.js?v=20260711-auth-fix-v1";
 import { applyPlanOverridesToPosts } from "./plan-overrides.js";
 
 const { configured } = getClientState();
@@ -324,12 +324,21 @@ function buildLogin() {
   login.querySelector("#cockpit-login-form").addEventListener("submit", async (event) => {
     event.preventDefault();
     const error = login.querySelector("#cockpit-login-error");
+    const submit = login.querySelector("#cockpit-login-form button[type=submit]");
     error.textContent = "";
+    submit.disabled = true;
+    submit.textContent = "Connexion…";
     try {
       await signIn(login.querySelector("#cockpit-email").value.trim(), login.querySelector("#cockpit-password").value);
     } catch (reason) {
-      error.textContent = "Connexion refusée. Vérifiez les identifiants ou la configuration Firebase.";
+      const message = String(reason?.message || "");
+      error.textContent = /15 secondes|ne répond pas/i.test(message)
+        ? message
+        : "Connexion refusée. Vérifiez les identifiants ou utilisez la réinitialisation du mot de passe.";
       console.error(reason);
+    } finally {
+      submit.disabled = false;
+      submit.textContent = "Ouvrir la session";
     }
   });
   login.querySelector("#cockpit-reset-password").addEventListener("click", async () => {

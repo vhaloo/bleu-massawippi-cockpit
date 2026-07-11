@@ -7,7 +7,7 @@ Le volet des pièces jointes est conservé pour une reprise ultérieure, mais il
 ## État livré
 
 - index.html : coque publique sans contenu stratégique; elle affiche la barrière de connexion et ne charge le plan qu’après autorisation Firebase.
-- firebase-client.js : SDK Web Firebase modulaire, version CDN 12.15.0, persistance IndexedDB, Auth et Firestore.
+- firebase-client.js : SDK Web Firebase modulaire, version CDN 12.15.0; Auth reste persistant, tandis que Firestore utilise un cache mémoire multi-onglets sûr par défaut pour éviter les verrous IndexedDB. Le mode hors ligne explicite se teste avec `?offline=1`.
 - cockpit-ui.js : couche d’interface et de pilotage, choix d’option par journée, responsabilités Valentin / Annie pour chaque événement, tâches administratives cliquables, rétroaction par section, boîte à idées flottante, dictée progressive Chrome / Edge / Safari, calendrier contextualisé et installation PWA.
 - admin_sync.js : pont local Firebase Admin pour lire les modifications du calendrier, les commentaires, les rétroactions, les tâches et l’archive append-only.
 - check_firebase_storage.mjs : vérification locale, sans écriture, de la facturation, de l’API Storage et du bucket par défaut; aucune information secrète n’est affichée.

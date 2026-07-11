@@ -24,6 +24,8 @@ Le volet visuel est actuellement suspendu à la demande de la direction : aucune
 
 ## Dictée et diagnostic
 
+Le test du 11 juillet a reproduit l’attente infinie lorsque plusieurs anciens onglets utilisaient simultanément le verrou IndexedDB de Firestore (`Failed to obtain exclusive access to the persistence layer`). Le cockpit utilise maintenant le cache mémoire Firestore par défaut, conserve la persistance locale de la session d’authentification et réserve le cache hors ligne au paramètre explicite `?offline=1`. Les requêtes de profil, de connexion et de contenu disposent aussi d’un délai maximal de 15 secondes avec un message de reprise.
+
 - La dictée demande explicitement l’accès au microphone, utilise `SpeechRecognition` ou `webkitSpeechRecognition`, retente les langues françaises disponibles et relance les sessions interrompues.
 - Un repli vers la dictée du système est affiché quand l’API ou le service vocal du navigateur est indisponible.
 - Le compte administrateur dispose d’un widget **Diagnostic** minimisable qui recueille erreurs JavaScript, promesses non gérées, avertissements Firebase et erreurs affichées par le cockpit.

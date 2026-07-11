@@ -11,6 +11,7 @@ import {
 import {
   getFirestore,
   initializeFirestore,
+  memoryLocalCache,
   persistentLocalCache,
   persistentMultipleTabManager,
   collection,
@@ -47,15 +48,33 @@ let db;
 let storage;
 let persistenceState = "not-configured";
 let storageState = "not-configured";
+const REQUEST_TIMEOUT_MS = 15000;
+
+function withTimeout(promise, message, timeoutMs = REQUEST_TIMEOUT_MS) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
 
 if (configured) {
   app = getApps().length ? getApps()[0] : initializeApp(config);
   auth = getAuth(app);
   try {
-    db = initializeFirestore(app, {
-      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
-    });
-    persistenceState = "enabled";
+    const offlineRequested = typeof location !== "undefined" && new URLSearchParams(location.search).get("offline") === "1";
+    if (offlineRequested) {
+      db = initializeFirestore(app, {
+        localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+      });
+      persistenceState = "enabled";
+    } else {
+      // Le mode mémoire évite le verrou exclusif IndexedDB lorsque plusieurs
+      // onglets du cockpit sont ouverts. L’authentification reste persistante;
+      // seules les données Firestore sont relues du serveur à chaque onglet.
+      db = initializeFirestore(app, { localCache: memoryLocalCache() });
+      persistenceState = "memory";
+    }
   } catch {
     db = getFirestore(app);
     persistenceState = "unavailable";
@@ -109,7 +128,7 @@ async function getProfile(user) {
   };
   if (!db) return fallback;
   try {
-    const snapshot = await getDoc(doc(db, "users", user.uid));
+    const snapshot = await withTimeout(getDoc(doc(db, "users", user.uid)), "Le profil Firebase ne répond pas.");
     if (!snapshot.exists()) return fallback;
     const profile = { ...fallback, ...snapshot.data(), uid: user.uid };
     return {
@@ -129,7 +148,7 @@ export function getClientState() {
 
 export async function fetchPrivateContent() {
   requireConfigured();
-  const snapshot = await getDoc(doc(db, "privateContent", "plan"));
+  const snapshot = await withTimeout(getDoc(doc(db, "privateContent", "plan")), "Le contenu sécurisé ne répond pas après 15 secondes. Réessayez.");
   if (!snapshot.exists()) {
     throw new Error("Le contenu sécurisé n’a pas encore été préparé.");
   }
@@ -152,7 +171,7 @@ export function observeAuth(callback) {
 
 export async function signIn(email, password) {
   requireConfigured();
-  const credential = await signInWithEmailAndPassword(auth, email, password);
+  const credential = await withTimeout(signInWithEmailAndPassword(auth, email, password), "Le service de connexion ne répond pas après 15 secondes. Vérifiez votre réseau puis réessayez.");
   return getProfile(credential.user);
 }
 
