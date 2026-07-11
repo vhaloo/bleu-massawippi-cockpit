@@ -844,7 +844,7 @@ function renderAllMedia() {
 
 function mediaControlsMarkup(planItem) {
   const folderUrl = safeMediaUrl(state.mediaConfig?.folderUrl || state.mediaConfig?.folderViewUrl || "");
-  return `<details class="cockpit-media">
+  return `<details class="cockpit-media" open>
     <summary>Médias OneDrive <span class="cockpit-media-count" data-media-count>0</span></summary>
     <div class="cockpit-media-body">
       <div class="cockpit-media-gallery" data-media-gallery></div>
