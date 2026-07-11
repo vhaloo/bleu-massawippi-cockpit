@@ -12,6 +12,8 @@ Ce journal est un point de reprise local. Il ne contient aucun mot de passe, jet
 
 ## Visuels et pièces jointes
 
+Le volet visuel est actuellement suspendu à la demande de la direction : aucune pièce jointe n’est affichée ou synchronisée par l’interface, et le travail quotidien reste entièrement centré sur le texte. Le code, les règles et les dérivations locales sont conservés sans suppression afin de pouvoir reprendre ce chantier plus tard.
+
 - Les photos ajoutées depuis un événement sont converties dans le navigateur en JPEG 4:5, jusqu’à 1080 × 1350, sous 1 Mo.
 - Le frontend refuse les types non image et Firebase Storage refuse tout ce qui n’est pas un JPEG sous 1 Mo.
 - Les métadonnées sont dans `attachments/{attachmentId}`; les versions ne sont pas supprimées depuis le frontend.

@@ -2,6 +2,8 @@
 
 Le dossier contient une nouvelle copie interactive du plan. Le HTML de présentation situé au niveau supérieur n’est pas modifié par le cockpit.
 
+Le volet des pièces jointes est conservé pour une reprise ultérieure, mais il est suspendu dans l’interface actuelle : aucune image n’est chargée ni synchronisée. Le parcours actif est volontairement centré sur le calendrier, les décisions, les commentaires, les tâches et les autres contenus textuels.
+
 ## État livré
 
 - index.html : coque publique sans contenu stratégique; elle affiche la barrière de connexion et ne charge le plan qu’après autorisation Firebase.
@@ -124,7 +126,7 @@ Le fichier firebase.json est inclus pour publier uniquement les règles Firebase
     npm install --global firebase-tools
     firebase login
     firebase use identifiant-du-projet
-    firebase deploy --only firestore:rules
+    firebase deploy --only firestore:rules,storage
 
 Avant toute tentative, la vérification non destructive peut être lancée ainsi :
 

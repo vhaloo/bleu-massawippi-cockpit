@@ -24,6 +24,9 @@ import {
 import { applyPlanOverridesToPosts } from "./plan-overrides.js";
 
 const { configured } = getClientState();
+// Le volet visuel est conservé dans le dépôt pour une reprise ultérieure, mais
+// reste volontairement suspendu afin que le cockpit demeure entièrement textuel.
+const IMAGE_ATTACHMENTS_ENABLED = false;
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
 const state = { user: null, profile: null, rows: new Map(), attachments: [], tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, attachmentUnsubscribe: null, scheduleUnsubscribe: null, contentLoaded: false };
 let pastEventsVisible = false;
@@ -374,7 +377,7 @@ function buildAdminSidebar() {
   if (document.querySelector("#cockpit-sidebar")) return;
   const sidebar = document.createElement("aside");
   sidebar.id = "cockpit-sidebar";
-  sidebar.innerHTML = "<div id=\"cockpit-task-heading\"><h2>À accomplir</h2><span id=\"cockpit-task-count\">0</span></div><p class=\"cockpit-sidebar-note\">Les décisions et recommandations reçues de la direction restent ici jusqu’à leur validation ou leur achèvement forcé.</p><div id=\"cockpit-task-list\"></div><h2>Journal de modifications</h2><p class=\"cockpit-sidebar-note\">Lecture technique des changements synchronisés.</p><div id=\"cockpit-log-list\"></div><h2 style=\"margin-top:24px\">Rétroactions du cockpit</h2><p class=\"cockpit-sidebar-note\">Les avis déposés dans les sections et la boîte à idées.</p><div id=\"cockpit-feedback-list\"></div><h2 style=\"margin-top:24px\">Volume des visuels</h2><p id=\"cockpit-attachment-usage\" class=\"cockpit-sidebar-note\">Calcul en cours…</p>";
+  sidebar.innerHTML = "<div id=\"cockpit-task-heading\"><h2>À accomplir</h2><span id=\"cockpit-task-count\">0</span></div><p class=\"cockpit-sidebar-note\">Les décisions et recommandations reçues de la direction restent ici jusqu’à leur validation ou leur achèvement forcé.</p><div id=\"cockpit-task-list\"></div><h2>Journal de modifications</h2><p class=\"cockpit-sidebar-note\">Lecture technique des changements synchronisés.</p><div id=\"cockpit-log-list\"></div><h2 style=\"margin-top:24px\">Rétroactions du cockpit</h2><p class=\"cockpit-sidebar-note\">Les avis déposés dans les sections et la boîte à idées.</p><div id=\"cockpit-feedback-list\"></div>";
   document.body.appendChild(sidebar);
   const toggle = document.createElement("button");
   toggle.id = "cockpit-sidebar-toggle";
@@ -801,7 +804,7 @@ function isChoiceSelected(planItem) {
 function syncCardAccess() {
   const editable = canEdit();
   document.body.classList.toggle("cockpit-readonly", !editable);
-  document.querySelectorAll(".cockpit-controls button, .cockpit-controls textarea, .cockpit-controls input, .cockpit-attachments input").forEach((control) => {
+  document.querySelectorAll(".cockpit-controls button, .cockpit-controls textarea, .cockpit-controls input").forEach((control) => {
     control.disabled = !editable;
   });
 }
@@ -861,6 +864,10 @@ function attachmentBlockMarkup(planItem) {
 }
 
 function renderAttachmentBlocks() {
+  if (!IMAGE_ATTACHMENTS_ENABLED) {
+    document.querySelectorAll(".cockpit-attachments").forEach((node) => node.remove());
+    return;
+  }
   document.querySelectorAll(".post[data-item-id]").forEach((card) => {
     const planItem = getPlanItem(card);
     const detail = card.querySelector(".detail");
@@ -1003,6 +1010,7 @@ async function uploadAttachmentFiles(input) {
 }
 
 function enhanceAttachmentEvents() {
+  if (!IMAGE_ATTACHMENTS_ENABLED) return;
   if (document.body.dataset.attachmentEventsReady === "true") return;
   document.body.dataset.attachmentEventsReady = "true";
   document.addEventListener("change", (event) => {
@@ -1569,10 +1577,10 @@ async function applyProfile(profile) {
   enhanceCards();
   enhanceSectionFeedback();
   enhanceCalendarButtons();
-  enhanceAttachmentEvents();
+  if (IMAGE_ATTACHMENTS_ENABLED) enhanceAttachmentEvents();
   state.attachmentUnsubscribe?.();
   state.attachmentUnsubscribe = null;
-  if (configured) {
+  if (IMAGE_ATTACHMENTS_ENABLED && configured) {
     state.attachmentUnsubscribe = subscribeImageAttachments((rows) => {
       state.attachments = rows;
       renderAttachmentBlocks();
@@ -1641,7 +1649,7 @@ function start() {
   buildLogin();
   enhanceCardEvents();
   enhanceFeedbackListEvents();
-  enhanceAttachmentEvents();
+  if (IMAGE_ATTACHMENTS_ENABLED) enhanceAttachmentEvents();
   const observer = new MutationObserver(() => enhanceCards());
   observer.observe(document.body, { childList: true, subtree: true });
 
