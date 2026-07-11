@@ -18,7 +18,9 @@ const posts = applyPlanOverridesToPosts(JSON.parse(postsJson));
 const first = posts.find((post) => post.id === "s1d1");
 const moved = posts.find((post) => post.id === "s1d1b");
 
-assert.equal(first.title, "Portes ouvertes : venez nous rencontrer");
+assert.equal(first.title, "Nous sommes là, si vous voulez nous parler");
+assert.doesNotMatch(first.title + first.copy + first.visual, /portes ouvertes/i);
+assert.match(first.copy, /disponibilités changeront chaque semaine/i);
 assert.equal(first.choiceRequired, false);
 assert.equal(first.date, "Lundi 13 juillet");
 assert.equal(moved.date, "Lundi 10 août");
