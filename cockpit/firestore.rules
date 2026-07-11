@@ -92,6 +92,15 @@ service cloud.firestore {
         && data.updatedByLabel is string && data.updatedByLabel.size() > 0 && data.updatedByLabel.size() <= 120;
     }
 
+    function validEditorialDecision(data) {
+      return data.keys().hasAll(['eventId', 'decision', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+        && data.keys().hasOnly(['eventId', 'decision', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+        && data.eventId is string && data.eventId.size() >= 3 && data.eventId.size() <= 80
+        && data.decision in ['undecided', 'chosen', 'deferred', 'rejected']
+        && data.updatedAt is timestamp && data.updatedBy == request.auth.uid
+        && data.updatedByLabel is string && data.updatedByLabel.size() > 0 && data.updatedByLabel.size() <= 120;
+    }
+
     function validAuditLog(data) {
       return data.keys().hasAll(['sectionId', 'action', 'userUid', 'userLabel', 'createdAt'])
         && data.keys().hasOnly(['sectionId', 'action', 'userUid', 'userLabel', 'createdAt'])
@@ -208,6 +217,12 @@ service cloud.firestore {
     match /opportunityStates/{opportunityId} {
       allow read: if activeUser();
       allow create, update: if isEditor() && validOpportunityState(request.resource.data) && request.resource.data.opportunityId == opportunityId;
+      allow delete: if false;
+    }
+
+    match /editorialDecisions/{eventId} {
+      allow read: if activeUser();
+      allow create, update: if isEditor() && validEditorialDecision(request.resource.data) && request.resource.data.eventId == eventId;
       allow delete: if false;
     }
 

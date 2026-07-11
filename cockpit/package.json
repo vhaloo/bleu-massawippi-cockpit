@@ -11,7 +11,7 @@
     "provision-users": "node provision_users.js",
     "test:contract": "node test_contract.mjs",
     "refine": "node ../refine_calendar.js",
-    "check": "node --check admin_sync.js && node --check firebase-client.js && node --check cockpit-ui.js && node --check theme.js && node --check plan-overrides.js && node --check seed_media_config.js && node --check seed_opportunity_states.js && node --check publish_firestore_rules.mjs"
+    "check": "node --check admin_sync.js && node --check firebase-client.js && node --check cockpit-ui.js && node --check theme.js && node --check alternatives.js && node --check plan-overrides.js && node --check seed_media_config.js && node --check seed_opportunity_states.js && node --check publish_firestore_rules.mjs"
   },
   "dependencies": {
     "firebase-admin": "^14.1.0"

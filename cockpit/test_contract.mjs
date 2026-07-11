@@ -33,19 +33,25 @@ assert.equal(volunteer.w, 5);
 assert.equal(volunteer.coordinationLevel, "high");
 assert.ok(volunteer.tasksValentin.length >= 5);
 assert.ok(volunteer.tasksAnnie.length >= 4);
-assert.equal(firstTuesday.choiceRequired, false);
-assert.equal(firstTuesday.optionGroup, null);
+assert.equal(firstTuesday.choiceRequired, true);
+assert.equal(firstTuesday.optionGroup, "20260714");
 assert.equal(posts.filter((post) => !post.isAlternative).length, 28);
+assert.equal(posts.length, 56);
+const firstFourWeeks = Object.groupBy(posts.filter((post) => post.w <= 4), (post) => post.date);
+assert.equal(Object.keys(firstFourWeeks).length, 28);
+assert.equal(Object.values(firstFourWeeks).filter((items) => items.length >= 2).length, 26);
+assert.deepEqual(Object.entries(firstFourWeeks).filter(([, items]) => items.length === 1).map(([date]) => date).sort(), ["Jeudi 30 juillet", "Lundi 13 juillet"]);
+assert.equal(posts.filter((post) => post.t === "Nature").length, 11);
 assert.match(preparePlanScript(source.match(/<script>\s*(var posts=[\s\S]*?)<\/script>/i)[1], posts), /\[1,2,3,4,5\]\.forEach/);
 assert.match(source, /Coordination renforcée avant publication/);
 
-for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMedia", "button[data-dictate]", "data-add-post-calendar", "data-media-form", "data-workflow-stage", "workflowDirection", "aria-pressed=\"false\"", "Feu vert retiré; l’historique est conservé.", "id=\\\"cockpit-task-count\\\" data-task-count", "Mini-chat de l’événement", "data-resolve-comment", "Voir les messages traités", "comment-task", "data-comment-thread", "MutationObserver", "Connexion…", "bleu-massawippi-guide-collapsed", "data-guide-new-badge", "setOpportunityStage", "data-opportunity-stage", "bleu-massawippi-projects-collapsed", "Valider le texte avec l’aval", "Valider le visuel avec l’aval"]) {
+for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMedia", "button[data-dictate]", "data-add-post-calendar", "data-media-form", "data-workflow-stage", "workflowDirection", "aria-pressed=\"false\"", "Feu vert retiré; l’historique est conservé.", "id=\\\"cockpit-task-count\\\" data-task-count", "Mini-chat de l’événement", "data-resolve-comment", "Voir les messages traités", "comment-task", "data-editorial-decision", "Bonne idée — autre jour", "Ne pas retenir cet angle", "editorial-deferred", "data-comment-thread", "MutationObserver", "Connexion…", "bleu-massawippi-guide-collapsed", "data-guide-new-badge", "setOpportunityStage", "data-opportunity-stage", "bleu-massawippi-projects-collapsed", "Valider le texte avec l’aval", "Valider le visuel avec l’aval"]) {
   assert.ok(ui.includes(token), `Le cockpit doit contenir le contrat ${token}.`);
 }
 for (const token of ["data-theme-toggle", "bleu-massawippi-theme", "prefers-color-scheme"]) {
   assert.ok(theme.includes(token), `Le thème doit contenir le contrat ${token}.`);
 }
-for (const token of ["addComment", "subscribeComments", "updateOwnComment", "resolveComment", "resolvedByLabel", "commentaire traité", "setWorkflowStage", "setOpportunityStage", "subscribeOpportunityStates", "addCockpitFeedback", "subscribeMediaLinks", "memoryLocalCache", "withTimeout", "match /comments/{commentId}", "match /workflowStates/{eventId}", "match /opportunityStates/{opportunityId}", "match /mediaLinks/{mediaId}"]) {
+for (const token of ["addComment", "subscribeComments", "updateOwnComment", "resolveComment", "resolvedByLabel", "commentaire traité", "setWorkflowStage", "setOpportunityStage", "subscribeOpportunityStates", "setEditorialDecision", "subscribeEditorialDecisions", "editorialDecisions", "addCockpitFeedback", "subscribeMediaLinks", "memoryLocalCache", "withTimeout", "match /comments/{commentId}", "match /workflowStates/{eventId}", "match /opportunityStates/{opportunityId}", "match /editorialDecisions/{eventId}", "match /mediaLinks/{mediaId}"]) {
   assert.ok((client + firestoreRules).includes(token), `Le flux collaboratif doit contenir ${token}.`);
 }
 assert.equal((source.match(/data-opportunity-id=/g) || []).length, 8);
@@ -55,4 +61,4 @@ assert.doesNotMatch(client, /firebase-storage|uploadBytes|getDownloadURL/);
 assert.doesNotMatch(ui + client, /data-attachment-input|seed_open_house_attachments/);
 assert.match(firebaseConfig, /apiKey:\s*"AIza[A-Za-z0-9_-]{20,}"/);
 assert.doesNotMatch(firebaseConfig, /GEMINI|gemini_api_key/i);
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, opportunities: 8, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 64 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 26, opportunities: 8, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 78 }, null, 2));

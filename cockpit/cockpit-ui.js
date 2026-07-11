@@ -28,12 +28,14 @@ import {
   setWorkflowStage,
   subscribeWorkflowStates,
   setOpportunityStage,
-  subscribeOpportunityStates
-} from "./firebase-client.js?v=20260711-comment-chat-v1";
+  subscribeOpportunityStates,
+  setEditorialDecision,
+  subscribeEditorialDecisions
+} from "./firebase-client.js?v=20260711-editorial-decisions-v1";
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
-const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), mediaConfig: null, tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, contentLoaded: false };
+const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
 let activeRecognition = null;
 let activeTextarea = null;
 let recognitionRestart = false;
@@ -204,6 +206,18 @@ style.textContent = `
   .cockpit-task-item { margin-top: 8px; padding: 10px; border: 1px solid #d6e8ea; border-radius: 11px; background: #fff; }
   .cockpit-task-item.comment-task { padding:13px; border:3px solid #d38a65; background:#fff6ef; box-shadow:0 9px 22px rgba(154,64,53,.16); }
   .cockpit-task-source { display:inline-block; margin-bottom:7px; padding:4px 8px; border-radius:999px; color:#fff; background:#b75842; font-size:.66rem; font-weight:900; letter-spacing:.02em; }
+  .cockpit-editorial-decision { margin:10px 0; padding:11px; border:2px solid #c7dfe3; border-radius:13px; background:#f8fcfc; }
+  .cockpit-editorial-decision b { display:block; margin-bottom:6px; color:#073a52; font-size:.76rem; }
+  .cockpit-editorial-buttons { display:flex; flex-wrap:wrap; gap:6px; }
+  .cockpit-editorial-buttons button { min-height:40px; padding:8px 10px; border:1px solid #9cbfc5; border-radius:9px; color:#174e62; background:#fff; font-size:.68rem; font-weight:900; cursor:pointer; }
+  .cockpit-editorial-buttons button[data-editorial-decision="chosen"].active { color:#fff; border-color:#21866d; background:#21866d; }
+  .cockpit-editorial-buttons button[data-editorial-decision="deferred"].active { color:#57390a; border-color:#d7a33f; background:#ffe9b8; }
+  .cockpit-editorial-buttons button[data-editorial-decision="rejected"].active { color:#fff; border-color:#9a4035; background:#9a4035; }
+  .cockpit-editorial-help { margin:7px 0 0; color:#617d86; font-size:.65rem; line-height:1.4; }
+  .cockpit-editorial-meta { display:block; margin-top:6px; color:#6d858d; font-size:.62rem; }
+  .post.editorial-deferred,.post.editorial-rejected { opacity:.64; filter:grayscale(.42); }
+  .post.editorial-deferred:hover,.post.editorial-rejected:hover,.post.editorial-deferred:focus-within,.post.editorial-rejected:focus-within { opacity:1; filter:none; }
+  .post.editorial-chosen { box-shadow:0 0 0 3px rgba(33,134,109,.22); }
   .cockpit-task-item b { display: block; color: #073a52; font-size: .78rem; }
   .cockpit-task-item p { margin: 4px 0 7px; color: #587680; font-size: .72rem; line-height: 1.38; white-space: pre-wrap; }
   .cockpit-task-item small { display: block; margin-bottom: 7px; color: #78919a; font-size: .66rem; }
@@ -1085,6 +1099,29 @@ function workflowMarkup(planItem) {
   return `<section class="cockpit-workflow" data-workflow><h5>Les 3 feux verts</h5><p class="cockpit-workflow-intro">Le texte et le visuel sont validés par la direction, ou par les communications lorsque son aval a déjà été donné. Cliquez sur une case pour la cocher; cliquez de nouveau pour revenir en arrière. Chaque changement reste dans l’historique.</p><div class="cockpit-workflow-gates"><button type="button" class="cockpit-workflow-gate" data-gate="content" aria-pressed="false"><b>1 · Texte</b><span data-gate-label>À valider</span></button><button type="button" class="cockpit-workflow-gate" data-gate="media" aria-pressed="false"><b>2 · Visuel</b><span data-gate-label>Commence après le texte</span></button><button type="button" class="cockpit-workflow-gate" data-gate="publication" aria-pressed="false"><b>3 · Terminé</b><span data-gate-label>Publié ou programmé</span></button></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
 }
 
+function editorialDecisionMarkup(planItem) {
+  if (planItem.decisionLocked === true) return `<section class="cockpit-editorial-decision locked"><b>✓ Publication déjà confirmée pour cette journée</b><p class="cockpit-editorial-help">L’arbitrage rapide est masqué pour cet événement certain. Les validations du texte et du visuel restent disponibles ci-dessous.</p></section>`;
+  return `<section class="cockpit-editorial-decision" data-editorial-controls><b>Choix éditorial pour cette proposition</b><div class="cockpit-editorial-buttons"><button type="button" data-editorial-decision="chosen">★ Retenir pour ce jour</button><button type="button" data-editorial-decision="deferred">↪ Bonne idée — autre jour</button><button type="button" data-editorial-decision="rejected">✕ Ne pas retenir cet angle</button><button type="button" data-editorial-decision="undecided">Réinitialiser</button></div><p class="cockpit-editorial-help"><b>Autre jour</b> conserve l’idée pour un prochain remaniement. <b>Ne pas retenir</b> signale que cet angle ne doit pas être reproposé sans nouvelle discussion.</p><span class="cockpit-editorial-meta" data-editorial-meta>Décision en attente.</span></section>`;
+}
+
+function renderEditorialDecision(card) {
+  const row = state.decisions.get(card.dataset.itemId) || { decision: "undecided" };
+  const decision = row.decision || "undecided";
+  card.classList.toggle("editorial-chosen", decision === "chosen");
+  card.classList.toggle("editorial-deferred", decision === "deferred");
+  card.classList.toggle("editorial-rejected", decision === "rejected");
+  card.querySelectorAll("[data-editorial-decision]").forEach((button) => {
+    const active = button.dataset.editorialDecision === decision;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  const meta = card.querySelector("[data-editorial-meta]");
+  if (meta) {
+    const labels = { undecided:"Décision en attente.", chosen:"Retenu pour cette journée.", deferred:"Mis de côté pour être reprogrammé.", rejected:"Angle écarté; ne pas le reproposer sans nouvelle discussion." };
+    meta.textContent = `${labels[decision] || labels.undecided}${row.updatedByLabel ? ` · ${row.updatedByLabel}` : ""}`;
+  }
+}
+
 function renderWorkflow(card) {
   const row = state.workflows.get(card.dataset.itemId) || { stage: "proposal" };
   const stage = row.stage || "proposal";
@@ -1161,7 +1198,7 @@ function renderCommentThread(card) {
 }
 
 function renderAllCollaboration() {
-  document.querySelectorAll(".post[data-item-id]").forEach((card) => { renderWorkflow(card); renderCommentThread(card); });
+  document.querySelectorAll(".post[data-item-id]").forEach((card) => { renderWorkflow(card); renderCommentThread(card); renderEditorialDecision(card); });
 }
 
 function installBrandLogo() {
@@ -1183,7 +1220,7 @@ function enhanceCards() {
     const controls = document.createElement("div");
     controls.className = "cockpit-controls";
     controls.innerHTML = `
-      ${planItem.choiceRequired ? `<label class="cockpit-choice-row"><input type="checkbox" data-choice="${esc(planItem.id)}" ${isChoiceSelected(planItem) ? "checked" : ""}><span>${esc(planItem.optionLabel || "Choisir cette option")}</span><small>Une seule option par journée</small></label>` : ""}
+      ${editorialDecisionMarkup(planItem)}
       <div class="cockpit-decision-guide"><b>${state.profile?.role === "director" ? "Pour la direction : deux validations seulement" : "Lecture rapide de l’événement"}</b>${state.profile?.role === "director" ? "1. Approuver le texte. 2. Plus tard, approuver le visuel. Les boutons ci-dessous servent aux avis rapides; les deux vrais feux verts sont dans le bloc « Les 3 feux verts »." : "Les avis rapides alimentent le fil. Le bloc « Les 3 feux verts » indique exactement la prochaine action à accomplir."}</div>
       <div class="cockpit-status-row" aria-label="Statut de la publication">
         <p class="cockpit-control-label">Avis rapide sur la proposition</p>
@@ -1568,6 +1605,24 @@ function enhanceCardEvents() {
   document.addEventListener("click", (event) => {
     const card = event.target.closest(".post[data-item-id]");
     if (!card) return;
+    const editorialButton = event.target.closest("button[data-editorial-decision]");
+    if (editorialButton) {
+      editorialButton.disabled = true;
+      const decision = editorialButton.dataset.editorialDecision;
+      setEditorialDecision(card.dataset.itemId, decision, state.profile)
+        .then(async () => {
+          const planItem = getPlanItem(card);
+          if (state.profile.role === "director" && ["chosen", "deferred", "rejected"].includes(decision)) {
+            const titles = { chosen:"Proposition retenue", deferred:"Proposition à reprogrammer", rejected:"Angle éditorial à écarter" };
+            const messages = { chosen:"Poursuivre les validations du texte et du visuel.", deferred:"Déplacer cette bonne idée vers une date cohérente lors du prochain remaniement du calendrier.", rejected:"Conserver la décision dans l’historique et éviter de reproposer cet angle sans nouvelle discussion." };
+            await recordActionTask(`editorial-${card.dataset.itemId}`, { status:"pending", title:`${titles[decision]} — ${planItem?.title || card.dataset.itemId}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${planItem?.title || ""}`, message:`${messages[decision]}\n\n${responsibilitySummary(planItem)}` });
+          }
+          toast(decision === "deferred" ? "Idée mise de côté pour un autre jour." : decision === "rejected" ? "Angle écarté et conservé dans l’historique." : decision === "chosen" ? "Proposition retenue pour cette journée." : "Décision éditoriale réinitialisée.");
+        })
+        .catch((error) => toast(error.message, true))
+        .finally(() => { editorialButton.disabled = false; });
+      return;
+    }
     const workflowButton = event.target.closest("button[data-workflow-stage]");
     if (workflowButton) {
       setWorkflowStage(card.dataset.itemId, workflowButton.dataset.workflowStage, state.profile)
@@ -1797,6 +1852,7 @@ function applySignedOut(message = "") {
   state.commentsByEvent = new Map();
   state.workflows = new Map();
   state.opportunities = new Map();
+  state.decisions = new Map();
   state.mediaConfig = null;
   state.scheduleUnsubscribe?.();
   state.auditUnsubscribe?.();
@@ -1806,6 +1862,7 @@ function applySignedOut(message = "") {
   state.commentsUnsubscribe?.();
   state.workflowUnsubscribe?.();
   state.opportunityUnsubscribe?.();
+  state.decisionUnsubscribe?.();
   state.scheduleUnsubscribe = null;
   state.auditUnsubscribe = null;
   state.feedbackUnsubscribe = null;
@@ -1814,6 +1871,7 @@ function applySignedOut(message = "") {
   state.commentsUnsubscribe = null;
   state.workflowUnsubscribe = null;
   state.opportunityUnsubscribe = null;
+  state.decisionUnsubscribe = null;
   state.tasks = [];
   clearPrivateContent();
   document.body.classList.add("cockpit-locked");
@@ -1872,6 +1930,11 @@ function subscribeRemoteData() {
     state.opportunities = new Map(rows.map((row) => [row.opportunityId || row.id, row]));
     renderOpportunityStates();
   }, (error) => toast("Le suivi des occasions n’est pas accessible : " + error.message, true));
+  state.decisionUnsubscribe?.();
+  state.decisionUnsubscribe = subscribeEditorialDecisions((rows) => {
+    state.decisions = new Map(rows.map((row) => [row.eventId || row.id, row]));
+    document.querySelectorAll(".post[data-item-id]").forEach(renderEditorialDecision);
+  }, (error) => toast("Les décisions éditoriales ne sont pas accessibles : " + error.message, true));
 }
 
 function start() {

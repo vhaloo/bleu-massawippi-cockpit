@@ -1,3 +1,5 @@
+import { SPECS as ALTERNATIVE_SPECS } from "./alternatives.js";
+
 const OPEN_HOUSE_MAP_URL = "https://www.google.com/maps/search/?api=1&query=Eglise+Saint-Barthelemy%2C+911+rue+Clough%2C+Ayer%27s+Cliff%2C+QC+J0B+1C0";
 
 const OPEN_HOUSE_POST = {
@@ -80,10 +82,30 @@ const VOLUNTEER_INTERVIEW_POST = {
   taskOwnersVersion: "event-task-owners-2026-07-11-volunteer-interview-v2"
 };
 
+function buildAlternative(spec) {
+  const nature = spec.t === "Nature";
+  return {
+    ...spec,
+    tier: "Passerelle",
+    source: nature ? "Illustration originale à valider avec une référence naturaliste fiable avant diffusion; elle ne prouve pas une présence locale." : "Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.",
+    fallback: "Visuel typographique sobre ou photo réelle autorisée correspondant exactement au sujet.",
+    kpi: "Commentaires utiles / enregistrements / partages",
+    task: "Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.",
+    copy: `FR — ${spec.fr}\n\n#BleuMassawippi #LacMassawippi #Estrie\n\n=========================================\n\nEN — ${spec.en}\n\n#BleuMassawippi #LakeMassawippi #EasternTownships`,
+    optionGroup: spec.id.replace("alt-", ""),
+    optionLabel: "Option B — " + spec.title,
+    choiceRequired: true,
+    isAlternative: true,
+    tasksValentin: ["Vérifier la source primaire et les limites du propos.", `Produire le format « ${spec.format} » avec texte alternatif et lisibilité mobile.`, "Finaliser la légende FR / EN, soumettre les validations et programmer seulement après décision."],
+    tasksAnnie: spec.t === "Communauté" || spec.t === "Patrimoine" ? ["Confirmer le contexte institutionnel, les droits et les renseignements sensibles avant diffusion."] : ["Signaler toute limite institutionnelle ou locale nécessitant une correction."],
+    taskOwnersVersion: "event-task-owners-2026-07-11-alternatives-v1"
+  };
+}
+
 export function applyPlanOverridesToPosts(posts) {
   if (!Array.isArray(posts)) return posts;
   const first = posts.find((post) => post.id === "s1d1");
-  if (first) Object.assign(first, OPEN_HOUSE_POST);
+  if (first) Object.assign(first, OPEN_HOUSE_POST, { decisionLocked: true });
   const moved = posts.find((post) => post.id === "s1d1b");
   if (moved) {
     Object.assign(moved, {
@@ -107,6 +129,14 @@ export function applyPlanOverridesToPosts(posts) {
     optionLabel: null,
     role: "Publication pratique retenue pour le premier mardi pendant que le portrait bénévole est préparé pour une semaine ultérieure."
   });
+  const fixedContest = posts.find((post) => post.id === "s3d3");
+  if (fixedContest) fixedContest.decisionLocked = true;
+  for (const spec of ALTERNATIVE_SPECS) {
+    const group = spec.id.replace("alt-", "");
+    const originals = posts.filter((post) => post.date === spec.date && !String(post.id).startsWith("alt-"));
+    originals.forEach((post, index) => Object.assign(post, { choiceRequired: true, optionGroup: group, optionLabel: `Option ${String.fromCharCode(65 + index)} — ${post.title}` }));
+    if (!posts.some((post) => post.id === spec.id)) posts.push(buildAlternative(spec));
+  }
   return posts;
 }
 

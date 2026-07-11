@@ -61,7 +61,7 @@ async function readRecent(collectionName) {
 
 await fs.mkdir(outputDir, { recursive: true });
 
-const [scheduleItems, comments, logs, feedback, tasks, changeArchive, contentVersions, mediaLinks, workflowStates] = await Promise.all([
+const [scheduleItems, comments, logs, feedback, tasks, changeArchive, contentVersions, mediaLinks, workflowStates, editorialDecisions] = await Promise.all([
   readRecent("scheduleItems"),
   readRecent("comments"),
   readRecent("auditLogs"),
@@ -70,7 +70,8 @@ const [scheduleItems, comments, logs, feedback, tasks, changeArchive, contentVer
   readRecent("changeArchive"),
   readRecent("privateContentVersions"),
   readRecent("mediaLinks"),
-  readRecent("workflowStates")
+  readRecent("workflowStates"),
+  readRecent("editorialDecisions")
 ]);
 
 const changedScheduleItems = scheduleItems.filter((row) =>
@@ -174,7 +175,8 @@ const summary = {
     createdAt: dateValue(row.createdAt)?.toISOString() || null,
     updatedAt: dateValue(row.updatedAt)?.toISOString() || null
   })),
-  workflowStates: workflowStates.map((row) => ({ id: row.id, eventId: row.eventId || row.id, stage: row.stage || "proposal", updatedByLabel: row.updatedByLabel || null, updatedAt: dateValue(row.updatedAt)?.toISOString() || null }))
+  workflowStates: workflowStates.map((row) => ({ id: row.id, eventId: row.eventId || row.id, stage: row.stage || "proposal", updatedByLabel: row.updatedByLabel || null, updatedAt: dateValue(row.updatedAt)?.toISOString() || null })),
+  editorialDecisions: editorialDecisions.map((row) => ({ id: row.id, eventId: row.eventId || row.id, decision: row.decision || "undecided", updatedByLabel: row.updatedByLabel || null, updatedAt: dateValue(row.updatedAt)?.toISOString() || null }))
 };
 
 const outputFile = path.join(outputDir, "sync-summary.json");
@@ -189,5 +191,6 @@ console.log(JSON.stringify({
   changeArchive: summary.changeArchive.length,
   privateContentVersions: summary.privateContentVersions.length,
   mediaLinks: summary.mediaLinks.length,
-  workflowStates: summary.workflowStates.length
+  workflowStates: summary.workflowStates.length,
+  editorialDecisions: summary.editorialDecisions.length
 }, null, 2));

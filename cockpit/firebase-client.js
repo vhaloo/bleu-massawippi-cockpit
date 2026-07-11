@@ -420,6 +420,30 @@ export function subscribeOpportunityStates(callback, onError) {
   return onSnapshot(collection(db, "opportunityStates"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
 }
 
+const editorialDecisionValues = new Set(["undecided", "chosen", "deferred", "rejected"]);
+
+export async function setEditorialDecision(eventId, decision, profile) {
+  requireConfigured();
+  if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas arbitrer cette proposition.");
+  if (!/^[a-z0-9-]{3,80}$/i.test(String(eventId || "")) || !editorialDecisionValues.has(decision)) throw new Error("Décision éditoriale invalide.");
+  const reference = doc(db, "editorialDecisions", eventId);
+  const existing = await getDoc(reference);
+  const before = existing.exists() ? existing.data() : {};
+  await setDoc(reference, {
+    eventId,
+    decision,
+    updatedAt: serverTimestamp(),
+    updatedBy: profile.uid,
+    updatedByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120)
+  }, { merge: true });
+  await appendChangeArchive("editorialDecision", eventId, "arbitrage : " + decision, { decision: before.decision || "undecided" }, { decision }, profile);
+}
+
+export function subscribeEditorialDecisions(callback, onError) {
+  requireConfigured();
+  return onSnapshot(collection(db, "editorialDecisions"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+}
+
 function normalizeMediaUrl(value) {
   let parsed;
   try {
