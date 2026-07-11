@@ -65,6 +65,10 @@ style.textContent = `
   .cockpit-toast.error { background: #9a4035; }
   .cockpit-controls { margin: 2px 16px 13px 20px; padding: 11px; border: 1px solid #d6e8ea; border-radius: 13px; background: #f7fbfb; }
   .cockpit-status-row, .cockpit-comment-row, .cockpit-quick-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .cockpit-decision-guide { margin:0 0 9px; padding:10px 11px; border:1px solid #b9dde2; border-radius:11px; color:#315d6b; background:#eef9fa; font-size:.72rem; line-height:1.45; }
+  .cockpit-decision-guide b { display:block; margin-bottom:3px; color:#073a52; font-size:.76rem; }
+  .cockpit-control-label { flex-basis:100%; margin:0 0 2px; color:#315564; font-size:.7rem; font-weight:900; }
+  .cockpit-control-help { flex-basis:100%; margin:1px 0 3px; color:#67828d; font-size:.66rem; line-height:1.38; }
   .cockpit-status-row button, .cockpit-quick-row button { padding: 5px 8px; border: 1px solid #d1e3e6; border-radius: 999px; color: #3f6370; background: #fff; font-size: .71rem; font-weight: 800; cursor: pointer; }
   .cockpit-controls button:disabled, .cockpit-controls textarea:disabled, .cockpit-controls input:disabled { cursor: not-allowed; opacity: .56; }
   body.cockpit-readonly .cockpit-controls { background: #f3f6f6; }
@@ -96,6 +100,7 @@ style.textContent = `
   .cockpit-media-gallery { display: flex; gap: 9px; overflow-x: auto; padding: 3px 1px 9px; scroll-snap-type: x proximity; }
   .cockpit-media-empty { margin: 4px 0 9px; color: #67828d; font-size: .72rem; }
   .cockpit-media-card { position: relative; flex: 0 0 min(220px, 78vw); overflow: hidden; scroll-snap-align: start; border: 1px solid #d3e6e8; border-radius: 11px; background: #f7fbfb; }
+  .cockpit-media-card.is-final { border:3px solid #21866d; box-shadow:0 0 0 3px rgba(33,134,109,.14); }
   .cockpit-media-preview { display: grid; min-height: 128px; place-items: center; overflow: hidden; color: #0b6077; background: #e9f4f5; text-decoration: none; }
   .cockpit-media-preview img { display: block; width: 100%; height: 150px; object-fit: cover; }
   .cockpit-media-icon { font-size: 2rem; }
@@ -103,6 +108,11 @@ style.textContent = `
   .cockpit-media-meta b { display: block; overflow: hidden; color: #174e62; font-size: .73rem; text-overflow: ellipsis; white-space: nowrap; }
   .cockpit-media-meta p { margin: 3px 0 0; color: #64808a; font-size: .66rem; line-height: 1.35; }
   .cockpit-media-stage { display: inline-block; margin-top: 5px; padding: 2px 6px; border-radius: 999px; color: #0b6077; background: #dff3f3; font-size: .61rem; font-weight: 850; }
+  .cockpit-media-final-badge { display:block; margin-top:6px; color:#155c4e; font-size:.66rem; font-weight:900; }
+  .cockpit-media-final-action { width:calc(100% - 16px); margin:0 8px 9px; padding:7px; border:1px solid #21866d; border-radius:8px; color:#155c4e; background:#e3f5ee; font-size:.66rem; font-weight:900; cursor:pointer; }
+  .cockpit-media-comment { display:grid; grid-template-columns:1fr auto; gap:6px; margin:0 8px 9px; }
+  .cockpit-media-comment input { min-width:0; padding:7px; border:1px solid #c9dde0; border-radius:8px; color:#294d59; background:#fff; font-size:.66rem; }
+  .cockpit-media-comment button { padding:7px 9px; border:1px solid #0b7895; border-radius:8px; color:#fff; background:#0b7895; font-size:.66rem; font-weight:900; cursor:pointer; }
   .cockpit-media-card button[data-archive-media] { position: absolute; top: 6px; right: 6px; min-width: 27px; padding: 4px; border: 1px solid rgba(255,255,255,.75); border-radius: 999px; color: #fff; background: rgba(68,48,48,.76); cursor: pointer; }
   .cockpit-media-form { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(120px,.8fr) auto; gap: 6px; padding-top: 9px; border-top: 1px solid #d8e8ea; }
   .cockpit-media-form input, .cockpit-media-form select { min-width: 0; padding: 7px; border: 1px solid #d1e3e6; border-radius: 8px; color: #264a58; background: #fff; font: inherit; font-size: .7rem; }
@@ -113,14 +123,25 @@ style.textContent = `
   .cockpit-media-note { margin: 0; color: #6b858d; font-size: .65rem; }
   .cockpit-brand-logo { display:block; width:clamp(115px,14vw,190px); height:auto; margin:0 0 14px; object-fit:contain; }
   .mast .cockpit-brand-logo { display:inline-block; width:96px; margin:0 10px 0 0; vertical-align:middle; }
-  .cockpit-workflow { margin:10px 0 0; padding:10px; border:1px solid #cfe3e6; border-radius:12px; background:#fff; }
-  .cockpit-workflow h5 { margin:0 0 7px; color:#174e62; font-size:.77rem; }
+  .cockpit-workflow { margin:12px 0 0; padding:13px; border:2px solid #8dcfd4; border-radius:14px; background:#f8fdfd; box-shadow:0 7px 18px rgba(7,58,82,.07); }
+  .cockpit-workflow h5 { margin:0; color:#073a52; font-size:.86rem; }
+  .cockpit-workflow-intro { margin:3px 0 10px; color:#587680; font-size:.69rem; line-height:1.4; }
   .cockpit-workflow-gates { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
-  .cockpit-workflow-gate { padding:7px; border:1px solid #d5e6e8; border-radius:9px; color:#607b85; background:#f4f8f9; font-size:.66rem; text-align:center; }
+  .cockpit-workflow-gate { position:relative; min-height:76px; padding:9px 8px 8px 32px; border:1px solid #d5e6e8; border-radius:10px; color:#607b85; background:#f4f8f9; font-size:.66rem; text-align:left; }
+  .cockpit-workflow-gate:before { position:absolute; left:9px; top:10px; display:grid; width:17px; height:17px; place-items:center; border:2px solid #9db4bc; border-radius:5px; content:""; color:#fff; background:#fff; font-size:.7rem; font-weight:900; }
+  .cockpit-workflow-gate b { display:block; margin-bottom:3px; color:#315564; font-size:.7rem; }
+  .cockpit-workflow-gate span { display:block; line-height:1.35; }
   .cockpit-workflow-gate.done { color:#155c4e; border-color:#8ec8b5; background:#e3f5ee; font-weight:850; }
+  .cockpit-workflow-gate.done:before { border-color:#21866d; content:"✓"; background:#21866d; }
+  .cockpit-workflow-gate.current { border-color:#d7a33f; background:#fff8e8; box-shadow:0 0 0 2px rgba(215,163,63,.13); }
   .cockpit-workflow-actions { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
-  .cockpit-workflow-actions button { padding:6px 8px; border:1px solid #0b7895; border-radius:999px; color:#0b6077; background:#fff; font-size:.66rem; font-weight:850; cursor:pointer; }
-  .cockpit-workflow-actions button.primary { color:#fff; background:#0b7895; }
+  .cockpit-workflow-actions button { min-height:38px; padding:8px 11px; border:1px solid #0b7895; border-radius:10px; color:#0b6077; background:#fff; font-size:.7rem; font-weight:900; cursor:pointer; }
+  .cockpit-workflow-actions button.primary { color:#fff; background:#0b7895; box-shadow:0 5px 13px rgba(11,120,149,.2); }
+  .cockpit-workflow-actions button.correction { color:#7a4d10; border-color:#d7a33f; background:#fff8e8; }
+  .cockpit-workflow-complete { margin:8px 0 0; padding:8px 10px; border-radius:9px; color:#155c4e; background:#e3f5ee; font-size:.7rem; font-weight:850; }
+  .post.workflow-complete { box-shadow:0 0 0 2px rgba(33,134,109,.18); }
+  .post.workflow-complete:after { position:absolute; top:10px; right:10px; z-index:2; padding:3px 7px; border-radius:999px; content:"✓ Terminé"; color:#155c4e; background:#dff4ea; font-size:.62rem; font-weight:900; }
+  .ready { display:none !important; }
   .cockpit-thread { margin-top:10px; padding-top:9px; border-top:1px solid #d8e8ea; }
   .cockpit-thread h5 { margin:0 0 7px; color:#174e62; font-size:.76rem; }
   .cockpit-thread-empty { margin:0; color:#718993; font-size:.68rem; }
@@ -424,6 +445,7 @@ const feedbackSectionLabels = {
   cadence: "La cadence choisie",
   collaboration: "Le mode de collaboration",
   validation: "Validation avant diffusion",
+  projets: "Projets et candidatures",
   calendrier: "Calendrier opérationnel",
   production: "Production durable",
   pilotage: "Pilotage et apprentissage",
@@ -876,6 +898,8 @@ function renderMediaForCard(card) {
   const count = card.querySelector("[data-media-count]");
   if (!gallery || !count) return;
   const rows = (state.mediaByEvent.get(card.dataset.itemId) || []).filter((row) => row.archived !== true && safeMediaUrl(row.url));
+  const decisions = (state.commentsByEvent.get(card.dataset.itemId) || []).filter((row) => row.deleted !== true && /^\[MÉDIA RETENU:/.test(row.comment || ""));
+  const latestDecision = decisions.at(-1)?.comment || "";
   count.textContent = String(rows.length);
   if (!rows.length) {
     gallery.innerHTML = `<p class="cockpit-media-empty">Aucun média lié. Déposez le fichier dans OneDrive, créez un lien de consultation, puis ajoutez-le ici.</p>`;
@@ -887,9 +911,11 @@ function renderMediaForCard(card) {
     const visual = preview
       ? `<img data-media-preview src="${esc(preview)}" alt="${esc(row.label || "Aperçu du média")}" loading="lazy">`
       : `<span class="cockpit-media-icon" aria-hidden="true">${mediaKindIcons[row.kind] || "🔗"}</span>`;
-    return `<article class="cockpit-media-card" data-media-id="${esc(row.id)}">
+    const isFinal = latestDecision.startsWith(`[MÉDIA RETENU:${row.id}]`);
+    return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}" data-media-id="${esc(row.id)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
-      <div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span></div>
+      <div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span>${isFinal ? `<span class="cockpit-media-final-badge">✓ Média final retenu par la direction</span>` : ""}</div>
+      ${state.profile?.role === "director" ? `<button type="button" class="cockpit-media-final-action" data-select-final-media="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${isFinal}">${isFinal ? "✓ Média final choisi" : "Choisir ce média"}</button><div class="cockpit-media-comment"><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button></div>` : ""}
       ${canEdit() ? `<button type="button" data-archive-media="${esc(row.id)}" aria-label="Archiver ce lien média" title="Archiver sans supprimer">×</button>` : ""}
     </article>`;
   }).join("");
@@ -930,30 +956,51 @@ const workflowOrder = ["proposal", "content_review", "changes_requested", "conte
 function workflowRank(stage) { return workflowOrder.indexOf(stage || "proposal"); }
 
 function workflowMarkup(planItem) {
-  return `<section class="cockpit-workflow" data-workflow><h5>Cycle de validation</h5><div class="cockpit-workflow-gates"><div class="cockpit-workflow-gate" data-gate="content">1 · Texte et concept approuvés</div><div class="cockpit-workflow-gate" data-gate="media">2 · Média final approuvé</div><div class="cockpit-workflow-gate" data-gate="publication">3 · Publication programmée</div></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div></section>`;
+  return `<section class="cockpit-workflow" data-workflow><h5>Les 3 feux verts</h5><p class="cockpit-workflow-intro">La direction valide d’abord le texte, puis le visuel. Lorsque les deux cases sont vertes, les communications peuvent publier et terminer l’événement.</p><div class="cockpit-workflow-gates"><div class="cockpit-workflow-gate" data-gate="content"><b>1 · Texte</b><span data-gate-label>À valider par la direction</span></div><div class="cockpit-workflow-gate" data-gate="media"><b>2 · Visuel</b><span data-gate-label>Commence après le texte</span></div><div class="cockpit-workflow-gate" data-gate="publication"><b>3 · Terminé</b><span data-gate-label>Publié ou programmé</span></div></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
 }
 
 function renderWorkflow(card) {
   const row = state.workflows.get(card.dataset.itemId) || { stage: "proposal" };
   const stage = row.stage || "proposal";
-  card.querySelector('[data-gate="content"]')?.classList.toggle("done", ["content_approved","media_review","final_approved","scheduled","published"].includes(stage));
-  card.querySelector('[data-gate="media"]')?.classList.toggle("done", ["final_approved","scheduled","published"].includes(stage));
-  card.querySelector('[data-gate="publication"]')?.classList.toggle("done", ["scheduled","published"].includes(stage));
+  const contentDone = ["content_approved","media_review","final_approved","scheduled","published"].includes(stage);
+  const mediaDone = ["final_approved","scheduled","published"].includes(stage);
+  const publicationDone = ["scheduled","published"].includes(stage);
+  const contentGate = card.querySelector('[data-gate="content"]');
+  const mediaGate = card.querySelector('[data-gate="media"]');
+  const publicationGate = card.querySelector('[data-gate="publication"]');
+  contentGate?.classList.toggle("done", contentDone);
+  mediaGate?.classList.toggle("done", mediaDone);
+  publicationGate?.classList.toggle("done", publicationDone);
+  [contentGate,mediaGate,publicationGate].forEach((gate) => gate?.classList.remove("current"));
+  if (!contentDone) contentGate?.classList.add("current"); else if (!mediaDone) mediaGate?.classList.add("current"); else if (!publicationDone) publicationGate?.classList.add("current");
+  const contentLabel = contentGate?.querySelector("[data-gate-label]");
+  const mediaLabel = mediaGate?.querySelector("[data-gate-label]");
+  const publicationLabel = publicationGate?.querySelector("[data-gate-label]");
+  if (contentLabel) contentLabel.textContent = contentDone ? "Approuvé par la direction" : (stage === "changes_requested" ? "Corrections demandées" : stage === "content_review" ? "Prêt pour la direction" : "En préparation");
+  if (mediaLabel) mediaLabel.textContent = mediaDone ? "Approuvé par la direction" : (stage === "media_review" ? "Prêt pour la direction" : contentDone ? "En production" : "Attend le texte");
+  if (publicationLabel) publicationLabel.textContent = publicationDone ? "Publié ou programmé" : mediaDone ? "Prêt à publier" : "Attend les 2 validations";
+  card.classList.toggle("workflow-complete", publicationDone);
+  const completeNote = card.querySelector("[data-workflow-complete]");
+  if (completeNote) completeNote.hidden = !publicationDone;
   const actions = card.querySelector("[data-workflow-actions]");
   if (!actions) return;
   const buttons = [];
   if (state.profile?.role === "admin") {
-    if (workflowRank(stage) < workflowRank("content_approved") || stage === "changes_requested") buttons.push(["content_review","Soumettre texte / concept","primary"]);
-    if (["content_approved","media_review"].includes(stage)) buttons.push(["media_review","Média prêt à valider","primary"]);
-    if (stage === "final_approved") buttons.push(["scheduled","Marquer programmé","primary"]);
-    if (stage === "scheduled") buttons.push(["published","Marquer publié",""]);
+    if (["proposal","changes_requested"].includes(stage)) buttons.push(["content_review","Texte prêt — envoyer à la direction","primary"]);
+    if (["content_approved"].includes(stage)) buttons.push(["media_review","Visuel prêt — envoyer à la direction","primary"]);
+    if (["final_approved","scheduled"].includes(stage)) buttons.push(["published","✓ Terminer — publié ou programmé","primary"]);
   }
   if (state.profile?.role === "director") {
-    if (["proposal","content_review","changes_requested"].includes(stage)) buttons.push(["content_approved","Approuver texte + concept","primary"]);
-    if (["media_review","content_approved"].includes(stage)) buttons.push(["final_approved","Approuver l’ensemble final","primary"]);
-    if (!["published"].includes(stage)) buttons.push(["changes_requested","Demander des corrections",""]);
+    if (["content_review","proposal","changes_requested"].includes(stage)) buttons.push(["content_approved","✓ Approuver le texte et le concept","primary"]);
+    if (stage === "content_review") buttons.push(["changes_requested","Correction demandée au texte","correction"]);
+    const mediaDecision = (state.commentsByEvent.get(card.dataset.itemId) || []).filter((comment) => comment.deleted !== true && /^\[MÉDIA RETENU:/.test(comment.comment || "")).at(-1);
+    const finalMediaCount = mediaDecision ? 1 : 0;
+    if (stage === "media_review" && finalMediaCount > 0) buttons.push(["final_approved",`✓ Approuver ${finalMediaCount > 1 ? finalMediaCount + " médias retenus" : "le média retenu"}`,"primary"]);
+    if (stage === "media_review" && finalMediaCount === 0) buttons.push(["","Choisir d’abord un média ci-dessus","disabled"]);
+    if (stage === "media_review") buttons.push(["changes_requested","Correction demandée au visuel","correction"]);
   }
-  actions.innerHTML = buttons.map(([value,label,kind]) => `<button type="button" class="${kind}" data-workflow-stage="${value}">${label}</button>`).join("") || `<span class="cockpit-media-note">Étape actuelle : ${esc(stage.replaceAll("_", " "))}</span>`;
+  const waiting = state.profile?.role === "director" && stage === "content_approved" ? "Le texte est approuvé. Les communications produisent maintenant le visuel." : state.profile?.role === "director" && stage === "final_approved" ? "Vos deux validations sont faites. Les communications peuvent publier." : publicationDone ? "Événement terminé; rien ne disparaît de la base de données." : `Étape actuelle : ${stage.replaceAll("_", " ")}`;
+  actions.innerHTML = buttons.map(([value,label,kind]) => `<button type="button" class="${kind}" ${value ? `data-workflow-stage="${value}"` : "disabled"}>${label}</button>`).join("") || `<span class="cockpit-media-note">${esc(waiting)}</span>`;
 }
 
 function renderCommentThread(card) {
@@ -992,11 +1039,14 @@ function enhanceCards() {
     controls.className = "cockpit-controls";
     controls.innerHTML = `
       ${planItem.choiceRequired ? `<label class="cockpit-choice-row"><input type="checkbox" data-choice="${esc(planItem.id)}" ${isChoiceSelected(planItem) ? "checked" : ""}><span>${esc(planItem.optionLabel || "Choisir cette option")}</span><small>Une seule option par journée</small></label>` : ""}
+      <div class="cockpit-decision-guide"><b>${state.profile?.role === "director" ? "Pour la direction : deux validations seulement" : "Lecture rapide de l’événement"}</b>${state.profile?.role === "director" ? "1. Approuver le texte. 2. Plus tard, approuver le visuel. Les boutons ci-dessous servent aux avis rapides; les deux vrais feux verts sont dans le bloc « Les 3 feux verts »." : "Les avis rapides alimentent le fil. Le bloc « Les 3 feux verts » indique exactement la prochaine action à accomplir."}</div>
       <div class="cockpit-status-row" aria-label="Statut de la publication">
+        <p class="cockpit-control-label">Avis rapide sur la proposition</p>
         <button type="button" data-status="approved" aria-pressed="false">🟢 Approuvé</button>
         <button type="button" data-status="needs_work" aria-pressed="false">🟡 À retravailler</button>
         <button type="button" data-status="pending" aria-pressed="false">⚪ En attente</button>
         <button type="button" data-status="deleted" aria-label="Masquer virtuellement cette ligne" title="Masquer virtuellement cette ligne">✕</button>
+        <p class="cockpit-control-help"><b>Approuvé</b> : l’idée est retenue. <b>À retravailler</b> : une correction est nécessaire. <b>En attente</b> : aucune décision pour le moment. Ces avis ne remplacent pas l’approbation officielle du texte et du visuel.</p>
       </div>
       <div class="cockpit-comment-row">
         <textarea data-comment maxlength="5000" spellcheck="true" autocapitalize="sentences" inputmode="text" placeholder="Ajouter une consigne ou un commentaire…" aria-label="Commentaire de pilotage"></textarea>
@@ -1005,9 +1055,11 @@ function enhanceCards() {
         <div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro, puis autorisez le microphone si demandé.</div>
       </div>
       <div class="cockpit-quick-row" aria-label="Badges rapides">
+        <p class="cockpit-control-label">Ajouter une consigne rapide au fil</p>
         <button type="button" data-tag="cancel">🔴 À annuler</button>
         <button type="button" data-tag="delay">🟡 À décaler</button>
         <button type="button" data-tag="perfect">🟢 Parfait</button>
+        <p class="cockpit-control-help"><b>À annuler</b> : retirer de la programmation sans supprimer l’historique. <b>À décaler</b> : déplacer à une autre date. <b>Parfait</b> : aucune correction sur l’élément commenté; ce n’est pas encore le feu vert final.</p>
       </div>
       ${workflowMarkup(planItem)}
       ${mediaControlsMarkup(planItem)}
@@ -1377,7 +1429,7 @@ function enhanceCardEvents() {
         .then(async () => {
           const planItem = getPlanItem(card);
           if (state.profile.role === "director" && ["content_approved","final_approved","changes_requested"].includes(workflowButton.dataset.workflowStage)) {
-            await recordActionTask(`workflow-${card.dataset.itemId}`, { status: workflowButton.dataset.workflowStage === "changes_requested" ? "pending" : "pending", title: workflowButton.dataset.workflowStage === "final_approved" ? `Prêt à programmer — ${planItem?.title}` : `Cycle de validation — ${planItem?.title}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${planItem?.title || ""}`, message:`Nouvelle étape : ${workflowButton.textContent.trim()}.\n\n${responsibilitySummary(planItem)}` });
+            await recordActionTask(`workflow-${card.dataset.itemId}`, { status: "pending", title: workflowButton.dataset.workflowStage === "final_approved" ? `Prêt à publier — ${planItem?.title}` : `Cycle de validation — ${planItem?.title}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${planItem?.title || ""}`, message:`Nouvelle étape : ${workflowButton.textContent.trim()}.\n\n${responsibilitySummary(planItem)}` });
           }
           toast("Étape de validation enregistrée.");
         }).catch((error) => toast(error.message, true));
@@ -1411,6 +1463,42 @@ function enhanceCardEvents() {
       archiveMediaLink(archiveButton.dataset.archiveMedia, state.profile)
         .then(() => toast("Lien média archivé."))
         .catch((error) => toast(error.message, true));
+      return;
+    }
+    const finalMediaButton = event.target.closest("button[data-select-final-media]");
+    if (finalMediaButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (finalMediaButton.getAttribute("aria-pressed") === "true") {
+        toast("Ce média est déjà le choix final.");
+        return;
+      }
+      const mediaId = finalMediaButton.dataset.selectFinalMedia;
+      const label = finalMediaButton.dataset.mediaLabel || "Média OneDrive";
+      addComment(card.dataset.itemId, `[MÉDIA RETENU:${mediaId}] ${label}`, state.profile, null, false)
+        .then(async (commentId) => {
+          const planItem = getPlanItem(card);
+          await recordActionTask(`media-choice-${commentId}`, { status:"pending", title:`Média retenu — ${planItem?.title || card.dataset.itemId}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${label}`, message:`La direction a retenu « ${label} » comme média final.` });
+          toast("Média final retenu. La décision est conservée dans le fil.");
+        }).catch((error) => toast(error.message, true));
+      return;
+    }
+    const mediaCommentButton = event.target.closest("button[data-save-media-comment]");
+    if (mediaCommentButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      const mediaId = mediaCommentButton.dataset.saveMediaComment;
+      const input = card.querySelector(`input[data-media-comment="${CSS.escape(mediaId)}"]`);
+      const note = input?.value.trim() || "";
+      if (!note) { toast("Écrivez d’abord votre commentaire sur ce média.", true); return; }
+      const label = mediaCommentButton.dataset.mediaLabel || "Média OneDrive";
+      addComment(card.dataset.itemId, `🎨 Média « ${label} » : ${note}`, state.profile, null, false)
+        .then(async (commentId) => {
+          const planItem = getPlanItem(card);
+          await recordActionTask(`media-comment-${commentId}`, { status:"pending", title:`Commentaire média — ${planItem?.title || card.dataset.itemId}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${label}`, message:note });
+          input.value = "";
+          toast("Commentaire sur le média enregistré.");
+        }).catch((error) => toast(error.message, true));
       return;
     }
     const statusButton = event.target.closest("button[data-status]");
@@ -1600,12 +1688,13 @@ function subscribeRemoteData() {
     });
     state.mediaByEvent = grouped;
     renderAllMedia();
+    renderAllCollaboration();
   }, (error) => toast("Les liens médias ne sont pas accessibles : " + error.message, true));
   state.commentsUnsubscribe?.();
   state.commentsUnsubscribe = subscribeComments((rows) => {
     const grouped = new Map();
     rows.forEach((row) => { const id=String(row.sectionId||""); if(!grouped.has(id)) grouped.set(id,[]); grouped.get(id).push(row); });
-    state.commentsByEvent = grouped; renderAllCollaboration();
+    state.commentsByEvent = grouped; renderAllCollaboration(); renderAllMedia();
   }, (error) => toast("Le fil de commentaires n’est pas accessible : " + error.message, true));
   state.workflowUnsubscribe?.();
   state.workflowUnsubscribe = subscribeWorkflowStates((rows) => {
