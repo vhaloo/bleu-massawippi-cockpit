@@ -8,16 +8,18 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <script>try{const t=localStorage.getItem("bleu-massawippi-theme");document.documentElement.dataset.theme=t==="dark"||t==="light"?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch{}</script>
   <link rel="manifest" href="./manifest.webmanifest">
   <title>Bleu Massawippi — Cockpit de collaboration</title>
 </head>
 <body>
   <main id="cockpit-content" aria-live="polite"></main>
   <noscript>Ce cockpit nécessite JavaScript pour ouvrir une session sécurisée.</noscript>
-  <script src="./firebase-config.js?v=20260711-auth-fix-v2"></script>
+  <script src="./firebase-config.js?v=20260711-stable-v3"></script>
   <script>
     if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch((error) => console.warn("Service worker indisponible", error)));
   </script>
-  <script type="module" src="./cockpit-ui.js?v=20260711-auth-fix-v2"></script>
+  <script type="module" src="./theme.js?v=20260711-stable-v3"></script>
+  <script type="module" src="./cockpit-ui.js?v=20260711-stable-v3"></script>
 </body>
 </html>

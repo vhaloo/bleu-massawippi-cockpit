@@ -1,6 +1,6 @@
-# Plan d’attaque — été 2026 V2 stratégique
+# Plan d’attaque 2026 — cockpit permanent
 
-**Période :** lundi 13 juillet au dimanche 9 août 2026  
+**Séquence initiale :** lundi 13 juillet au dimanche 9 août 2026, extensible sans limite fixe
 **Statut :** proposition opérationnelle prête à présenter et à ajuster avec la direction générale  
 **Livrable principal :** ouvrir `index.html` dans un navigateur.
 
@@ -11,6 +11,8 @@
 La synthèse `SYNTHESE_TRANSCRIPT_COORDINATION_DG_COMMUNICATIONS_2026-07-10.md` distingue les orientations claires du transcript vocal et les éléments qui doivent encore être vérifiés. Le cockpit intègre désormais le mode de collaboration, la priorité aux formats soutenables, la stratégie d’alliés et les garde-fous renforcés pour les sujets scientifiques, historiques, autochtones, environnementaux et financiers.
 
 Le haut du cockpit commence par un « Lire-moi » repliable et un schéma du flux asynchrone. Le contexte stratégique peut être minimisé pour accéder directement au calendrier; chaque événement affiche maintenant les tâches respectives de Valentin et de la direction générale, avec un bouton d’ajout au calendrier qui adapte sa description au rôle connecté.
+
+Le chemin de production est volontairement textuel et stable : aucun téléversement de fichier ou d’image n’est actif. Le thème clair/sombre est réglable à la volée et conservé uniquement sur l’appareil.
 
 ## Ce qui est nouveau
 

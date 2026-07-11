@@ -31,7 +31,6 @@ jobs:
           npm ci --prefix cockpit
           node --check finaliser_textes_publications.js
           node --check cockpit/plan-overrides.js
-          node --check cockpit/seed_open_house_attachments.js
           node finaliser_textes_publications.js
           npm --prefix cockpit run seed -- --dry-run
           npm --prefix cockpit run test:contract
@@ -49,6 +48,10 @@ jobs:
             echo 'Clé Gemini codée en dur détectée dans le dépôt.'
             exit 1
           fi
+          if git grep -n -E -- '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|private_key_id[[:space:]]*[:=]|client_secret[[:space:]]*[:=]' -- ':!*.md'; then
+            echo 'Secret privé ou clé de service détecté dans le dépôt.'
+            exit 1
+          fi
   deploy:
     needs: validate
     environment:
@@ -64,7 +67,7 @@ jobs:
           cp cockpit/index.html public/
           cp cockpit/cockpit-ui.js public/
           cp cockpit/firebase-client.js public/
-          cp cockpit/plan-overrides.js public/
+          cp cockpit/theme.js public/
           cp cockpit/firebase-config.js public/
           cp cockpit/manifest.webmanifest public/
           cp cockpit/sw.js public/

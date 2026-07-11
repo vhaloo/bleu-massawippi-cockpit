@@ -2,7 +2,7 @@
 
 Le dossier contient une nouvelle copie interactive du plan. Le HTML de présentation situé au niveau supérieur n’est pas modifié par le cockpit.
 
-Le volet des pièces jointes est conservé pour une reprise ultérieure, mais il est suspendu dans l’interface actuelle : aucune image n’est chargée ni synchronisée, et le module Firebase Storage n’est plus importé par le chemin de production. Le parcours actif est volontairement centré sur le calendrier, les décisions, les commentaires, les tâches et les autres contenus textuels.
+Le volet des pièces jointes est désactivé : aucune image n’est chargée ni synchronisée, Firebase Storage refuse toute opération et le module Storage n’est pas importé par le chemin de production. Le parcours actif est volontairement centré sur le calendrier, les décisions, les commentaires, les tâches et les autres contenus textuels.
 
 ## État livré
 
@@ -10,7 +10,6 @@ Le volet des pièces jointes est conservé pour une reprise ultérieure, mais il
 - firebase-client.js : SDK Web Firebase modulaire, version CDN 12.15.0; Auth reste persistant, tandis que Firestore utilise un cache mémoire multi-onglets sûr par défaut pour éviter les verrous IndexedDB. Le mode hors ligne explicite se teste avec `?offline=1`.
 - cockpit-ui.js : couche d’interface et de pilotage, choix d’option par journée, responsabilités Valentin / Annie pour chaque événement, tâches administratives cliquables, rétroaction par section, boîte à idées flottante, dictée progressive Chrome / Edge / Safari, calendrier contextualisé et installation PWA.
 - admin_sync.js : pont local Firebase Admin pour lire les modifications du calendrier, les commentaires, les rétroactions, les tâches et l’archive append-only.
-- check_firebase_storage.mjs : vérification locale, sans écriture, de la facturation, de l’API Storage et du bucket par défaut; aucune information secrète n’est affichée.
 - seed_private_content.js : charge localement le plan, les 28 publications principales, les six alternatives et leurs états dans Firestore, après configuration du compte de service.
 - ../refine_calendar.js : réorganise les dates pour éviter les répétitions voisines et génère les six journées à choix exclusif.
 - provision_users.js : crée ou raccorde les deux comptes autorisés et leurs rôles, en lisant les adresses et mots de passe uniquement depuis des variables de session.
@@ -30,7 +29,7 @@ Activez ensuite :
 
 1. Authentication → Sign-in method → Email/Password.
 2. Firestore Database en mode production.
-3. Les ressources statiques restent versionnées dans le dépôt GitHub Pages; les photos dynamiques passent par la conversion locale puis Firebase Storage. Depuis la modification du modèle de facturation Firebase, la création d’un bucket Storage exige le forfait Blaze (pay-as-you-go), même si les volumes du cockpit restent volontairement sous le niveau gratuit.
+3. Les ressources statiques restent versionnées dans le dépôt GitHub Pages. Aucun stockage de fichier dynamique n’est activé.
 4. Ajoutez votre domaine GitHub Pages dans Authentication → Settings → Authorized domains. Un domaine *.github.io doit utiliser HTTPS.
 
 Enregistrez une application Web et copiez sa configuration dans firebase-config.js. La configuration Web est nécessairement visible côté navigateur; elle ne remplace pas les règles Firestore, qui constituent la barrière réelle.
@@ -128,11 +127,7 @@ Le fichier firebase.json est inclus pour publier uniquement les règles Firebase
     firebase use identifiant-du-projet
     firebase deploy --only firestore:rules,storage
 
-Avant toute tentative, la vérification non destructive peut être lancée ainsi :
-
-    npm run check:storage
-
-Dans l’état vérifié le 10 juillet 2026, cette commande renvoie `billing account ... absent` et aucun bucket par défaut. L’activation du forfait Blaze et l’ajout d’un moyen de paiement sont une décision de facturation à prendre dans la console Firebase; ils ne sont pas automatisés par le dépôt. Une fois cette décision prise, créer le bucket dans une région américaine couverte par l’offre Always Free (par exemple `us-central1`), puis exécuter `npm run seed:attachments` et publier les règles Storage.
+Les règles Storage publiées refusent toute lecture et toute écriture. Ne les assouplir que dans une évolution séparée, testée et explicitement approuvée.
 
 ## Modèle de données Firestore
 
@@ -145,7 +140,6 @@ Dans l’état vérifié le 10 juillet 2026, cette commande renvoie `billing acc
 - tasks/{taskId} : titre, message, cible cliquable, responsabilités, statut pending/done et timestamps. Une acceptation de la direction peut clore la tâche; l’administration dispose aussi d’un bouton « Marquer complétée ».
 - changeArchive/{archiveId} : événement immuable avec état avant/après, action, personne et date. Les documents ne peuvent être ni modifiés ni supprimés depuis le frontend.
 - privateContentVersions/{versionId} : copie versionnée du contenu privé chargée à chaque préparation du plan, identifiée par une empreinte de contenu.
-- attachments/{attachmentId} : métadonnées non destructives d’un visuel JPEG converti localement en format 4:5, avec son chemin Firebase Storage, ses dimensions, son poids et son association à un événement. Le binaire original n’est pas envoyé; le JPEG optimisé sous 1 Mo devient la version de travail réutilisable.
 
 Le frontend crée un journal opérationnel append-only pour chaque statut, choix, commentaire, rétroaction et tâche. Les versions du contenu source restent aussi dans Git et les versions chargées dans privateContentVersions. Seuls les rôles director et admin peuvent créer ces traces; seul admin peut les lire depuis l’interface. La synchronisation locale Codex lit changeArchive, tasks, comments, auditLogs et cockpitFeedback pour reconstruire le contexte sans supprimer une ancienne idée.
 
@@ -157,4 +151,4 @@ Le frontend crée un journal opérationnel append-only pour chaque statut, choix
 - La dictée utilise SpeechRecognition ou webkitSpeechRecognition quand le navigateur les expose, redémarre les sessions interrompues et affiche un repli explicite vers la dictée native du système lorsque Safari ou un autre navigateur ne fournit pas l’API. Aucun site web ne peut garantir une reconnaissance vocale programmatique si le navigateur la bloque.
 - Les règles Firebase doivent être publiées puis testées avec les comptes director, admin et viewer avant une mise en ligne réelle.
 - L’installation en application repose sur le manifeste et le service worker du sous-dossier cockpit. Le bouton d’installation peut être masqué; ce choix est conservé localement sur l’appareil. Sur Safari, si le bouton système n’est pas exposé, le cockpit indique le chemin « Ajouter à l’écran d’accueil » du menu du navigateur.
-- Les photos ajoutées dans un événement sont recadrées au ratio 4:5 et converties en JPEG dans le navigateur avant téléversement. Les règles Storage refusent tout fichier qui dépasse 1 Mo ou qui n’est pas un JPEG; la limite de volume affichée dans le cockpit est une estimation interne et non un relevé de facturation Firebase.
+- Aucun fichier ni aucune image ne peut être téléversé dans cette version stable.

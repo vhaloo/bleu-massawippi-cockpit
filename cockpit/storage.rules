@@ -2,31 +2,8 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    function signedIn() {
-      return request.auth != null;
-    }
-
-    function profile() {
-      return firestore.get(/databases/(default)/documents/users/$(request.auth.uid));
-    }
-
-    function activeEditor() {
-      return signedIn()
-        && profile().data.active == true
-        && profile().data.role in ['director', 'admin'];
-    }
-
-    function activeUser() {
-      return signedIn() && profile().data.active == true;
-    }
-
-    match /uploads/{itemId}/{fileName} {
-      allow read: if activeUser();
-      allow create: if activeEditor()
-        && request.resource.size > 0
-        && request.resource.size <= 1024 * 1024
-        && request.resource.contentType == 'image/jpeg';
-      allow update, delete: if false;
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }

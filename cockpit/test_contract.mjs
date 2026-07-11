@@ -8,6 +8,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
 const ui = fs.readFileSync(path.join(here, "cockpit-ui.js"), "utf8");
 const client = fs.readFileSync(path.join(here, "firebase-client.js"), "utf8");
+const theme = fs.readFileSync(path.join(here, "theme.js"), "utf8");
 const firebaseConfig = fs.readFileSync(path.join(here, "firebase-config.js"), "utf8");
 const firestoreRules = fs.readFileSync(path.join(here, "firestore.rules"), "utf8");
 const source = fs.readFileSync(path.join(root, "index.html"), "utf8");
@@ -25,14 +26,18 @@ assert.equal(moved.w, 5);
 assert.equal(posts.filter((post) => !post.isAlternative).length, 28);
 assert.match(preparePlanScript(source.match(/<script>\s*(var posts=[\s\S]*?)<\/script>/i)[1], posts), /\[1,2,3,4,5\]\.forEach/);
 
-for (const token of ["getUserMedia", "SpeechRecognition", "webkitSpeechRecognition", "data-past-toggle", "cockpit-debug-launch", "Connexion…"]) {
+for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "data-add-post-calendar", "MutationObserver", "Connexion…"]) {
   assert.ok(ui.includes(token), `Le cockpit doit contenir le contrat ${token}.`);
+}
+for (const token of ["data-theme-toggle", "bleu-massawippi-theme", "prefers-color-scheme"]) {
+  assert.ok(theme.includes(token), `Le thème doit contenir le contrat ${token}.`);
 }
 for (const token of ["addComment", "addCockpitFeedback", "memoryLocalCache", "withTimeout", "match /comments/{commentId}"]) {
   assert.ok((client + firestoreRules).includes(token), `Le flux collaboratif doit contenir ${token}.`);
 }
 assert.doesNotMatch(ui, /data-attachment-input|uploadImageAttachment|subscribeImageAttachments/);
 assert.doesNotMatch(client, /firebase-storage|uploadBytes|getDownloadURL/);
+assert.doesNotMatch(ui + client, /data-attachment-input|seed_open_house_attachments/);
 assert.match(firebaseConfig, /apiKey:\s*"AIza[A-Za-z0-9_-]{20,}"/);
 assert.doesNotMatch(firebaseConfig, /GEMINI|gemini_api_key/i);
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, movedPost: moved.id, contractChecks: 18 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, movedPost: moved.id, contractChecks: 21 }, null, 2));

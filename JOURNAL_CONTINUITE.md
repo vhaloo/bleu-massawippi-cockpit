@@ -10,17 +10,15 @@ Ce journal est un point de reprise local. Il ne contient aucun mot de passe, jet
 - Le contenu nature retiré de ce lundi est conservé et repositionné au lundi 10 août comme réserve éditoriale de la semaine 5.
 - L’adresse publique vérifiée pour le local est : 3115, chemin Capelton, North Hatley, Québec J0B 2C0.
 
-## Visuels et pièces jointes
+## Régression de stabilité — 11 juillet 2026
 
-Le volet visuel est actuellement suspendu à la demande de la direction : aucune pièce jointe n’est affichée ou synchronisée par l’interface, et le travail quotidien reste entièrement centré sur le texte. Les anciens scripts, règles et dérivations locales sont conservés dans l’historique et dans le dossier de travail, mais le chemin de production actif n’importe plus Firebase Storage ni le code de conversion d’image.
+Le frontend est revenu au dernier socle stable antérieur au module photo (`137525a`). Les fonctions textuelles essentielles sont conservées : authentification, calendrier, choix, statuts, commentaires, dictée, rétroactions, tâches, calendrier personnel et installation PWA. Le rescan global de la page a été remplacé par une observation ciblée des cartes pour éviter les boucles et ralentissements.
 
-- Les photos ajoutées depuis un événement sont converties dans le navigateur en JPEG 4:5, jusqu’à 1080 × 1350, sous 1 Mo.
-- Le frontend refuse les types non image et Firebase Storage refuse tout ce qui n’est pas un JPEG sous 1 Mo.
-- Les métadonnées sont dans `attachments/{attachmentId}`; les versions ne sont pas supprimées depuis le frontend.
-- Les deux dérivations de référence du premier post sont conservées localement dans `C:\Users\Vhaloo\Documents\Bleu Massawippi\media\portes-ouvertes\` : la source recadrée et le visuel proposé avec correction légère. Aucune génération ayant inventé l’architecture n’est utilisée.
-- `admin_sync.js` télécharge désormais les pièces jointes non marquées `downloadedLocally` dans `sync-output/attachments` et conserve leur trace dans Firestore.
-- Au 10 juillet 2026, le projet Firebase n’a pas encore de bucket Storage provisionné. La vérification directe renvoie `The billing account for the owning project is disabled in state absent`; `seed:attachments` s’arrête donc proprement sur cette dépendance externe. Le code et les règles sont prêts. L’activation de Storage nécessite le forfait Blaze et un compte de facturation; cette décision n’est pas automatisée afin de ne pas engager de frais sans validation.
-- Le diagnostic reproductible est `npm --prefix cockpit run check:storage`; il n’écrit rien et ne révèle aucun secret.
+- Aucun téléversement ni affichage de pièce jointe n’est présent dans le chemin public.
+- Firebase Storage refuse désormais toutes les lectures et écritures; Firestore n’expose plus de collection `attachments` au frontend.
+- Les anciens scripts photo restent dans l’historique Git comme référence, mais ne font plus partie des commandes de production ni du déploiement.
+- Le thème clair/sombre est un module isolé sans dépendance Firebase. Une panne de thème ne peut donc pas bloquer la connexion.
+- Toute future fonction importante doit être livrée comme module isolé, accompagnée d’un test contractuel, puis activée progressivement après validation du parcours de connexion.
 
 ## Dictée et diagnostic
 
@@ -28,7 +26,7 @@ Le test du 11 juillet a reproduit l’attente infinie lorsque plusieurs anciens 
 
 - La dictée demande explicitement l’accès au microphone, utilise `SpeechRecognition` ou `webkitSpeechRecognition`, retente les langues françaises disponibles et relance les sessions interrompues.
 - Un repli vers la dictée du système est affiché quand l’API ou le service vocal du navigateur est indisponible.
-- Le compte administrateur dispose d’un widget **Diagnostic** minimisable qui recueille erreurs JavaScript, promesses non gérées, avertissements Firebase et erreurs affichées par le cockpit.
+- Le diagnostic temporaire surchargé a été retiré du chemin stable. Les erreurs utiles restent dans la console du navigateur et les délais de connexion produisent un message visible au lieu d’une attente infinie.
 
 ## Tests à refaire après chaque évolution importante
 
@@ -37,14 +35,14 @@ Le test du 11 juillet a reproduit l’attente infinie lorsque plusieurs anciens 
 3. Vérifier la connexion administrateur et direction générale.
 4. Ouvrir le premier événement, confirmer qu’il n’y a qu’une option le 13 juillet.
 5. Tester un commentaire tapé, un badge rapide, une rétroaction de section et la boîte à idées.
-6. Tester l’ajout d’une photo lourde puis vérifier la conversion JPEG 4:5 sous 1 Mo.
-7. Ouvrir une vignette en nouvel onglet et vérifier la génération du fichier calendrier.
-8. Vérifier le widget Diagnostic et le contenu de `sync-output` après `npm run sync`.
+6. Vérifier le bouton clair/sombre, puis recharger la page pour confirmer la préférence locale.
+7. Vérifier la génération du fichier calendrier selon le rôle connecté.
+8. Vérifier le contenu de `sync-output` après `npm run sync`.
 
 ## Points de vigilance
 
 - La reconnaissance vocale dépend toujours du service et des permissions du navigateur; aucun site ne peut garantir la transcription si le navigateur ou le réseau la bloque.
-- Le volume affiché dans le cockpit est une estimation interne des fichiers connus, pas un relevé de facturation Firebase.
 - Ne jamais ajouter de compte de service, mot de passe ou clé API privée au dépôt public.
+- La configuration Web Firebase est publique par conception; elle ne donne aucun privilège administrateur. La sécurité repose sur Auth et les règles. Toute vraie clé privée ou clé de service exposée doit être révoquée, remplacée et retirée de l’historique.
 - Ne jamais remplacer une photo fournie par une image générée si l’architecture ou l’identité du lieu n’est pas strictement préservée.
 - Vérification d’authentification du 10 juillet : le compte administrateur Valentin répond correctement via Firebase Auth; le mot de passe local associé à l’adresse de la direction générale est refusé par Firebase et devra être réinitialisé avant un test de parcours Annie.

@@ -1,8 +1,8 @@
 // Incrémenter ce nom à chaque modification du shell ou des modules publics.
 // Cela force l’activation du nouveau service worker et purge les modules
 // précédemment mis en cache, notamment firebase-client.js.
-const CACHE = "bleu-massawippi-cockpit-shell-v7";
-const SHELL = ["./", "./index.html", "./firebase-config.js", "./plan-overrides.js", "./manifest.webmanifest", "./icon.svg"];
+const CACHE = "bleu-massawippi-cockpit-shell-v8";
+const SHELL = ["./", "./index.html", "./firebase-config.js", "./theme.js", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));
