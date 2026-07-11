@@ -23,8 +23,6 @@ Jeudi 16 juillet : 8 h 30 à 16 h
 📍 Église Saint-Barthélemy, 911, rue Clough, Ayer’s Cliff (Québec) J0B 1C0
 Itinéraire : ${OPEN_HOUSE_MAP_URL}
 
-Ce n’est pas une activité programmée ni un horaire fixe : ce sont simplement les moments où nous sommes là si vous avez envie de passer nous parler. Les disponibilités changeront chaque semaine; consultez toujours l’horaire le plus récent avant de vous déplacer.
-
 #BleuMassawippi #LacMassawippi #Communauté #AyersCliff #NousSommesLà
 
 =========================================
@@ -37,8 +35,6 @@ Thursday, July 16: 8:30 a.m. to 4 p.m.
 
 📍 Saint-Barthélemy Church, 911 Clough Street, Ayer’s Cliff, Quebec J0B 1C0
 Directions: ${OPEN_HOUSE_MAP_URL}
-
-This is not a scheduled event or a permanent office schedule. These are simply the times when we are here if you would like to stop by and talk. Availability will change from week to week, so please check the latest schedule before coming.
 
 #BleuMassawippi #LakeMassawippi #Community #AyersCliff #WeAreHere`,
   choiceRequired: false,

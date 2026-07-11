@@ -20,7 +20,8 @@ const moved = posts.find((post) => post.id === "s1d1b");
 
 assert.equal(first.title, "Nous sommes là, si vous voulez nous parler");
 assert.doesNotMatch(first.title + first.copy + first.visual, /portes ouvertes/i);
-assert.match(first.copy, /disponibilités changeront chaque semaine/i);
+assert.match(first.copy, /Cette semaine, une personne de l’équipe sera au local/i);
+assert.doesNotMatch(first.copy, /Ce n’est pas une activité|disponibilités changeront chaque semaine/i);
 assert.equal(first.choiceRequired, false);
 assert.equal(first.date, "Lundi 13 juillet");
 assert.equal(moved.date, "Lundi 10 août");
