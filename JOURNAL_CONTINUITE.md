@@ -27,6 +27,8 @@ Chaque capsule possède maintenant son propre document `mediaLinks` dans Firesto
 
 Mise à jour des permissions : l’ancien lien anonyme modifiable du dossier `Media Cockpit` a été révoqué. Le dossier possède désormais un lien anonyme **lecture seule**, tandis que les groupes internes Membres et Propriétaires conservent respectivement leurs droits d’écriture et d’administration. Les six photos historiques disposent aussi de liens anonymes individuels en lecture seule. Un test dans une session indépendante non connectée a confirmé l’ouverture du dossier comme « Collaborateur invité » et l’ouverture de l’aperçu SharePoint d’une image. Le cockpit affiche volontairement un bouton clair « Ouvrir l’image » plutôt qu’un faux aperçu direct instable; SharePoint fournit l’aperçu et le téléchargement.
 
+Règle éditoriale verrouillée : chaque publication du calendrier doit contenir un texte complet en français (`FR —`) et en anglais (`EN —`). Le test contractuel parcourt désormais toutes les publications et échoue si l’une des deux versions manque.
+
 ## Régression de stabilité — 11 juillet 2026
 
 Le frontend est revenu au dernier socle stable antérieur au module photo (`137525a`). Les fonctions textuelles essentielles sont conservées : authentification, calendrier, choix, statuts, commentaires, dictée, rétroactions, tâches, calendrier personnel et installation PWA. Le rescan global de la page a été remplacé par une observation ciblée des cartes pour éviter les boucles et ralentissements.

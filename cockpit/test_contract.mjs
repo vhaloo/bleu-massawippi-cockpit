@@ -42,6 +42,10 @@ assert.equal(Object.keys(firstFourWeeks).length, 28);
 assert.equal(Object.values(firstFourWeeks).filter((items) => items.length >= 2).length, 26);
 assert.deepEqual(Object.entries(firstFourWeeks).filter(([, items]) => items.length === 1).map(([date]) => date).sort(), ["Jeudi 30 juillet", "Lundi 13 juillet"]);
 assert.equal(posts.filter((post) => post.t === "Nature").length, 9);
+for (const post of posts) {
+  assert.match(post.copy || "", /FR\s+—/i, `La publication ${post.id} doit contenir son texte français.`);
+  assert.match(post.copy || "", /EN\s+—/i, `La publication ${post.id} doit contenir son texte anglais.`);
+}
 for (const historicalTitle of ["Massawippi en 1859 : une fenêtre dessinée sur le passé", "Quand un bateau à vapeur traversait le Massawippi", "North Hatley vue d’en haut, entre 1930 et 1950", "Aux chutes de Massawippi, vers 1865", "Ayer’s Cliff sur une carte postale ancienne", "North Hatley, destination de villégiature"]) {
   const historicalPost = posts.find((post) => post.title === historicalTitle);
   assert.ok(historicalPost, `La capsule historique « ${historicalTitle} » doit rester au calendrier.`);
@@ -67,4 +71,4 @@ assert.doesNotMatch(client, /firebase-storage|uploadBytes|getDownloadURL/);
 assert.doesNotMatch(ui + client, /data-attachment-input|seed_open_house_attachments/);
 assert.match(firebaseConfig, /apiKey:\s*"AIza[A-Za-z0-9_-]{20,}"/);
 assert.doesNotMatch(firebaseConfig, /GEMINI|gemini_api_key/i);
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 26, historicalPosts: 6, opportunities: 8, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 91 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 26, bilingualPosts: posts.length, historicalPosts: 6, opportunities: 8, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 205 }, null, 2));
