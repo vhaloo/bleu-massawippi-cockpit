@@ -105,6 +105,14 @@ style.textContent = `
   [data-theme="dark"] .cockpit-workflow-actions button { color:#dff7fa !important; background:#18343f !important; border-color:#72d9e9 !important; }
   [data-theme="dark"] .cockpit-workflow-actions button.primary { color:#06151b !important; background:#72d9e9 !important; }
   [data-theme="dark"] .cockpit-message header, [data-theme="dark"] .cockpit-thread-empty { color:#bcd0d6 !important; }
+  [data-theme="dark"] .cockpit-thread { color:#eef7f8 !important; background:#152f38 !important; border-color:#69a9b0 !important; }
+  [data-theme="dark"] .cockpit-comment-row { color:#eef7f8 !important; background:#18343f !important; border-color:#69a9b0 !important; }
+  [data-theme="dark"] .cockpit-message.mine { background:#1d4b50 !important; border-color:#75cbd0 !important; }
+  [data-theme="dark"] .cockpit-message.other { background:#4a3c23 !important; border-color:#d5ad5d !important; }
+  [data-theme="dark"] .cockpit-thread-resolved { background:#20373f !important; border-color:#58747d !important; }
+  [data-theme="dark"] .cockpit-thread-resolved>summary { color:#d5e5e8 !important; }
+  [data-theme="dark"] .cockpit-task-item.comment-task { color:#fff4e7 !important; background:#4a3027 !important; border-color:#e19a73 !important; }
+  [data-theme="dark"] .cockpit-task-source { color:#fff !important; background:#bd654b !important; }
   [data-theme="dark"] .workflow-node rect { fill:#1c3944 !important; stroke:#76cfd5 !important; }
   [data-theme="dark"] .workflow-node text { fill:#effbfc !important; }
   [data-theme="dark"] .workflow-return { fill:#c4d8dd !important; }

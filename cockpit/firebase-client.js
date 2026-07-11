@@ -305,6 +305,10 @@ export async function addComment(itemId, comment, profile, quickTag = null, dict
     authorUid: profile.uid,
     authorLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
     deleted: false,
+    resolved: false,
+    resolvedAt: null,
+    resolvedBy: "",
+    resolvedByLabel: "",
     createdAt: now,
     updatedAt: now,
     updatedBy: profile.uid
@@ -342,6 +346,30 @@ export async function archiveOwnComment(commentId, profile) {
   if (!existing.exists() || existing.data().authorUid !== profile?.uid) throw new Error("Vous pouvez archiver uniquement votre propre commentaire.");
   await updateDoc(reference, { deleted: true, updatedAt: serverTimestamp(), updatedBy: profile.uid });
   await appendChangeArchive("comment", commentId, "commentaire archivé", { deleted: false, comment: existing.data().comment || "" }, { deleted: true, comment: existing.data().comment || "" }, profile);
+}
+
+export async function resolveComment(commentId, profile) {
+  requireConfigured();
+  if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas traiter ce commentaire.");
+  const reference = doc(db, "comments", commentId);
+  const existing = await getDoc(reference);
+  if (!existing.exists()) throw new Error("Ce commentaire n’existe plus.");
+  const before = existing.data();
+  await updateDoc(reference, {
+    resolved: true,
+    resolvedAt: serverTimestamp(),
+    resolvedBy: profile.uid,
+    resolvedByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
+    updatedAt: serverTimestamp(),
+    updatedBy: profile.uid
+  });
+  await appendChangeArchive("comment", commentId, "commentaire traité", {
+    resolved: before.resolved === true,
+    comment: before.comment || ""
+  }, {
+    resolved: true,
+    comment: before.comment || ""
+  }, profile);
 }
 
 const workflowStages = new Set(["proposal", "content_review", "changes_requested", "content_changes_requested", "content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"]);
@@ -581,12 +609,12 @@ export async function upsertActionTask(taskId, payload, profile) {
 
 export async function completeActionTask(taskId, profile) {
   requireConfigured();
-  if (!profile || profile.role !== "admin") {
-    throw new Error("Seule l’administration peut forcer l’achèvement d’une tâche.");
-  }
+  if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas terminer cette tâche.");
   if (!/^[a-z0-9-]{3,160}$/i.test(String(taskId || ""))) throw new Error("Identifiant de tâche invalide.");
   const reference = doc(db, "tasks", taskId);
   const existing = await getDoc(reference);
+  if (!existing.exists()) throw new Error("Cette tâche n’existe plus.");
+  if (profile.role !== "admin" && existing.data().createdByUid !== profile.uid) throw new Error("Seule l’administration ou l’auteur de la tâche peut la terminer.");
   await updateDoc(reference, {
     status: "done",
     updatedAt: serverTimestamp(),

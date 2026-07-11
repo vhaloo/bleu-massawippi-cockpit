@@ -58,7 +58,7 @@ service cloud.firestore {
 
     function validComment(data) {
       return data.keys().hasAll(['sectionId', 'comment', 'quickTag', 'dictated', 'authorUid', 'authorLabel', 'deleted', 'createdAt', 'updatedAt', 'updatedBy'])
-        && data.keys().hasOnly(['sectionId', 'comment', 'quickTag', 'dictated', 'authorUid', 'authorLabel', 'deleted', 'createdAt', 'updatedAt', 'updatedBy'])
+        && data.keys().hasOnly(['sectionId', 'comment', 'quickTag', 'dictated', 'authorUid', 'authorLabel', 'deleted', 'resolved', 'resolvedAt', 'resolvedBy', 'resolvedByLabel', 'createdAt', 'updatedAt', 'updatedBy'])
         && data.sectionId is string && data.sectionId.size() <= 120
         && data.comment is string && data.comment.size() > 0 && data.comment.size() <= 5000
         && (data.quickTag == null || data.quickTag in ['cancel', 'delay', 'perfect'])
@@ -66,6 +66,10 @@ service cloud.firestore {
         && data.authorUid == request.auth.uid
         && data.authorLabel is string && data.authorLabel.size() > 0 && data.authorLabel.size() <= 120
         && data.deleted is bool
+        && (!('resolved' in data) || data.resolved is bool)
+        && (!('resolvedAt' in data) || data.resolvedAt == null || data.resolvedAt is timestamp)
+        && (!('resolvedBy' in data) || data.resolvedBy is string)
+        && (!('resolvedByLabel' in data) || (data.resolvedByLabel is string && data.resolvedByLabel.size() <= 120))
         && data.createdAt is timestamp && data.updatedAt is timestamp
         && data.updatedBy == request.auth.uid;
     }
@@ -180,10 +184,15 @@ service cloud.firestore {
       allow read: if isEditor();
       allow create: if isEditor() && validComment(request.resource.data) && request.resource.data.deleted == false;
       allow update: if isEditor()
-        && resource.data.authorUid == request.auth.uid
         && request.resource.data.authorUid == resource.data.authorUid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comment', 'deleted', 'updatedAt', 'updatedBy'])
-        && validComment(request.resource.data);
+        && validComment(request.resource.data)
+        && ((resource.data.authorUid == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comment', 'deleted', 'updatedAt', 'updatedBy']))
+          || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['resolved', 'resolvedAt', 'resolvedBy', 'resolvedByLabel', 'updatedAt', 'updatedBy'])
+            && request.resource.data.resolved == true
+            && request.resource.data.resolvedAt is timestamp
+            && request.resource.data.resolvedBy == request.auth.uid
+            && request.resource.data.resolvedByLabel.size() > 0));
       allow delete: if false;
     }
 

@@ -24,11 +24,12 @@ import {
   subscribeComments,
   updateOwnComment,
   archiveOwnComment,
+  resolveComment,
   setWorkflowStage,
   subscribeWorkflowStates,
   setOpportunityStage,
   subscribeOpportunityStates
-} from "./firebase-client.js?v=20260711-opportunities-v2";
+} from "./firebase-client.js?v=20260711-comment-chat-v1";
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -79,7 +80,7 @@ style.textContent = `
   .cockpit-status-row button.active { border-color: #0b7895; color: #fff; background: #0b7895; }
   .cockpit-status-row button[data-status="needs_work"].active { border-color: #b27a1a; background: #b27a1a; }
   .cockpit-status-row button[data-status="deleted"] { margin-left: auto; color: #9a4035; }
-  .cockpit-comment-row { margin-top: 8px; align-items: stretch; }
+  .cockpit-comment-row { margin-top: 0; padding:10px; align-items: stretch; border:2px solid #8dcfd4; border-top:0; border-radius:0 0 14px 14px; background:#f3fbfb; }
   .cockpit-comment-row textarea { flex: 1; min-width: 180px; min-height: 46px; padding: 8px; resize: vertical; border: 1px solid #d1e3e6; border-radius: 9px; color: #264a58; background: #fff; font: inherit; font-size: .78rem; }
   .cockpit-comment-row button { min-width: 40px; padding: 7px; border: 1px solid #d1e3e6; border-radius: 9px; color: #073a52; background: #fff; font-weight: 850; cursor: pointer; }
   .cockpit-comment-row button.save { color: #fff; background: #0b7895; }
@@ -148,13 +149,24 @@ style.textContent = `
   .post.workflow-complete { box-shadow:0 0 0 2px rgba(33,134,109,.18); }
   .post.workflow-complete:after { position:absolute; top:10px; right:10px; z-index:2; padding:3px 7px; border-radius:999px; content:"✓ Terminé"; color:#155c4e; background:#dff4ea; font-size:.62rem; font-weight:900; }
   .ready { display:none !important; }
-  .cockpit-thread { margin-top:10px; padding-top:9px; border-top:1px solid #d8e8ea; }
-  .cockpit-thread h5 { margin:0 0 7px; color:#174e62; font-size:.76rem; }
-  .cockpit-thread-empty { margin:0; color:#718993; font-size:.68rem; }
-  .cockpit-message { margin-top:6px; padding:8px 9px; border:1px solid #d7e7e9; border-radius:10px; background:#fff; }
-  .cockpit-message header { display:flex; justify-content:space-between; gap:7px; color:#607b85; font-size:.62rem; }
-  .cockpit-message header b { color:#174e62; }
-  .cockpit-message p { margin:4px 0 0; color:#365b69; font-size:.72rem; white-space:pre-wrap; }
+  .cockpit-thread { margin-top:12px; padding:10px; border:2px solid #8dcfd4; border-bottom:1px solid #c8e3e5; border-radius:14px 14px 0 0; background:linear-gradient(180deg,#effafa,#fff); }
+  .cockpit-thread-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+  .cockpit-thread h5 { margin:0; color:#073a52; font-size:.82rem; }
+  .cockpit-thread-heading span { color:#587680; font-size:.64rem; font-weight:750; }
+  [data-comment-thread] { display:flex; max-height:340px; flex-direction:column; gap:8px; overflow-y:auto; padding:2px; scroll-behavior:smooth; }
+  .cockpit-thread-empty { margin:4px 0; padding:12px; color:#718993; border:1px dashed #bdd8dc; border-radius:10px; background:#fff; font-size:.7rem; text-align:center; }
+  .cockpit-message { position:relative; width:min(88%,620px); padding:10px 11px; border:2px solid #d1e4e7; border-radius:7px 16px 16px 16px; background:#fff; box-shadow:0 7px 18px rgba(7,58,82,.09); }
+  .cockpit-message.mine { align-self:flex-end; border-color:#77cdd2; border-radius:16px 7px 16px 16px; background:#eaf9f9; }
+  .cockpit-message.other { align-self:flex-start; border-color:#e1b55c; background:#fff9eb; }
+  .cockpit-message header { display:flex; justify-content:space-between; gap:7px; color:#607b85; font-size:.64rem; }
+  .cockpit-message header b { color:#073a52; font-size:.72rem; }
+  .cockpit-message p { margin:7px 0 0; color:#234c5a; font-size:.78rem; font-weight:650; line-height:1.48; white-space:pre-wrap; }
+  .cockpit-message-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
+  .cockpit-message-actions button { padding:6px 9px; border:1px solid #8ebfc5; border-radius:8px; color:#0b6077; background:#fff; font-size:.65rem; font-weight:850; cursor:pointer; }
+  .cockpit-message-actions button[data-resolve-comment] { color:#fff; border-color:#21866d; background:#21866d; }
+  .cockpit-thread-resolved { order:-1; margin-bottom:2px; border:1px solid #c9dadd; border-radius:9px; background:#f4f7f7; }
+  .cockpit-thread-resolved>summary { padding:7px 9px; color:#58717a; font-size:.67rem; font-weight:850; }
+  .cockpit-thread-resolved-list { display:flex; flex-direction:column; gap:7px; padding:0 8px 8px; opacity:.82; }
   .cockpit-message-actions { display:flex; gap:5px; margin-top:5px; }
   .cockpit-message-actions button { padding:3px 6px; border:1px solid #c8dde0; border-radius:6px; color:#315564; background:#f8fbfb; font-size:.6rem; cursor:pointer; }
   #cockpit-feedback-launch { position: fixed; left: 15px; bottom: 15px; z-index: 31; min-height: 42px; padding: 0 14px; border: 1px solid #073a52; border-radius: 999px; color: #fff; background: #073a52; box-shadow: 0 8px 22px rgba(7,58,82,.2); font-weight: 850; cursor: pointer; }
@@ -190,6 +202,8 @@ style.textContent = `
   #cockpit-task-list { margin: 10px 0 22px; }
   .cockpit-task-empty { margin: 8px 0 0; color: #587680; font-size: .76rem; }
   .cockpit-task-item { margin-top: 8px; padding: 10px; border: 1px solid #d6e8ea; border-radius: 11px; background: #fff; }
+  .cockpit-task-item.comment-task { padding:13px; border:3px solid #d38a65; background:#fff6ef; box-shadow:0 9px 22px rgba(154,64,53,.16); }
+  .cockpit-task-source { display:inline-block; margin-bottom:7px; padding:4px 8px; border-radius:999px; color:#fff; background:#b75842; font-size:.66rem; font-weight:900; letter-spacing:.02em; }
   .cockpit-task-item b { display: block; color: #073a52; font-size: .78rem; }
   .cockpit-task-item p { margin: 4px 0 7px; color: #587680; font-size: .72rem; line-height: 1.38; white-space: pre-wrap; }
   .cockpit-task-item small { display: block; margin-bottom: 7px; color: #78919a; font-size: .66rem; }
@@ -409,7 +423,10 @@ function renderActionTasks(tasks) {
     list.innerHTML = "<p class=\"cockpit-task-empty\">Aucune tâche en attente. Les décisions acceptées et les éléments marqués comme complétés disparaissent de cette liste.</p>";
     return;
   }
-  list.innerHTML = pending.map((task) => `<article class="cockpit-task-item" data-task-id="${esc(task.id)}"><b>${esc(task.title || "Tâche à accomplir")}</b><small>${esc(task.targetLabel || task.targetId || "Cible non précisée")} · ${esc(taskWhen(task))}</small><p>${esc(task.message || "")}</p><div class="cockpit-task-actions"><button type="button" data-open-task="${esc(task.id)}" data-task-target-type="${esc(task.targetType || "schedule")}" data-task-target="${esc(task.targetId || "")}">Ouvrir</button><button type="button" data-complete-task="${esc(task.id)}">Marquer complétée</button></div></article>`).join("");
+  list.innerHTML = pending.map((task) => {
+    const isComment = String(task.id || "").startsWith("comment-");
+    return `<article class="cockpit-task-item${isComment ? " comment-task" : ""}" data-task-id="${esc(task.id)}">${isComment ? `<span class="cockpit-task-source">💬 Nouvelle consigne · ${esc(task.createdByLabel || "Direction")}</span>` : ""}<b>${esc(task.title || "Tâche à accomplir")}</b><small>${esc(task.targetLabel || task.targetId || "Cible non précisée")} · ${esc(taskWhen(task))}</small><p>${esc(task.message || "")}</p><div class="cockpit-task-actions"><button type="button" data-open-task="${esc(task.id)}" data-task-target-type="${esc(task.targetType || "schedule")}" data-task-target="${esc(task.targetId || "")}">Ouvrir</button><button type="button" data-complete-task="${esc(task.id)}">Marquer complétée</button></div></article>`;
+  }).join("");
 }
 
 function findTaskTarget(type, id) {
@@ -437,7 +454,7 @@ function enhanceTaskEvents() {
       return;
     }
     const completeButton = event.target.closest("[data-complete-task]");
-    if (!completeButton || !state.profile || state.profile.role !== "admin") return;
+    if (!completeButton || !state.profile || !["director", "admin"].includes(state.profile.role)) return;
     completeButton.disabled = true;
     completeActionTask(completeButton.dataset.completeTask, state.profile)
       .then(() => toast("Tâche marquée comme complétée."))
@@ -1129,12 +1146,18 @@ function renderCommentThread(card) {
   const host = card.querySelector("[data-comment-thread]");
   if (!host) return;
   const rows = (state.commentsByEvent.get(card.dataset.itemId) || []).filter((row) => row.deleted !== true);
-  host.innerHTML = rows.length ? rows.map((row) => {
+  const messageMarkup = (row, handled = false) => {
     const mine = row.authorUid === state.profile?.uid;
     const when = row.createdAt?.toDate ? row.createdAt.toDate().toLocaleString("fr-CA", { dateStyle:"short", timeStyle:"short" }) : "à l’instant";
     const edited = row.updatedAt?.toMillis && row.createdAt?.toMillis && row.updatedAt.toMillis() > row.createdAt.toMillis() + 1000;
-    return `<article class="cockpit-message" data-comment-id="${esc(row.id)}"><header><b>Commentaire · ${esc(row.authorLabel || "Utilisateur")}</b><span>${esc(when)}${edited ? " · modifié" : ""}</span></header><p>${esc(row.comment || "")}</p>${mine ? `<div class="cockpit-message-actions"><button type="button" data-edit-comment="${esc(row.id)}">Modifier</button><button type="button" data-archive-comment="${esc(row.id)}">Archiver</button></div>` : ""}</article>`;
-  }).join("") : `<p class="cockpit-thread-empty">Aucun commentaire pour cet événement.</p>`;
+    const handledLabel = handled && row.resolvedByLabel ? ` · traité par ${esc(row.resolvedByLabel)}` : "";
+    return `<article class="cockpit-message ${mine ? "mine" : "other"}${handled ? " handled" : ""}" data-comment-id="${esc(row.id)}"><header><b>💬 ${esc(row.authorLabel || "Utilisateur")}${mine ? " · vous" : ""}</b><span>${esc(when)}${edited ? " · modifié" : ""}${handledLabel}</span></header><p>${esc(row.comment || "")}</p><div class="cockpit-message-actions">${handled ? "" : `<button type="button" data-resolve-comment="${esc(row.id)}">✓ Marquer traité</button>`}${mine && !handled ? `<button type="button" data-edit-comment="${esc(row.id)}">Modifier</button><button type="button" data-archive-comment="${esc(row.id)}">Archiver</button>` : ""}</div></article>`;
+  };
+  const active = rows.filter((row) => row.resolved !== true);
+  const handled = rows.filter((row) => row.resolved === true);
+  const handledBlock = handled.length ? `<details class="cockpit-thread-resolved"><summary>Voir les messages traités (${handled.length})</summary><div class="cockpit-thread-resolved-list">${handled.map((row) => messageMarkup(row, true)).join("")}</div></details>` : "";
+  host.innerHTML = handledBlock + (active.length ? active.map((row) => messageMarkup(row)).join("") : `<p class="cockpit-thread-empty">Aucun commentaire actif. Écrivez une consigne ci-dessous pour démarrer le mini-chat.</p>`);
+  host.scrollTop = host.scrollHeight;
 }
 
 function renderAllCollaboration() {
@@ -1170,6 +1193,7 @@ function enhanceCards() {
         <button type="button" data-status="deleted" aria-label="Masquer virtuellement cette ligne" title="Masquer virtuellement cette ligne">✕</button>
         <p class="cockpit-control-help"><b>Approuvé</b> : l’idée est retenue. <b>À retravailler</b> : une correction est nécessaire. <b>En attente</b> : aucune décision pour le moment. Ces avis ne remplacent pas l’approbation officielle du texte et du visuel.</p>
       </div>
+      <section class="cockpit-thread"><div class="cockpit-thread-heading"><h5>💬 Mini-chat de l’événement</h5><span>Le message le plus récent apparaît en bas.</span></div><div data-comment-thread aria-live="polite"></div></section>
       <div class="cockpit-comment-row">
         <textarea data-comment maxlength="5000" spellcheck="true" autocapitalize="sentences" inputmode="text" placeholder="Ajouter une consigne ou un commentaire…" aria-label="Commentaire de pilotage"></textarea>
         <button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire" title="Dicter un commentaire">🎙️</button>
@@ -1184,8 +1208,7 @@ function enhanceCards() {
         <p class="cockpit-control-help"><b>À annuler</b> : retirer de la programmation sans supprimer l’historique. <b>À décaler</b> : déplacer à une autre date. <b>Parfait</b> : aucune correction sur l’élément commenté; ce n’est pas encore le feu vert final.</p>
       </div>
       ${workflowMarkup(planItem)}
-      ${mediaControlsMarkup(planItem)}
-      <section class="cockpit-thread"><h5>Fil de collaboration</h5><div data-comment-thread></div></section>`;
+      ${mediaControlsMarkup(planItem)}`;
     card.appendChild(controls);
   });
   applyRemoteRows();
@@ -1555,6 +1578,22 @@ function enhanceCardEvents() {
           }
           toast(workflowButton.dataset.workflowDirection === "back" ? "Feu vert retiré; l’historique est conservé." : "Étape de validation enregistrée.");
         }).catch((error) => toast(error.message, true));
+      return;
+    }
+    const resolveCommentButton = event.target.closest("button[data-resolve-comment]");
+    if (resolveCommentButton) {
+      resolveCommentButton.disabled = true;
+      resolveComment(resolveCommentButton.dataset.resolveComment, state.profile)
+        .then(async () => {
+          try {
+            await completeActionTask(`comment-${resolveCommentButton.dataset.resolveComment}`, state.profile);
+          } catch (error) {
+            if (!/n’existe plus/i.test(error.message || "")) console.warn("Tâche associée non classée", error);
+          }
+          toast("Commentaire marqué comme traité et conservé dans l’historique.");
+        })
+        .catch((error) => toast(error.message, true))
+        .finally(() => { resolveCommentButton.disabled = false; });
       return;
     }
     const editCommentButton = event.target.closest("button[data-edit-comment]");

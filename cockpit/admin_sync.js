@@ -110,6 +110,8 @@ const summary = {
     dictated: row.dictated === true,
     quickTag: row.quickTag || null,
     comment: row.comment || "",
+    resolved: row.resolved === true,
+    resolvedByLabel: row.resolvedByLabel || null,
     createdAt: dateValue(row.createdAt)?.toISOString() || null
   })),
   dictatedComments,
