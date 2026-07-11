@@ -80,6 +80,7 @@ style.textContent = `
   [data-theme="dark"] :is(.project-hub,.project-card) { color:#eef7f8 !important; background:#152c36 !important; border-color:#796e50 !important; }
   [data-theme="dark"] .project-hub>summary { color:#fff1c9 !important; background:#473a21 !important; border-color:#9b7c3c !important; }
   [data-theme="dark"] .project-decision { color:#dff7ed !important; background:#1e463b !important; border-color:#6ab594 !important; }
+  [data-theme="dark"] .project-decision strong { color:#f1fff8 !important; }
   [data-theme="dark"] :is(.project-card h3,.project-card strong,.project-timeline b) { color:#fff2d0 !important; }
   [data-theme="dark"] :is(.project-card p,.project-card li,.project-timeline div) { color:#d1e2e6 !important; }
   [data-theme="dark"] :is(.project-dossier,.project-doc,.opportunity) { color:#e9f3f4 !important; background:#152c36 !important; border-color:#70684f !important; }
