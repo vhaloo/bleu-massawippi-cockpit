@@ -26,13 +26,13 @@ assert.equal(moved.w, 5);
 assert.equal(posts.filter((post) => !post.isAlternative).length, 28);
 assert.match(preparePlanScript(source.match(/<script>\s*(var posts=[\s\S]*?)<\/script>/i)[1], posts), /\[1,2,3,4,5\]\.forEach/);
 
-for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "data-add-post-calendar", "MutationObserver", "Connexion…"]) {
+for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMedia", "button[data-dictate]", "data-add-post-calendar", "data-media-form", "MutationObserver", "Connexion…"]) {
   assert.ok(ui.includes(token), `Le cockpit doit contenir le contrat ${token}.`);
 }
 for (const token of ["data-theme-toggle", "bleu-massawippi-theme", "prefers-color-scheme"]) {
   assert.ok(theme.includes(token), `Le thème doit contenir le contrat ${token}.`);
 }
-for (const token of ["addComment", "addCockpitFeedback", "memoryLocalCache", "withTimeout", "match /comments/{commentId}"]) {
+for (const token of ["addComment", "addCockpitFeedback", "subscribeMediaLinks", "memoryLocalCache", "withTimeout", "match /comments/{commentId}", "match /mediaLinks/{mediaId}"]) {
   assert.ok((client + firestoreRules).includes(token), `Le flux collaboratif doit contenir ${token}.`);
 }
 assert.doesNotMatch(ui, /data-attachment-input|uploadImageAttachment|subscribeImageAttachments/);
@@ -40,4 +40,4 @@ assert.doesNotMatch(client, /firebase-storage|uploadBytes|getDownloadURL/);
 assert.doesNotMatch(ui + client, /data-attachment-input|seed_open_house_attachments/);
 assert.match(firebaseConfig, /apiKey:\s*"AIza[A-Za-z0-9_-]{20,}"/);
 assert.doesNotMatch(firebaseConfig, /GEMINI|gemini_api_key/i);
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, movedPost: moved.id, contractChecks: 21 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, movedPost: moved.id, contractChecks: 27 }, null, 2));

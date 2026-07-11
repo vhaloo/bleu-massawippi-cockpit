@@ -102,6 +102,22 @@ service cloud.firestore {
         && data.updatedBy is string && data.updatedBy.size() > 0;
     }
 
+    function validMediaLink(data) {
+      return data.keys().hasAll(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy'])
+        && data.keys().hasOnly(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy'])
+        && data.eventId is string && data.eventId.size() >= 3 && data.eventId.size() <= 80
+        && data.label is string && data.label.size() > 0 && data.label.size() <= 180
+        && data.url is string && data.url.size() > 8 && data.url.size() <= 2048
+        && data.kind in ['image', 'video', 'pdf', 'document', 'folder', 'other']
+        && data.stage in ['source', 'draft', 'approved', 'published', 'reference']
+        && data.note is string && data.note.size() <= 1000
+        && data.archived is bool
+        && data.authorUid is string && data.authorUid.size() > 0
+        && data.authorLabel is string && data.authorLabel.size() > 0 && data.authorLabel.size() <= 120
+        && data.createdAt is timestamp && data.updatedAt is timestamp
+        && data.updatedBy is string && data.updatedBy.size() > 0;
+    }
+
     match /users/{uid} {
       allow read: if activeUser() && (request.auth.uid == uid || isAdmin());
       allow write: if false;
@@ -114,6 +130,11 @@ service cloud.firestore {
 
     match /privateContentVersions/{versionId} {
       allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /privateConfig/{configId} {
+      allow read: if activeUser();
       allow write: if false;
     }
 
@@ -168,6 +189,21 @@ service cloud.firestore {
           && validTask(request.resource.data)
           && request.resource.data.createdByUid == resource.data.createdByUid
           && request.resource.data.updatedBy == request.auth.uid);
+      allow delete: if false;
+    }
+
+    match /mediaLinks/{mediaId} {
+      allow read: if activeUser();
+      allow create: if isEditor()
+        && validMediaLink(request.resource.data)
+        && request.resource.data.archived == false
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if isEditor()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['archived', 'updatedAt', 'updatedBy'])
+        && validMediaLink(request.resource.data)
+        && request.resource.data.archived == true
+        && request.resource.data.updatedBy == request.auth.uid;
       allow delete: if false;
     }
 

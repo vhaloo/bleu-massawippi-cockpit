@@ -145,6 +145,17 @@ export async function fetchPrivateContent() {
   return data;
 }
 
+export async function fetchMediaConfig() {
+  requireConfigured();
+  const snapshot = await withTimeout(getDoc(doc(db, "privateConfig", "media")), "La configuration OneDrive ne répond pas.");
+  if (!snapshot.exists()) return { folderUrl: "", folderViewUrl: "" };
+  const data = snapshot.data();
+  return {
+    folderUrl: String(data.folderUrl || "").slice(0, 2048),
+    folderViewUrl: String(data.folderViewUrl || "").slice(0, 2048)
+  };
+}
+
 export function observeAuth(callback) {
   if (!configured) {
     callback(null, null, new Error("Firebase non configuré."));
@@ -299,6 +310,79 @@ export async function addComment(itemId, comment, profile, quickTag = null, dict
     dictated: Boolean(dictated)
   }, profile);
   return reference.id;
+}
+
+function normalizeMediaUrl(value) {
+  let parsed;
+  try {
+    parsed = new URL(String(value || "").trim());
+  } catch {
+    throw new Error("Le lien média n’est pas valide.");
+  }
+  const host = parsed.hostname.toLowerCase();
+  const allowed = parsed.protocol === "https:" && (host.endsWith(".sharepoint.com") || host === "1drv.ms" || host === "onedrive.live.com");
+  if (!allowed) throw new Error("Utilisez un lien HTTPS OneDrive ou SharePoint.");
+  return parsed.href.slice(0, 2048);
+}
+
+export async function addMediaLink(eventId, payload, profile) {
+  requireConfigured();
+  if (!profile || !["director", "admin"].includes(profile.role)) {
+    throw new Error("Ce compte n’a pas le droit d’ajouter un média.");
+  }
+  if (!/^[a-z0-9-]{3,80}$/i.test(String(eventId || ""))) throw new Error("Événement média invalide.");
+  const kinds = new Set(["image", "video", "pdf", "document", "folder", "other"]);
+  const stages = new Set(["source", "draft", "approved", "published", "reference"]);
+  const kind = kinds.has(payload.kind) ? payload.kind : "other";
+  const stage = stages.has(payload.stage) ? payload.stage : "reference";
+  const now = serverTimestamp();
+  const data = {
+    eventId,
+    label: String(payload.label || "Média OneDrive").trim().slice(0, 180),
+    url: normalizeMediaUrl(payload.url),
+    kind,
+    stage,
+    note: String(payload.note || "").trim().slice(0, 1000),
+    archived: false,
+    authorUid: profile.uid,
+    authorLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
+    createdAt: now,
+    updatedAt: now,
+    updatedBy: profile.uid
+  };
+  const reference = await addDoc(collection(db, "mediaLinks"), data);
+  await appendChangeArchive("mediaLink", reference.id, "lien média ajouté", {}, {
+    eventId, label: data.label, url: data.url, kind, stage, note: data.note, archived: false
+  }, profile);
+  return reference.id;
+}
+
+export async function archiveMediaLink(mediaId, profile) {
+  requireConfigured();
+  if (!profile || !["director", "admin"].includes(profile.role)) {
+    throw new Error("Ce compte n’a pas le droit d’archiver un média.");
+  }
+  if (!/^[A-Za-z0-9_-]{3,160}$/.test(String(mediaId || ""))) throw new Error("Média invalide.");
+  const reference = doc(db, "mediaLinks", mediaId);
+  const existing = await getDoc(reference);
+  if (!existing.exists()) throw new Error("Ce média n’existe plus.");
+  await updateDoc(reference, { archived: true, updatedAt: serverTimestamp(), updatedBy: profile.uid });
+  const before = existing.data();
+  await appendChangeArchive("mediaLink", mediaId, "lien média archivé", {
+    eventId: before.eventId || "", label: before.label || "", url: before.url || "", kind: before.kind || "other", stage: before.stage || "reference", note: before.note || "", archived: false
+  }, {
+    eventId: before.eventId || "", label: before.label || "", url: before.url || "", kind: before.kind || "other", stage: before.stage || "reference", note: before.note || "", archived: true
+  }, profile);
+}
+
+export function subscribeMediaLinks(callback, onError) {
+  requireConfigured();
+  const mediaQuery = query(collection(db, "mediaLinks"), orderBy("createdAt", "desc"), limit(500));
+  return onSnapshot(
+    mediaQuery,
+    (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
+    onError
+  );
 }
 
 export async function writeAuditLog(sectionId, action, profile) {

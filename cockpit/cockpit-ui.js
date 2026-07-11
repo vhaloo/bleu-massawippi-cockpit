@@ -1,6 +1,7 @@
 import {
   getClientState,
   fetchPrivateContent,
+  fetchMediaConfig,
   observeAuth,
   signIn,
   sendPasswordReset,
@@ -16,18 +17,22 @@ import {
   updateCockpitFeedbackStatus,
   upsertActionTask,
   completeActionTask,
-  subscribeActionTasks
-} from "./firebase-client.js?v=20260711-stable-v3";
+  subscribeActionTasks,
+  addMediaLink,
+  archiveMediaLink,
+  subscribeMediaLinks
+} from "./firebase-client.js?v=20260711-media-v1";
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
-const state = { user: null, profile: null, rows: new Map(), tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, contentLoaded: false };
+const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), mediaConfig: null, tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, contentLoaded: false };
 let activeRecognition = null;
 let activeTextarea = null;
 let recognitionRestart = false;
 let recognitionRestartTimer = null;
 let recognitionLanguageIndex = 0;
 let recognitionRestartAttempts = 0;
+let microphoneRequestPending = false;
 const recognitionLanguages = ["fr-CA", "fr-FR", "en-CA", "en-US"];
 const terminalRecognitionErrors = new Set(["not-allowed", "service-not-allowed", "audio-capture", "network", "aborted"]);
 
@@ -76,6 +81,29 @@ style.textContent = `
   .cockpit-voice-status.live { color: #0b7895; font-weight: 800; }
   .cockpit-voice-status.error { color: #9a4035; }
   .cockpit-voice-help { flex-basis: 100%; color: #6b858d; font-size: .68rem; line-height: 1.35; }
+  .cockpit-media { margin-top: 10px; overflow: hidden; border: 1px solid #cfe3e6; border-radius: 12px; background: #fff; }
+  .cockpit-media > summary { display: flex; align-items: center; gap: 7px; padding: 9px 11px; color: #174e62; font-size: .76rem; }
+  .cockpit-media > summary:after { margin-left: auto; }
+  .cockpit-media-count { display: inline-grid; min-width: 21px; min-height: 21px; padding: 0 6px; place-items: center; border-radius: 999px; color: #fff; background: #0b7895; font-size: .66rem; }
+  .cockpit-media-body { padding: 0 10px 10px; }
+  .cockpit-media-gallery { display: flex; gap: 9px; overflow-x: auto; padding: 3px 1px 9px; scroll-snap-type: x proximity; }
+  .cockpit-media-empty { margin: 4px 0 9px; color: #67828d; font-size: .72rem; }
+  .cockpit-media-card { position: relative; flex: 0 0 min(220px, 78vw); overflow: hidden; scroll-snap-align: start; border: 1px solid #d3e6e8; border-radius: 11px; background: #f7fbfb; }
+  .cockpit-media-preview { display: grid; min-height: 128px; place-items: center; overflow: hidden; color: #0b6077; background: #e9f4f5; text-decoration: none; }
+  .cockpit-media-preview img { display: block; width: 100%; height: 150px; object-fit: cover; }
+  .cockpit-media-icon { font-size: 2rem; }
+  .cockpit-media-meta { padding: 8px 9px 10px; }
+  .cockpit-media-meta b { display: block; overflow: hidden; color: #174e62; font-size: .73rem; text-overflow: ellipsis; white-space: nowrap; }
+  .cockpit-media-meta p { margin: 3px 0 0; color: #64808a; font-size: .66rem; line-height: 1.35; }
+  .cockpit-media-stage { display: inline-block; margin-top: 5px; padding: 2px 6px; border-radius: 999px; color: #0b6077; background: #dff3f3; font-size: .61rem; font-weight: 850; }
+  .cockpit-media-card button[data-archive-media] { position: absolute; top: 6px; right: 6px; min-width: 27px; padding: 4px; border: 1px solid rgba(255,255,255,.75); border-radius: 999px; color: #fff; background: rgba(68,48,48,.76); cursor: pointer; }
+  .cockpit-media-form { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(120px,.8fr) auto; gap: 6px; padding-top: 9px; border-top: 1px solid #d8e8ea; }
+  .cockpit-media-form input, .cockpit-media-form select { min-width: 0; padding: 7px; border: 1px solid #d1e3e6; border-radius: 8px; color: #264a58; background: #fff; font: inherit; font-size: .7rem; }
+  .cockpit-media-form [name="media-note"] { grid-column: 1 / 3; }
+  .cockpit-media-form button { grid-column: 3; grid-row: 1 / 3; padding: 7px 10px; border: 0; border-radius: 8px; color: #fff; background: #0b7895; font-size: .7rem; font-weight: 850; cursor: pointer; }
+  .cockpit-media-tools { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; margin-top: 8px; }
+  .cockpit-media-folder { display: inline-block; padding: 6px 9px; border: 1px solid #0b7895; border-radius: 999px; color: #0b6077; font-size: .68rem; font-weight: 850; text-decoration: none; }
+  .cockpit-media-note { margin: 0; color: #6b858d; font-size: .65rem; }
   #cockpit-feedback-launch { position: fixed; left: 15px; bottom: 15px; z-index: 31; min-height: 42px; padding: 0 14px; border: 1px solid #073a52; border-radius: 999px; color: #fff; background: #073a52; box-shadow: 0 8px 22px rgba(7,58,82,.2); font-weight: 850; cursor: pointer; }
   #cockpit-feedback-panel { position: fixed; left: 15px; bottom: 68px; z-index: 32; display: none; width: min(390px, calc(100vw - 30px)); padding: 16px; border: 1px solid #cbe1e4; border-radius: 18px; color: #234b5a; background: #f8fcfc; box-shadow: 0 18px 42px rgba(7,58,82,.2); }
   #cockpit-feedback-panel.open { display: block; }
@@ -134,6 +162,8 @@ style.textContent = `
     .cockpit-status-row button[data-status="deleted"] { margin-left: 0; }
     #cockpit-task-launch { right: 12px; bottom: 68px; }
     #cockpit-install-launch { right: 12px; bottom: 120px; }
+    .cockpit-media-form { grid-template-columns: 1fr; }
+    .cockpit-media-form [name="media-note"], .cockpit-media-form button { grid-column: 1; grid-row: auto; }
   }
 `;
 document.head.appendChild(style);
@@ -712,6 +742,100 @@ function syncCardAccess() {
   });
 }
 
+const mediaStageLabels = {
+  source: "Source",
+  draft: "En révision",
+  approved: "Approuvé",
+  published: "Publié",
+  reference: "Référence"
+};
+
+const mediaKindIcons = {
+  video: "🎬",
+  pdf: "📄",
+  document: "📎",
+  folder: "📁",
+  other: "🔗"
+};
+
+function safeMediaUrl(value) {
+  try {
+    const parsed = new URL(String(value || ""));
+    const host = parsed.hostname.toLowerCase();
+    if (parsed.protocol !== "https:") return "";
+    if (!host.endsWith(".sharepoint.com") && host !== "1drv.ms" && host !== "onedrive.live.com") return "";
+    return parsed.href;
+  } catch {
+    return "";
+  }
+}
+
+function mediaPreviewUrl(row) {
+  const url = safeMediaUrl(row.url);
+  if (!url || row.kind !== "image") return "";
+  const parsed = new URL(url);
+  if (parsed.hostname.toLowerCase().endsWith(".sharepoint.com") && parsed.pathname.includes("/:i:/")) {
+    parsed.searchParams.set("download", "1");
+    return parsed.href;
+  }
+  return /\.(jpe?g|png|webp|gif)(?:$|\?)/i.test(url) ? url : "";
+}
+
+function renderMediaForCard(card) {
+  const gallery = card.querySelector("[data-media-gallery]");
+  const count = card.querySelector("[data-media-count]");
+  if (!gallery || !count) return;
+  const rows = (state.mediaByEvent.get(card.dataset.itemId) || []).filter((row) => row.archived !== true && safeMediaUrl(row.url));
+  count.textContent = String(rows.length);
+  if (!rows.length) {
+    gallery.innerHTML = `<p class="cockpit-media-empty">Aucun média lié. Déposez le fichier dans OneDrive, créez un lien de consultation, puis ajoutez-le ici.</p>`;
+    return;
+  }
+  gallery.innerHTML = rows.map((row) => {
+    const url = safeMediaUrl(row.url);
+    const preview = mediaPreviewUrl(row);
+    const visual = preview
+      ? `<img data-media-preview src="${esc(preview)}" alt="${esc(row.label || "Aperçu du média")}" loading="lazy">`
+      : `<span class="cockpit-media-icon" aria-hidden="true">${mediaKindIcons[row.kind] || "🔗"}</span>`;
+    return `<article class="cockpit-media-card" data-media-id="${esc(row.id)}">
+      <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
+      <div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span></div>
+      ${canEdit() ? `<button type="button" data-archive-media="${esc(row.id)}" aria-label="Archiver ce lien média" title="Archiver sans supprimer">×</button>` : ""}
+    </article>`;
+  }).join("");
+  gallery.querySelectorAll("img[data-media-preview]").forEach((image) => {
+    image.addEventListener("error", () => {
+      const replacement = document.createElement("span");
+      replacement.className = "cockpit-media-icon";
+      replacement.textContent = "🖼️";
+      image.replaceWith(replacement);
+    }, { once: true });
+  });
+}
+
+function renderAllMedia() {
+  document.querySelectorAll(".post[data-item-id]").forEach(renderMediaForCard);
+}
+
+function mediaControlsMarkup(planItem) {
+  const folderUrl = safeMediaUrl(state.mediaConfig?.folderUrl || state.mediaConfig?.folderViewUrl || "");
+  return `<details class="cockpit-media">
+    <summary>Médias OneDrive <span class="cockpit-media-count" data-media-count>0</span></summary>
+    <div class="cockpit-media-body">
+      <div class="cockpit-media-gallery" data-media-gallery></div>
+      <form class="cockpit-media-form" data-media-form data-event-id="${esc(planItem.id)}">
+        <input type="url" name="media-url" maxlength="2048" required placeholder="Lien de consultation OneDrive / SharePoint" aria-label="Lien OneDrive ou SharePoint">
+        <input type="text" name="media-label" maxlength="180" required placeholder="Nom du média" aria-label="Nom du média">
+        <select name="media-kind" aria-label="Type de média"><option value="image">Image</option><option value="video">Vidéo</option><option value="pdf">PDF</option><option value="document">Document</option><option value="folder">Dossier</option><option value="other">Autre lien</option></select>
+        <input type="text" name="media-note" maxlength="1000" placeholder="Note facultative : source, droits, correction demandée…" aria-label="Note sur le média">
+        <select name="media-stage" aria-label="Étape du média"><option value="source">Source</option><option value="draft" selected>En révision</option><option value="approved">Approuvé</option><option value="published">Publié</option><option value="reference">Référence</option></select>
+        <button type="submit">Ajouter le lien</button>
+      </form>
+      <div class="cockpit-media-tools">${folderUrl ? `<a class="cockpit-media-folder" href="${esc(folderUrl)}" target="_blank" rel="noopener noreferrer">Déposer dans Media Cockpit ↗</a>` : ""}<p class="cockpit-media-note">Les fichiers restent dans OneDrive. Le cockpit conserve seulement les liens et leur étape.</p></div>
+    </div>
+  </details>`;
+}
+
 function enhanceCards() {
   document.querySelectorAll(".post").forEach((card) => {
     const planItem = getPlanItem(card);
@@ -740,10 +864,12 @@ function enhanceCards() {
         <button type="button" data-tag="cancel">🔴 À annuler</button>
         <button type="button" data-tag="delay">🟡 À décaler</button>
         <button type="button" data-tag="perfect">🟢 Parfait</button>
-      </div>`;
+      </div>
+      ${mediaControlsMarkup(planItem)}`;
     card.appendChild(controls);
   });
   applyRemoteRows();
+  renderAllMedia();
   syncCardAccess();
 }
 
@@ -918,7 +1044,30 @@ function scheduleRecognitionRestart(recognition, textarea) {
   }, delay);
 }
 
-function startDictation(textarea) {
+async function requestMicrophoneAccess(textarea) {
+  if (microphoneRequestPending) {
+    setVoiceStatus(textarea, "La demande d’accès au microphone est déjà en cours…", "live");
+    return false;
+  }
+  if (!navigator.mediaDevices?.getUserMedia) return true;
+  microphoneRequestPending = true;
+  setVoiceStatus(textarea, "Demande d’accès au microphone…", "live");
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach((track) => track.stop());
+    return true;
+  } catch (error) {
+    const denied = error?.name === "NotAllowedError" || error?.name === "SecurityError";
+    voiceFallback(textarea, denied
+      ? "Le microphone est bloqué pour ce site. Autorisez-le dans les paramètres du navigateur, puis réessayez."
+      : "Aucun microphone utilisable n’a été trouvé. Vérifiez le périphérique choisi dans le navigateur.");
+    return false;
+  } finally {
+    microphoneRequestPending = false;
+  }
+}
+
+async function startDictation(textarea) {
   if (!textarea) return;
   if (activeRecognition && activeTextarea === textarea) {
     stopDictation();
@@ -935,6 +1084,9 @@ function startDictation(textarea) {
     voiceFallback(textarea, "La dictée exige une connexion HTTPS.");
     return;
   }
+  setVoiceButtonState(textarea, true);
+  if (!(await requestMicrophoneAccess(textarea))) return;
+  if (activeRecognition) stopDictation();
   let recognition;
   try {
     recognition = new Recognition();
@@ -1014,6 +1166,32 @@ function startDictation(textarea) {
   }
 }
 
+async function saveMediaForm(form) {
+  if (!state.profile || !canEdit()) {
+    toast("Votre session est en lecture seule.", true);
+    return;
+  }
+  const submit = form.querySelector("button[type=submit]");
+  submit.disabled = true;
+  try {
+    await addMediaLink(form.dataset.eventId, {
+      url: form.elements["media-url"].value,
+      label: form.elements["media-label"].value,
+      kind: form.elements["media-kind"].value,
+      stage: form.elements["media-stage"].value,
+      note: form.elements["media-note"].value
+    }, state.profile);
+    form.reset();
+    form.elements["media-stage"].value = "draft";
+    await writeAuditLog(form.dataset.eventId, "lien média ajouté", state.profile);
+    toast("Lien média ajouté.");
+  } catch (error) {
+    toast(error.message, true);
+  } finally {
+    submit.disabled = false;
+  }
+}
+
 async function saveCardComment(card, quickTag = null) {
   if (!state.profile) {
     toast("Session requise.", true);
@@ -1046,14 +1224,27 @@ function enhanceCardEvents() {
   document.addEventListener("click", (event) => {
     const card = event.target.closest(".post[data-item-id]");
     if (!card) return;
-    const statusButton = event.target.closest("[data-status]");
+    const dictateButton = event.target.closest("button[data-dictate]");
+    if (dictateButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      startDictation(card.querySelector("[data-comment]"));
+      return;
+    }
+    const archiveButton = event.target.closest("button[data-archive-media]");
+    if (archiveButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!confirm("Archiver ce lien média? Le fichier OneDrive ne sera pas supprimé.")) return;
+      archiveMediaLink(archiveButton.dataset.archiveMedia, state.profile)
+        .then(() => toast("Lien média archivé."))
+        .catch((error) => toast(error.message, true));
+      return;
+    }
+    const statusButton = event.target.closest("button[data-status]");
     if (statusButton) {
       if (statusButton.dataset.status === "deleted" && !confirm("Masquer virtuellement cette ligne?")) return;
       changeStatus(card, statusButton.dataset.status);
-      return;
-    }
-    if (event.target.closest("[data-dictate]")) {
-      startDictation(card.querySelector("[data-comment]"));
       return;
     }
     if (event.target.closest("[data-save-comment]")) {
@@ -1125,6 +1316,10 @@ async function applyProfile(profile) {
   state.profile = profile;
   const loginNote = document.querySelector("#cockpit-login-note");
   if (loginNote) loginNote.textContent = "Identifiants vérifiés. Chargement du cockpit…";
+  state.mediaConfig = await fetchMediaConfig().catch((error) => {
+    console.warn("Configuration OneDrive indisponible", error);
+    return { folderUrl: "", folderViewUrl: "" };
+  });
   await loadPrivateContent();
   document.body.classList.remove("cockpit-locked");
   document.body.classList.remove("cockpit-readonly");
@@ -1172,14 +1367,18 @@ function applySignedOut(message = "") {
   state.profile = null;
   state.user = null;
   state.rows = new Map();
+  state.mediaByEvent = new Map();
+  state.mediaConfig = null;
   state.scheduleUnsubscribe?.();
   state.auditUnsubscribe?.();
   state.feedbackUnsubscribe?.();
   state.tasksUnsubscribe?.();
+  state.mediaUnsubscribe?.();
   state.scheduleUnsubscribe = null;
   state.auditUnsubscribe = null;
   state.feedbackUnsubscribe = null;
   state.tasksUnsubscribe = null;
+  state.mediaUnsubscribe = null;
   state.tasks = [];
   clearPrivateContent();
   document.body.classList.add("cockpit-locked");
@@ -1211,6 +1410,17 @@ function subscribeRemoteData() {
     state.rows = new Map(rows.map((row) => [row.id, row]));
     applyRemoteRows();
   }, (error) => toast("Le calendrier n’est pas accessible : " + error.message, true));
+  state.mediaUnsubscribe?.();
+  state.mediaUnsubscribe = subscribeMediaLinks((rows) => {
+    const grouped = new Map();
+    rows.forEach((row) => {
+      const eventId = String(row.eventId || "");
+      if (!grouped.has(eventId)) grouped.set(eventId, []);
+      grouped.get(eventId).push(row);
+    });
+    state.mediaByEvent = grouped;
+    renderAllMedia();
+  }, (error) => toast("Les liens médias ne sont pas accessibles : " + error.message, true));
 }
 
 function start() {
@@ -1229,6 +1439,13 @@ function start() {
       enhanceFrame = 0;
       enhanceCards();
     });
+  });
+
+  document.addEventListener("submit", (event) => {
+    const form = event.target.closest("form[data-media-form]");
+    if (!form) return;
+    event.preventDefault();
+    saveMediaForm(form);
   });
   observer.observe(document.body, { childList: true, subtree: true });
 
