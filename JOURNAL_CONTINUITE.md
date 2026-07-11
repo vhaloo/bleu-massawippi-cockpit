@@ -17,6 +17,7 @@ Ce journal est un point de reprise local. Il ne contient aucun mot de passe, jet
 - Les métadonnées sont dans `attachments/{attachmentId}`; les versions ne sont pas supprimées depuis le frontend.
 - Les deux dérivations de référence du premier post sont conservées localement dans `C:\Users\Vhaloo\Documents\Bleu Massawippi\media\portes-ouvertes\` : la source recadrée et le visuel proposé avec correction légère. Aucune génération ayant inventé l’architecture n’est utilisée.
 - `admin_sync.js` télécharge désormais les pièces jointes non marquées `downloadedLocally` dans `sync-output/attachments` et conserve leur trace dans Firestore.
+- Au 10 juillet 2026, le projet Firebase n’a pas encore de bucket Storage provisionné; `seed:attachments` s’arrête donc proprement sur cette dépendance externe. Le code et les règles sont prêts, mais l’activation de Storage doit être faite dans la console Firebase avec le choix de facturation approprié.
 
 ## Dictée et diagnostic
 
