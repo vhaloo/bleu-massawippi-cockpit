@@ -364,7 +364,7 @@ function buildAdminSidebar() {
   if (document.querySelector("#cockpit-sidebar")) return;
   const sidebar = document.createElement("aside");
   sidebar.id = "cockpit-sidebar";
-  sidebar.innerHTML = "<div id=\"cockpit-task-heading\"><h2>À accomplir</h2><span id=\"cockpit-task-count\">0</span></div><p class=\"cockpit-sidebar-note\">Les décisions et recommandations reçues de la direction restent ici jusqu’à leur validation ou leur achèvement forcé.</p><div id=\"cockpit-task-list\"></div><h2>Journal de modifications</h2><p class=\"cockpit-sidebar-note\">Lecture technique des changements synchronisés.</p><div id=\"cockpit-log-list\"></div><h2 style=\"margin-top:24px\">Rétroactions du cockpit</h2><p class=\"cockpit-sidebar-note\">Les avis déposés dans les sections et la boîte à idées.</p><div id=\"cockpit-feedback-list\"></div>";
+  sidebar.innerHTML = "<div id=\"cockpit-task-heading\"><h2>À accomplir</h2><span id=\"cockpit-task-count\" data-task-count>0</span></div><p class=\"cockpit-sidebar-note\">Les décisions et recommandations reçues de la direction restent ici jusqu’à leur validation ou leur achèvement forcé.</p><div id=\"cockpit-task-list\"></div><h2>Journal de modifications</h2><p class=\"cockpit-sidebar-note\">Lecture technique des changements synchronisés.</p><div id=\"cockpit-log-list\"></div><h2 style=\"margin-top:24px\">Rétroactions du cockpit</h2><p class=\"cockpit-sidebar-note\">Les avis déposés dans les sections et la boîte à idées.</p><div id=\"cockpit-feedback-list\"></div>";
   document.body.appendChild(sidebar);
   const toggle = document.createElement("button");
   toggle.id = "cockpit-sidebar-toggle";
