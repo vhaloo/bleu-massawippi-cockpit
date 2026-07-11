@@ -185,14 +185,17 @@ service cloud.firestore {
       allow create: if isEditor() && validComment(request.resource.data) && request.resource.data.deleted == false;
       allow update: if isEditor()
         && request.resource.data.authorUid == resource.data.authorUid
-        && validComment(request.resource.data)
         && ((resource.data.authorUid == request.auth.uid
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comment', 'deleted', 'updatedAt', 'updatedBy']))
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comment', 'deleted', 'updatedAt', 'updatedBy'])
+            && validComment(request.resource.data))
           || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['resolved', 'resolvedAt', 'resolvedBy', 'resolvedByLabel', 'updatedAt', 'updatedBy'])
             && request.resource.data.resolved == true
             && request.resource.data.resolvedAt is timestamp
             && request.resource.data.resolvedBy == request.auth.uid
-            && request.resource.data.resolvedByLabel.size() > 0));
+            && request.resource.data.resolvedByLabel is string
+            && request.resource.data.resolvedByLabel.size() > 0
+            && request.resource.data.resolvedByLabel.size() <= 120
+            && request.resource.data.updatedBy == request.auth.uid));
       allow delete: if false;
     }
 

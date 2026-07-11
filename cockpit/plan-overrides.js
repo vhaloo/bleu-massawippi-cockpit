@@ -53,6 +53,33 @@ Directions: ${OPEN_HOUSE_MAP_URL}
   taskOwnersVersion: "event-task-owners-2026-07-11-weekly-presence-v2"
 };
 
+const VOLUNTEER_INTERVIEW_POST = {
+  w: 5,
+  date: "Mardi 11 août",
+  choiceRequired: false,
+  optionGroup: null,
+  optionLabel: null,
+  isAlternative: false,
+  coordinationLevel: "high",
+  coordinationLabel: "Préparation requise · personne bénévole, entrevue, consentement et photo",
+  role: "Humaniser l’action en donnant la parole à une personne bénévole, après une préparation réaliste de l’entrevue, des autorisations et du visuel.",
+  task: "Préparer la personne, l’entrevue, le consentement et le portrait avant de finaliser la publication.",
+  tasksValentin: [
+    "Préparer une courte grille d’entrevue chaleureuse : motivation, geste concret, souvenir du lac et invitation à participer.",
+    "Proposer deux ou trois profils possibles avec la direction, puis préparer le courriel ou l’appel de prise de contact.",
+    "Planifier une entrevue de 20 à 30 minutes et une prise de photo; prévoir une solution de rechange sans visage identifiable.",
+    "Obtenir et classer le consentement de diffusion pour le texte, la citation, le nom et l’image avant toute publication.",
+    "À partir de l’entrevue, adapter l’ébauche FR / EN, produire le portrait ou la capsule et soumettre le tout aux deux validations."
+  ],
+  tasksAnnie: [
+    "Identifier une ou plusieurs personnes bénévoles crédibles, disponibles et à l’aise de témoigner publiquement.",
+    "Faire l’introduction institutionnelle ou autoriser la prise de contact par les communications.",
+    "Confirmer que la participation, le contexte raconté et les informations institutionnelles sont exacts et appropriés.",
+    "Aider à fixer le rendez-vous si la relation avec la personne bénévole passe par la direction générale."
+  ],
+  taskOwnersVersion: "event-task-owners-2026-07-11-volunteer-interview-v2"
+};
+
 export function applyPlanOverridesToPosts(posts) {
   if (!Array.isArray(posts)) return posts;
   const first = posts.find((post) => post.id === "s1d1");
@@ -71,6 +98,15 @@ export function applyPlanOverridesToPosts(posts) {
       role: "Contenu nature déplacé du premier lundi afin de préserver la variété et de maintenir une réserve éditoriale pour la cadence permanente."
     });
   }
+  const volunteer = posts.find((post) => post.id === "s1d3");
+  if (volunteer) Object.assign(volunteer, VOLUNTEER_INTERVIEW_POST);
+  const tuesdayFallback = posts.find((post) => post.id === "s1d3b");
+  if (tuesdayFallback) Object.assign(tuesdayFallback, {
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    role: "Publication pratique retenue pour le premier mardi pendant que le portrait bénévole est préparé pour une semaine ultérieure."
+  });
   return posts;
 }
 
