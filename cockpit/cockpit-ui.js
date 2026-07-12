@@ -1134,7 +1134,12 @@ function mediaPreviewUrl(row) {
   if (!url || row.kind !== "image") return "";
   const parsed = new URL(url);
   if (parsed.hostname.toLowerCase().endsWith(".sharepoint.com") && parsed.pathname.includes("/:i:/")) {
-    return "";
+    // A SharePoint image-sharing link normally opens the Microsoft viewer.
+    // download=1 resolves that same public link to the image bytes, so the
+    // browser can display a real thumbnail while the card still opens the
+    // original viewer URL in a new tab.
+    parsed.searchParams.set("download", "1");
+    return parsed.href;
   }
   return /\.(jpe?g|png|webp|gif)(?:$|\?)/i.test(url) ? url : "";
 }
@@ -1155,7 +1160,7 @@ function renderMediaForCard(card) {
     const url = safeMediaUrl(row.url);
     const preview = mediaPreviewUrl(row);
     const visual = preview
-      ? `<img data-media-preview src="${esc(preview)}" alt="${esc(row.label || "Aperçu du média")}" loading="lazy">`
+      ? `<img data-media-preview src="${esc(preview)}" alt="${esc(row.label || "Aperçu du média")}" loading="lazy" decoding="async" referrerpolicy="no-referrer">`
       : `<span><span class="cockpit-media-icon" aria-hidden="true">${mediaKindIcons[row.kind] || "🔗"}</span><span class="cockpit-media-open-label">Ouvrir ${row.kind === "image" ? "l’image" : "le média"}</span></span>`;
     const isFinal = latestDecision.startsWith(`[MÉDIA RETENU:${row.id}]`);
     return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}" data-media-id="${esc(row.id)}">
