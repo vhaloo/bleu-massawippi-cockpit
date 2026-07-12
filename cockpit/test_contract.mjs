@@ -90,7 +90,7 @@ for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMed
 for (const token of ["data-theme-toggle", "bleu-massawippi-theme", "prefers-color-scheme"]) {
   assert.ok(theme.includes(token), `Le thème doit contenir le contrat ${token}.`);
 }
-for (const token of ["placeThemeToggle", "in-nav"]) {
+for (const token of ["placeThemeToggle", "in-session"]) {
   assert.ok(theme.includes(token), `Le thème mobile doit contenir le contrat ${token}.`);
 }
 for (const token of ["addComment", "subscribeComments", "updateOwnComment", "resolveComment", "resolvedByLabel", "commentaire traité", "setWorkflowStage", "setOpportunityStage", "subscribeOpportunityStates", "setEditorialDecision", "subscribeEditorialDecisions", "editorialDecisions", "addCockpitFeedback", "subscribeMediaLinks", "memoryLocalCache", "withTimeout", "match /comments/{commentId}", "match /workflowStates/{eventId}", "match /opportunityStates/{opportunityId}", "match /editorialDecisions/{eventId}", "match /mediaLinks/{mediaId}"]) {

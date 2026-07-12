@@ -273,7 +273,7 @@ style.textContent = `
   #cockpit-credit { margin-top: 12px; color: #587680; font-size: .78rem; }
   @media (max-width: 700px) {
     body { padding-bottom: 68px; }
-    #cockpit-session { display:grid; min-height:52px; grid-template-columns:minmax(0,1fr) auto; padding:6px 10px; font-size:.72rem; line-height:1.25; }
+    #cockpit-session { display:grid; min-height:52px; grid-template-columns:minmax(0,1fr) auto auto; gap:6px; padding:6px 10px; font-size:.72rem; line-height:1.25; }
     #cockpit-session-label { min-width:0; }
     #cockpit-logout { min-height:40px; padding:6px 11px; border-radius:10px; }
     .nav { top:var(--cockpit-session-height,52px); z-index:19; margin-top:0; }

@@ -21,6 +21,7 @@ function setTheme(theme, persist = false) {
   if (!button) return;
   const dark = theme === "dark";
   button.setAttribute("aria-pressed", String(dark));
+  button.setAttribute("aria-label", dark ? "Passer au mode clair" : "Passer au mode sombre");
   button.title = dark ? "Passer au mode clair" : "Passer au mode sombre";
   button.textContent = dark ? "☀ Mode clair" : "☾ Mode sombre";
 }
@@ -29,7 +30,9 @@ const style = document.createElement("style");
 style.id = "cockpit-theme-style";
 style.textContent = `
   .cockpit-theme-toggle { position:fixed; top:98px; right:12px; z-index:2400; border:1px solid rgba(7,58,82,.25); border-radius:999px; padding:8px 12px; background:#fff; color:#073a52; box-shadow:0 5px 18px rgba(0,0,0,.15); font:700 .78rem/1 system-ui,sans-serif; cursor:pointer; }
-  .cockpit-theme-toggle.in-nav { position:static; flex:0 0 auto; min-height:40px; margin:auto 3px auto 5px; padding:7px 10px; box-shadow:none; white-space:nowrap; }
+  .cockpit-theme-toggle.in-session { position:static; display:grid; width:40px; min-width:40px; height:40px; padding:0; place-items:center; box-shadow:none; font-size:0; }
+  .cockpit-theme-toggle.in-session:before { content:"☾"; font-size:1rem; }
+  .cockpit-theme-toggle.in-session[aria-pressed="true"]:before { content:"☀"; }
   [data-theme="dark"] body {
     --ink:#eef7f8; --navy:#dff6fa; --blue:#72d9ed; --aqua:#61d9d2; --mist:#10252e;
     --paper:#12262f; --soft:#bfd1d7; --line:#496873; --gold:#f2c66d; --coral:#ff9b89;
@@ -144,13 +147,14 @@ document.body.appendChild(button);
 
 const compactLayout = matchMedia("(max-width:700px)");
 function placeThemeToggle() {
-  const nav = document.querySelector(".nav .wrap");
-  if (compactLayout.matches && nav) {
-    if (button.parentElement !== nav) nav.appendChild(button);
-    button.classList.add("in-nav");
+  const session = document.querySelector("#cockpit-session");
+  const logout = document.querySelector("#cockpit-logout");
+  if (compactLayout.matches && session && logout) {
+    if (button.parentElement !== session) session.insertBefore(button, logout);
+    button.classList.add("in-session");
   } else {
     if (button.parentElement !== document.body) document.body.appendChild(button);
-    button.classList.remove("in-nav");
+    button.classList.remove("in-session");
   }
 }
 compactLayout.addEventListener?.("change", placeThemeToggle);
