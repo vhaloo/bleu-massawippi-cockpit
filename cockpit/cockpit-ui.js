@@ -345,6 +345,7 @@ style.textContent = `
     .cockpit-workflow-actions button { width:100%; min-height:44px; }
     .toolbar { gap:7px; padding:8px; }
     .toolbar :is(input,select,button) { min-height:46px; min-width:0; font-size:.78rem; }
+    body .toolbar :is(select,button) { min-height:46px; }
     .status { display:grid; grid-template-columns:auto 1fr; gap:7px 10px; font-size:.78rem; }
     .status .bar { grid-column:1 / -1; grid-row:2; }
     #cockpit-date-elevator { top:calc(var(--cockpit-session-height,52px) + var(--cockpit-nav-height,44px) + 6px); right:8px; bottom:auto; width:min(178px,calc(100vw - 16px)); border-radius:13px; }
