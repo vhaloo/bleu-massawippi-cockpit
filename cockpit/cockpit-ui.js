@@ -49,6 +49,8 @@ const guideCollapsedKey = "bleu-massawippi-guide-collapsed";
 const guideSeenVersionKey = "bleu-massawippi-guide-seen-version";
 const projectCollapsedKey = "bleu-massawippi-projects-collapsed";
 const projectSeenVersionKey = "bleu-massawippi-projects-seen-version";
+let dateElevatorFrame = 0;
+let dateElevatorScrollBound = false;
 
 const style = document.createElement("style");
 style.textContent = `
@@ -112,6 +114,21 @@ style.textContent = `
   .cockpit-media-preview img { display: block; width: 100%; height: 150px; object-fit: cover; }
   .cockpit-media-icon { font-size: 2rem; }
   .cockpit-media-open-label { display:block; margin-top:5px; color:#0b6077; font-size:.7rem; font-weight:900; }
+  #cockpit-date-elevator { position:fixed; top:116px; right:10px; bottom:176px; z-index:19; display:flex; width:112px; flex-direction:column; overflow:hidden; border:1px solid #bad9dd; border-radius:16px; background:rgba(248,252,252,.96); box-shadow:0 12px 30px rgba(7,58,82,.16); backdrop-filter:blur(12px); }
+  #cockpit-date-elevator[hidden] { display:none; }
+  .cockpit-date-current { display:flex; min-height:44px; align-items:center; justify-content:center; gap:5px; padding:7px; border:0; border-bottom:1px solid #d4e7e9; color:#073a52; background:#eaf7f7; font:inherit; font-size:.68rem; font-weight:900; line-height:1.2; cursor:pointer; }
+  .cockpit-date-current i { font-style:normal; }
+  .cockpit-date-nav { display:flex; min-height:0; flex:1; flex-direction:column; gap:4px; overflow-y:auto; padding:7px 6px; scrollbar-width:thin; }
+  .cockpit-date-nav button { position:relative; min-height:31px; padding:5px 5px 5px 12px; border:0; border-radius:8px; color:#577580; background:transparent; font:inherit; font-size:.61rem; font-weight:750; line-height:1.15; text-align:left; cursor:pointer; }
+  .cockpit-date-nav button:before { position:absolute; left:4px; top:50%; width:4px; height:4px; border-radius:50%; content:""; background:#9bbdc2; transform:translateY(-50%); }
+  .cockpit-date-nav button:hover { color:#073a52; background:#edf7f7; }
+  .cockpit-date-nav button.active { color:#fff; background:#0b7895; box-shadow:0 4px 10px rgba(11,120,149,.2); }
+  .cockpit-date-nav button.active:before { background:#fff; }
+  [data-theme="dark"] #cockpit-date-elevator { border-color:#496873; background:rgba(18,45,56,.97); box-shadow:0 14px 34px rgba(0,0,0,.35); }
+  [data-theme="dark"] .cockpit-date-current { color:#f4fbfc; border-color:#496873; background:#173f4d; }
+  [data-theme="dark"] .cockpit-date-nav button { color:#c7dce1; }
+  [data-theme="dark"] .cockpit-date-nav button:hover { color:#fff; background:#244d5a; }
+  [data-theme="dark"] .cockpit-date-nav button.active { color:#fff; background:#1688a3; }
   .cockpit-media-meta { padding: 8px 9px 10px; }
   .cockpit-media-meta b { display: block; overflow: hidden; color: #174e62; font-size: .73rem; text-overflow: ellipsis; white-space: nowrap; }
   .cockpit-media-meta p { margin: 3px 0 0; color: #64808a; font-size: .66rem; line-height: 1.35; }
@@ -247,6 +264,11 @@ style.textContent = `
     .cockpit-media-form { grid-template-columns: 1fr; }
     .cockpit-media-form [name="media-note"], .cockpit-media-form button { grid-column: 1; grid-row: auto; }
     .cockpit-workflow-gates { grid-template-columns:1fr; }
+    #cockpit-date-elevator { top:54px; right:8px; bottom:auto; width:min(178px,calc(100vw - 16px)); border-radius:13px; }
+    .cockpit-date-current { min-height:39px; border-bottom:0; font-size:.68rem; }
+    .cockpit-date-nav { display:none; max-height:48vh; border-top:1px solid #d4e7e9; }
+    #cockpit-date-elevator.open .cockpit-date-nav { display:flex; }
+    [data-theme="dark"] .cockpit-date-nav { border-color:#496873; }
   }
 `;
 document.head.appendChild(style);
@@ -265,6 +287,89 @@ function toast(message, error = false) {
   node.textContent = message;
   document.body.appendChild(node);
   setTimeout(() => node.remove(), 4200);
+}
+
+function updateDateElevator() {
+  const elevator = document.querySelector("#cockpit-date-elevator");
+  const calendar = document.querySelector("#calendrier");
+  if (!elevator || !calendar) return;
+  const groups = [...document.querySelectorAll("#posts .day-group")];
+  if (!groups.length) {
+    elevator.hidden = true;
+    return;
+  }
+  const calendarRect = calendar.getBoundingClientRect();
+  elevator.hidden = calendarRect.top > innerHeight * .78 || calendarRect.bottom < 72;
+  if (elevator.hidden) return;
+  const threshold = Math.min(innerHeight * .4, 330);
+  const nextIndex = groups.findIndex((group) => group.getBoundingClientRect().top > threshold);
+  const activeIndex = nextIndex === -1 ? groups.length - 1 : Math.max(0, nextIndex - 1);
+  const activeGroup = groups[activeIndex];
+  const activeLabel = activeGroup?.querySelector(".day-heading strong")?.textContent?.trim() || "Calendrier";
+  const current = elevator.querySelector("[data-date-current-label]");
+  if (current) current.textContent = activeLabel;
+  const buttons = [...elevator.querySelectorAll("[data-date-target]")];
+  buttons.forEach((button, index) => {
+    const active = index === activeIndex;
+    button.classList.toggle("active", active);
+    if (active) button.setAttribute("aria-current", "date");
+    else button.removeAttribute("aria-current");
+  });
+  const activeButton = buttons[activeIndex];
+  const nav = elevator.querySelector(".cockpit-date-nav");
+  if (activeButton && nav && innerWidth > 700) {
+    const top = activeButton.offsetTop;
+    if (top < nav.scrollTop + 8 || top + activeButton.offsetHeight > nav.scrollTop + nav.clientHeight - 8) {
+      nav.scrollTo({ top: Math.max(0, top - nav.clientHeight / 2), behavior: "smooth" });
+    }
+  }
+}
+
+function requestDateElevatorUpdate() {
+  if (dateElevatorFrame) return;
+  dateElevatorFrame = requestAnimationFrame(() => {
+    dateElevatorFrame = 0;
+    updateDateElevator();
+  });
+}
+
+function setupDateElevator() {
+  const calendar = document.querySelector("#calendrier");
+  const groups = [...document.querySelectorAll("#posts .day-group")];
+  document.querySelector("#cockpit-date-elevator")?.remove();
+  if (!calendar || !groups.length) return;
+  const elevator = document.createElement("aside");
+  elevator.id = "cockpit-date-elevator";
+  elevator.hidden = true;
+  elevator.setAttribute("aria-label", "Repère rapide des dates du calendrier");
+  const dates = groups.map((group, index) => {
+    const label = group.querySelector(".day-heading strong")?.textContent?.trim() || `Journée ${index + 1}`;
+    const targetId = `cockpit-calendar-day-${index + 1}`;
+    group.id = targetId;
+    group.style.scrollMarginTop = "112px";
+    return { label, targetId };
+  });
+  elevator.innerHTML = `<button type="button" class="cockpit-date-current" data-date-toggle aria-expanded="false"><span aria-hidden="true">🗓️</span><span data-date-current-label>${esc(dates[0].label)}</span><i aria-hidden="true">⌄</i></button><nav class="cockpit-date-nav" aria-label="Aller directement à une date">${dates.map(({ label, targetId }) => `<button type="button" data-date-target="${esc(targetId)}">${esc(label)}</button>`).join("")}</nav>`;
+  document.body.appendChild(elevator);
+  elevator.addEventListener("click", (event) => {
+    const targetButton = event.target.closest("[data-date-target]");
+    if (targetButton) {
+      document.getElementById(targetButton.dataset.dateTarget)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      elevator.classList.remove("open");
+      elevator.querySelector("[data-date-toggle]")?.setAttribute("aria-expanded", "false");
+      return;
+    }
+    const toggle = event.target.closest("[data-date-toggle]");
+    if (!toggle || innerWidth > 700) return;
+    const open = elevator.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+  if (!dateElevatorScrollBound) {
+    addEventListener("scroll", requestDateElevatorUpdate, { passive: true });
+    addEventListener("resize", requestDateElevatorUpdate, { passive: true });
+    dateElevatorScrollBound = true;
+  }
+  requestDateElevatorUpdate();
 }
 
 let deferredInstallPrompt = null;
@@ -1781,12 +1886,14 @@ async function loadPrivateContent() {
   planScript.remove();
   setupGuidePreference();
   setupProjectPreference();
+  setupDateElevator();
   state.contentLoaded = true;
 }
 
 function clearPrivateContent() {
   document.querySelector("#cockpit-content")?.replaceChildren();
   document.querySelector("#cockpit-private-style")?.remove();
+  document.querySelector("#cockpit-date-elevator")?.remove();
   state.contentLoaded = false;
   globalThis.posts = [];
 }
@@ -1953,6 +2060,7 @@ function start() {
     enhanceFrame = requestAnimationFrame(() => {
       enhanceFrame = 0;
       enhanceCards();
+      setupDateElevator();
     });
   });
 

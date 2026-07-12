@@ -29,6 +29,8 @@ Mise à jour des permissions : l’ancien lien anonyme modifiable du dossier `Me
 
 Règle éditoriale verrouillée : chaque publication du calendrier doit contenir un texte complet en français (`FR —`) et en anglais (`EN —`). Le test contractuel parcourt désormais toutes les publications et échoue si l’une des deux versions manque.
 
+Navigation du calendrier : un ascenseur de dates fixe apparaît à droite lorsque le calendrier entre dans la fenêtre. Il met automatiquement en évidence la journée courante pendant le défilement et chaque date permet de rejoindre directement sa journée. Sur mobile, il devient un indicateur compact dépliable afin de ne pas masquer les cartes. Il se reconstruit après les filtres ou un nouveau rendu du calendrier et disparaît hors de la section calendrier.
+
 ## Régression de stabilité — 11 juillet 2026
 
 Le frontend est revenu au dernier socle stable antérieur au module photo (`137525a`). Les fonctions textuelles essentielles sont conservées : authentification, calendrier, choix, statuts, commentaires, dictée, rétroactions, tâches, calendrier personnel et installation PWA. Le rescan global de la page a été remplacé par une observation ciblée des cartes pour éviter les boucles et ralentissements.
