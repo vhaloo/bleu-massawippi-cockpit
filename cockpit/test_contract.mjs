@@ -12,6 +12,7 @@ const theme = fs.readFileSync(path.join(here, "theme.js"), "utf8");
 const firebaseConfig = fs.readFileSync(path.join(here, "firebase-config.js"), "utf8");
 const firestoreRules = fs.readFileSync(path.join(here, "firestore.rules"), "utf8");
 const source = fs.readFileSync(path.join(root, "index.html"), "utf8");
+const historicalMedia = JSON.parse(fs.readFileSync(path.join(here, "historical_media_manifest.json"), "utf8"));
 const postsJson = source.match(/var posts=(\[[\s\S]*?\]);\s*var meta=/)?.[1];
 assert.ok(postsJson, "Le tableau des publications source doit rester lisible.");
 const posts = applyPlanOverridesToPosts(JSON.parse(postsJson));
@@ -54,6 +55,15 @@ for (const historicalTitle of ["Massawippi en 1859 : une fenêtre dessinée sur 
 }
 assert.match(preparePlanScript(source.match(/<script>\s*(var posts=[\s\S]*?)<\/script>/i)[1], posts), /\[1,2,3,4,5\]\.forEach/);
 assert.match(source, /Coordination renforcée avant publication/);
+assert.equal(historicalMedia.length, 43);
+assert.equal(new Set(historicalMedia.map((item) => item.id)).size, historicalMedia.length);
+assert.equal(new Set(historicalMedia.map((item) => item.fileName)).size, historicalMedia.length);
+assert.equal(new Set(historicalMedia.map((item) => item.eventId)).size, 22);
+assert.equal(historicalMedia.filter((item) => /confirmer/i.test(item.license || "")).length, 2);
+for (const media of historicalMedia) {
+  assert.ok(posts.some((post) => post.id === media.eventId), `Le média ${media.fileName} doit être relié à une publication existante.`);
+}
+assert.doesNotMatch(JSON.stringify(historicalMedia), /sharepoint\.com|:\/g\/IQ/i);
 
 for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMedia", "button[data-dictate]", "data-add-post-calendar", "data-media-form", "cockpit-media-open-label", "cockpit-date-elevator", "data-date-target", "requestDateElevatorUpdate", "data-workflow-stage", "workflowDirection", "aria-pressed=\"false\"", "Feu vert retiré; l’historique est conservé.", "id=\\\"cockpit-task-count\\\" data-task-count", "Mini-chat de l’événement", "data-resolve-comment", "Voir les messages traités", "comment-task", "data-editorial-decision", "Bonne idée — autre jour", "Ne pas retenir cet angle", "editorial-deferred", "data-comment-thread", "MutationObserver", "Connexion…", "bleu-massawippi-guide-collapsed", "data-guide-new-badge", "setOpportunityStage", "data-opportunity-stage", "bleu-massawippi-projects-collapsed", "Valider le texte avec l’aval", "Valider le visuel avec l’aval"]) {
   assert.ok(ui.includes(token), `Le cockpit doit contenir le contrat ${token}.`);
@@ -71,4 +81,4 @@ assert.doesNotMatch(client, /firebase-storage|uploadBytes|getDownloadURL/);
 assert.doesNotMatch(ui + client, /data-attachment-input|seed_open_house_attachments/);
 assert.match(firebaseConfig, /apiKey:\s*"AIza[A-Za-z0-9_-]{20,}"/);
 assert.doesNotMatch(firebaseConfig, /GEMINI|gemini_api_key/i);
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 26, bilingualPosts: posts.length, historicalPosts: 6, opportunities: 8, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 208 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 26, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, opportunities: 8, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 214 }, null, 2));

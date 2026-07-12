@@ -77,6 +77,7 @@ style.textContent = `
   [data-theme="dark"] .cockpit-workflow-gate.current { color:#ffe7b5 !important; background:#493b24 !important; border-color:#e2b553 !important; }
   [data-theme="dark"] .cockpit-media-card.is-final { border-color:#79d6b6 !important; }
   [data-theme="dark"] .cockpit-media-final-action { color:#071b15 !important; background:#79d6b6 !important; border-color:#79d6b6 !important; }
+  [data-theme="dark"] .cockpit-media-rights-warning { color:#ffe4a3 !important; background:#4a3515 !important; border-color:#d9a441 !important; }
   [data-theme="dark"] :is(.project-hub,.project-card) { color:#eef7f8 !important; background:#152c36 !important; border-color:#796e50 !important; }
   [data-theme="dark"] .project-hub>summary { color:#fff1c9 !important; background:#473a21 !important; border-color:#9b7c3c !important; }
   [data-theme="dark"] .project-decision { color:#dff7ed !important; background:#1e463b !important; border-color:#6ab594 !important; }
