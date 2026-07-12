@@ -129,12 +129,19 @@ style.textContent = `
   [data-theme="dark"] .cockpit-date-nav button { color:#c7dce1; }
   [data-theme="dark"] .cockpit-date-nav button:hover { color:#fff; background:#244d5a; }
   [data-theme="dark"] .cockpit-date-nav button.active { color:#fff; background:#1688a3; }
-  .cockpit-media-meta { padding: 8px 9px 10px; }
+  .cockpit-media-details { border-top:1px solid #d8e8ea; background:#fbfdfd; }
+  .cockpit-media-details > summary { display:flex; min-height:35px; align-items:center; gap:6px; padding:7px 9px; color:#245866; font-size:.67rem; font-weight:900; cursor:pointer; list-style:none; }
+  .cockpit-media-details > summary::-webkit-details-marker { display:none; }
+  .cockpit-media-details > summary:after { margin-left:auto; content:"⌄"; color:#0b7895; font-size:.85rem; transition:transform .16s ease; }
+  .cockpit-media-details[open] > summary:after { transform:rotate(180deg); }
+  .cockpit-media-details[open] > summary { background:#f0f8f8; }
+  .cockpit-media-meta { padding: 1px 9px 10px; }
   .cockpit-media-meta b { display: block; overflow: hidden; color: #174e62; font-size: .73rem; text-overflow: ellipsis; white-space: nowrap; }
   .cockpit-media-meta p { margin: 3px 0 0; color: #64808a; font-size: .66rem; line-height: 1.35; }
+  .cockpit-media-source-link { display:inline-flex; margin-top:7px; align-items:center; gap:4px; color:#0b6077; font-size:.65rem; font-weight:900; text-decoration:underline; text-underline-offset:2px; }
   .cockpit-media-stage { display: inline-block; margin-top: 5px; padding: 2px 6px; border-radius: 999px; color: #0b6077; background: #dff3f3; font-size: .61rem; font-weight: 850; }
-  .cockpit-media-rights-warning { display:block; margin-top:7px; padding:6px 7px; border:1px solid #d9a441; border-radius:7px; color:#6b4300; background:#fff4d6; font-size:.63rem; font-weight:900; line-height:1.35; }
-  .cockpit-media-final-badge { display:block; margin-top:6px; color:#155c4e; font-size:.66rem; font-weight:900; }
+  .cockpit-media-rights-warning { display:block; margin:7px 8px 0; padding:6px 7px; border:1px solid #d9a441; border-radius:7px; color:#6b4300; background:#fff4d6; font-size:.63rem; font-weight:900; line-height:1.35; }
+  .cockpit-media-final-badge { display:block; margin:8px 9px 6px; color:#155c4e; font-size:.66rem; font-weight:900; }
   .cockpit-media-final-action { width:calc(100% - 16px); margin:0 8px 9px; padding:7px; border:1px solid #21866d; border-radius:8px; color:#155c4e; background:#e3f5ee; font-size:.66rem; font-weight:900; cursor:pointer; }
   .cockpit-media-comment { display:grid; grid-template-columns:1fr auto; gap:6px; margin:0 8px 9px; }
   .cockpit-media-comment input { min-width:0; padding:7px; border:1px solid #c9dde0; border-radius:8px; color:#294d59; background:#fff; font-size:.66rem; }
@@ -1166,7 +1173,9 @@ function renderMediaForCard(card) {
     const isFinal = latestDecision.startsWith(`[MÉDIA RETENU:${row.id}]`);
     return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}" data-media-id="${esc(row.id)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
-      <div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.rightsStatus === "unconfirmed" ? `<span class="cockpit-media-rights-warning">⚠ Droits à confirmer — référence interne seulement</span>` : ""}${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span>${isFinal ? `<span class="cockpit-media-final-badge">✓ Média final retenu par la direction</span>` : ""}</div>
+      ${row.rightsStatus === "unconfirmed" ? `<span class="cockpit-media-rights-warning">⚠ Droits à confirmer — référence interne seulement</span>` : ""}
+      <details class="cockpit-media-details"><summary>Détails du média</summary><div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span><br><a class="cockpit-media-source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Ouvrir l’original dans OneDrive ↗</a></div></details>
+      ${isFinal ? `<span class="cockpit-media-final-badge">✓ Média final retenu par la direction</span>` : ""}
       ${["director","admin"].includes(state.profile?.role) ? `<button type="button" class="cockpit-media-final-action" data-select-final-media="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${isFinal}">${isFinal ? "✓ Média final choisi" : "Choisir ce média"}</button><div class="cockpit-media-comment"><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button></div>` : ""}
       ${canEdit() ? `<button type="button" data-archive-media="${esc(row.id)}" aria-label="Archiver ce lien média" title="Archiver sans supprimer">×</button>` : ""}
     </article>`;

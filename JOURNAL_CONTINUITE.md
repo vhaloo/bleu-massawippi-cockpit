@@ -33,6 +33,8 @@ Règle éditoriale verrouillée : chaque publication du calendrier doit contenir
 
 Navigation du calendrier : un ascenseur de dates fixe apparaît à droite lorsque le calendrier entre dans la fenêtre. Il met automatiquement en évidence la journée courante pendant le défilement et chaque date permet de rejoindre directement sa journée. Sur mobile, il devient un indicateur compact dépliable afin de ne pas masquer les cartes. Il se reconstruit après les filtres ou un nouveau rendu du calendrier et disparaît hors de la section calendrier.
 
+Lisibilité des médias : chaque carte conserve l’aperçu réel, l’avertissement de droits éventuel, le choix final et le commentaire immédiatement visibles. Le nom du fichier, la note complète, l’étape et le lien vers l’original OneDrive sont regroupés dans un menu `Détails du média`, fermé par défaut.
+
 ## Régression de stabilité — 11 juillet 2026
 
 Le frontend est revenu au dernier socle stable antérieur au module photo (`137525a`). Les fonctions textuelles essentielles sont conservées : authentification, calendrier, choix, statuts, commentaires, dictée, rétroactions, tâches, calendrier personnel et installation PWA. Le rescan global de la page a été remplacé par une observation ciblée des cartes pour éviter les boucles et ralentissements.
