@@ -159,6 +159,7 @@ function placeThemeToggle() {
 }
 compactLayout.addEventListener?.("change", placeThemeToggle);
 addEventListener("cockpit:content-ready", placeThemeToggle);
+addEventListener("cockpit:session-ready", placeThemeToggle);
 placeThemeToggle();
 setTheme(savedTheme() || (media.matches ? "dark" : "light"));
 media.addEventListener?.("change", (event) => {

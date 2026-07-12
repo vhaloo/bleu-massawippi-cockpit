@@ -2079,6 +2079,7 @@ async function applyProfile(profile) {
   document.querySelector("#cockpit-login")?.setAttribute("hidden", "");
   const session = buildSession();
   session.querySelector("#cockpit-session-label").innerHTML = "Connecté : <strong>" + esc(profile.displayLabel) + "</strong> · rôle " + esc(profile.role);
+  dispatchEvent(new CustomEvent("cockpit:session-ready"));
   setupResponsiveOffsets();
   if (profile.role === "admin") {
     document.body.classList.add("cockpit-admin");
