@@ -107,6 +107,11 @@ style.textContent = `
   .cockpit-media-count { display: inline-grid; min-width: 21px; min-height: 21px; padding: 0 6px; place-items: center; border-radius: 999px; color: #fff; background: #0b7895; font-size: .66rem; }
   .cockpit-media-body { padding: 0 10px 10px; }
   .cockpit-media-gallery { display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 12px; scroll-snap-type: x mandatory; scrollbar-width:thin; }
+  .cockpit-media-nav { display:none; align-items:center; justify-content:center; gap:8px; margin:0 0 10px; }
+  .cockpit-media-nav button { display:grid; width:42px; height:42px; place-items:center; border:1px solid #8cb9c1; border-radius:50%; color:#0b6077; background:#fff; font:inherit; font-size:1rem; font-weight:900; cursor:pointer; }
+  .cockpit-media-nav button:disabled { opacity:.35; cursor:default; }
+  .cockpit-media-position { min-width:54px; color:#345f6c; font-size:.7rem; font-weight:900; text-align:center; }
+  .cockpit-media-swipe-hint { margin:0 0 8px; color:#66838c; font-size:.65rem; text-align:center; }
   .cockpit-media-empty { margin: 4px 0 9px; color: #67828d; font-size: .72rem; }
   .cockpit-media-card { position: relative; flex: 0 0 min(310px, 86vw); overflow: hidden; scroll-snap-align: start; border: 1px solid #d3e6e8; border-radius: 11px; background: #f7fbfb; }
   .cockpit-media-card.is-final { border:3px solid #21866d; box-shadow:0 0 0 3px rgba(33,134,109,.14); }
@@ -273,6 +278,7 @@ style.textContent = `
     #cockpit-install-launch { right: 12px; bottom: 120px; }
     .cockpit-media-form { grid-template-columns: 1fr; }
     .cockpit-media-form [name="media-note"], .cockpit-media-form button { grid-column: 1; grid-row: auto; }
+    .cockpit-media-nav:not([hidden]) { display:flex; }
     .cockpit-workflow-gates { grid-template-columns:1fr; }
     #cockpit-date-elevator { top:54px; right:8px; bottom:auto; width:min(178px,calc(100vw - 16px)); border-radius:13px; }
     .cockpit-date-current { min-height:39px; border-bottom:0; font-size:.68rem; }
@@ -1157,13 +1163,15 @@ function mediaPreviewUrl(row) {
 function renderMediaForCard(card) {
   const gallery = card.querySelector("[data-media-gallery]");
   const count = card.querySelector("[data-media-count]");
-  if (!gallery || !count) return;
+  const navigation = card.querySelector("[data-media-nav]");
+  if (!gallery || !count || !navigation) return;
   const rows = (state.mediaByEvent.get(card.dataset.itemId) || []).filter((row) => row.archived !== true && safeMediaUrl(row.url));
   const decisions = (state.commentsByEvent.get(card.dataset.itemId) || []).filter((row) => row.deleted !== true && /^\[MÉDIA RETENU:/.test(row.comment || ""));
   const latestDecision = decisions.at(-1)?.comment || "";
   count.textContent = String(rows.length);
   if (!rows.length) {
     gallery.innerHTML = `<p class="cockpit-media-empty">Aucun média lié. Déposez le fichier dans OneDrive, créez un lien de consultation, puis ajoutez-le ici.</p>`;
+    navigation.hidden = true;
     return;
   }
   gallery.innerHTML = rows.map((row) => {
@@ -1190,6 +1198,47 @@ function renderMediaForCard(card) {
       image.replaceWith(replacement);
     }, { once: true });
   });
+  setupMediaNavigation(gallery, navigation, rows.length);
+}
+
+function setupMediaNavigation(gallery, navigation, total) {
+  if (total < 2) {
+    navigation.hidden = true;
+    navigation.innerHTML = "";
+    return;
+  }
+  navigation.hidden = false;
+  navigation.innerHTML = `<button type="button" data-media-previous aria-label="Média précédent">←</button><span class="cockpit-media-position" data-media-position>1 / ${total}</span><button type="button" data-media-next aria-label="Média suivant">→</button>`;
+  const cards = [...gallery.querySelectorAll(".cockpit-media-card")];
+  const previous = navigation.querySelector("[data-media-previous]");
+  const next = navigation.querySelector("[data-media-next]");
+  const position = navigation.querySelector("[data-media-position]");
+  let frame = 0;
+  const currentIndex = () => {
+    const center = gallery.scrollLeft + gallery.clientWidth / 2;
+    let selected = 0;
+    let distance = Number.POSITIVE_INFINITY;
+    cards.forEach((mediaCard, index) => {
+      const candidate = Math.abs(mediaCard.offsetLeft + mediaCard.offsetWidth / 2 - center);
+      if (candidate < distance) { distance = candidate; selected = index; }
+    });
+    return selected;
+  };
+  const update = () => {
+    frame = 0;
+    const index = currentIndex();
+    position.textContent = `${index + 1} / ${total}`;
+    previous.disabled = index === 0;
+    next.disabled = index === total - 1;
+  };
+  const move = (direction) => {
+    const target = Math.max(0, Math.min(total - 1, currentIndex() + direction));
+    gallery.scrollTo({ left: cards[target].offsetLeft - gallery.offsetLeft, behavior: "smooth" });
+  };
+  previous.onclick = () => move(-1);
+  next.onclick = () => move(1);
+  gallery.onscroll = () => { if (!frame) frame = requestAnimationFrame(update); };
+  update();
 }
 
 function renderAllMedia() {
@@ -1202,6 +1251,8 @@ function mediaControlsMarkup(planItem) {
     <summary>Médias OneDrive <span class="cockpit-media-count" data-media-count>0</span></summary>
     <div class="cockpit-media-body">
       <div class="cockpit-media-gallery" data-media-gallery></div>
+      <div class="cockpit-media-nav" data-media-nav hidden></div>
+      <p class="cockpit-media-swipe-hint">Sur mobile, glissez les images ou utilisez les flèches pour toutes les voir.</p>
       <form class="cockpit-media-form" data-media-form data-event-id="${esc(planItem.id)}">
         <input type="url" name="media-url" maxlength="2048" required placeholder="Lien de consultation OneDrive / SharePoint" aria-label="Lien OneDrive ou SharePoint">
         <input type="text" name="media-label" maxlength="180" required placeholder="Nom du média" aria-label="Nom du média">

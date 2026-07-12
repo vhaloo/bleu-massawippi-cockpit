@@ -35,6 +35,8 @@ Navigation du calendrier : un ascenseur de dates fixe apparaît à droite lorsqu
 
 Lisibilité des médias : chaque carte conserve l’aperçu réel, l’avertissement de droits éventuel, le choix final et le commentaire immédiatement visibles. Le nom du fichier, la note complète, l’étape et le lien vers l’original OneDrive sont regroupés dans un menu `Détails du média`, fermé par défaut. Les cartes mesurent jusqu’à 310 px, suivent un cadre 4:3 et utilisent `object-fit: contain` afin que les images portrait ou paysage apparaissent au complet sans recadrage; un badge `Agrandir ↗` rappelle que l’original s’ouvre en pleine page.
 
+Vérification mobile des médias : à 390 × 844 px, le cockpit rend 47 cartes média et 46 véritables images; le test ciblé n’a relevé aucun échec SharePoint. La difficulté provenait surtout des médias supplémentaires placés hors écran dans le carrousel horizontal. Chaque carrousel de deux médias ou plus possède donc maintenant, sur mobile, des flèches tactiles de 42 px, un compteur `1 / n` synchronisé au défilement et une consigne de glissement. Les aperçus restent chargeables à la demande afin de ne pas ralentir l’ouverture initiale.
+
 ## Régression de stabilité — 11 juillet 2026
 
 Le frontend est revenu au dernier socle stable antérieur au module photo (`137525a`). Les fonctions textuelles essentielles sont conservées : authentification, calendrier, choix, statuts, commentaires, dictée, rétroactions, tâches, calendrier personnel et installation PWA. Le rescan global de la page a été remplacé par une observation ciblée des cartes pour éviter les boucles et ralentissements.
