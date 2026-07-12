@@ -14,6 +14,7 @@ const firestoreRules = fs.readFileSync(path.join(here, "firestore.rules"), "utf8
 const source = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const historicalMedia = JSON.parse(fs.readFileSync(path.join(here, "historical_media_manifest.json"), "utf8"));
 const natureMedia = JSON.parse(fs.readFileSync(path.join(here, "nature_media_manifest.json"), "utf8"));
+const editorialMedia = JSON.parse(fs.readFileSync(path.join(here, "editorial_media_manifest.json"), "utf8"));
 const postsJson = source.match(/var posts=(\[[\s\S]*?\]);\s*var meta=/)?.[1];
 assert.ok(postsJson, "Le tableau des publications source doit rester lisible.");
 const posts = applyPlanOverridesToPosts(JSON.parse(postsJson));
@@ -74,6 +75,14 @@ for (const media of natureMedia) {
   assert.ok(media.altText.length >= 60, `L’affiche ${media.fileName} doit conserver un texte alternatif utile.`);
 }
 assert.doesNotMatch(JSON.stringify(natureMedia), /sharepoint\.com|:\/g\/IQ/i);
+assert.equal(editorialMedia.length, 5);
+assert.equal(new Set(editorialMedia.map((item) => item.id)).size, editorialMedia.length);
+for (const media of editorialMedia) {
+  assert.ok(posts.some((post) => post.id === media.eventId), `Le visuel ${media.fileName} doit être relié à une publication existante.`);
+  assert.match(media.fileName, /\.jpg$/);
+  assert.ok(media.altText.length >= 60, `Le visuel ${media.fileName} doit conserver un texte alternatif utile.`);
+}
+assert.doesNotMatch(JSON.stringify(editorialMedia), /sharepoint\.com|:\/g\/IQ/i);
 
 for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMedia", "button[data-dictate]", "data-add-post-calendar", "data-media-form", "cockpit-media-open-label", "cockpit-media-details", "Détails du média", "cockpit-media-enlarge", "object-fit: contain", "setupMediaNavigation", "data-media-previous", "data-media-next", "glissez les images ou utilisez les flèches", "cockpit-date-elevator", "data-date-target", "requestDateElevatorUpdate", "data-workflow-stage", "workflowDirection", "aria-pressed=\"false\"", "Feu vert retiré; l’historique est conservé.", "id=\\\"cockpit-task-count\\\" data-task-count", "Mini-chat de l’événement", "data-resolve-comment", "Voir les messages traités", "comment-task", "data-editorial-decision", "Bonne idée — autre jour", "Ne pas retenir cet angle", "editorial-deferred", "data-comment-thread", "MutationObserver", "Connexion…", "bleu-massawippi-guide-collapsed", "data-guide-new-badge", "setOpportunityStage", "data-opportunity-stage", "bleu-massawippi-projects-collapsed", "Valider le texte avec l’aval", "Valider le visuel avec l’aval"]) {
   assert.ok(ui.includes(token), `Le cockpit doit contenir le contrat ${token}.`);
@@ -91,4 +100,4 @@ assert.doesNotMatch(client, /firebase-storage|uploadBytes|getDownloadURL/);
 assert.doesNotMatch(ui + client, /data-attachment-input|seed_open_house_attachments/);
 assert.match(firebaseConfig, /apiKey:\s*"AIza[A-Za-z0-9_-]{20,}"/);
 assert.doesNotMatch(firebaseConfig, /GEMINI|gemini_api_key/i);
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 26, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, opportunities: 8, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 228 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 26, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialPosters: editorialMedia.length, opportunities: 8, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 233 }, null, 2));
