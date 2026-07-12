@@ -72,6 +72,7 @@ style.textContent = `
   [data-theme="dark"] .cockpit-media-details > summary { color:#eef9fa !important; background:#1c3944 !important; }
   [data-theme="dark"] .cockpit-media-details[open] > summary { background:#244853 !important; }
   [data-theme="dark"] .cockpit-media-source-link { color:#8be4ef !important; }
+  [data-theme="dark"] .cockpit-media-enlarge { color:#fff !important; background:rgba(0,20,28,.9) !important; border-color:#8ab0ba !important; }
   [data-theme="dark"] :is(.cockpit-workflow h5,.cockpit-thread h5,.cockpit-message header b,.cockpit-message p) { color:#edf9fa !important; }
   [data-theme="dark"] .cockpit-workflow-gate { color:#d4e6ea !important; background:#203c47 !important; border-color:#62828c !important; }
   [data-theme="dark"] .cockpit-workflow-gate.done { color:#dffff3 !important; background:#1e5144 !important; border-color:#76c8aa !important; }

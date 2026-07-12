@@ -106,12 +106,14 @@ style.textContent = `
   .cockpit-media > summary:after { margin-left: auto; }
   .cockpit-media-count { display: inline-grid; min-width: 21px; min-height: 21px; padding: 0 6px; place-items: center; border-radius: 999px; color: #fff; background: #0b7895; font-size: .66rem; }
   .cockpit-media-body { padding: 0 10px 10px; }
-  .cockpit-media-gallery { display: flex; gap: 9px; overflow-x: auto; padding: 3px 1px 9px; scroll-snap-type: x proximity; }
+  .cockpit-media-gallery { display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 12px; scroll-snap-type: x mandatory; scrollbar-width:thin; }
   .cockpit-media-empty { margin: 4px 0 9px; color: #67828d; font-size: .72rem; }
-  .cockpit-media-card { position: relative; flex: 0 0 min(220px, 78vw); overflow: hidden; scroll-snap-align: start; border: 1px solid #d3e6e8; border-radius: 11px; background: #f7fbfb; }
+  .cockpit-media-card { position: relative; flex: 0 0 min(310px, 86vw); overflow: hidden; scroll-snap-align: start; border: 1px solid #d3e6e8; border-radius: 11px; background: #f7fbfb; }
   .cockpit-media-card.is-final { border:3px solid #21866d; box-shadow:0 0 0 3px rgba(33,134,109,.14); }
-  .cockpit-media-preview { display: grid; min-height: 128px; place-items: center; overflow: hidden; color: #0b6077; background: #e9f4f5; text-decoration: none; }
-  .cockpit-media-preview img { display: block; width: 100%; height: 150px; object-fit: cover; }
+  .cockpit-media-preview { position:relative; display: grid; width:100%; aspect-ratio:4 / 3; min-height:190px; place-items: center; overflow: hidden; color: #0b6077; background:#e5eff1; text-decoration: none; }
+  .cockpit-media-preview:focus-visible { outline:3px solid #0b7895; outline-offset:-3px; }
+  .cockpit-media-preview img { display: block; width: 100%; height: 100%; object-fit: contain; object-position:center; }
+  .cockpit-media-enlarge { position:absolute; right:8px; bottom:8px; padding:5px 8px; border:1px solid rgba(255,255,255,.75); border-radius:999px; color:#fff; background:rgba(5,42,55,.82); box-shadow:0 2px 8px rgba(0,0,0,.2); font-size:.62rem; font-weight:900; }
   .cockpit-media-icon { font-size: 2rem; }
   .cockpit-media-open-label { display:block; margin-top:5px; color:#0b6077; font-size:.7rem; font-weight:900; }
   #cockpit-date-elevator { position:fixed; top:116px; right:10px; bottom:176px; z-index:19; display:flex; width:112px; flex-direction:column; overflow:hidden; border:1px solid #bad9dd; border-radius:16px; background:rgba(248,252,252,.96); box-shadow:0 12px 30px rgba(7,58,82,.16); backdrop-filter:blur(12px); }
@@ -1168,7 +1170,7 @@ function renderMediaForCard(card) {
     const url = safeMediaUrl(row.url);
     const preview = mediaPreviewUrl(row);
     const visual = preview
-      ? `<img data-media-preview src="${esc(preview)}" alt="${esc(row.label || "Aperçu du média")}" loading="lazy" decoding="async" referrerpolicy="no-referrer">`
+      ? `<img data-media-preview src="${esc(preview)}" alt="${esc(row.label || "Aperçu du média")}" loading="lazy" decoding="async" referrerpolicy="no-referrer"><span class="cockpit-media-enlarge" aria-hidden="true">Agrandir ↗</span>`
       : `<span><span class="cockpit-media-icon" aria-hidden="true">${mediaKindIcons[row.kind] || "🔗"}</span><span class="cockpit-media-open-label">Ouvrir ${row.kind === "image" ? "l’image" : "le média"}</span></span>`;
     const isFinal = latestDecision.startsWith(`[MÉDIA RETENU:${row.id}]`);
     return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}" data-media-id="${esc(row.id)}">
