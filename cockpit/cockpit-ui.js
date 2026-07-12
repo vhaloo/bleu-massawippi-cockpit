@@ -272,15 +272,82 @@ style.textContent = `
   body.cockpit-admin #cockpit-sidebar-toggle { display: block; }
   #cockpit-credit { margin-top: 12px; color: #587680; font-size: .78rem; }
   @media (max-width: 700px) {
-    #cockpit-session { padding: 8px 12px; }
+    body { padding-bottom: 68px; }
+    #cockpit-session { display:grid; min-height:52px; grid-template-columns:minmax(0,1fr) auto; padding:6px 10px; font-size:.72rem; line-height:1.25; }
+    #cockpit-session-label { min-width:0; }
+    #cockpit-logout { min-height:40px; padding:6px 11px; border-radius:10px; }
+    .nav { top:var(--cockpit-session-height,52px); z-index:19; margin-top:0; }
+    .nav .wrap { width:100%; padding:0 6px; scrollbar-width:none; }
+    .nav .wrap::-webkit-scrollbar { display:none; }
+    .nav a { display:inline-flex; min-height:44px; align-items:center; padding:8px 10px; font-size:.74rem; white-space:nowrap; }
+    section { scroll-margin-top:calc(var(--cockpit-session-height,52px) + var(--cockpit-nav-height,44px) + 10px); }
+    .mast { display:none; }
+    .hero { padding:22px 0 20px; gap:18px; }
+    .hero h1 { margin-bottom:14px; font-size:clamp(2.55rem,12.6vw,3.45rem); line-height:.92; }
+    .hero .lead { margin-bottom:18px; font-size:.96rem; line-height:1.5; }
+    .hero .buttons { gap:8px; }
+    .hero .button { min-height:44px; padding:10px 15px; }
+    .cockpit-brand-logo { width:145px; max-height:86px; margin-bottom:8px; object-position:left center; }
+    .lake { min-height:170px; border-radius:28px; }
+    .lake span { bottom:92px; }
+    .section { padding-top:48px; }
+    .heading { margin-bottom:17px; }
+    .heading h2 { font-size:clamp(1.8rem,8.8vw,2.35rem); line-height:1; }
+    .heading p { font-size:.94rem; }
+    .posts { gap:14px; }
+    .post-head { padding:14px 13px 10px 17px; }
+    .post h4 { font-size:1.16rem; line-height:1.16; }
+    .post-head p { font-size:.88rem; line-height:1.48; }
+    .post-foot { padding:0 13px 12px 17px; }
+    .post > details > summary { display:flex; min-height:48px; align-items:center; gap:8px; padding:10px 14px 10px 17px; font-size:.86rem; }
+    .post > details > summary:after { margin-left:auto; }
+    .detail { padding:1px 12px 16px; }
+    .detail .copy { font-size:.86rem; line-height:1.58; }
+    .cockpit-controls { margin:2px 8px 12px; padding:10px; }
+    .cockpit-status-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .cockpit-status-row :is(.cockpit-control-label,.cockpit-control-help) { grid-column:1 / -1; }
+    .cockpit-status-row button { min-height:44px; justify-content:center; padding:8px; border-radius:10px; font-size:.73rem; }
     .cockpit-status-row button[data-status="deleted"] { margin-left: 0; }
-    #cockpit-task-launch { right: 12px; bottom: 68px; }
-    #cockpit-install-launch { right: 12px; bottom: 120px; }
+    .cockpit-status-row button[data-status="deleted"] { width:44px; justify-self:end; }
+    .cockpit-comment-row { display:grid; grid-template-columns:minmax(0,1fr) 46px 78px; gap:7px; padding:9px; }
+    .cockpit-comment-row textarea { grid-column:1 / -1; min-width:0; min-height:82px; font-size:.9rem; }
+    .cockpit-comment-row button { min-height:44px; }
+    .cockpit-comment-row [data-voice-status] { grid-column:1 / -1; }
+    .cockpit-quick-row { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+    .cockpit-quick-row :is(.cockpit-control-label,.cockpit-control-help) { grid-column:1 / -1; }
+    .cockpit-quick-row button { min-height:44px; padding:7px 4px; border-radius:10px; white-space:normal; }
+    .cockpit-editorial-buttons { display:grid; grid-template-columns:1fr; gap:7px; }
+    .cockpit-editorial-buttons button { min-height:44px; }
+    #cockpit-feedback-launch, #cockpit-task-launch, #cockpit-sidebar-toggle { bottom:8px; min-width:0; min-height:46px; padding:0 6px; border-radius:12px; font-size:.67rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    body.cockpit-admin #cockpit-feedback-launch { left:8px; width:calc((100vw - 32px) / 3); }
+    body.cockpit-admin #cockpit-task-launch { left:calc(16px + (100vw - 32px) / 3); right:auto; width:calc((100vw - 32px) / 3); }
+    body.cockpit-admin #cockpit-sidebar-toggle { right:8px; width:calc((100vw - 32px) / 3); }
+    body:not(.cockpit-admin) #cockpit-feedback-launch { left:8px; width:calc(50vw - 12px); }
+    body:not(.cockpit-admin) #cockpit-task-launch { right:8px; width:calc(50vw - 12px); }
+    #cockpit-install-launch { right:8px; bottom:62px; max-width:calc(100vw - 16px); }
+    #cockpit-feedback-panel { left:8px; bottom:62px; width:calc(100vw - 16px); max-height:72vh; overflow:auto; padding:13px; border-radius:15px; }
+    #cockpit-sidebar { top:0; width:100vw; padding:72px 14px 80px; border-left:0; }
+    #cockpit-sidebar.open + #cockpit-sidebar-toggle { z-index:42; }
     .cockpit-media-form { grid-template-columns: 1fr; }
     .cockpit-media-form [name="media-note"], .cockpit-media-form button { grid-column: 1; grid-row: auto; }
     .cockpit-media-nav:not([hidden]) { display:flex; }
-    .cockpit-workflow-gates { grid-template-columns:1fr; }
-    #cockpit-date-elevator { top:54px; right:8px; bottom:auto; width:min(178px,calc(100vw - 16px)); border-radius:13px; }
+    .cockpit-media-card { flex-basis:min(310px,calc(100vw - 58px)); }
+    .cockpit-media-preview { min-height:210px; }
+    .cockpit-media-final-action { min-height:44px; font-size:.72rem; }
+    .cockpit-media-comment { grid-template-columns:1fr; }
+    .cockpit-media-comment :is(input,button) { min-height:44px; font-size:.75rem; }
+    .cockpit-workflow { padding:11px; }
+    .cockpit-workflow-gates { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .cockpit-workflow-gate { min-height:78px; padding:28px 6px 7px; text-align:center; }
+    .cockpit-workflow-gate:before { top:7px; left:50%; transform:translateX(-50%); }
+    .cockpit-workflow-gate b { font-size:.69rem; }
+    .cockpit-workflow-gate span { font-size:.63rem; }
+    .cockpit-workflow-actions button { width:100%; min-height:44px; }
+    .toolbar { gap:7px; padding:8px; }
+    .toolbar :is(input,select,button) { min-height:46px; min-width:0; font-size:.78rem; }
+    .status { display:grid; grid-template-columns:auto 1fr; gap:7px 10px; font-size:.78rem; }
+    .status .bar { grid-column:1 / -1; grid-row:2; }
+    #cockpit-date-elevator { top:calc(var(--cockpit-session-height,52px) + var(--cockpit-nav-height,44px) + 6px); right:8px; bottom:auto; width:min(178px,calc(100vw - 16px)); border-radius:13px; }
     .cockpit-date-current { min-height:39px; border-bottom:0; font-size:.68rem; }
     .cockpit-date-nav { display:none; max-height:48vh; border-top:1px solid #d4e7e9; }
     #cockpit-date-elevator.open .cockpit-date-nav { display:flex; }
@@ -510,6 +577,36 @@ function buildSession() {
   return session;
 }
 
+let responsiveOffsetObserver = null;
+function syncResponsiveOffsets() {
+  const sessionHeight = Math.ceil(document.querySelector("#cockpit-session")?.getBoundingClientRect().height || 0);
+  const navHeight = Math.ceil(document.querySelector(".nav")?.getBoundingClientRect().height || 0);
+  document.documentElement.style.setProperty("--cockpit-session-height", `${sessionHeight}px`);
+  document.documentElement.style.setProperty("--cockpit-nav-height", `${navHeight}px`);
+}
+
+function setupResponsiveOffsets() {
+  responsiveOffsetObserver?.disconnect();
+  responsiveOffsetObserver = typeof ResizeObserver === "function" ? new ResizeObserver(syncResponsiveOffsets) : null;
+  const session = document.querySelector("#cockpit-session");
+  const nav = document.querySelector(".nav");
+  if (session) responsiveOffsetObserver?.observe(session);
+  if (nav) responsiveOffsetObserver?.observe(nav);
+  if (document.body.dataset.responsiveOffsetsReady !== "true") {
+    addEventListener("resize", syncResponsiveOffsets, { passive: true });
+    document.body.dataset.responsiveOffsetsReady = "true";
+  }
+  requestAnimationFrame(syncResponsiveOffsets);
+}
+
+function setAdminSidebarOpen(open) {
+  const sidebar = document.querySelector("#cockpit-sidebar");
+  const toggle = document.querySelector("#cockpit-sidebar-toggle");
+  sidebar?.classList.toggle("open", open);
+  toggle?.setAttribute("aria-expanded", String(open));
+  if (toggle) toggle.textContent = open ? "Fermer" : "Journal";
+}
+
 function buildAdminSidebar() {
   if (document.querySelector("#cockpit-sidebar")) return;
   const sidebar = document.createElement("aside");
@@ -519,8 +616,10 @@ function buildAdminSidebar() {
   const toggle = document.createElement("button");
   toggle.id = "cockpit-sidebar-toggle";
   toggle.type = "button";
-  toggle.textContent = "Ouvrir le journal";
-  toggle.addEventListener("click", () => sidebar.classList.toggle("open"));
+  toggle.textContent = "Journal";
+  toggle.setAttribute("aria-controls", "cockpit-sidebar");
+  toggle.setAttribute("aria-expanded", "false");
+  toggle.addEventListener("click", () => setAdminSidebarOpen(!sidebar.classList.contains("open")));
   document.body.appendChild(toggle);
 }
 
@@ -532,8 +631,7 @@ function buildTaskWidget() {
   button.dataset.hasTasks = "false";
   button.innerHTML = "À accomplir <span data-task-count>0</span>";
   button.addEventListener("click", () => {
-    const sidebar = document.querySelector("#cockpit-sidebar");
-    sidebar?.classList.add("open");
+    setAdminSidebarOpen(true);
     document.querySelector("#cockpit-task-heading")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
   document.body.appendChild(button);
@@ -1956,6 +2054,7 @@ async function loadPrivateContent() {
   setupProjectPreference();
   setupDateElevator();
   state.contentLoaded = true;
+  dispatchEvent(new CustomEvent("cockpit:content-ready"));
 }
 
 function clearPrivateContent() {
@@ -1980,6 +2079,7 @@ async function applyProfile(profile) {
   document.querySelector("#cockpit-login")?.setAttribute("hidden", "");
   const session = buildSession();
   session.querySelector("#cockpit-session-label").innerHTML = "Connecté : <strong>" + esc(profile.displayLabel) + "</strong> · rôle " + esc(profile.role);
+  setupResponsiveOffsets();
   if (profile.role === "admin") {
     document.body.classList.add("cockpit-admin");
     buildAdminSidebar();

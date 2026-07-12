@@ -29,6 +29,7 @@ const style = document.createElement("style");
 style.id = "cockpit-theme-style";
 style.textContent = `
   .cockpit-theme-toggle { position:fixed; top:98px; right:12px; z-index:2400; border:1px solid rgba(7,58,82,.25); border-radius:999px; padding:8px 12px; background:#fff; color:#073a52; box-shadow:0 5px 18px rgba(0,0,0,.15); font:700 .78rem/1 system-ui,sans-serif; cursor:pointer; }
+  .cockpit-theme-toggle.in-nav { position:static; flex:0 0 auto; min-height:40px; margin:auto 3px auto 5px; padding:7px 10px; box-shadow:none; white-space:nowrap; }
   [data-theme="dark"] body {
     --ink:#eef7f8; --navy:#dff6fa; --blue:#72d9ed; --aqua:#61d9d2; --mist:#10252e;
     --paper:#12262f; --soft:#bfd1d7; --line:#496873; --gold:#f2c66d; --coral:#ff9b89;
@@ -130,7 +131,7 @@ style.textContent = `
   [data-theme="dark"] .workflow-node text { fill:#effbfc !important; }
   [data-theme="dark"] .workflow-return { fill:#c4d8dd !important; }
   [data-theme="dark"] .week { color:#fff !important; }
-  @media (max-width:600px) { .cockpit-theme-toggle { top:94px; right:8px; padding:8px 10px; } }
+  @media (max-width:700px) { .cockpit-theme-toggle:not(.in-nav) { top:calc(var(--cockpit-session-height,52px) + 6px); right:8px; padding:8px 10px; } }
 `;
 document.head.appendChild(style);
 
@@ -140,6 +141,21 @@ button.className = "cockpit-theme-toggle";
 button.dataset.themeToggle = "";
 button.addEventListener("click", () => setTheme(root.dataset.theme === "dark" ? "light" : "dark", true));
 document.body.appendChild(button);
+
+const compactLayout = matchMedia("(max-width:700px)");
+function placeThemeToggle() {
+  const nav = document.querySelector(".nav .wrap");
+  if (compactLayout.matches && nav) {
+    if (button.parentElement !== nav) nav.appendChild(button);
+    button.classList.add("in-nav");
+  } else {
+    if (button.parentElement !== document.body) document.body.appendChild(button);
+    button.classList.remove("in-nav");
+  }
+}
+compactLayout.addEventListener?.("change", placeThemeToggle);
+addEventListener("cockpit:content-ready", placeThemeToggle);
+placeThemeToggle();
 setTheme(savedTheme() || (media.matches ? "dark" : "light"));
 media.addEventListener?.("change", (event) => {
   if (!savedTheme()) setTheme(event.matches ? "dark" : "light");
