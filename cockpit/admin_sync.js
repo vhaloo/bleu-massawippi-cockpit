@@ -355,6 +355,7 @@ const summary = {
     id: row.id,
     title: row.title || null,
     dateKey: row.dateKey || null,
+    dateIso: row.dateIso || null,
     tasksValentin: Array.isArray(row.tasksValentin) ? row.tasksValentin : [],
     tasksAnnie: Array.isArray(row.tasksAnnie) ? row.tasksAnnie : [],
     calendarTime: row.calendarTime || null,

@@ -378,9 +378,11 @@ style.textContent = `
     .cockpit-status-row button { min-height:44px; justify-content:center; padding:8px; border-radius:10px; font-size:.73rem; }
     .cockpit-status-row button[data-status="deleted"] { margin-left: 0; }
     .cockpit-status-row button[data-status="deleted"] { width:44px; justify-self:end; }
-    .cockpit-comment-row { display:grid; grid-template-columns:minmax(0,1fr) 46px 78px; gap:7px; padding:9px; }
+    .cockpit-comment-row { display:grid; grid-template-columns:46px minmax(0,1fr); gap:7px; padding:9px; }
     .cockpit-comment-row textarea { grid-column:1 / -1; min-width:0; min-height:82px; font-size:.9rem; }
     .cockpit-comment-row button { min-height:44px; }
+    .cockpit-comment-row [data-dictate] { grid-column:1; min-width:0; }
+    .cockpit-comment-row button.save { grid-column:2; min-width:0; }
     .cockpit-comment-row [data-voice-status] { grid-column:1 / -1; }
     .cockpit-quick-row { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
     .cockpit-quick-row :is(.cockpit-control-label,.cockpit-control-help) { grid-column:1 / -1; }
@@ -514,7 +516,7 @@ function setupDateElevator() {
     const label = group.querySelector(".day-heading strong")?.textContent?.trim() || `Journée ${index + 1}`;
     const targetId = `cockpit-calendar-day-${index + 1}`;
     group.id = targetId;
-    group.style.scrollMarginTop = "112px";
+    group.style.scrollMarginTop = "calc(var(--cockpit-session-height, 52px) + var(--cockpit-nav-height, 44px) + 10px)";
     return { label, targetId };
   });
   elevator.innerHTML = `<button type="button" class="cockpit-date-current" data-date-toggle aria-expanded="false"><span aria-hidden="true">🗓️</span><span data-date-current-label>${esc(dates[0].label)}</span><i aria-hidden="true">⌄</i></button><nav class="cockpit-date-nav" aria-label="Aller directement à une date">${dates.map(({ label, targetId }) => `<button type="button" data-date-target="${esc(targetId)}">${esc(label)}</button>`).join("")}</nav>`;
@@ -691,7 +693,23 @@ function setupResponsiveOffsets() {
 function setAdminSidebarOpen(open) {
   const sidebar = document.querySelector("#cockpit-sidebar");
   const toggle = document.querySelector("#cockpit-sidebar-toggle");
-  sidebar?.classList.toggle("open", open);
+  if (!sidebar) return;
+  if (open) {
+    sidebar.hidden = false;
+    sidebar.removeAttribute("inert");
+    sidebar.setAttribute("aria-hidden", "false");
+    // Force le point de départ hors écran avant d'animer l'ouverture.
+    void sidebar.offsetWidth;
+    sidebar.classList.add("open");
+  } else {
+    if (sidebar.contains(document.activeElement)) toggle?.focus();
+    sidebar.classList.remove("open");
+    sidebar.setAttribute("inert", "");
+    sidebar.setAttribute("aria-hidden", "true");
+    window.setTimeout(() => {
+      if (!sidebar.classList.contains("open")) sidebar.hidden = true;
+    }, 260);
+  }
   toggle?.setAttribute("aria-expanded", String(open));
   if (toggle) toggle.textContent = open ? "Fermer" : "Journal";
 }
@@ -700,6 +718,9 @@ function buildAdminSidebar() {
   if (document.querySelector("#cockpit-sidebar")) return;
   const sidebar = document.createElement("aside");
   sidebar.id = "cockpit-sidebar";
+  sidebar.hidden = true;
+  sidebar.setAttribute("inert", "");
+  sidebar.setAttribute("aria-hidden", "true");
   sidebar.innerHTML = "<div id=\"cockpit-task-heading\"><h2>À accomplir</h2><span id=\"cockpit-task-count\" data-task-count>0</span></div><p class=\"cockpit-sidebar-note\">Les décisions et recommandations reçues de la direction restent ici jusqu’à leur validation ou leur achèvement forcé.</p><div id=\"cockpit-task-list\"></div><h2>Journal de modifications</h2><p class=\"cockpit-sidebar-note\">Lecture technique des changements synchronisés.</p><div id=\"cockpit-log-list\"></div><h2 style=\"margin-top:24px\">Rétroactions du cockpit</h2><p class=\"cockpit-sidebar-note\">Les avis déposés dans les sections et la boîte à idées.</p><div id=\"cockpit-feedback-list\"></div>";
   document.body.appendChild(sidebar);
   const toggle = document.createElement("button");
@@ -758,22 +779,62 @@ function findTaskTarget(type, id) {
   return [...document.querySelectorAll("[data-item-id]")].find((node) => node.dataset.itemId === id) || document.getElementById(id);
 }
 
+function requestCalendarItemVisibility(itemId) {
+  const item = Array.isArray(globalThis.posts) ? globalThis.posts.find((post) => post.id === itemId) : null;
+  if (!item || item.archivedEditorial === true) return false;
+  const search = document.querySelector("#search");
+  const week = document.querySelector("#week");
+  const theme = document.querySelector("#theme");
+  if (search) search.value = "";
+  if (week) week.value = "all";
+  if (theme) theme.value = "all";
+  const pastToggle = document.querySelector("#past-toggle");
+  if (isPlanItemPast(item) && pastToggle?.dataset.active !== "true") {
+    pastToggle.click();
+  } else if (search) {
+    search.dispatchEvent(new Event("input", { bubbles:true }));
+  } else {
+    week?.dispatchEvent(new Event("change", { bubbles:true }));
+  }
+  return true;
+}
+
+function revealTaskTarget(type, id, allowRetry = true) {
+  const target = findTaskTarget(type, id);
+  if (!target) {
+    if (allowRetry && type !== "section" && requestCalendarItemVisibility(id)) {
+      requestAnimationFrame(() => revealTaskTarget(type, id, false));
+      return;
+    }
+    toast("La cible de cette tâche n’est plus visible dans le cockpit.", true);
+    return;
+  }
+  let ancestor = target;
+  while (ancestor) {
+    if (ancestor.matches?.("details")) ancestor.open = true;
+    ancestor = ancestor.parentElement;
+  }
+  const card = target.matches?.(".post[data-item-id]") ? target : target.closest?.(".post[data-item-id]");
+  if (card && document.body.classList.contains("cockpit-view-essential")) {
+    card.classList.add("vm-expanded");
+    const cardToggle = card.querySelector(":scope > .vm-card-summary [data-vm-card-toggle]");
+    if (cardToggle) {
+      cardToggle.setAttribute("aria-expanded", "true");
+      cardToggle.textContent = "Réduire";
+    }
+  }
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+  target.classList.add("task-focus");
+  window.setTimeout(() => target.classList.remove("task-focus"), 1800);
+}
+
 function enhanceTaskEvents() {
   if (document.body.dataset.taskEventsReady === "true") return;
   document.body.dataset.taskEventsReady = "true";
   document.addEventListener("click", (event) => {
     const openButton = event.target.closest("[data-open-task]");
     if (openButton) {
-      const target = findTaskTarget(openButton.dataset.taskTargetType, openButton.dataset.taskTarget);
-      if (!target) {
-        toast("La cible de cette tâche n’est plus visible dans le cockpit.", true);
-        return;
-      }
-      target.closest("details")?.setAttribute("open", "");
-      target.closest(".context-fold")?.setAttribute("open", "");
-      target.scrollIntoView({ behavior: "smooth", block: "center" });
-      target.classList.add("task-focus");
-      window.setTimeout(() => target.classList.remove("task-focus"), 1800);
+      revealTaskTarget(openButton.dataset.taskTargetType, openButton.dataset.taskTarget);
       return;
     }
     const completeButton = event.target.closest("[data-complete-task]");
@@ -836,7 +897,7 @@ function submitFeedbackForm(form) {
 }
 
 function enhanceSectionFeedback() {
-  document.querySelectorAll("#cockpit-content main section[id]").forEach((section) => {
+  document.querySelectorAll("#cockpit-content [data-cockpit-private-root] section[id]").forEach((section) => {
     if (section.querySelector("[data-section-feedback]")) return;
     const heading = section.querySelector(".heading") || section.firstElementChild;
     if (!heading) return;
@@ -897,7 +958,14 @@ const frenchMonthNumbers = {
 };
 
 function parsePlanDate(value) {
-  const match = String(value || "").toLocaleLowerCase("fr-CA").match(/(\d{1,2})(?:er)?\s+([a-zéûô]+)/i);
+  const item = value && typeof value === "object" ? value : null;
+  const dateIso = String(item?.dateIso || "");
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateIso)) {
+    const [year, month, day] = dateIso.split("-").map(Number);
+    return new Date(year, month - 1, day, 12, 0, 0, 0);
+  }
+  const label = item?.date ?? value;
+  const match = String(label || "").toLocaleLowerCase("fr-CA").match(/(\d{1,2})(?:er)?\s+([a-zéûô]+)/i);
   if (!match) return null;
   const month = frenchMonthNumbers[match[2]];
   if (typeof month !== "number") return null;
@@ -905,7 +973,7 @@ function parsePlanDate(value) {
 }
 
 function isPlanItemPast(item, now = new Date()) {
-  const date = parsePlanDate(item?.date);
+  const date = parsePlanDate(item);
   if (!date) return false;
   date.setHours(23, 59, 59, 999);
   return date < now;
@@ -942,6 +1010,7 @@ function monthlySnapshotActivePosts() {
     const decision = state.decisions.get(item.id)?.decision || "undecided";
     return schedule?.deleted !== true
       && schedule?.status !== "deleted"
+      && item.archivedEditorial !== true
       && !isPlanItemPast(item)
       && !["deferred", "rejected"].includes(decision);
   });
@@ -972,7 +1041,7 @@ function renderMonthlyEditorialSnapshot() {
   const count = snapshot.querySelector("[data-monthly-snapshot-count]");
   if (!body || !count) return;
   const posts = monthlySnapshotActivePosts()
-    .map((item) => ({ item, date: parsePlanDate(item.date) }))
+    .map((item) => ({ item, date: parsePlanDate(item) }))
     .sort((a, b) => (a.date?.valueOf() ?? Number.MAX_SAFE_INTEGER) - (b.date?.valueOf() ?? Number.MAX_SAFE_INTEGER)
       || String(a.item.title || "").localeCompare(String(b.item.title || ""), "fr-CA"));
   count.textContent = String(posts.length);
@@ -1000,22 +1069,16 @@ function renderMonthlyEditorialSnapshot() {
   }).join("");
 }
 
-function focusMonthlySnapshotEvent(itemId) {
+function focusMonthlySnapshotEvent(itemId, allowRetry = true) {
   const findCard = () => [...document.querySelectorAll(".post[data-item-id]")].find((card) => card.dataset.itemId === itemId);
-  let card = findCard();
+  const card = findCard();
   if (!card) {
-    const search = document.querySelector("#search");
-    const week = document.querySelector("#week");
-    const theme = document.querySelector("#theme");
-    if (search) search.value = "";
-    if (week) week.value = "all";
-    if (theme) theme.value = "all";
     const item = Array.isArray(globalThis.posts) ? globalThis.posts.find((post) => post.id === itemId) : null;
-    const date = parsePlanDate(item?.date);
-    const pastToggle = document.querySelector("#past-toggle");
-    if (date && date < new Date() && pastToggle?.dataset.active !== "true") pastToggle.click();
-    else search?.dispatchEvent(new Event("input", { bubbles:true }));
-    requestAnimationFrame(() => focusMonthlySnapshotEvent(itemId));
+    if (allowRetry && item && item.archivedEditorial !== true && requestCalendarItemVisibility(itemId)) {
+      requestAnimationFrame(() => focusMonthlySnapshotEvent(itemId, false));
+      return;
+    }
+    toast("Cette publication n’est plus visible dans le calendrier actif.", true);
     return;
   }
   if (document.body.classList.contains("cockpit-view-essential")) {
@@ -1055,10 +1118,28 @@ function setupMonthlyEditorialSnapshot() {
 }
 
 function postCalendarStart(planItem) {
-  const start = parsePlanDate(planItem?.date) || new Date(2026, 6, 13, 9, 0, 0, 0);
+  const start = parsePlanDate(planItem) || new Date(2026, 6, 13, 9, 0, 0, 0);
   const hoursByDay = { 0: 9, 1: 9, 2: 12, 3: 18, 4: 12, 5: 17, 6: 10 };
-  start.setHours(hoursByDay[start.getDay()] ?? 12, 0, 0, 0);
+  const schedule = state.rows.get(planItem?.id) || {};
+  const calendarTime = String(schedule.calendarTime || planItem?.calendarTime || "").trim();
+  const validTime = calendarTime.match(/^([01]\d|2[0-3]):([0-5]\d)$/);
+  const hour = validTime ? Number(validTime[1]) : (hoursByDay[start.getDay()] ?? 12);
+  const minute = validTime ? Number(validTime[2]) : 0;
+  start.setHours(hour, minute, 0, 0);
   return start;
+}
+
+function postCalendarMetadata(planItem) {
+  const schedule = state.rows.get(planItem?.id) || {};
+  const rawDuration = Number(schedule.calendarDurationMinutes ?? planItem?.calendarDurationMinutes);
+  const durationMinutes = Number.isInteger(rawDuration) && rawDuration > 0 && rawDuration <= 1440 ? rawDuration : 30;
+  const location = String(schedule.calendarLocation || planItem?.calendarLocation || "En ligne — Facebook / Instagram").trim();
+  const cost = String(schedule.calendarCost || planItem?.calendarCost || "Aucun coût de diffusion; confirmer les droits, la production et tout achat éventuel.").trim();
+  return {
+    durationMinutes,
+    location: location || "En ligne — Facebook / Instagram",
+    cost: cost || "Aucun coût de diffusion; confirmer les droits, la production et tout achat éventuel."
+  };
 }
 
 function profileTaskLabel() {
@@ -1077,7 +1158,8 @@ function profileTasks(planItem) {
 
 function buildPostCalendarIcs(planItem) {
   const start = postCalendarStart(planItem);
-  const end = new Date(start.getTime() + 30 * 60000);
+  const metadata = postCalendarMetadata(planItem);
+  const end = new Date(start.getTime() + metadata.durationMinutes * 60000);
   const roleLabel = profileTaskLabel();
   const taskLines = profileTasks(planItem).map((task) => "• " + task).join("\n");
   const description = [
@@ -1090,8 +1172,8 @@ function buildPostCalendarIcs(planItem) {
     `Objectif : ${planItem.role || "à confirmer"}`,
     `CTA : ${planItem.cta || "à confirmer"}`,
     `Source / validation : ${planItem.source || "à confirmer"}`,
-    "Lieu : en ligne — Facebook / Instagram",
-    "Coût prévu : aucun coût de diffusion; confirmer les droits, la production et tout achat éventuel avant programmation.",
+    `Lieu : ${metadata.location}`,
+    `Coût prévu : ${metadata.cost}`,
     "Cet événement est une aide de coordination : il ne programme pas automatiquement la publication."
   ].join("\n");
   const uid = `bleu-massawippi-post-${planItem.id}-${start.getTime()}@bleumassawippi.com`;
@@ -1110,7 +1192,7 @@ function buildPostCalendarIcs(planItem) {
       `DTEND:${calendarUtcStamp(end)}`,
       `SUMMARY:${escapeCalendarText("Publication — " + (planItem.title || "Bleu Massawippi"))}`,
       `DESCRIPTION:${escapeCalendarText(description)}`,
-      "LOCATION:En ligne — Facebook / Instagram",
+      `LOCATION:${escapeCalendarText(metadata.location)}`,
       `URL:${escapeCalendarText(planItem.source || "https://bleumassawippi.com")}`,
       "CATEGORIES:BLEU MASSAWIPPI,SOCIAL",
       "STATUS:CONFIRMED",
@@ -1287,13 +1369,35 @@ function syncCardAccess() {
   });
 }
 
+function setupCollapsibleNavigation() {
+  if (document.body.dataset.collapsibleNavigationReady === "true") return;
+  document.body.dataset.collapsibleNavigationReady = "true";
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest('.nav a[href^="#"], .hero a.button[href^="#"]');
+    if (!link) return;
+    const rawId = link.getAttribute("href")?.slice(1) || "";
+    const target = document.getElementById(decodeURIComponent(rawId));
+    if (!target) return;
+    event.preventDefault();
+    let node = target;
+    while (node) {
+      if (node.matches?.("details")) node.open = true;
+      node = node.parentElement;
+    }
+    try { history.pushState(null, "", `#${encodeURIComponent(target.id)}`); } catch { /* ancre facultative */ }
+    requestAnimationFrame(() => target.scrollIntoView({ behavior:"smooth", block:"start" }));
+  });
+}
+
 function setupGuidePreference() {
   const guide = document.querySelector("#context-collapsible");
   const summary = guide?.querySelector(":scope > summary");
   if (!guide || !summary || guide.dataset.preferenceReady === "true") return;
   guide.dataset.preferenceReady = "true";
 
-  const version = guide.dataset.layoutVersion || "1";
+  const readmeVersion = guide.querySelector("[data-readme-version]")?.dataset.readmeVersion || "";
+  const contextVersion = guide.querySelector("[data-context-version]")?.dataset.contextVersion || "";
+  const version = [guide.dataset.layoutVersion || "1", readmeVersion, contextVersion].filter(Boolean).join("|");
   const storedPreference = localStorage.getItem(guideCollapsedKey);
   const lastSeenVersion = localStorage.getItem(guideSeenVersionKey);
   const collapseAtStartup = storedPreference === "1";
@@ -2528,6 +2632,7 @@ async function loadPrivateContent() {
   document.body.appendChild(planScript);
   planScript.remove();
   decorateInternalProjectDocuments();
+  setupCollapsibleNavigation();
   setupGuidePreference();
   setupProjectPreference();
   setupInternalProjectPreference();

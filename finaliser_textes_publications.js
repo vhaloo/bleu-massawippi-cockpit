@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { applyPlanOverridesToPosts } from "./cockpit/plan-overrides.js";
+import { applyPlanOverridesToPosts, planDateIsoFromLabel } from "./cockpit/plan-overrides.js";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const separator = "=========================================";
@@ -353,20 +353,31 @@ function synchronizeHtml(file) {
   const finalById = new Map(final.map((item) => [item.id, item]));
   const mergedPosts = currentPosts.map((post) => {
     const item = finalById.get(post.id);
-    if (!item) return post;
-    return { ...post, visual: item.visual, source: item.source, task: item.task, copy: item.copy };
+    const merged = item ? { ...post, visual: item.visual, source: item.source, task: item.task, copy: item.copy } : post;
+    const dateIso = planDateIsoFromLabel(merged.date);
+    return dateIso ? { ...merged, dateIso } : merged;
   });
   const expression = /var posts=(\[[\s\S]*?\]);\s*var meta=/;
   if (!expression.test(html)) throw new Error("Calendrier introuvable dans " + file);
   html = html.replace(expression, `var posts=${JSON.stringify(mergedPosts)};\nvar meta=`);
+  html = html.replace(/\[1,2,3,4\]\.forEach\(function\(n\)\{/, "[1,2,3,4,5,6,7,8].forEach(function(n){");
+  html = html.replace(
+    /Object\.keys\(days\)\.forEach\(function\(day\)\{/,
+    "Object.keys(days).sort(function(a,b){return postDate(days[a][0])-postDate(days[b][0])}).forEach(function(day){"
+  );
   fs.writeFileSync(file, html, "utf8");
 }
 
 function renderMarkdown(posts) {
+  const orderedPosts = [...posts].sort((left, right) => {
+    const leftKey = left.dateIso || planDateIsoFromLabel(left.date) || "9999-12-31";
+    const rightKey = right.dateIso || planDateIsoFromLabel(right.date) || "9999-12-31";
+    return leftKey.localeCompare(rightKey) || String(left.title || "").localeCompare(String(right.title || ""), "fr-CA");
+  });
   const headings = [
     "# Textes complets finalisés — Cockpit Communication Bleu Massawippi",
     "",
-    "**Période active :** lundi 13 juillet au mardi 11 août 2026",
+    "**Calendrier actif :** à partir du lundi 13 juillet 2026; la réserve éditoriale est actuellement planifiée jusqu’au mardi 1er septembre 2026.",
     "**Usage :** textes bilingues prêts à programmer sur Facebook et Instagram, séparés par la ligne réglementaire du plan.",
     "**Voix :** chaleureuse, invitante et curieuse; les précautions techniques demeurent dans les notes de préparation plutôt que dans le message public.",
     "**Règle :** chaque légende demeure sous 2 200 caractères au total; les visuels doivent être authentiques, autorisés et accompagnés d’un texte alternatif descriptif.",
@@ -374,7 +385,7 @@ function renderMarkdown(posts) {
     "Les contenus V1 ont servi d’inspiration pour les formats éprouvés — quiz, preuve d’action, conseil, humour et appel à l’action — sans reprendre les sujets désormais exclus ni les faits non revalidés.",
     ""
   ];
-  for (const post of posts) {
+  for (const post of orderedPosts) {
     const item = post;
     headings.push(
       "## " + post.date + " — " + post.title,

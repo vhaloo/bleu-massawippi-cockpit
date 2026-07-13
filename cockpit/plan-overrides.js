@@ -3,6 +3,25 @@ import { applyEditorialCopyOverrides } from "./editorial-copy-overrides.js";
 
 const OPEN_HOUSE_MAP_URL = "https://www.google.com/maps/search/?api=1&query=Eglise+Saint-Barthelemy%2C+911+rue+Clough%2C+Ayer%27s+Cliff%2C+QC+J0B+1C0";
 
+const PLAN_YEAR = 2026;
+const ARCHIVED_DATE_ISO = new Map([
+  ["s2d3", "2026-07-22"],
+  ["s2d6", "2026-07-26"],
+  ["s3d1b", "2026-07-27"]
+]);
+const PLAN_MONTHS = new Map([
+  ["janvier", 1], ["février", 2], ["fevrier", 2], ["mars", 3], ["avril", 4], ["mai", 5], ["juin", 6],
+  ["juillet", 7], ["août", 8], ["aout", 8], ["septembre", 9], ["octobre", 10], ["novembre", 11],
+  ["décembre", 12], ["decembre", 12]
+]);
+
+export function planDateIsoFromLabel(value, year = PLAN_YEAR) {
+  const match = String(value || "").toLocaleLowerCase("fr-CA").match(/(\d{1,2})(?:er)?\s+([a-zéûô]+)/i);
+  const month = match ? PLAN_MONTHS.get(match[2]) : null;
+  if (!match || !month) return null;
+  return `${year}-${String(month).padStart(2, "0")}-${String(Number(match[1])).padStart(2, "0")}`;
+}
+
 const OPEN_HOUSE_POST = {
   w: 1,
   date: "Lundi 13 juillet",
@@ -286,11 +305,20 @@ export function applyPlanOverridesToPosts(posts) {
     const post = finalPosts.find((item) => item.id === id);
     if (post) Object.assign(post, placement, { choiceRequired: false, optionGroup: null, optionLabel: null });
   });
-  ["s1d3b", "alt-20260715", "s1d5", "s1d6", "s1d4", "s1d2", "s2d1b", "s1d7", "s2d1", "s2d2", "alt-20260722", "s2d4", "s2d5", "s2d7", "alt-20260726", "s3d1", "s3d2", "s3d4", "s3d3", "s3d7", "s4d1", "alt-20260729", "alt-20260802", "lexique-20260830-tributaire"].forEach((id) => {
+  ["s1d3b", "alt-20260715", "s1d5", "s1d6", "s1d4", "s1d2", "s2d1b", "s1d7", "s2d1", "s2d2", "alt-20260722", "s2d4", "s2d5", "s2d7", "alt-20260726", "s3d1", "s3d2", "s3d4", "s3d3", "s3d7", "s4d1", "s4d1b", "alt-20260729", "alt-20260802", "lexique-20260830-tributaire"].forEach((id) => {
     const post = finalPosts.find((item) => item.id === id);
     if (post) Object.assign(post, { choiceRequired: false, optionGroup: null, optionLabel: null });
   });
-  return finalPosts;
+  finalPosts.forEach((post) => {
+    const dateIso = planDateIsoFromLabel(post.date) || ARCHIVED_DATE_ISO.get(post.id);
+    if (dateIso) post.dateIso = dateIso;
+    else delete post.dateIso;
+  });
+  return finalPosts.sort((left, right) => {
+    const leftKey = left.dateIso || "9999-12-31";
+    const rightKey = right.dateIso || "9999-12-31";
+    return leftKey.localeCompare(rightKey) || Number(left.w || 999) - Number(right.w || 999);
+  });
 }
 
 export function preparePlanScript(script, posts) {
@@ -300,6 +328,10 @@ export function preparePlanScript(script, posts) {
     `var posts=${JSON.stringify(updatedPosts)};var meta=`
   );
   output = output.replace(/\[[1-8,]+\]\.forEach/, "[1,2,3,4,5,6,7,8].forEach");
+  output = output.replace(
+    /Object\.keys\(days\)(?:\.sort\([\s\S]*?\))?\.forEach\(function\(day\)\{/,
+    "Object.keys(days).sort(function(a,b){return postDate(days[a][0])-postDate(days[b][0])}).forEach(function(day){"
+  );
   output = output.replace(
     /(var meta=\{[\s\S]*?\};)/,
     "$1meta[5]=[\"Semaine 5 · Réserve éditoriale\",\"10 au 16 août\"];meta[6]=[\"Semaine 6 · Réserve éditoriale\",\"17 au 23 août\"];meta[7]=[\"Semaine 7 · Réserve éditoriale\",\"24 au 30 août\"];meta[8]=[\"Semaine 8 · Réserve éditoriale\",\"31 août au 6 septembre\"];"

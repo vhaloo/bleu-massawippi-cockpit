@@ -197,7 +197,7 @@ export function subscribeScheduleItems(callback, onError) {
     (snapshot) => {
       const rows = snapshot.docs
         .map((item) => ({ id: item.id, ...item.data() }))
-        .sort((a, b) => String(a.dateKey || "").localeCompare(String(b.dateKey || "")));
+        .sort((a, b) => String(a.dateIso || a.dateKey || "").localeCompare(String(b.dateIso || b.dateKey || "")));
       callback(rows);
     },
     onError

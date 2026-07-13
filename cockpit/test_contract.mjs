@@ -8,6 +8,7 @@ import { FUTURE_EDITORIAL_IDS, TONE_VERSION } from "./editorial-copy-overrides.j
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
 const ui = fs.readFileSync(path.join(here, "cockpit-ui.js"), "utf8");
+const viewMode = fs.readFileSync(path.join(here, "view-mode.js"), "utf8");
 const client = fs.readFileSync(path.join(here, "firebase-client.js"), "utf8");
 const theme = fs.readFileSync(path.join(here, "theme.js"), "utf8");
 const firebaseConfig = fs.readFileSync(path.join(here, "firebase-config.js"), "utf8");
@@ -27,6 +28,23 @@ const internalProjectDocuments = JSON.parse(fs.readFileSync(path.join(here, "int
 const postsJson = source.match(/var posts=(\[[\s\S]*?\]);\s*var meta=/)?.[1];
 assert.ok(postsJson, "Le tableau des publications source doit rester lisible.");
 const posts = applyPlanOverridesToPosts(JSON.parse(postsJson));
+const activePosts = posts.filter((post) => post.archivedEditorial !== true);
+assert.ok(activePosts.every((post) => /^2026-\d{2}-\d{2}$/.test(post.dateIso || "")), "Chaque publication active doit avoir une date ISO canonique.");
+assert.ok(posts.every((post) => /^2026-\d{2}-\d{2}$/.test(post.dateIso || "")), "Chaque document planifié ou archivé envoyé à Firestore doit conserver une date ISO canonique.");
+assert.deepEqual(
+  Object.fromEntries(posts.filter((post) => post.archivedEditorial === true).map((post) => [post.id, post.dateIso])),
+  { s2d3: "2026-07-22", s2d6: "2026-07-26", s3d1b: "2026-07-27" },
+  "Les archives éditoriales doivent conserver leur date d’origine pour rester modifiables sous les règles Firestore."
+);
+assert.deepEqual(
+  activePosts.map((post) => post.dateIso),
+  [...activePosts].map((post) => post.dateIso).sort(),
+  "Le calendrier doit rester trié chronologiquement après tous les déplacements."
+);
+for (const week of [1,2,3,4,5,6,7,8]) {
+  const dates = [...new Set(activePosts.filter((post) => post.w === week).map((post) => post.dateIso))];
+  assert.deepEqual(dates, [...dates].sort(), `La semaine ${week} doit suivre l’ordre réel des dates.`);
+}
 const first = posts.find((post) => post.id === "s1d1");
 const moved = posts.find((post) => post.id === "s1d1b");
 const volunteer = posts.find((post) => post.id === "s1d3");
@@ -76,6 +94,9 @@ assert.equal(deferredBoatWash.w, 6);
 assert.match(deferredBoatWash.title, /rituel complet/i);
 assert.match(deferredBoatWash.copy, /retirer les débris visibles, vider l’eau retenue, nettoyer/i);
 assert.doesNotMatch(deferredBoatWash.source, /ccq\.org/i);
+const soloAugustThird = posts.find((post) => post.id === "s4d1b");
+assert.equal(soloAugustThird.choiceRequired, false, "La seule carte du 3 août ne doit pas afficher un faux choix.");
+assert.equal(soloAugustThird.optionGroup, null);
 const sundayHeritage = posts.find((post) => post.id === "alt-20260719");
 assert.equal(sundayHeritage.date, "Dimanche 19 juillet");
 assert.equal(sundayHeritage.w, 1);
@@ -125,7 +146,12 @@ for (const historicalId of ["alt-20260719", "alt-20260726", "alt-20260801", "alt
   assert.match(historicalPost.source, /Domaine public/i);
   assert.equal(historicalPost.t, "Patrimoine");
 }
-assert.match(preparePlanScript(source.match(/<script>\s*(var posts=[\s\S]*?)<\/script>/i)[1], posts), /\[1,2,3,4,5,6,7,8\]\.forEach/);
+const preparedPlanScript = preparePlanScript(source.match(/<script>\s*(var posts=[\s\S]*?)<\/script>/i)[1], posts);
+assert.match(preparedPlanScript, /\[1,2,3,4,5,6,7,8\]\.forEach/);
+assert.match(preparedPlanScript, /Object\.keys\(days\)\.sort/, "Le rendu privé doit trier les journées avant de construire les cartes.");
+assert.match(source, /Object\.keys\(days\)\.sort/, "La source locale doit suivre le même ordre chronologique.");
+assert.doesNotMatch(source, /readybox|id="done"/, "L’ancien état local « prêt » ne doit plus contredire le workflow partagé.");
+assert.doesNotMatch(source, /<main class="wrap">/, "Le contenu injecté ne doit pas créer deux éléments main imbriqués.");
 assert.match(source, /planMonthIndex=\{janvier:0,[\s\S]*septembre:8/,
   "Le calendrier doit archiver correctement les publications de tous les mois, y compris septembre.");
 assert.match(source, /new Date\(2026,month,Number\(m\[1\]\),23,59,59,999\)/,
@@ -133,6 +159,21 @@ assert.match(source, /new Date\(2026,month,Number\(m\[1\]\),23,59,59,999\)/,
 assert.ok(ui.includes("function isPlanItemPast"), "L’aperçu éditorial doit reconnaître les jours passés.");
 assert.match(ui, /schedule\?\.status !== "deleted"[\s\S]{0,100}!isPlanItemPast\(item\)/,
   "L’aperçu éditorial doit masquer les jours passés par défaut.");
+assert.match(ui, /item\.archivedEditorial !== true[\s\S]{0,120}!isPlanItemPast\(item\)/, "L’aperçu actif doit exclure les archives éditoriales.");
+assert.match(ui, /focusMonthlySnapshotEvent\(itemId, allowRetry = true\)/);
+assert.match(ui, /focusMonthlySnapshotEvent\(itemId, false\)/, "La navigation mensuelle doit borner sa relance.");
+assert.match(ui, /setupCollapsibleNavigation/);
+assert.match(ui, /while \(node\)[\s\S]{0,100}node\.matches\?\.\("details"\)/, "La navigation doit ouvrir tous les volets ancêtres.");
+assert.match(ui, /\[data-cockpit-private-root\] section\[id\]/, "Les boîtes d’avis doivent survivre au retrait du main imbriqué.");
+assert.match(ui, /grid-template-columns:46px minmax\(0,1fr\)/, "Le bouton Enregistrer du mini-chat doit rester lisible sur mobile.");
+assert.match(viewMode, /\(\?:er\)\?\\s\+\(janvier/);
+assert.match(viewMode, /plain\.match\(\/\^\(\\d\{4\}\)\-\(\\d\{2\}\)\-\(\\d\{2\}\)\$\//, "La vue essentielle doit reconnaître les dates ISO canoniques.");
+assert.match(viewMode, /date\.getFullYear\(\) === year[\s\S]{0,120}date\.getDate\(\) === day/, "Une date ISO invalide ne doit pas être normalisée silencieusement.");
+assert.match(viewMode, /item\.dateIso \|\| item\.date/, "La vue essentielle doit utiliser la date ISO canonique.");
+assert.match(viewMode, /distance > 0 && distance <= 7/, "Le panneau des sept prochains jours ne doit pas répéter Aujourd’hui.");
+for (const token of ["calendarTime", "calendarDurationMinutes", "calendarLocation", "calendarCost", "postCalendarMetadata"]) {
+  assert.ok(ui.includes(token), `Le fichier calendrier doit utiliser ${token}.`);
+}
 assert.match(source, /Coordination renforcée avant publication/);
 assert.match(source, /Interaction utile, jamais répétitive/);
 assert.match(source, /Meta — engagement authentique/);
@@ -228,7 +269,10 @@ assert.ok(seedContentFieldsMatch, "Le seed doit isoler les champs éditoriaux de
 for (const field of ["status", "deleted", "selected", "updatedAt", "updatedBy"]) {
   assert.doesNotMatch(seedContentFieldsMatch[1], new RegExp(`\\b${field}\\s*:`), `Le seed ne doit pas placer ${field} dans les champs fusionnés aux événements existants.`);
 }
-assert.match(privateContentSeed, /if \(existing\.exists\) \{\s*batch\.set\(ref, contentFields, \{ merge: true \}\);\s*updatedStates \+= 1;/, "Un événement existant ne doit recevoir que les champs de contenu.");
+assert.match(privateContentSeed, /const changedFields = Object\.keys\(contentFields\)/, "Le seed doit détecter les changements réels avant d’horodater un événement.");
+assert.match(privateContentSeed, /entityType: "scheduleItem"[\s\S]{0,500}before:[\s\S]{0,500}after: contentFields/, "Une modification éditoriale doit conserver sa version précédente.");
+assert.match(privateContentSeed, /\.\.\.contentFields,\s*updatedAt: FieldValue\.serverTimestamp\(\),\s*updatedBy: "system_seed"/, "Un contenu réellement modifié doit devenir visible dans la prochaine synchronisation.");
+assert.match(seedContentFieldsMatch[1], /dateIso:/, "Chaque événement Firestore doit recevoir sa date ISO canonique.");
 assert.match(privateContentSeed, /else \{\s*batch\.set\(ref, \{\s*\.\.\.contentFields,\s*status: "pending",\s*deleted: false,\s*selected: post\.choiceRequired !== true,\s*updatedAt: FieldValue\.serverTimestamp\(\),\s*updatedBy: "system_seed"/, "Les valeurs d’état initiales doivent être réservées aux nouveaux événements.");
 for (const { file, source: mediaSeed } of mediaSeedSources) {
   const contentFieldsMatch = mediaSeed.match(/const contentFields = \{([\s\S]*?)\r?\n  \};\r?\n  if \(!existing\.exists\)/);
@@ -238,4 +282,4 @@ for (const { file, source: mediaSeed } of mediaSeedSources) {
   }
   assert.match(mediaSeed, /else \{\s*batch\.set\(reference, contentFields, \{ merge: true \}\);\s*updated \+= 1;/, `${file} doit préserver les décisions d’un média existant.`);
 }
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 8, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 12, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 387 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 8, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 12, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 419 }, null, 2));

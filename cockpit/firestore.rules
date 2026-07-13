@@ -35,10 +35,11 @@ service cloud.firestore {
     }
 
     function validSchedule(data) {
-      return data.keys().hasAll(['title', 'dateKey', 'format', 'role', 'cta', 'source', 'tasksValentin', 'tasksAnnie', 'calendarTime', 'calendarDurationMinutes', 'calendarLocation', 'calendarCost', 'status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
-        && data.keys().hasOnly(['title', 'dateKey', 'format', 'role', 'cta', 'source', 'tasksValentin', 'tasksAnnie', 'calendarTime', 'calendarDurationMinutes', 'calendarLocation', 'calendarCost', 'status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
+      return data.keys().hasAll(['title', 'dateKey', 'dateIso', 'format', 'role', 'cta', 'source', 'tasksValentin', 'tasksAnnie', 'calendarTime', 'calendarDurationMinutes', 'calendarLocation', 'calendarCost', 'status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
+        && data.keys().hasOnly(['title', 'dateKey', 'dateIso', 'format', 'role', 'cta', 'source', 'tasksValentin', 'tasksAnnie', 'calendarTime', 'calendarDurationMinutes', 'calendarLocation', 'calendarCost', 'status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
         && data.title is string && data.title.size() <= 220
         && data.dateKey is string && data.dateKey.size() <= 80
+        && data.dateIso is string && data.dateIso.matches('^\\d{4}-\\d{2}-\\d{2}$')
         && data.format is string && data.format.size() <= 220
         && data.role is string && data.role.size() <= 5000
         && data.cta is string && data.cta.size() <= 220
