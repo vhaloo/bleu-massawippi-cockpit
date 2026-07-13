@@ -45,6 +45,11 @@ style.textContent = `
   [data-theme="dark"] a { color:#8ce5f3; }
   [data-theme="dark"] .button.primary, [data-theme="dark"] .toolbar button { color:#07151b !important; background:#75d9e6 !important; border-color:#75d9e6 !important; }
   [data-theme="dark"] :is(.stats,.panel,.post,.gate,.toolbar,.table,.metric,.source,.context-fold,.readme-fold,.readme-step,.workflow-svg,.day-group,.section-feedback,.cockpit-controls,.cockpit-media,.cockpit-media-card,.cockpit-workflow,.cockpit-message,.cockpit-login-card,#cockpit-sidebar,#cockpit-feedback-panel,#cockpit-task-panel,.feedback-form,.task-owner,.collab-mode,.readme-card) { color:#eef7f8 !important; background:#152c36 !important; border-color:#587984 !important; box-shadow:none; }
+  [data-theme="dark"] .cockpit-login-card :is(h2,p,label,.eyebrow) { color:#eef7f8 !important; }
+  [data-theme="dark"] .cockpit-login-card input { color:#f4fbfc !important; background:#0f2630 !important; border-color:#6f939e !important; }
+  [data-theme="dark"] .cockpit-login-card input::placeholder { color:#b9cdd2 !important; }
+  [data-theme="dark"] .cockpit-login-reset { color:#84e3ee !important; background:transparent !important; }
+  [data-theme="dark"] .cockpit-login-error { color:#ffb9ae !important; }
   [data-theme="dark"] :is(.principle,.ev,.flow div,.box,.channel,.responsibility,.readme-note,.status,.day-heading,.cockpit-login-note,.cockpit-task-item,.cockpit-media-preview) { color:#e7f5f7 !important; background:#1c3944 !important; border-color:#52727d !important; }
   [data-theme="dark"] .principle:nth-child(n), [data-theme="dark"] .responsibility.annie, [data-theme="dark"] .responsibility.valentin { background:#1c3944 !important; border-color:#52727d !important; }
   [data-theme="dark"] .note { color:#ffd9cf !important; background:#402c2a !important; }

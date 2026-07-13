@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recette locale — vues du cockpit</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #173f4e; background: #f5fbfb; font: 16px/1.5 system-ui, sans-serif; }
+    .wrap { width: min(960px, calc(100% - 24px)); margin: auto; }
+    #cockpit-session { display: flex; align-items: center; gap: 10px; padding: 8px 16px; color: white; background: #073a52; }
+    #cockpit-logout { margin-left: 0; }
+    .nav { padding: 10px; background: #e3f3f4; }
+    .nav .wrap { display: flex; gap: 16px; }
+    .hero, section { padding: 24px 0; }
+    .posts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .post { padding: 16px; border: 1px solid #bdd9dc; border-radius: 14px; background: white; }
+    .post h4 { margin: 5px 0; }
+    .date { color: #55757f; }
+    .cockpit-controls { margin-top: 12px; padding: 10px; background: #eef8f8; }
+    @media (max-width: 600px) { .posts { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div id="cockpit-session" data-uid="fixture-director">
+    <span id="cockpit-session-label">Connecté : <strong>Compte de recette</strong> · rôle director</span>
+    <button id="cockpit-logout" type="button">Se déconnecter</button>
+  </div>
+  <main id="cockpit-content">
+    <div class="hero wrap"><h1>Cockpit Communication Bleu Massawippi</h1></div>
+    <nav class="nav"><div class="wrap"><a href="#cap">Cap</a><a href="#projets">Projets</a><a href="#calendrier">Calendrier</a></div></nav>
+    <section id="cap" class="wrap"><h2>Cap</h2><p>Contexte stratégique.</p></section>
+    <section id="projets" class="wrap"><h2>Projets</h2><p>Occasions à suivre.</p></section>
+    <section id="calendrier" class="wrap">
+      <h2>Calendrier</h2>
+      <div id="posts" class="posts">
+        <article class="post" data-item-id="fixture-today" data-t="Communauté">
+          <div class="post-head"><span class="date">Dimanche 12 juillet</span><h4>Publication du jour</h4></div>
+          <div class="cockpit-controls"><div data-workflow-actions><button class="primary">Valider le texte</button></div></div>
+        </article>
+        <article class="post" data-item-id="fixture-tomorrow" data-t="Nature">
+          <div class="post-head"><span class="date">Lundi 13 juillet</span><h4>Publication de demain</h4></div>
+          <div class="cockpit-controls"><div data-workflow-actions><button class="primary">Choisir le média</button></div></div>
+        </article>
+      </div>
+    </section>
+  </main>
+  <div id="cockpit-announcer" aria-live="polite"></div>
+  <script>
+    globalThis.posts = [
+      { id: "fixture-today", date: "Dimanche 12 juillet", title: "Publication du jour", t: "Communauté" },
+      { id: "fixture-tomorrow", date: "Lundi 13 juillet", title: "Publication de demain", t: "Nature" }
+    ];
+  </script>
+  <script type="module" src="../view-mode.js"></script>
+  <script type="module">
+    const params = new URLSearchParams(location.search);
+    const role = params.get("role") === "admin" ? "admin" : "director";
+    const uid = (params.get("uid") || `fixture-${role}`).replace(/[^a-z0-9_-]/gi, "").slice(0, 80);
+    document.querySelector("#cockpit-session").dataset.uid = uid;
+    document.documentElement.dataset.theme = params.get("theme") === "dark" ? "dark" : "light";
+    const label = document.querySelector("#cockpit-session-label");
+    label.innerHTML = `Connecté : <strong>Compte de recette</strong> · rôle ${role}`;
+    document.body.classList.toggle("cockpit-admin", role === "admin");
+    dispatchEvent(new CustomEvent("cockpit:session-ready", { detail: { profile: { uid, role } } }));
+    dispatchEvent(new CustomEvent("cockpit:content-ready"));
+  </script>
+</body>
+</html>

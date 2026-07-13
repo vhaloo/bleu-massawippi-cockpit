@@ -3,20 +3,22 @@ name: Publier le cockpit
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+permissions: {}
 
 concurrency:
-  group: github-pages
+  group: github-pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   validate:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - name: Récupérer le dépôt
         uses: actions/checkout@v4
@@ -34,6 +36,7 @@ jobs:
           node finaliser_textes_publications.js
           npm --prefix cockpit run seed -- --dry-run
           npm --prefix cockpit run test:contract
+          npm --prefix cockpit run test:quality
           ! grep -q 'var posts=' cockpit/index.html
           git diff --exit-code
           npm --prefix cockpit run check
@@ -54,10 +57,16 @@ jobs:
           fi
   deploy:
     needs: validate
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Récupérer le dépôt
         uses: actions/checkout@v4
@@ -66,12 +75,15 @@ jobs:
           mkdir -p public
           cp cockpit/index.html public/
           cp cockpit/cockpit-ui.js public/
+          cp cockpit/view-mode.js public/
+          cp cockpit/view-mode.css public/
           cp cockpit/firebase-client.js public/
           cp cockpit/theme.js public/
           cp cockpit/firebase-config.js public/
           cp cockpit/manifest.webmanifest public/
           cp cockpit/sw.js public/
           cp cockpit/icon.svg public/
+          cp cockpit/icons.svg public/
           cp SOURCES_ET_GARDES_FOUS.md public/
       - name: Préparer l’artefact Pages
         uses: actions/upload-pages-artifact@v3
