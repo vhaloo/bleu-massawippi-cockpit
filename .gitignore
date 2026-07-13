@@ -1,2 +1,9 @@
 index.html.backup-*
 TEXTES_COMPLETS_PUBLICATIONS_13_JUILLET_9_AOUT_2026.md.backup-*
+**/__pycache__/
+*.py[cod]
+.env
+.env.*
+**/secrets/
+*service-account*.json
+*service_account*.json

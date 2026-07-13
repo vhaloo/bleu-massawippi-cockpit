@@ -251,13 +251,13 @@ const final = [
   },
   {
     id: "s4d1",
-    visual: "Mini-BD originale en trois cases : 1. On part? 2. Deux secondes, je regarde la remorque. 3. Rien ne part avec nous, sauf de bons souvenirs.",
-    alt: "FR — Une mini-BD rappelle d’inspecter une remorque avant de partir. / EN — A mini-comic reminds people to inspect a trailer before leaving.",
+    visual: "Mini-BD 4:5 en deux scènes : avant, remorque et embarcation à vérifier; après, débris retirés, eau vidée, équipement nettoyé puis laissé à sécher. Titre manuscrit blanc : Le rituel complet.",
+    alt: "FR — Une mini-BD présente les étapes complètes à suivre avant de changer de plan d’eau. / EN — A mini-comic shows the complete routine before moving between bodies of water.",
     source: quebecBoatCleaning,
-    task: "Dessiner une BD originale, sans reprendre de personnage ou d’illustration tiers; conserver les trois cases très lisibles sur mobile.",
+    task: "Dessiner une BD originale, sans reprendre de personnage ou d’illustration tiers; montrer retirer, vider, nettoyer et sécher dans deux scènes très lisibles sur mobile.",
     copy: bilingual(
-      "Mini-BD du jour :\n\n— On part?\n— Deux secondes, je regarde la remorque.\n— Pourquoi?\n— Rien ne part avec nous, sauf de bons souvenirs.\n\nUn petit réflexe avant le départ peut éviter de transporter des fragments ou de l’eau d’un plan d’eau à l’autre.\n\n#MiniBD #BleuMassawippi #Prévention #LacMassawippi",
-      "Today’s mini-comic:\n\n— Ready to go?\n— Two seconds, I’m checking the trailer.\n— Why?\n— Nothing leaves with us except good memories.\n\nA small habit before departure can help avoid carrying fragments or water from one body of water to another.\n\n#MiniComic #BleuMassawippi #Prevention #LakeMassawippi"
+      "Une sortie sur l’eau commence bien avant la mise à l’eau. Quand une embarcation change de plan d’eau, prenons le temps de retirer les débris visibles, vider l’eau retenue, nettoyer l’embarcation, la remorque et l’équipement, puis laisser sécher selon les recommandations officielles.\n\nCes gestes forment un seul rituel, simple à garder en tête et utile d’un lac à l’autre. Ensuite, toute la place revient au plaisir d’être sur l’eau.\n\n#MiniBD #BleuMassawippi #Prévention #NautismeResponsable #LacMassawippi",
+      "A day on the water begins well before launch. When a boat moves between bodies of water, take time to remove visible debris, drain retained water, clean the boat, trailer and equipment, then let everything dry according to official guidance.\n\nTogether, these actions form one simple routine worth remembering from one lake to the next. Then all the attention can return to enjoying the water.\n\n#MiniComic #BleuMassawippi #Prevention #ResponsibleBoating #LakeMassawippi"
     )
   },
   {
@@ -335,7 +335,7 @@ if (final.length !== 28 || new Set(final.map((item) => item.id)).size !== 28) {
 function readPosts(file) {
   const html = fs.readFileSync(file, "utf8");
   const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)][0]?.[1];
-  const match = script?.match(/var posts=(\[[\s\S]*?\]);\nvar meta=/);
+  const match = script?.match(/var posts=(\[[\s\S]*?\]);\s*var meta=/);
   if (!match) throw new Error("Calendrier introuvable dans " + file);
   return JSON.parse(match[1]);
 }
@@ -356,7 +356,7 @@ function synchronizeHtml(file) {
     if (!item) return post;
     return { ...post, visual: item.visual, source: item.source, task: item.task, copy: item.copy };
   });
-  const expression = /var posts=(\[[\s\S]*?\]);\nvar meta=/;
+  const expression = /var posts=(\[[\s\S]*?\]);\s*var meta=/;
   if (!expression.test(html)) throw new Error("Calendrier introuvable dans " + file);
   html = html.replace(expression, `var posts=${JSON.stringify(mergedPosts)};\nvar meta=`);
   fs.writeFileSync(file, html, "utf8");
