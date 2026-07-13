@@ -3,6 +3,25 @@ import { applyEditorialCopyOverrides } from "./editorial-copy-overrides.js";
 
 const OPEN_HOUSE_MAP_URL = "https://www.google.com/maps/search/?api=1&query=Eglise+Saint-Barthelemy%2C+911+rue+Clough%2C+Ayer%27s+Cliff%2C+QC+J0B+1C0";
 
+const PLAN_YEAR = 2026;
+const ARCHIVED_DATE_ISO = new Map([
+  ["s2d3", "2026-07-22"],
+  ["s2d6", "2026-07-26"],
+  ["s3d1b", "2026-07-27"]
+]);
+const PLAN_MONTHS = new Map([
+  ["janvier", 1], ["février", 2], ["fevrier", 2], ["mars", 3], ["avril", 4], ["mai", 5], ["juin", 6],
+  ["juillet", 7], ["août", 8], ["aout", 8], ["septembre", 9], ["octobre", 10], ["novembre", 11],
+  ["décembre", 12], ["decembre", 12]
+]);
+
+export function planDateIsoFromLabel(value, year = PLAN_YEAR) {
+  const match = String(value || "").toLocaleLowerCase("fr-CA").match(/(\d{1,2})(?:er)?\s+([a-zéûô]+)/i);
+  const month = match ? PLAN_MONTHS.get(match[2]) : null;
+  if (!match || !month) return null;
+  return `${year}-${String(month).padStart(2, "0")}-${String(Number(match[1])).padStart(2, "0")}`;
+}
+
 const OPEN_HOUSE_POST = {
   w: 1,
   date: "Lundi 13 juillet",
@@ -64,23 +83,71 @@ const VOLUNTEER_INTERVIEW_POST = {
   optionLabel: null,
   isAlternative: false,
   coordinationLevel: "high",
-  coordinationLabel: "Préparation requise · personne bénévole, entrevue, consentement et photo",
-  role: "Humaniser l’action en donnant la parole à une personne bénévole, après une préparation réaliste de l’entrevue, des autorisations et du visuel.",
-  task: "Préparer la personne, l’entrevue, le consentement et le portrait avant de finaliser la publication.",
+  coordinationLabel: "Préparation requise · conseil d’administration ou bénévolat, courtes entrevues, consentements et portraits",
+  role: "Humaniser l’association en donnant la parole aux personnes qui s’impliquent, en commençant par un portrait collectif du conseil d’administration, puis en ouvrant la série au bénévolat.",
+  task: "Recueillir une courte phrase authentique et un consentement pour chaque personne avant de finaliser le carrousel ou de scinder la série en plusieurs portraits.",
   tasksValentin: [
-    "Préparer une courte grille d’entrevue chaleureuse : motivation, geste concret, souvenir du lac et invitation à participer.",
-    "Proposer deux ou trois profils possibles avec la direction, puis préparer le courriel ou l’appel de prise de contact.",
-    "Planifier une entrevue de 20 à 30 minutes et une prise de photo; prévoir une solution de rechange sans visage identifiable.",
-    "Obtenir et classer le consentement de diffusion pour le texte, la citation, le nom et l’image avant toute publication.",
-    "À partir de l’entrevue, adapter l’ébauche FR / EN, produire le portrait ou la capsule et soumettre le tout aux deux validations."
+    "Préparer une question unique, chaleureuse et facile à répondre : « Pourquoi avez-vous choisi de vous impliquer pour le Massawippi? ».",
+    "Proposer un carrousel avec une couverture, puis une carte sobre par membre du conseil; si le carrousel devient trop long, le scinder en une courte série cohérente.",
+    "Planifier les courtes réponses écrites ou entrevues et les portraits; prévoir une solution typographique si une personne ne souhaite pas montrer son visage.",
+    "Obtenir et classer le consentement de diffusion pour chaque nom, citation et image avant toute publication.",
+    "Adapter les citations en FR / EN sans changer leur sens, produire le carrousel et soumettre le texte puis les visuels aux validations."
   ],
   tasksAnnie: [
-    "Identifier une ou plusieurs personnes bénévoles crédibles, disponibles et à l’aise de témoigner publiquement.",
-    "Faire l’introduction institutionnelle ou autoriser la prise de contact par les communications.",
-    "Confirmer que la participation, le contexte raconté et les informations institutionnelles sont exacts et appropriés.",
-    "Aider à fixer le rendez-vous si la relation avec la personne bénévole passe par la direction générale."
+    "Confirmer la liste actuelle des membres du conseil d’administration, leur titre public et l’ordre de présentation.",
+    "Faire l’introduction institutionnelle, transmettre la question et confirmer la disponibilité de chaque personne.",
+    "Valider que chaque citation respecte bien la pensée de son auteur et que les informations institutionnelles sont exactes.",
+    "Décider si la première publication présente tout le conseil ou si la série commence par deux ou trois portraits, puis se poursuit."
   ],
-  taskOwnersVersion: "event-task-owners-2026-07-11-volunteer-interview-v2"
+  taskOwnersVersion: "event-task-owners-2026-07-13-board-portrait-v3"
+};
+
+const TRIBUTARY_LEXICON_POST = {
+  id: "lexique-20260830-tributaire",
+  w: 7,
+  date: "Dimanche 30 août",
+  calendarTime: "10:00",
+  t: "Éducation",
+  tier: "Passerelle",
+  title: "Le mot du lac : tributaire",
+  format: "Carte lexique 4:5 · dessin simple + lettrage manuscrit",
+  role: "Ouvrir une série de définitions accessibles qui donnent au public les mots nécessaires pour mieux comprendre le lac et son bassin versant.",
+  cta: "Découvrir un mot du bassin versant",
+  visual: "Dessin chaleureux et très simple d’un petit cours d’eau qui rejoint le lac; titre manuscrit « Tributaire » et courte note « Un cours d’eau qui en rejoint un autre ou se jette dans un lac »; aucun long paragraphe dans l’image.",
+  source: "Gouvernement du Québec — Glossaire de la qualité de l’eau : « Affluent - tributaire : cours d’eau qui se jette dans un autre » · https://www.environnement.gouv.qc.ca/eau/sys-image/contenu1.htm · exemple adapté au bassin versant du lac Massawippi.",
+  fallback: "Photo réelle d’un cours d’eau, avec le seul mot manuscrit « Tributaire » et une flèche vers le lac.",
+  kpi: "Enregistrements / partages / questions de vocabulaire proposées",
+  task: "Vérifier la définition auprès d’une source gouvernementale, produire une carte très lisible et préparer les prochains mots de la série à partir des questions du public.",
+  copy: `FR — Le mot du lac : tributaire.
+
+Un tributaire est un cours d’eau qui en rejoint un autre ou qui se jette dans un lac. Autour du Massawippi, les tributaires relient tout le bassin versant : ce qui se passe en amont peut donc voyager jusqu’au lac.
+
+Quel autre mot lié au lac aimeriez-vous que nous expliquions simplement?
+
+#LeMotDuLac #BleuMassawippi #LacMassawippi #Tributaires #BassinVersant
+
+=========================================
+
+EN — Lake word of the day: tributary.
+
+A tributary is a stream or river that flows into another waterway or a lake. Around Massawippi, tributaries connect the whole watershed, so what happens upstream can eventually reach the lake.
+
+Which other lake-related word would you like us to explain in plain language?
+
+#LakeWords #BleuMassawippi #LakeMassawippi #Tributaries #Watershed`,
+  choiceRequired: false,
+  optionGroup: null,
+  optionLabel: null,
+  isAlternative: true,
+  tasksValentin: [
+    "Conserver la définition gouvernementale et vérifier que l’exemple demeure exact pour le bassin versant du Massawippi.",
+    "Produire la carte lexique en lettrage manuscrit, avec un texte alternatif bilingue et une lecture immédiate sur mobile.",
+    "Finaliser la légende FR / EN, soumettre les validations et préparer une courte liste de prochains mots à partir des questions reçues."
+  ],
+  tasksAnnie: [
+    "Confirmer que le terme choisi répond à un besoin réel de vulgarisation et que l’exemple convient au contexte institutionnel."
+  ],
+  taskOwnersVersion: "event-task-owners-2026-07-13-lexicon-v1"
 };
 
 function buildAlternative(spec) {
@@ -106,6 +173,7 @@ function buildAlternative(spec) {
 
 export function applyPlanOverridesToPosts(posts) {
   if (!Array.isArray(posts)) return posts;
+  if (!posts.some((post) => post.id === TRIBUTARY_LEXICON_POST.id)) posts.push({ ...TRIBUTARY_LEXICON_POST });
   const first = posts.find((post) => post.id === "s1d1");
   if (first) Object.assign(first, OPEN_HOUSE_POST, { decisionLocked: true });
   const moved = posts.find((post) => post.id === "s1d1b");
@@ -179,6 +247,28 @@ export function applyPlanOverridesToPosts(posts) {
     optionLabel: null,
     role: "Publication patrimoniale retenue et avancée au vendredi afin de diversifier la séquence avant le contenu communautaire du samedi."
   });
+  const deferredBoatWash = posts.find((post) => post.id === "s4d1");
+  if (deferredBoatWash) Object.assign(deferredBoatWash, {
+    w: 6,
+    date: "Vendredi 21 août",
+    calendarTime: "17:00",
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    decisionLocked: true,
+    role: "Publication de prévention conservée et espacée de plus de cinq semaines après le rappel du 14 juillet; présenter le rituel complet avant un changement de plan d’eau sans répéter la publication déjà programmée."
+  });
+  const deferredMonitoring = posts.find((post) => post.id === "s1d2");
+  if (deferredMonitoring) Object.assign(deferredMonitoring, {
+    w: 5,
+    date: "Jeudi 13 août",
+    calendarTime: "12:00",
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    isAlternative: false,
+    role: "Publication scientifique conservée et reprogrammée après l’ajustement du début des vacances de la construction; elle présente ensemble le suivi du lac et de ses tributaires."
+  });
   ["s2d3", "s2d6", "s3d1b"].forEach((id) => {
     const rejected = posts.find((post) => post.id === id);
     if (rejected) Object.assign(rejected, {
@@ -207,17 +297,28 @@ export function applyPlanOverridesToPosts(posts) {
     "alt-20260723": { w: 7, date: "Mardi 25 août", role: "Bonne idée conservée et reprogrammée après arbitrage; capsule sur les fonctions d’une rive végétalisée à renforcer en français." },
     "alt-20260724": { w: 7, date: "Mercredi 26 août", role: "Bonne idée conservée et reprogrammée après arbitrage; amorce éditoriale de l’atelier d’automne sur les jardins de pluie, sans annoncer de date non confirmée." },
     "alt-20260725": { w: 7, date: "Jeudi 27 août", role: "Sujet récurrent conservé pour un autre mois avec une formulation distincte, afin d’éviter la répétition dans la même séquence." },
-    "alt-20260728": { w: 7, date: "Vendredi 28 août", role: "Bonne idée conservée et reprogrammée après arbitrage; expliquer la complémentarité entre suivi scientifique et observations citoyennes sans les confondre." }
+    "alt-20260728": { w: 7, date: "Vendredi 28 août", role: "Bonne idée conservée et reprogrammée après arbitrage; expliquer la complémentarité entre suivi scientifique et observations citoyennes sans les confondre." },
+    "alt-20260729": { w: 8, date: "Lundi 31 août", role: "Bonne idée nature conservée et reprogrammée après le choix de la publication sur les observations après la pluie pour le 29 juillet." },
+    "alt-20260802": { w: 8, date: "Mardi 1er septembre", role: "Bonne idée nature conservée et reprogrammée après le choix de la publication sur les cinq réflexes doux pour le 2 août." }
   };
   Object.entries(reprogrammed).forEach(([id, placement]) => {
     const post = finalPosts.find((item) => item.id === id);
     if (post) Object.assign(post, placement, { choiceRequired: false, optionGroup: null, optionLabel: null });
   });
-  ["s1d3b", "alt-20260715", "s1d5", "s1d6", "s1d4", "s1d2", "s2d1b", "s1d7", "s2d1", "s2d2", "alt-20260722", "s2d4", "s2d5", "s2d7", "alt-20260726", "s3d1", "s3d2"].forEach((id) => {
+  ["s1d3b", "alt-20260715", "s1d5", "s1d6", "s1d4", "s1d2", "s2d1b", "s1d7", "s2d1", "s2d2", "alt-20260722", "s2d4", "s2d5", "s2d7", "alt-20260726", "s3d1", "s3d2", "s3d4", "s3d3", "s3d7", "s4d1", "s4d1b", "alt-20260729", "alt-20260802", "lexique-20260830-tributaire"].forEach((id) => {
     const post = finalPosts.find((item) => item.id === id);
     if (post) Object.assign(post, { choiceRequired: false, optionGroup: null, optionLabel: null });
   });
-  return finalPosts;
+  finalPosts.forEach((post) => {
+    const dateIso = planDateIsoFromLabel(post.date) || ARCHIVED_DATE_ISO.get(post.id);
+    if (dateIso) post.dateIso = dateIso;
+    else delete post.dateIso;
+  });
+  return finalPosts.sort((left, right) => {
+    const leftKey = left.dateIso || "9999-12-31";
+    const rightKey = right.dateIso || "9999-12-31";
+    return leftKey.localeCompare(rightKey) || Number(left.w || 999) - Number(right.w || 999);
+  });
 }
 
 export function preparePlanScript(script, posts) {
@@ -226,10 +327,14 @@ export function preparePlanScript(script, posts) {
     /var posts=\[[\s\S]*?\];\s*var meta=/,
     `var posts=${JSON.stringify(updatedPosts)};var meta=`
   );
-  output = output.replace(/\[[1-7,]+\]\.forEach/, "[1,2,3,4,5,6,7].forEach");
+  output = output.replace(/\[[1-8,]+\]\.forEach/, "[1,2,3,4,5,6,7,8].forEach");
+  output = output.replace(
+    /Object\.keys\(days\)(?:\.sort\([\s\S]*?\))?\.forEach\(function\(day\)\{/,
+    "Object.keys(days).sort(function(a,b){return postDate(days[a][0])-postDate(days[b][0])}).forEach(function(day){"
+  );
   output = output.replace(
     /(var meta=\{[\s\S]*?\};)/,
-    "$1meta[5]=[\"Semaine 5 · Réserve éditoriale\",\"10 au 16 août\"];meta[6]=[\"Semaine 6 · Réserve éditoriale\",\"17 au 23 août\"];meta[7]=[\"Semaine 7 · Réserve éditoriale\",\"24 au 30 août\"];"
+    "$1meta[5]=[\"Semaine 5 · Réserve éditoriale\",\"10 au 16 août\"];meta[6]=[\"Semaine 6 · Réserve éditoriale\",\"17 au 23 août\"];meta[7]=[\"Semaine 7 · Réserve éditoriale\",\"24 au 30 août\"];meta[8]=[\"Semaine 8 · Réserve éditoriale\",\"31 août au 6 septembre\"];"
   );
   return output;
 }

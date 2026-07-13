@@ -14,18 +14,18 @@ export const EDITORIAL_OVERRIDES_JUL14_26 = Object.freeze({
     title: "Une sortie qui commence bien",
     cta: "Consulter le guide pratique",
     copy: bilingual(
-      `Avant de profiter du lac, prenons le temps de vérifier l’embarcation et la remorque. Retirer les débris, vider l’eau et laver le tout en suivant les étapes recommandées : trois gestes simples qui empêchent les espèces envahissantes de voyager d’un plan d’eau à l’autre.
+      `Avant de profiter du lac, prenons le temps de vérifier notre embarcation et notre remorque. Retirer les débris, vider l’eau et laver le tout en suivant les étapes recommandées : trois gestes simples qui empêchent les espèces envahissantes de voyager d’un plan d’eau à l’autre.
 
 Merci à toutes les personnes qui intègrent déjà ces gestes à leur routine. Retrouvez les étapes recommandées ici : ${OFFICIAL_BOAT_CLEANING_URL}
 
 #BleuMassawippi #NautismeResponsable #LacMassawippi #Prévention`,
-      `Before enjoying the lake, let’s take the time to check the boat and trailer. Removing debris, draining water and washing everything according to the recommended steps are three simple actions that help keep invasive species from travelling between bodies of water.
+      `Before enjoying the lake, let’s take the time to check our boat and our trailer. Removing debris, draining water and washing everything according to the recommended steps are three simple actions that help keep invasive species from travelling between bodies of water.
 
 Thank you to everyone who already makes these steps part of their routine. Find the recommended guidance here: ${OFFICIAL_BOAT_CLEANING_URL}
 
 #BleuMassawippi #ResponsibleBoating #LakeMassawippi #Prevention`
     ),
-    visual: "Photo matinale chaleureuse de mains qui préparent une embarcation au quai; montrer naturellement les trois gestes — débris retirés, eau vidée et lavage — avec le titre discret « Une sortie qui commence bien ». Présenter un rituel humain, jamais une inspection punitive."
+    visual: "Photo matinale chaleureuse de mains qui préparent une embarcation au quai; montrer naturellement les trois gestes — débris retirés, eau vidée et lavage — avec le titre discret « Une sortie qui commence bien » et la formule manuscrite au pluriel « Des petits gestes ». Présenter un rituel humain, jamais une inspection punitive."
   },
   "alt-20260714": {
     title: "Votre essentiel avant de partir",
@@ -46,18 +46,19 @@ Share your essential in the comments. Your idea might make someone else’s next
   },
   s1d4: {
     title: "Le moment où le lac vous appelle",
-    cta: "Nous raconter ce moment",
+    cta: "Répondre en un mot",
     calendarTime: "10:00",
-    task: "Publier le samedi et compléter la publication par une story avec boîte de réponse. Après quelques semaines, ajuster l’heure à partir des données « Moments d’activité » de Meta Business Suite plutôt que d’une moyenne générale.",
+    source: "Meta — privilégier une conversation authentique et éviter les appels artificiels à commenter : https://about.fb.com/news/2017/12/news-feed-fyi-fighting-engagement-bait-on-facebook/ · Banque photo de l’association — droits à documenter.",
+    task: "Publier le samedi et compléter par une story avec boîte de réponse. Accueillir chaque réponse sans relance insistante, puis évaluer ce format après au moins trois essais comparables dans Meta Business Suite; un premier silence ne justifie ni appât à l’engagement ni répétition immédiate.",
     copy: bilingual(
       `Une couleur, un parfum, un son, un souvenir… Il y a parfois un moment précis où le lac nous appelle.
 
-Quel est ce moment pour vous : le calme du matin, une baignade, une sortie en famille, la lumière du soir? Racontez-le-nous en commentaire. Nous avons envie de découvrir ce qui fait vivre votre lien avec le Massawippi.
+Quel est ce moment pour vous : le calme du matin, une baignade, une sortie en famille, la lumière du soir? Un mot ou une courte phrase suffit. Nous avons envie de découvrir ce qui fait vivre votre lien avec le Massawippi.
 
 #BleuMassawippi #LacMassawippi #NotreLac #Estrie`,
       `A colour, a scent, a sound, a memory… Sometimes there is one particular moment when the lake calls to us.
 
-What is that moment for you: a quiet morning, a swim, time with family, the evening light? Tell us in the comments. We would love to learn what brings your connection with Massawippi to life.
+What is that moment for you: a quiet morning, a swim, time with family, the evening light? One word or a short sentence is enough. We would love to learn what brings your connection with Massawippi to life.
 
 #BleuMassawippi #LakeMassawippi #OurLake #EasternTownships`
     ),
@@ -197,20 +198,20 @@ On your next walk, take time to notice this small world while leaving leaves, st
     visual: "Planche d’exploration façon carnet naturaliste : coupe d’une rive avec feuilles, racines et pierres; invertébrés discrets et petite salamandre abritée sous une roche, sans prétendre identifier une espèce locale. Ajouter deux repères doux « refuge vivant » et « sol protégé »."
   },
   s1d2: {
-    title: "Suivre le lac pour mieux le comprendre",
+    title: "Suivre le lac et ses tributaires pour mieux comprendre",
     cta: "Découvrir les coulisses du suivi",
     source: "Gouvernement du Québec — Réseau de surveillance volontaire des lacs et Plan national de l’eau : https://www.quebec.ca/gouvernement/politiques-orientations/plan-national-eau",
     copy: bilingual(
-      `Le suivi du lac est essentiel pour mieux le comprendre et mieux le protéger.
+      `Le suivi du lac et de ses tributaires est essentiel pour mieux comprendre le bassin versant et mieux le protéger.
 
-Sur le terrain, chaque observation, prélèvement et mesure ajoute un repère. Répétés avec une méthode constante et comparés dans le temps, ces gestes nous aident à distinguer une variation ponctuelle d’une tendance, à partager une information plus juste et à orienter les actions utiles.
+Sur le terrain, chaque observation, prélèvement et mesure ajoute une donnée. Répétés avec une méthode constante et comparés dans le temps, ces gestes nous aident à distinguer une variation ponctuelle d’une tendance, à partager une information plus juste et à orienter les actions utiles.
 
 Merci aux personnes qui rendent ce travail patient possible, saison après saison.
 
 #BleuMassawippi #LacMassawippi #ScienceDuLac #Coulisses`,
-      `Monitoring the lake is essential to understanding it better and protecting it more effectively.
+      `Monitoring the lake and its tributaries is essential to understanding the watershed better and protecting it more effectively.
 
-In the field, every observation, sample and measurement adds a reference point. Repeated with a consistent method and compared over time, these actions help distinguish a short-term variation from a trend, support clearer information and guide useful action.
+In the field, every observation, sample and measurement adds a data point. Repeated with a consistent method and compared over time, these actions help distinguish a short-term variation from a trend, support clearer information and guide useful action.
 
 Thank you to everyone who makes this patient work possible, season after season.
 
@@ -291,21 +292,21 @@ Which of these functions would you like us to explore in a future post?
     visual: "Illustration ludique en coupe d’un milieu humide : eau ralentie, plantes, oiseaux et insectes; deux personnes sur une passerelle observent. Trois choix A/B/C clairs, puis réponse sur une seconde carte."
   },
   s2d7: {
-    title: "Une image, une époque, un attachement partagé",
-    cta: "Observer avec nous",
+    title: "Une image, une époque, le même amour du lac",
+    cta: "Regarder les détails",
     copy: bilingual(
-      `Cette image nous ramène à une autre époque du Massawippi. Le paysage et les habitudes ont changé, mais l’attachement au lac continue de relier les générations.
+      `Cette image nous ramène à une autre époque du Massawippi. Le paysage et les habitudes ont changé, mais l’amour du lac continue de relier les générations.
 
-Prenez le temps d’en explorer les détails. Qu’est-ce qui vous semble familier? Qu’est-ce qui vous surprend? Vos souvenirs et vos connaissances peuvent nous aider à enrichir cette histoire commune.
+Prenons le temps d’en explorer les détails : la rive, les embarcations, les bâtiments et les façons d’habiter le lieu. Une photographie ancienne peut raconter beaucoup sans demander un seul mot.
 
 #Patrimoine #BleuMassawippi #LacMassawippi #MémoireDuLac`,
-      `This image takes us back to another time at Massawippi. The landscape and daily habits have changed, but affection for the lake continues to connect generations.
+      `This image takes us back to another time at Massawippi. The landscape and daily habits have changed, but a shared love for the lake continues to connect generations.
 
-Take a moment to explore the details. What feels familiar? What surprises you? Your memories and knowledge can help enrich this shared story.
+Let us take time to explore its details: the shoreline, boats, buildings and ways of living in this place. An old photograph can tell us a great deal without asking for a single word.
 
 #Heritage #BleuMassawippi #LakeMassawippi #LakeMemories`
     ),
-    visual: "Visuel « regarder ensemble » : photographie historique complète posée devant une vue actuelle sans prétendre qu’il s’agit du même cadrage, avec une main qui pointe un détail; crédit, date et question « Que remarquez-vous? » lisibles."
+    visual: "Visuel « regarder ensemble » : photographie historique complète, créditée et non colorisée; ajouter au besoin un détail agrandi et la note manuscrite « Le même amour du lac », sans question ni élément qui masque l’image."
   },
   "alt-20260721": {
     title: "Le plongeon huard (Gavia immer), voix du lac",

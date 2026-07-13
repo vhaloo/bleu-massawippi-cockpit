@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { applyPlanOverridesToPosts } from "./cockpit/plan-overrides.js";
+import { applyPlanOverridesToPosts, planDateIsoFromLabel } from "./cockpit/plan-overrides.js";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const separator = "=========================================";
@@ -251,13 +251,13 @@ const final = [
   },
   {
     id: "s4d1",
-    visual: "Mini-BD originale en trois cases : 1. On part? 2. Deux secondes, je regarde la remorque. 3. Rien ne part avec nous, sauf de bons souvenirs.",
-    alt: "FR — Une mini-BD rappelle d’inspecter une remorque avant de partir. / EN — A mini-comic reminds people to inspect a trailer before leaving.",
+    visual: "Mini-BD 4:5 en deux scènes : avant, remorque et embarcation à vérifier; après, débris retirés, eau vidée, équipement nettoyé puis laissé à sécher. Titre manuscrit blanc : Le rituel complet.",
+    alt: "FR — Une mini-BD présente les étapes complètes à suivre avant de changer de plan d’eau. / EN — A mini-comic shows the complete routine before moving between bodies of water.",
     source: quebecBoatCleaning,
-    task: "Dessiner une BD originale, sans reprendre de personnage ou d’illustration tiers; conserver les trois cases très lisibles sur mobile.",
+    task: "Dessiner une BD originale, sans reprendre de personnage ou d’illustration tiers; montrer retirer, vider, nettoyer et sécher dans deux scènes très lisibles sur mobile.",
     copy: bilingual(
-      "Mini-BD du jour :\n\n— On part?\n— Deux secondes, je regarde la remorque.\n— Pourquoi?\n— Rien ne part avec nous, sauf de bons souvenirs.\n\nUn petit réflexe avant le départ peut éviter de transporter des fragments ou de l’eau d’un plan d’eau à l’autre.\n\n#MiniBD #BleuMassawippi #Prévention #LacMassawippi",
-      "Today’s mini-comic:\n\n— Ready to go?\n— Two seconds, I’m checking the trailer.\n— Why?\n— Nothing leaves with us except good memories.\n\nA small habit before departure can help avoid carrying fragments or water from one body of water to another.\n\n#MiniComic #BleuMassawippi #Prevention #LakeMassawippi"
+      "Une sortie sur l’eau commence bien avant la mise à l’eau. Quand une embarcation change de plan d’eau, prenons le temps de retirer les débris visibles, vider l’eau retenue, nettoyer l’embarcation, la remorque et l’équipement, puis laisser sécher selon les recommandations officielles.\n\nCes gestes forment un seul rituel, simple à garder en tête et utile d’un lac à l’autre. Ensuite, toute la place revient au plaisir d’être sur l’eau.\n\n#MiniBD #BleuMassawippi #Prévention #NautismeResponsable #LacMassawippi",
+      "A day on the water begins well before launch. When a boat moves between bodies of water, take time to remove visible debris, drain retained water, clean the boat, trailer and equipment, then let everything dry according to official guidance.\n\nTogether, these actions form one simple routine worth remembering from one lake to the next. Then all the attention can return to enjoying the water.\n\n#MiniComic #BleuMassawippi #Prevention #ResponsibleBoating #LakeMassawippi"
     )
   },
   {
@@ -335,7 +335,7 @@ if (final.length !== 28 || new Set(final.map((item) => item.id)).size !== 28) {
 function readPosts(file) {
   const html = fs.readFileSync(file, "utf8");
   const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)][0]?.[1];
-  const match = script?.match(/var posts=(\[[\s\S]*?\]);\nvar meta=/);
+  const match = script?.match(/var posts=(\[[\s\S]*?\]);\s*var meta=/);
   if (!match) throw new Error("Calendrier introuvable dans " + file);
   return JSON.parse(match[1]);
 }
@@ -353,20 +353,31 @@ function synchronizeHtml(file) {
   const finalById = new Map(final.map((item) => [item.id, item]));
   const mergedPosts = currentPosts.map((post) => {
     const item = finalById.get(post.id);
-    if (!item) return post;
-    return { ...post, visual: item.visual, source: item.source, task: item.task, copy: item.copy };
+    const merged = item ? { ...post, visual: item.visual, source: item.source, task: item.task, copy: item.copy } : post;
+    const dateIso = planDateIsoFromLabel(merged.date);
+    return dateIso ? { ...merged, dateIso } : merged;
   });
-  const expression = /var posts=(\[[\s\S]*?\]);\nvar meta=/;
+  const expression = /var posts=(\[[\s\S]*?\]);\s*var meta=/;
   if (!expression.test(html)) throw new Error("Calendrier introuvable dans " + file);
   html = html.replace(expression, `var posts=${JSON.stringify(mergedPosts)};\nvar meta=`);
+  html = html.replace(/\[1,2,3,4\]\.forEach\(function\(n\)\{/, "[1,2,3,4,5,6,7,8].forEach(function(n){");
+  html = html.replace(
+    /Object\.keys\(days\)\.forEach\(function\(day\)\{/,
+    "Object.keys(days).sort(function(a,b){return postDate(days[a][0])-postDate(days[b][0])}).forEach(function(day){"
+  );
   fs.writeFileSync(file, html, "utf8");
 }
 
 function renderMarkdown(posts) {
+  const orderedPosts = [...posts].sort((left, right) => {
+    const leftKey = left.dateIso || planDateIsoFromLabel(left.date) || "9999-12-31";
+    const rightKey = right.dateIso || planDateIsoFromLabel(right.date) || "9999-12-31";
+    return leftKey.localeCompare(rightKey) || String(left.title || "").localeCompare(String(right.title || ""), "fr-CA");
+  });
   const headings = [
     "# Textes complets finalisés — Cockpit Communication Bleu Massawippi",
     "",
-    "**Période active :** lundi 13 juillet au mardi 11 août 2026",
+    "**Calendrier actif :** à partir du lundi 13 juillet 2026; la réserve éditoriale est actuellement planifiée jusqu’au mardi 1er septembre 2026.",
     "**Usage :** textes bilingues prêts à programmer sur Facebook et Instagram, séparés par la ligne réglementaire du plan.",
     "**Voix :** chaleureuse, invitante et curieuse; les précautions techniques demeurent dans les notes de préparation plutôt que dans le message public.",
     "**Règle :** chaque légende demeure sous 2 200 caractères au total; les visuels doivent être authentiques, autorisés et accompagnés d’un texte alternatif descriptif.",
@@ -374,7 +385,7 @@ function renderMarkdown(posts) {
     "Les contenus V1 ont servi d’inspiration pour les formats éprouvés — quiz, preuve d’action, conseil, humour et appel à l’action — sans reprendre les sujets désormais exclus ni les faits non revalidés.",
     ""
   ];
-  for (const post of posts) {
+  for (const post of orderedPosts) {
     const item = post;
     headings.push(
       "## " + post.date + " — " + post.title,

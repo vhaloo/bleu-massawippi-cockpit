@@ -195,7 +195,15 @@ function stripAccents(value) {
 
 function inferDate(value, now = new Date()) {
   const plain = stripAccents(value);
-  const match = plain.match(/\b(\d{1,2})\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)(?:\s+(\d{4}))?/i);
+  const iso = plain.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) {
+    const year = Number(iso[1]);
+    const month = Number(iso[2]) - 1;
+    const day = Number(iso[3]);
+    const date = new Date(year, month, day, 12);
+    return date.getFullYear() === year && date.getMonth() === month && date.getDate() === day ? date : null;
+  }
+  const match = plain.match(/\b(\d{1,2})(?:er)?\s+(janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)(?:\s+(\d{4}))?/i);
   if (!match) return null;
   const day = Number(match[1]);
   const month = MONTHS.get(match[2]);
@@ -225,7 +233,7 @@ function eventModels(now = new Date()) {
     const item = planById.get(id) || {};
     const title = item.title || card.querySelector(".post-head h4")?.textContent?.trim() || "Publication";
     const dateLabel = item.date || card.querySelector(".date")?.textContent?.split("·")[0]?.trim() || "Date à confirmer";
-    const date = inferDate(item.date || dateLabel, now);
+    const date = inferDate(item.dateIso || item.date || dateLabel, now);
     const action = card.querySelector("[data-workflow-actions] button.primary:not(:disabled), [data-workflow-actions] button.correction:not(:disabled), [data-workflow-actions] button:not(:disabled)");
     const currentGate = card.querySelector("[data-gate].current");
     const currentGateName = currentGate?.querySelector("b")?.textContent?.replace(/^\d+\s*·\s*/, "")?.trim() || "";
@@ -344,7 +352,7 @@ function renderDashboard(now = new Date()) {
   const nextWeek = events.filter((event) => {
     if (!event.date) return false;
     const distance = (dayStart(event.date) - start) / 86400000;
-    return distance >= 0 && distance <= 7;
+    return distance > 0 && distance <= 7;
   });
   const decisions = events.filter((event) => event.needsDecision && (!event.date || dayStart(event.date) >= start)).slice(0, 7);
   const messages = messageModels();

@@ -66,6 +66,7 @@ batch.set(db.collection("privateContent").doc("plan"), {
 
 let createdStates = 0;
 let updatedStates = 0;
+let unchangedStates = 0;
 for (const post of posts) {
   if (!/^[a-z0-9-]{3,80}$/i.test(post.id)) throw new Error("Identifiant de publication invalide : " + post.id);
   const ref = db.collection("scheduleItems").doc(post.id);
@@ -73,6 +74,7 @@ for (const post of posts) {
   const contentFields = {
     title: String(post.title).slice(0, 220),
     dateKey: String(post.date).slice(0, 80),
+    dateIso: String(post.dateIso || "").slice(0, 10),
     format: String(post.format || "").slice(0, 220),
     role: String(post.role || "").slice(0, 5000),
     cta: String(post.cta || "").slice(0, 220),
@@ -87,8 +89,29 @@ for (const post of posts) {
     calendarCost: "Aucun coût de diffusion; confirmer les droits, la production et tout achat éventuel."
   };
   if (existing.exists) {
-    batch.set(ref, contentFields, { merge: true });
-    updatedStates += 1;
+    const before = existing.data() || {};
+    const changedFields = Object.keys(contentFields).filter((key) => JSON.stringify(before[key] ?? null) !== JSON.stringify(contentFields[key] ?? null));
+    if (changedFields.length) {
+      const archiveRef = db.collection("changeArchive").doc();
+      batch.set(archiveRef, {
+        entityType: "scheduleItem",
+        entityId: post.id,
+        action: `synchronisation du contenu : ${changedFields.join(", ")}`.slice(0, 160),
+        before: Object.fromEntries(Object.keys(contentFields).map((key) => [key, before[key] ?? null])),
+        after: contentFields,
+        actorUid: "system_seed",
+        actorLabel: "Synchronisation du calendrier",
+        createdAt: FieldValue.serverTimestamp()
+      });
+      batch.set(ref, {
+        ...contentFields,
+        updatedAt: FieldValue.serverTimestamp(),
+        updatedBy: "system_seed"
+      }, { merge: true });
+      updatedStates += 1;
+    } else {
+      unchangedStates += 1;
+    }
   } else {
     batch.set(ref, {
       ...contentFields,
@@ -103,4 +126,4 @@ for (const post of posts) {
 }
 
 await batch.commit();
-console.log(JSON.stringify({ seeded: true, posts: posts.length, mainPosts: mainPosts.length, createdStates, updatedStates, privateContentBytes: size, contentHash, versionId: versionRef.id }, null, 2));
+console.log(JSON.stringify({ seeded: true, posts: posts.length, mainPosts: mainPosts.length, createdStates, updatedStates, unchangedStates, privateContentBytes: size, contentHash, versionId: versionRef.id }, null, 2));

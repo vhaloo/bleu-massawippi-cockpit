@@ -117,6 +117,7 @@ style.textContent = `
   .cockpit-choice-row small { margin-left: auto; color: #527783; font-size: .7rem; font-weight: 600; }
   .post.choice-unselected { border-style: dashed; opacity: .72; }
   .post.choice-selected { box-shadow: 0 0 0 2px rgba(42,182,187,.2), 0 7px 20px rgba(7,58,82,.04); }
+  @media (min-width:701px) { .posts.single-post { grid-template-columns:minmax(0,1fr); } }
   .cockpit-monthly-snapshot { margin:0 0 18px; overflow:hidden; border:1px solid #c8dfe3; border-radius:16px; background:#f8fcfc; box-shadow:0 8px 24px rgba(7,58,82,.07); }
   .cockpit-monthly-snapshot > summary { display:flex; min-height:54px; align-items:center; gap:10px; padding:12px 15px; color:#073a52; background:#eaf7f7; cursor:pointer; list-style:none; }
   .cockpit-monthly-snapshot > summary::-webkit-details-marker { display:none; }
@@ -257,6 +258,16 @@ style.textContent = `
   .cockpit-message-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
   .cockpit-message-actions button { padding:6px 9px; border:1px solid #8ebfc5; border-radius:8px; color:#0b6077; background:#fff; font-size:.65rem; font-weight:850; cursor:pointer; }
   .cockpit-message-actions button[data-resolve-comment] { color:#fff; border-color:#21866d; background:#21866d; }
+  .opportunity-note-box { margin-top:12px; padding:11px; border:2px solid #d8bc78; border-radius:12px; background:#fffbef; }
+  .opportunity-note-box h5 { margin:0 0 3px; color:#624b17; font-size:.78rem; }
+  .opportunity-note-box > p { margin:0 0 8px; color:#75653b; font-size:.67rem; line-height:1.4; }
+  .opportunity-note-box .cockpit-thread { margin-top:0; border-color:#e2ce9e; background:linear-gradient(180deg,#fff8e5,#fff); }
+  .opportunity-note-box .cockpit-comment-row { border-color:#e2ce9e; background:#fff8e5; }
+  [data-theme="dark"] .opportunity-note-box { border-color:#8a713a; background:#2c2a20; }
+  [data-theme="dark"] .opportunity-note-box h5 { color:#ffe6a6; }
+  [data-theme="dark"] .opportunity-note-box > p { color:#e0d2ab; }
+  [data-theme="dark"] .opportunity-note-box .cockpit-thread { border-color:#75633b; background:linear-gradient(180deg,#353124,#202a2e); }
+  [data-theme="dark"] .opportunity-note-box .cockpit-comment-row { border-color:#75633b; background:#2a2d2c; }
   .cockpit-thread-resolved { order:-1; margin-bottom:2px; border:1px solid #c9dadd; border-radius:9px; background:#f4f7f7; }
   .cockpit-thread-resolved>summary { padding:7px 9px; color:#58717a; font-size:.67rem; font-weight:850; }
   .cockpit-thread-resolved-list { display:flex; flex-direction:column; gap:7px; padding:0 8px 8px; opacity:.82; }
@@ -367,9 +378,11 @@ style.textContent = `
     .cockpit-status-row button { min-height:44px; justify-content:center; padding:8px; border-radius:10px; font-size:.73rem; }
     .cockpit-status-row button[data-status="deleted"] { margin-left: 0; }
     .cockpit-status-row button[data-status="deleted"] { width:44px; justify-self:end; }
-    .cockpit-comment-row { display:grid; grid-template-columns:minmax(0,1fr) 46px 78px; gap:7px; padding:9px; }
+    .cockpit-comment-row { display:grid; grid-template-columns:46px minmax(0,1fr); gap:7px; padding:9px; }
     .cockpit-comment-row textarea { grid-column:1 / -1; min-width:0; min-height:82px; font-size:.9rem; }
     .cockpit-comment-row button { min-height:44px; }
+    .cockpit-comment-row [data-dictate] { grid-column:1; min-width:0; }
+    .cockpit-comment-row button.save { grid-column:2; min-width:0; }
     .cockpit-comment-row [data-voice-status] { grid-column:1 / -1; }
     .cockpit-quick-row { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
     .cockpit-quick-row :is(.cockpit-control-label,.cockpit-control-help) { grid-column:1 / -1; }
@@ -413,6 +426,19 @@ style.textContent = `
     .cockpit-date-nav { display:none; max-height:48vh; border-top:1px solid #d4e7e9; }
     #cockpit-date-elevator.open .cockpit-date-nav { display:flex; }
     [data-theme="dark"] .cockpit-date-nav { border-color:#496873; }
+  }
+  .internal-project-docs a.internal-project-proposal {
+    display:flex; align-items:center; gap:8px; width:fit-content; margin:4px 10px 9px 0;
+    padding:9px 11px; border:1px solid #82b8ad; border-radius:9px;
+    background:#e8f6f2; color:#0b514a; box-shadow:0 2px 8px rgba(18,82,75,.08);
+    font-weight:900; text-decoration:none;
+  }
+  .internal-project-docs a.internal-project-proposal::before {
+    content:"PDF"; display:inline-grid; place-items:center; min-width:31px; height:22px;
+    border-radius:6px; background:#17675e; color:#fff; font-size:.62rem; letter-spacing:.06em;
+  }
+  [data-theme="dark"] .internal-project-docs a.internal-project-proposal {
+    border-color:#4f998f; background:#173e3b; color:#d8fff9; box-shadow:none;
   }
 `;
 document.head.appendChild(style);
@@ -490,7 +516,7 @@ function setupDateElevator() {
     const label = group.querySelector(".day-heading strong")?.textContent?.trim() || `Journée ${index + 1}`;
     const targetId = `cockpit-calendar-day-${index + 1}`;
     group.id = targetId;
-    group.style.scrollMarginTop = "112px";
+    group.style.scrollMarginTop = "calc(var(--cockpit-session-height, 52px) + var(--cockpit-nav-height, 44px) + 10px)";
     return { label, targetId };
   });
   elevator.innerHTML = `<button type="button" class="cockpit-date-current" data-date-toggle aria-expanded="false"><span aria-hidden="true">🗓️</span><span data-date-current-label>${esc(dates[0].label)}</span><i aria-hidden="true">⌄</i></button><nav class="cockpit-date-nav" aria-label="Aller directement à une date">${dates.map(({ label, targetId }) => `<button type="button" data-date-target="${esc(targetId)}">${esc(label)}</button>`).join("")}</nav>`;
@@ -667,7 +693,23 @@ function setupResponsiveOffsets() {
 function setAdminSidebarOpen(open) {
   const sidebar = document.querySelector("#cockpit-sidebar");
   const toggle = document.querySelector("#cockpit-sidebar-toggle");
-  sidebar?.classList.toggle("open", open);
+  if (!sidebar) return;
+  if (open) {
+    sidebar.hidden = false;
+    sidebar.removeAttribute("inert");
+    sidebar.setAttribute("aria-hidden", "false");
+    // Force le point de départ hors écran avant d'animer l'ouverture.
+    void sidebar.offsetWidth;
+    sidebar.classList.add("open");
+  } else {
+    if (sidebar.contains(document.activeElement)) toggle?.focus();
+    sidebar.classList.remove("open");
+    sidebar.setAttribute("inert", "");
+    sidebar.setAttribute("aria-hidden", "true");
+    window.setTimeout(() => {
+      if (!sidebar.classList.contains("open")) sidebar.hidden = true;
+    }, 260);
+  }
   toggle?.setAttribute("aria-expanded", String(open));
   if (toggle) toggle.textContent = open ? "Fermer" : "Journal";
 }
@@ -676,6 +718,9 @@ function buildAdminSidebar() {
   if (document.querySelector("#cockpit-sidebar")) return;
   const sidebar = document.createElement("aside");
   sidebar.id = "cockpit-sidebar";
+  sidebar.hidden = true;
+  sidebar.setAttribute("inert", "");
+  sidebar.setAttribute("aria-hidden", "true");
   sidebar.innerHTML = "<div id=\"cockpit-task-heading\"><h2>À accomplir</h2><span id=\"cockpit-task-count\" data-task-count>0</span></div><p class=\"cockpit-sidebar-note\">Les décisions et recommandations reçues de la direction restent ici jusqu’à leur validation ou leur achèvement forcé.</p><div id=\"cockpit-task-list\"></div><h2>Journal de modifications</h2><p class=\"cockpit-sidebar-note\">Lecture technique des changements synchronisés.</p><div id=\"cockpit-log-list\"></div><h2 style=\"margin-top:24px\">Rétroactions du cockpit</h2><p class=\"cockpit-sidebar-note\">Les avis déposés dans les sections et la boîte à idées.</p><div id=\"cockpit-feedback-list\"></div>";
   document.body.appendChild(sidebar);
   const toggle = document.createElement("button");
@@ -734,22 +779,62 @@ function findTaskTarget(type, id) {
   return [...document.querySelectorAll("[data-item-id]")].find((node) => node.dataset.itemId === id) || document.getElementById(id);
 }
 
+function requestCalendarItemVisibility(itemId) {
+  const item = Array.isArray(globalThis.posts) ? globalThis.posts.find((post) => post.id === itemId) : null;
+  if (!item || item.archivedEditorial === true) return false;
+  const search = document.querySelector("#search");
+  const week = document.querySelector("#week");
+  const theme = document.querySelector("#theme");
+  if (search) search.value = "";
+  if (week) week.value = "all";
+  if (theme) theme.value = "all";
+  const pastToggle = document.querySelector("#past-toggle");
+  if (isPlanItemPast(item) && pastToggle?.dataset.active !== "true") {
+    pastToggle.click();
+  } else if (search) {
+    search.dispatchEvent(new Event("input", { bubbles:true }));
+  } else {
+    week?.dispatchEvent(new Event("change", { bubbles:true }));
+  }
+  return true;
+}
+
+function revealTaskTarget(type, id, allowRetry = true) {
+  const target = findTaskTarget(type, id);
+  if (!target) {
+    if (allowRetry && type !== "section" && requestCalendarItemVisibility(id)) {
+      requestAnimationFrame(() => revealTaskTarget(type, id, false));
+      return;
+    }
+    toast("La cible de cette tâche n’est plus visible dans le cockpit.", true);
+    return;
+  }
+  let ancestor = target;
+  while (ancestor) {
+    if (ancestor.matches?.("details")) ancestor.open = true;
+    ancestor = ancestor.parentElement;
+  }
+  const card = target.matches?.(".post[data-item-id]") ? target : target.closest?.(".post[data-item-id]");
+  if (card && document.body.classList.contains("cockpit-view-essential")) {
+    card.classList.add("vm-expanded");
+    const cardToggle = card.querySelector(":scope > .vm-card-summary [data-vm-card-toggle]");
+    if (cardToggle) {
+      cardToggle.setAttribute("aria-expanded", "true");
+      cardToggle.textContent = "Réduire";
+    }
+  }
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+  target.classList.add("task-focus");
+  window.setTimeout(() => target.classList.remove("task-focus"), 1800);
+}
+
 function enhanceTaskEvents() {
   if (document.body.dataset.taskEventsReady === "true") return;
   document.body.dataset.taskEventsReady = "true";
   document.addEventListener("click", (event) => {
     const openButton = event.target.closest("[data-open-task]");
     if (openButton) {
-      const target = findTaskTarget(openButton.dataset.taskTargetType, openButton.dataset.taskTarget);
-      if (!target) {
-        toast("La cible de cette tâche n’est plus visible dans le cockpit.", true);
-        return;
-      }
-      target.closest("details")?.setAttribute("open", "");
-      target.closest(".context-fold")?.setAttribute("open", "");
-      target.scrollIntoView({ behavior: "smooth", block: "center" });
-      target.classList.add("task-focus");
-      window.setTimeout(() => target.classList.remove("task-focus"), 1800);
+      revealTaskTarget(openButton.dataset.taskTargetType, openButton.dataset.taskTarget);
       return;
     }
     const completeButton = event.target.closest("[data-complete-task]");
@@ -812,7 +897,7 @@ function submitFeedbackForm(form) {
 }
 
 function enhanceSectionFeedback() {
-  document.querySelectorAll("#cockpit-content main section[id]").forEach((section) => {
+  document.querySelectorAll("#cockpit-content [data-cockpit-private-root] section[id]").forEach((section) => {
     if (section.querySelector("[data-section-feedback]")) return;
     const heading = section.querySelector(".heading") || section.firstElementChild;
     if (!heading) return;
@@ -873,11 +958,25 @@ const frenchMonthNumbers = {
 };
 
 function parsePlanDate(value) {
-  const match = String(value || "").toLocaleLowerCase("fr-CA").match(/(\d{1,2})(?:er)?\s+([a-zéûô]+)/i);
+  const item = value && typeof value === "object" ? value : null;
+  const dateIso = String(item?.dateIso || "");
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateIso)) {
+    const [year, month, day] = dateIso.split("-").map(Number);
+    return new Date(year, month - 1, day, 12, 0, 0, 0);
+  }
+  const label = item?.date ?? value;
+  const match = String(label || "").toLocaleLowerCase("fr-CA").match(/(\d{1,2})(?:er)?\s+([a-zéûô]+)/i);
   if (!match) return null;
   const month = frenchMonthNumbers[match[2]];
   if (typeof month !== "number") return null;
   return new Date(2026, month, Number(match[1]), 12, 0, 0, 0);
+}
+
+function isPlanItemPast(item, now = new Date()) {
+  const date = parsePlanDate(item);
+  if (!date) return false;
+  date.setHours(23, 59, 59, 999);
+  return date < now;
 }
 
 const monthlySnapshotThemes = {
@@ -911,6 +1010,8 @@ function monthlySnapshotActivePosts() {
     const decision = state.decisions.get(item.id)?.decision || "undecided";
     return schedule?.deleted !== true
       && schedule?.status !== "deleted"
+      && item.archivedEditorial !== true
+      && !isPlanItemPast(item)
       && !["deferred", "rejected"].includes(decision);
   });
   const chosenByGroup = new Map();
@@ -940,7 +1041,7 @@ function renderMonthlyEditorialSnapshot() {
   const count = snapshot.querySelector("[data-monthly-snapshot-count]");
   if (!body || !count) return;
   const posts = monthlySnapshotActivePosts()
-    .map((item) => ({ item, date: parsePlanDate(item.date) }))
+    .map((item) => ({ item, date: parsePlanDate(item) }))
     .sort((a, b) => (a.date?.valueOf() ?? Number.MAX_SAFE_INTEGER) - (b.date?.valueOf() ?? Number.MAX_SAFE_INTEGER)
       || String(a.item.title || "").localeCompare(String(b.item.title || ""), "fr-CA"));
   count.textContent = String(posts.length);
@@ -968,22 +1069,16 @@ function renderMonthlyEditorialSnapshot() {
   }).join("");
 }
 
-function focusMonthlySnapshotEvent(itemId) {
+function focusMonthlySnapshotEvent(itemId, allowRetry = true) {
   const findCard = () => [...document.querySelectorAll(".post[data-item-id]")].find((card) => card.dataset.itemId === itemId);
-  let card = findCard();
+  const card = findCard();
   if (!card) {
-    const search = document.querySelector("#search");
-    const week = document.querySelector("#week");
-    const theme = document.querySelector("#theme");
-    if (search) search.value = "";
-    if (week) week.value = "all";
-    if (theme) theme.value = "all";
     const item = Array.isArray(globalThis.posts) ? globalThis.posts.find((post) => post.id === itemId) : null;
-    const date = parsePlanDate(item?.date);
-    const pastToggle = document.querySelector("#past-toggle");
-    if (date && date < new Date() && pastToggle?.dataset.active !== "true") pastToggle.click();
-    else search?.dispatchEvent(new Event("input", { bubbles:true }));
-    requestAnimationFrame(() => focusMonthlySnapshotEvent(itemId));
+    if (allowRetry && item && item.archivedEditorial !== true && requestCalendarItemVisibility(itemId)) {
+      requestAnimationFrame(() => focusMonthlySnapshotEvent(itemId, false));
+      return;
+    }
+    toast("Cette publication n’est plus visible dans le calendrier actif.", true);
     return;
   }
   if (document.body.classList.contains("cockpit-view-essential")) {
@@ -1023,10 +1118,28 @@ function setupMonthlyEditorialSnapshot() {
 }
 
 function postCalendarStart(planItem) {
-  const start = parsePlanDate(planItem?.date) || new Date(2026, 6, 13, 9, 0, 0, 0);
+  const start = parsePlanDate(planItem) || new Date(2026, 6, 13, 9, 0, 0, 0);
   const hoursByDay = { 0: 9, 1: 9, 2: 12, 3: 18, 4: 12, 5: 17, 6: 10 };
-  start.setHours(hoursByDay[start.getDay()] ?? 12, 0, 0, 0);
+  const schedule = state.rows.get(planItem?.id) || {};
+  const calendarTime = String(schedule.calendarTime || planItem?.calendarTime || "").trim();
+  const validTime = calendarTime.match(/^([01]\d|2[0-3]):([0-5]\d)$/);
+  const hour = validTime ? Number(validTime[1]) : (hoursByDay[start.getDay()] ?? 12);
+  const minute = validTime ? Number(validTime[2]) : 0;
+  start.setHours(hour, minute, 0, 0);
   return start;
+}
+
+function postCalendarMetadata(planItem) {
+  const schedule = state.rows.get(planItem?.id) || {};
+  const rawDuration = Number(schedule.calendarDurationMinutes ?? planItem?.calendarDurationMinutes);
+  const durationMinutes = Number.isInteger(rawDuration) && rawDuration > 0 && rawDuration <= 1440 ? rawDuration : 30;
+  const location = String(schedule.calendarLocation || planItem?.calendarLocation || "En ligne — Facebook / Instagram").trim();
+  const cost = String(schedule.calendarCost || planItem?.calendarCost || "Aucun coût de diffusion; confirmer les droits, la production et tout achat éventuel.").trim();
+  return {
+    durationMinutes,
+    location: location || "En ligne — Facebook / Instagram",
+    cost: cost || "Aucun coût de diffusion; confirmer les droits, la production et tout achat éventuel."
+  };
 }
 
 function profileTaskLabel() {
@@ -1045,7 +1158,8 @@ function profileTasks(planItem) {
 
 function buildPostCalendarIcs(planItem) {
   const start = postCalendarStart(planItem);
-  const end = new Date(start.getTime() + 30 * 60000);
+  const metadata = postCalendarMetadata(planItem);
+  const end = new Date(start.getTime() + metadata.durationMinutes * 60000);
   const roleLabel = profileTaskLabel();
   const taskLines = profileTasks(planItem).map((task) => "• " + task).join("\n");
   const description = [
@@ -1058,8 +1172,8 @@ function buildPostCalendarIcs(planItem) {
     `Objectif : ${planItem.role || "à confirmer"}`,
     `CTA : ${planItem.cta || "à confirmer"}`,
     `Source / validation : ${planItem.source || "à confirmer"}`,
-    "Lieu : en ligne — Facebook / Instagram",
-    "Coût prévu : aucun coût de diffusion; confirmer les droits, la production et tout achat éventuel avant programmation.",
+    `Lieu : ${metadata.location}`,
+    `Coût prévu : ${metadata.cost}`,
     "Cet événement est une aide de coordination : il ne programme pas automatiquement la publication."
   ].join("\n");
   const uid = `bleu-massawippi-post-${planItem.id}-${start.getTime()}@bleumassawippi.com`;
@@ -1078,7 +1192,7 @@ function buildPostCalendarIcs(planItem) {
       `DTEND:${calendarUtcStamp(end)}`,
       `SUMMARY:${escapeCalendarText("Publication — " + (planItem.title || "Bleu Massawippi"))}`,
       `DESCRIPTION:${escapeCalendarText(description)}`,
-      "LOCATION:En ligne — Facebook / Instagram",
+      `LOCATION:${escapeCalendarText(metadata.location)}`,
       `URL:${escapeCalendarText(planItem.source || "https://bleumassawippi.com")}`,
       "CATEGORIES:BLEU MASSAWIPPI,SOCIAL",
       "STATUS:CONFIRMED",
@@ -1255,13 +1369,35 @@ function syncCardAccess() {
   });
 }
 
+function setupCollapsibleNavigation() {
+  if (document.body.dataset.collapsibleNavigationReady === "true") return;
+  document.body.dataset.collapsibleNavigationReady = "true";
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest('.nav a[href^="#"], .hero a.button[href^="#"]');
+    if (!link) return;
+    const rawId = link.getAttribute("href")?.slice(1) || "";
+    const target = document.getElementById(decodeURIComponent(rawId));
+    if (!target) return;
+    event.preventDefault();
+    let node = target;
+    while (node) {
+      if (node.matches?.("details")) node.open = true;
+      node = node.parentElement;
+    }
+    try { history.pushState(null, "", `#${encodeURIComponent(target.id)}`); } catch { /* ancre facultative */ }
+    requestAnimationFrame(() => target.scrollIntoView({ behavior:"smooth", block:"start" }));
+  });
+}
+
 function setupGuidePreference() {
   const guide = document.querySelector("#context-collapsible");
   const summary = guide?.querySelector(":scope > summary");
   if (!guide || !summary || guide.dataset.preferenceReady === "true") return;
   guide.dataset.preferenceReady = "true";
 
-  const version = guide.dataset.layoutVersion || "1";
+  const readmeVersion = guide.querySelector("[data-readme-version]")?.dataset.readmeVersion || "";
+  const contextVersion = guide.querySelector("[data-context-version]")?.dataset.contextVersion || "";
+  const version = [guide.dataset.layoutVersion || "1", readmeVersion, contextVersion].filter(Boolean).join("|");
   const storedPreference = localStorage.getItem(guideCollapsedKey);
   const lastSeenVersion = localStorage.getItem(guideSeenVersionKey);
   const collapseAtStartup = storedPreference === "1";
@@ -1325,6 +1461,30 @@ const internalProjectStageLabels = {
   blocked: "Décision ou ressource requise",
   completed: "Terminé · archivé"
 };
+
+const internalProjectDocuments = {
+  "lamproie-du-nord": "https://bleumassawippi.sharepoint.com/:b:/g/IQCTFvLyX6jASbAvhxiNBV24AecNyeSIKocEE4rugzpUwMg",
+  "parc-lobadanaki": "https://bleumassawippi.sharepoint.com/:b:/g/IQDoNKmVAwRiS6zoxpdBGKG9AcPqhdAixzzaNF-UciMEU48",
+  "bilan-sante-lac": "https://bleumassawippi.sharepoint.com/:b:/g/IQAPfrI-SyafSJp2pIEkUvklAXkVc-8K91CfggeQG9-nlgM",
+  "jeux-provinciaux-peche": "https://bleumassawippi.sharepoint.com/:b:/g/IQCAYpT7T1UfT7yHeonaWBSQAaRfSBVh-5lf3oyWyZyxB2Y",
+  "caracterisation-benthos": "https://bleumassawippi.sharepoint.com/:b:/g/IQDNIBBaNQiWSb4w3vHvRKVNAdkDSFqFT1s-8wcg-raBuR0",
+  "surveillance-cyanobacteries": "https://bleumassawippi.sharepoint.com/:b:/g/IQBUsJN5RZ4dQZQtJpBsDs8zATQAoMGye2-zC2p1LSG7ZZI",
+  "technicien-un-jour": "https://bleumassawippi.sharepoint.com/:b:/g/IQAWTUj50-q4RI2MsqXhguoGAR40CPIUOobrXXGW8_unqTU",
+  "moules-zebrees-continuite": "https://bleumassawippi.sharepoint.com/:b:/g/IQBXwzZegi8BSY5DuP3rDttyAWsDf-gFyjhakqJlog2d3N4",
+  "concours-dessin-jeunesse": "https://bleumassawippi.sharepoint.com/:b:/g/IQDsIFjEf4YETIVG-18XQcJ1AV-jafuAp-KN29rbC1UceDc",
+  "poesie-du-lac": "https://bleumassawippi.sharepoint.com/:b:/g/IQCyOfzcvrESQoKnMtA767ptAX07rnuuy0bafL63zPN5Vh4",
+  "colloque-reseautage-associations": "https://bleumassawippi.sharepoint.com/:b:/g/IQBqaPls21nuQ5vV4x-pA_teAfYEFtCCDw4a06980Hh4mRY",
+  "concours-universitaire-bourse": "https://bleumassawippi.sharepoint.com/:b:/g/IQAD0jc2nS2CRIQh3EbkQYQrAanhl2vno8sqQ0U06PkDjgc"
+};
+
+function decorateInternalProjectDocuments() {
+  Object.entries(internalProjectDocuments).forEach(([projectId, url]) => {
+    const card = document.querySelector(`.internal-project[data-internal-project-id="${projectId}"]`);
+    const body = card?.querySelector(".internal-project-docs-body");
+    if (!body || body.querySelector(".internal-project-proposal")) return;
+    body.insertAdjacentHTML("afterbegin", `<a class="internal-project-proposal" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Ouvrir le dossier de proposition assaini</a>`);
+  });
+}
 
 function setupInternalProjectPreference() {
   const register = document.querySelector("[data-internal-project-register]");
@@ -1486,6 +1646,35 @@ function opportunityWhen(row) {
   return row?.updatedAt?.toDate ? row.updatedAt.toDate().toLocaleString("fr-CA", { dateStyle:"short", timeStyle:"short" }) : "état initial du registre";
 }
 
+function opportunityCommentSectionId(opportunityId) {
+  return `opportunity-${opportunityId}`;
+}
+
+function renderOpportunityNotes() {
+  document.querySelectorAll(".opportunity[data-opportunity-id]").forEach((card) => {
+    const sectionId = opportunityCommentSectionId(card.dataset.opportunityId);
+    let box = card.querySelector("[data-opportunity-note-box]");
+    if (!box) {
+      box = document.createElement("section");
+      box.className = "opportunity-note-box";
+      box.dataset.opportunityNoteBox = "true";
+      box.innerHTML = `
+        <h5>📝 Notes partagées sur cette occasion</h5>
+        <p>Consignez ici un contact à garder, une idée de projet, une date de veille ou une condition à vérifier. Les notes restent liées à cette fiche et sont historisées.</p>
+        <section class="cockpit-thread"><div class="cockpit-thread-heading"><h5>Fil de suivi</h5><span>Le message le plus récent apparaît en bas.</span></div><div data-comment-thread aria-live="polite"></div></section>
+        <div class="cockpit-comment-row">
+          <textarea data-opportunity-comment maxlength="5000" spellcheck="true" autocapitalize="sentences" inputmode="text" placeholder="Ex. Garder le contact et préparer une piste pour la prochaine ronde…" aria-label="Note partagée sur cette occasion"></textarea>
+          <button type="button" data-dictate aria-pressed="false" aria-label="Dicter une note" title="Dicter une note">🎙️</button>
+          <button class="save" type="button" data-save-opportunity-comment>Enregistrer</button>
+          <div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre note.</div>
+        </div>`;
+      card.querySelector(".opportunity-body")?.appendChild(box);
+    }
+    box.dataset.commentSection = sectionId;
+    renderCommentThread(box, sectionId);
+  });
+}
+
 function renderOpportunityStates() {
   const project = document.querySelector("[data-project-register]");
   if (!project) return;
@@ -1505,6 +1694,7 @@ function renderOpportunityStates() {
   });
   const count = project.querySelector("[data-opportunity-archive-count]");
   if (count) count.textContent = String(archived);
+  renderOpportunityNotes();
 }
 
 function setupOpportunityEvents() {
@@ -1520,14 +1710,67 @@ function setupOpportunityEvents() {
       archiveToggle.firstChild.textContent = active ? "Masquer les archives " : "Voir les archives ";
       return;
     }
+    const card = event.target.closest(".opportunity[data-opportunity-id]");
+    const noteBox = event.target.closest("[data-opportunity-note-box]");
+    const sectionId = noteBox?.dataset.commentSection || (card ? opportunityCommentSectionId(card.dataset.opportunityId) : "");
+    const resolveCommentButton = event.target.closest("button[data-resolve-comment]");
+    if (card && resolveCommentButton) {
+      resolveCommentButton.disabled = true;
+      resolveComment(resolveCommentButton.dataset.resolveComment, state.profile)
+        .then(async () => {
+          try { await completeActionTask(`comment-opportunity-${resolveCommentButton.dataset.resolveComment}`, state.profile); } catch {}
+          toast("Note marquée comme traitée et conservée dans l’historique.");
+        })
+        .catch((error) => toast(error.message, true))
+        .finally(() => { resolveCommentButton.disabled = false; });
+      return;
+    }
+    const editCommentButton = event.target.closest("button[data-edit-comment]");
+    if (card && editCommentButton) {
+      const row = (state.commentsByEvent.get(sectionId) || []).find((item) => item.id === editCommentButton.dataset.editComment);
+      const next = prompt("Modifier votre note :", row?.comment || "");
+      if (next !== null) updateOwnComment(editCommentButton.dataset.editComment, next, state.profile).then(() => toast("Note modifiée.")).catch((error) => toast(error.message, true));
+      return;
+    }
+    const archiveCommentButton = event.target.closest("button[data-archive-comment]");
+    if (card && archiveCommentButton) {
+      if (!confirm("Archiver cette note? Son historique sera conservé.")) return;
+      archiveOwnComment(archiveCommentButton.dataset.archiveComment, state.profile).then(() => toast("Note archivée.")).catch((error) => toast(error.message, true));
+      return;
+    }
+    const dictateButton = event.target.closest("button[data-dictate]");
+    if (card && noteBox && dictateButton) {
+      event.preventDefault();
+      startDictation(noteBox.querySelector("[data-opportunity-comment]"));
+      return;
+    }
+    const saveCommentButton = event.target.closest("button[data-save-opportunity-comment]");
+    if (card && noteBox && saveCommentButton) {
+      const textarea = noteBox.querySelector("[data-opportunity-comment]");
+      const text = textarea?.value.trim() || "";
+      if (!text) { toast("Écrivez d’abord une note.", true); return; }
+      saveCommentButton.disabled = true;
+      addComment(sectionId, text, state.profile, null, textarea.dataset.dictated === "true")
+        .then(async (commentId) => {
+          const title = card.querySelector(":scope > summary strong")?.textContent?.trim() || card.dataset.opportunityId;
+          await writeAuditLog(sectionId, textarea.dataset.dictated === "true" ? "note dictée" : "note ajoutée", state.profile);
+          await recordActionTask(`comment-opportunity-${commentId}`, { status:"pending", title:`Note à traiter — ${title}`, targetType:"section", targetId:card.id, targetLabel:title, message:text });
+          textarea.value = "";
+          delete textarea.dataset.dictated;
+          toast("Note partagée enregistrée.");
+        })
+        .catch((error) => toast(error.message, true))
+        .finally(() => { saveCommentButton.disabled = false; });
+      return;
+    }
     const button = event.target.closest("button[data-opportunity-stage]");
     if (!button || !state.profile || !["director", "admin"].includes(state.profile.role)) return;
-    const card = button.closest(".opportunity[data-opportunity-id]");
-    if (!card) return;
+    const stageCard = button.closest(".opportunity[data-opportunity-id]");
+    if (!stageCard) return;
     button.disabled = true;
-    setOpportunityStage(card.dataset.opportunityId, button.dataset.opportunityStage, state.profile)
+    setOpportunityStage(stageCard.dataset.opportunityId, button.dataset.opportunityStage, state.profile)
       .then(async () => {
-        await writeAuditLog("opportunity:" + card.dataset.opportunityId, "étape : " + button.dataset.opportunityStage, state.profile);
+        await writeAuditLog("opportunity:" + stageCard.dataset.opportunityId, "étape : " + button.dataset.opportunityStage, state.profile);
         toast(button.dataset.opportunityStage === "completed" ? "Occasion finalisée et classée dans les archives." : "Étape de l’occasion enregistrée.");
       })
       .catch((error) => toast(error.message, true))
@@ -1779,10 +2022,10 @@ function renderWorkflow(card) {
   actions.innerHTML = buttons.map(([value,label,kind]) => `<button type="button" class="${kind}" ${value ? `data-workflow-stage="${value}"` : "disabled"}>${label}</button>`).join("") || `<span class="cockpit-media-note">${esc(waiting)}</span>`;
 }
 
-function renderCommentThread(card) {
+function renderCommentThread(card, sectionId = card.dataset.itemId) {
   const host = card.querySelector("[data-comment-thread]");
   if (!host) return;
-  const rows = (state.commentsByEvent.get(card.dataset.itemId) || []).filter((row) => row.deleted !== true);
+  const rows = (state.commentsByEvent.get(sectionId) || []).filter((row) => row.deleted !== true);
   const messageMarkup = (row, handled = false) => {
     const mine = row.authorUid === state.profile?.uid;
     const when = row.createdAt?.toDate ? row.createdAt.toDate().toLocaleString("fr-CA", { dateStyle:"short", timeStyle:"short" }) : "à l’instant";
@@ -1808,6 +2051,17 @@ function installBrandLogo() {
   const parsed = new URL(url); parsed.searchParams.set("download", "1");
   const img = document.createElement("img"); img.className = "cockpit-brand-logo"; img.src = parsed.href; img.alt = "Bleu Massawippi";
   document.querySelector(".hero > div")?.prepend(img);
+}
+
+function updateSinglePostLayouts() {
+  const plan = Array.isArray(globalThis.posts) ? globalThis.posts : [];
+  document.querySelectorAll(".day-group .posts").forEach((grid) => {
+    const cards = [...grid.querySelectorAll(":scope > .post")];
+    const item = cards.length === 1 ? getPlanItem(cards[0]) : null;
+    const sameDay = item ? plan.filter((candidate) => candidate.w === item.w && candidate.date === item.date && candidate.archivedEditorial !== true) : [];
+    const isConfirmedSingle = Boolean(item && sameDay.length === 1 && item.choiceRequired !== true && !item.optionGroup);
+    grid.classList.toggle("single-post", isConfirmedSingle);
+  });
 }
 
 function enhanceCards() {
@@ -1849,6 +2103,7 @@ function enhanceCards() {
       ${mediaControlsMarkup(planItem)}`;
     card.appendChild(controls);
   });
+  updateSinglePostLayouts();
   applyRemoteRows();
   renderAllMedia();
   renderAllCollaboration();
@@ -2376,6 +2631,8 @@ async function loadPrivateContent() {
   planScript.textContent = content.script;
   document.body.appendChild(planScript);
   planScript.remove();
+  decorateInternalProjectDocuments();
+  setupCollapsibleNavigation();
   setupGuidePreference();
   setupProjectPreference();
   setupInternalProjectPreference();
@@ -2533,7 +2790,7 @@ function subscribeRemoteData() {
   state.commentsUnsubscribe = subscribeComments((rows) => {
     const grouped = new Map();
     rows.forEach((row) => { const id=String(row.sectionId||""); if(!grouped.has(id)) grouped.set(id,[]); grouped.get(id).push(row); });
-    state.commentsByEvent = grouped; renderAllCollaboration(); renderAllMedia(); notifyViewUpdate("comments");
+    state.commentsByEvent = grouped; renderAllCollaboration(); renderOpportunityNotes(); renderAllMedia(); notifyViewUpdate("comments");
   }, (error) => toast("Le fil de commentaires n’est pas accessible : " + error.message, true));
   state.workflowUnsubscribe?.();
   state.workflowUnsubscribe = subscribeWorkflowStates((rows) => {
