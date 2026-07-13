@@ -31,16 +31,22 @@ for (const item of media) {
   const existing = await reference.get();
   const rightsUnconfirmed = /confirmer/i.test(item.license || "") || /ne pas publier/i.test(item.publicationStatus || "");
   const rightsLabel = rightsUnconfirmed ? "⚠ DROITS À CONFIRMER — référence interne; ne pas publier avant autorisation écrite." : item.publicationStatus;
-  const payload = {
-    eventId: item.eventId, label: item.label, url: mediaUrl, kind: "image", stage: "source",
+  const contentFields = {
+    eventId: item.eventId, label: item.label, url: mediaUrl, kind: "image",
     note: `${rightsLabel} Crédit : ${item.author}. Licence : ${item.license}. Période : ${item.period}. Source documentaire : ${item.source}`,
-    rightsStatus: rightsUnconfirmed ? "unconfirmed" : "documented",
-    publicationBlocked: rightsUnconfirmed,
-    archived: false, authorUid: "system-seed", authorLabel: "Banque historique documentée",
-    updatedAt: FieldValue.serverTimestamp(), updatedBy: "system-seed"
+    rightsStatus: rightsUnconfirmed ? "unconfirmed" : "documented"
   };
-  if (!existing.exists) { payload.createdAt = FieldValue.serverTimestamp(); created += 1; } else { updated += 1; }
-  batch.set(reference, payload, { merge: true });
+  if (!existing.exists) {
+    batch.set(reference, {
+      ...contentFields, stage: "source", publicationBlocked: rightsUnconfirmed,
+      archived: false, authorUid: "system-seed", authorLabel: "Banque historique documentée",
+      createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp(), updatedBy: "system-seed"
+    }, { merge: true });
+    created += 1;
+  } else {
+    batch.set(reference, contentFields, { merge: true });
+    updated += 1;
+  }
 }
 
 await batch.commit();

@@ -29,29 +29,32 @@ for (const item of manifest) {
   }
   const reference = db.collection("mediaLinks").doc(item.id);
   const existing = await reference.get();
-  const payload = {
+  const contentFields = {
     eventId: item.eventId,
     label: item.label,
     url: mediaUrl,
     kind: "image",
-    stage: "proposal",
     note: `Illustration originale, format 4:5 (1080 × 1350). ${item.altText} Vérifier une dernière fois la justesse naturaliste et le texte avant diffusion.`,
     altText: item.altText,
-    rightsStatus: "original",
-    publicationBlocked: false,
-    archived: false,
-    authorUid: "system-seed",
-    authorLabel: "Série éducative vintage",
-    updatedAt: FieldValue.serverTimestamp(),
-    updatedBy: "system-seed"
+    rightsStatus: "original"
   };
   if (!existing.exists) {
-    payload.createdAt = FieldValue.serverTimestamp();
+    batch.set(reference, {
+      ...contentFields,
+      stage: "proposal",
+      publicationBlocked: false,
+      archived: false,
+      authorUid: "system-seed",
+      authorLabel: "Série éducative vintage",
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+      updatedBy: "system-seed"
+    }, { merge: true });
     created += 1;
   } else {
+    batch.set(reference, contentFields, { merge: true });
     updated += 1;
   }
-  batch.set(reference, payload, { merge: true });
 }
 
 await batch.commit();

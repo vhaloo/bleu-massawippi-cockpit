@@ -13,6 +13,10 @@ const theme = fs.readFileSync(path.join(here, "theme.js"), "utf8");
 const firebaseConfig = fs.readFileSync(path.join(here, "firebase-config.js"), "utf8");
 const firestoreRules = fs.readFileSync(path.join(here, "firestore.rules"), "utf8");
 const privateContentSeed = fs.readFileSync(path.join(here, "seed_private_content.js"), "utf8");
+const mediaSeedSources = ["seed_nature_media_links.js", "seed_editorial_media_links.js", "seed_historical_media_links.js"].map((file) => ({
+  file,
+  source: fs.readFileSync(path.join(here, file), "utf8")
+}));
 const source = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const historicalMedia = JSON.parse(fs.readFileSync(path.join(here, "historical_media_manifest.json"), "utf8"));
 const natureMedia = JSON.parse(fs.readFileSync(path.join(here, "nature_media_manifest.json"), "utf8"));
@@ -121,11 +125,19 @@ assert.doesNotMatch(client, /firebase-storage|uploadBytes|getDownloadURL/);
 assert.doesNotMatch(ui + client, /data-attachment-input|seed_open_house_attachments/);
 assert.match(firebaseConfig, /apiKey:\s*"AIza[A-Za-z0-9_-]{20,}"/);
 assert.doesNotMatch(firebaseConfig, /GEMINI|gemini_api_key/i);
-const seedContentFieldsMatch = privateContentSeed.match(/const contentFields = \{([\s\S]*?)\n  \};\n  if \(existing\.exists\)/);
+const seedContentFieldsMatch = privateContentSeed.match(/const contentFields = \{([\s\S]*?)\r?\n  \};\r?\n  if \(existing\.exists\)/);
 assert.ok(seedContentFieldsMatch, "Le seed doit isoler les champs éditoriaux des états collaboratifs.");
 for (const field of ["status", "deleted", "selected", "updatedAt", "updatedBy"]) {
   assert.doesNotMatch(seedContentFieldsMatch[1], new RegExp(`\\b${field}\\s*:`), `Le seed ne doit pas placer ${field} dans les champs fusionnés aux événements existants.`);
 }
 assert.match(privateContentSeed, /if \(existing\.exists\) \{\s*batch\.set\(ref, contentFields, \{ merge: true \}\);\s*updatedStates \+= 1;/, "Un événement existant ne doit recevoir que les champs de contenu.");
 assert.match(privateContentSeed, /else \{\s*batch\.set\(ref, \{\s*\.\.\.contentFields,\s*status: "pending",\s*deleted: false,\s*selected: post\.choiceRequired !== true,\s*updatedAt: FieldValue\.serverTimestamp\(\),\s*updatedBy: "system_seed"/, "Les valeurs d’état initiales doivent être réservées aux nouveaux événements.");
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 26, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialPosters: editorialMedia.length, opportunities: 8, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 246 }, null, 2));
+for (const { file, source: mediaSeed } of mediaSeedSources) {
+  const contentFieldsMatch = mediaSeed.match(/const contentFields = \{([\s\S]*?)\r?\n  \};\r?\n  if \(!existing\.exists\)/);
+  assert.ok(contentFieldsMatch, `${file} doit isoler les métadonnées du média de son état collaboratif.`);
+  for (const field of ["stage", "publicationBlocked", "archived", "authorUid", "authorLabel", "createdAt", "updatedAt", "updatedBy"]) {
+    assert.doesNotMatch(contentFieldsMatch[1], new RegExp(`\\b${field}\\s*:`), `${file} ne doit pas réinitialiser ${field} sur un média existant.`);
+  }
+  assert.match(mediaSeed, /else \{\s*batch\.set\(reference, contentFields, \{ merge: true \}\);\s*updated \+= 1;/, `${file} doit préserver les décisions d’un média existant.`);
+}
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 26, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialPosters: editorialMedia.length, opportunities: 8, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 273 }, null, 2));
