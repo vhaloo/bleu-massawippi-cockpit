@@ -94,9 +94,9 @@ function buildAlternative(spec) {
     kpi: spec.kpi || (heritage ? "Commentaires documentés / partages / nouvelles archives proposées" : "Commentaires utiles / enregistrements / partages"),
     task: spec.task || (heritage ? "Vérifier la légende, le crédit, la licence et les limites historiques avant de préparer l’image et les deux validations." : "Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations."),
     copy: `FR — ${spec.fr}\n\n#BleuMassawippi #LacMassawippi #Estrie\n\n=========================================\n\nEN — ${spec.en}\n\n#BleuMassawippi #LakeMassawippi #EasternTownships`,
-    optionGroup: spec.id.replace("alt-", ""),
-    optionLabel: "Option B — " + spec.title,
-    choiceRequired: true,
+    optionGroup: Object.prototype.hasOwnProperty.call(spec, "optionGroup") ? spec.optionGroup : spec.id.replace("alt-", ""),
+    optionLabel: spec.choiceRequired === false ? null : "Option B — " + spec.title,
+    choiceRequired: spec.choiceRequired !== false,
     isAlternative: true,
     tasksValentin: heritage ? ["Vérifier la fiche source, la date, l’auteur, le crédit et la licence dans le catalogue local des photos historiques.", `Préparer le format « ${spec.format} » sans colorisation ni transformation trompeuse; ajouter un texte alternatif et garantir la lisibilité mobile.`, "Finaliser la légende FR / EN, conserver les nuances historiques, soumettre les validations et programmer seulement après décision."] : ["Vérifier la source primaire et les limites du propos.", `Produire le format « ${spec.format} » avec texte alternatif et lisibilité mobile.`, "Finaliser la légende FR / EN, soumettre les validations et programmer seulement après décision."],
     tasksAnnie: heritage ? ["Lire l’angle à haut niveau et signaler seulement une identification locale, un enjeu institutionnel ou un repère qui exige une confirmation."] : spec.t === "Communauté" ? ["Confirmer le contexte institutionnel, les droits et les renseignements sensibles avant diffusion."] : ["Signaler toute limite institutionnelle ou locale nécessitant une correction."],
@@ -129,17 +129,95 @@ export function applyPlanOverridesToPosts(posts) {
     choiceRequired: false,
     optionGroup: null,
     optionLabel: null,
-    role: "Publication pratique retenue pour le premier mardi pendant que le portrait bénévole est préparé pour une semaine ultérieure."
+      role: "Publication pratique retenue pour le premier mardi pendant que le portrait bénévole est préparé pour une semaine ultérieure."
+    });
+  const contemplativeMinute = posts.find((post) => post.id === "s1d6");
+  if (contemplativeMinute) Object.assign(contemplativeMinute, {
+    w: 2,
+    date: "Mardi 21 juillet",
+    calendarTime: "12:00",
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    role: "Publication contemplative retenue et déplacée au mardi afin d’éviter deux contenus émotionnels consécutifs les 17 et 18 juillet."
+  });
+  const saturdayCommunity = posts.find((post) => post.id === "s1d4");
+  if (saturdayCommunity) Object.assign(saturdayCommunity, {
+    w: 1,
+    date: "Samedi 18 juillet",
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    role: "Publication communautaire retenue pour le samedi afin de favoriser une réponse personnelle et chaleureuse, conformément au dernier arbitrage de la direction."
+  });
+  const deferredMemory = posts.find((post) => post.id === "s1d7");
+  if (deferredMemory) Object.assign(deferredMemory, {
+    w: 6,
+    date: "Jeudi 20 août",
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    role: "Bonne idée conservée et reprogrammée après l’arbitrage du 13 juillet afin de libérer le samedi pour la publication communautaire retenue."
+  });
+  const deferredIris = posts.find((post) => post.id === "s2d1");
+  if (deferredIris) Object.assign(deferredIris, {
+    w: 6,
+    date: "Mercredi 19 août",
+    calendarTime: "12:30",
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+      role: "Capsule phare reprogrammée dans un créneau visible afin de développer pleinement la beauté de l’iris versicolore et la valeur des milieux humides."
+    });
+  const chosenHistory = posts.find((post) => post.id === "s2d7");
+  if (chosenHistory) Object.assign(chosenHistory, {
+    w: 1,
+    date: "Vendredi 17 juillet",
+    calendarTime: "17:00",
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    role: "Publication patrimoniale retenue et avancée au vendredi afin de diversifier la séquence avant le contenu communautaire du samedi."
+  });
+  ["s2d3", "s2d6", "s3d1b"].forEach((id) => {
+    const rejected = posts.find((post) => post.id === id);
+    if (rejected) Object.assign(rejected, {
+      w: 98,
+      date: "Archive éditoriale",
+      archivedEditorial: true,
+      choiceRequired: false,
+      optionGroup: null,
+      optionLabel: null,
+      role: `${rejected.role || ""} Angle écarté par la direction le 13 juillet 2026; conservé dans l’historique et exclu du calendrier actif.`.trim()
+    });
   });
   const fixedContest = posts.find((post) => post.id === "s3d3");
   if (fixedContest) fixedContest.decisionLocked = true;
   for (const spec of ALTERNATIVE_SPECS) {
     const group = spec.id.replace("alt-", "");
     const originals = posts.filter((post) => post.date === spec.date && !String(post.id).startsWith("alt-"));
-    originals.forEach((post, index) => Object.assign(post, { choiceRequired: true, optionGroup: group, optionLabel: `Option ${String.fromCharCode(65 + index)} — ${post.title}` }));
+    if (spec.choiceRequired !== false) {
+      originals.forEach((post, index) => Object.assign(post, { choiceRequired: true, optionGroup: group, optionLabel: `Option ${String.fromCharCode(65 + index)} — ${post.title}` }));
+    }
     if (!posts.some((post) => post.id === spec.id)) posts.push(buildAlternative(spec));
   }
-  return applyEditorialCopyOverrides(posts);
+  const finalPosts = applyEditorialCopyOverrides(posts);
+  const reprogrammed = {
+    "alt-20260721": { w: 7, date: "Lundi 24 août", role: "Bonne idée conservée et reprogrammée après arbitrage; capsule nature à produire avec une photographie réelle correctement identifiée." },
+    "alt-20260723": { w: 7, date: "Mardi 25 août", role: "Bonne idée conservée et reprogrammée après arbitrage; capsule sur les fonctions d’une rive végétalisée à renforcer en français." },
+    "alt-20260724": { w: 7, date: "Mercredi 26 août", role: "Bonne idée conservée et reprogrammée après arbitrage; amorce éditoriale de l’atelier d’automne sur les jardins de pluie, sans annoncer de date non confirmée." },
+    "alt-20260725": { w: 7, date: "Jeudi 27 août", role: "Sujet récurrent conservé pour un autre mois avec une formulation distincte, afin d’éviter la répétition dans la même séquence." },
+    "alt-20260728": { w: 7, date: "Vendredi 28 août", role: "Bonne idée conservée et reprogrammée après arbitrage; expliquer la complémentarité entre suivi scientifique et observations citoyennes sans les confondre." }
+  };
+  Object.entries(reprogrammed).forEach(([id, placement]) => {
+    const post = finalPosts.find((item) => item.id === id);
+    if (post) Object.assign(post, placement, { choiceRequired: false, optionGroup: null, optionLabel: null });
+  });
+  ["s1d3b", "alt-20260715", "s1d5", "s1d6", "s1d4", "s1d2", "s2d1b", "s1d7", "s2d1", "s2d2", "alt-20260722", "s2d4", "s2d5", "s2d7", "alt-20260726", "s3d1", "s3d2"].forEach((id) => {
+    const post = finalPosts.find((item) => item.id === id);
+    if (post) Object.assign(post, { choiceRequired: false, optionGroup: null, optionLabel: null });
+  });
+  return finalPosts;
 }
 
 export function preparePlanScript(script, posts) {
@@ -148,10 +226,10 @@ export function preparePlanScript(script, posts) {
     /var posts=\[[\s\S]*?\];\s*var meta=/,
     `var posts=${JSON.stringify(updatedPosts)};var meta=`
   );
-  output = output.replace("[1,2,3,4].forEach", "[1,2,3,4,5].forEach");
+  output = output.replace(/\[[1-7,]+\]\.forEach/, "[1,2,3,4,5,6,7].forEach");
   output = output.replace(
     /(var meta=\{[\s\S]*?\};)/,
-    "$1meta[5]=[\"Semaine 5 · Réserve éditoriale\",\"10 au 16 août\"];"
+    "$1meta[5]=[\"Semaine 5 · Réserve éditoriale\",\"10 au 16 août\"];meta[6]=[\"Semaine 6 · Réserve éditoriale\",\"17 au 23 août\"];meta[7]=[\"Semaine 7 · Réserve éditoriale\",\"24 au 30 août\"];"
   );
   return output;
 }

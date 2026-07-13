@@ -9,8 +9,9 @@ Le volet des pièces jointes est désactivé : aucune image n’est chargée ni 
 - index.html : coque publique sans contenu stratégique; elle affiche la barrière de connexion et ne charge le plan qu’après autorisation Firebase.
 - firebase-client.js : SDK Web Firebase modulaire, version CDN 12.15.0; Auth reste persistant, tandis que Firestore utilise un cache mémoire multi-onglets sûr par défaut pour éviter les verrous IndexedDB. Le mode hors ligne explicite se teste avec `?offline=1`.
 - cockpit-ui.js : couche d’interface et de pilotage, choix d’option par journée, responsabilités Valentin / Annie pour chaque événement, tâches administratives cliquables, rétroaction par section, boîte à idées flottante, dictée progressive Chrome / Edge / Safari, calendrier contextualisé et installation PWA.
-- admin_sync.js : pont local Firebase Admin pour lire les modifications du calendrier, les commentaires, les rétroactions, les tâches et l’archive append-only.
+- admin_sync.js : pont local Firebase Admin pour lire les modifications du calendrier, les commentaires, les rétroactions, les tâches, les occasions, les projets internes et l’archive append-only.
 - seed_private_content.js : charge localement le plan, les 28 publications principales, les six alternatives et leurs états dans Firestore, après configuration du compte de service.
+- seed_internal_project_states.js : crée uniquement les états initiaux manquants des projets internes; un état déjà choisi n’est jamais écrasé.
 - ../refine_calendar.js : réorganise les dates pour éviter les répétitions voisines et génère les six journées à choix exclusif.
 - provision_users.js : crée ou raccorde les deux comptes autorisés et leurs rôles, en lisant les adresses et mots de passe uniquement depuis des variables de session.
 - firestore.rules : règles d’accès strictes pour les contenus, tâches, versions et archive append-only.
@@ -96,6 +97,8 @@ Le script lit :
 - comments : commentaires, badges et dictées.
 - auditLogs : journal technique.
 - cockpitFeedback : avis, recommandations et idées déposés depuis les sections ou la boîte à idées.
+- opportunityStates : étape actuelle des occasions externes.
+- internalProjectStates : étape actuelle des projets internes.
 
 Le résumé de synchronisation est écrit dans sync-output/sync-summary.json, dossier ignoré par Git.
 
@@ -105,20 +108,25 @@ Le plan détaillé n’est pas envoyé dans GitHub Pages. Après la publication 
 
     npm run seed -- --dry-run
     npm run seed
+    npm run seed:internal-projects
 
-Le premier appel vérifie localement les 28 publications principales, les alternatives et la taille du document; le second écrit le contenu privé et met à jour les choix éditoriaux sans écraser les statuts déjà arbitrés.
+Le premier appel vérifie localement les 28 publications principales, les alternatives et la taille du document; le second écrit le contenu privé sans écraser les statuts déjà arbitrés. Le troisième crée les états internes absents et préserve intégralement ceux qui existent déjà.
 
 ## 5. Déployer sur GitHub Pages
 
-Aucun dépôt GitHub ni identifiant de projet n’a été fourni, donc aucun déploiement externe n’est lancé automatiquement.
+Le déploiement GitHub Pages publie automatiquement la coque après validation de la branche principale. Les opérations administratives Firebase restent séparées.
 
 Pour publier le cockpit :
 
-1. Copiez le contenu du dossier cockpit dans le dépôt GitHub Pages approuvé.
-2. Ajoutez la configuration Web Firebase dans firebase-config.js; ne publiez jamais le compte de service.
-3. Publiez la branche/dossier configuré par GitHub Pages.
-4. Ajoutez l’URL https://<organisation>.github.io/<depot>/ aux domaines autorisés Firebase.
-5. Testez la connexion, les règles Firestore, la dictée, les boîtes de rétroaction et la synchronisation locale avant de diffuser le lien.
+1. Exécutez `npm test` et `npm run seed -- --dry-run` dans le dossier cockpit.
+2. Publiez les règles Firestore mises à jour avant d’exposer des contrôles qui utilisent une nouvelle collection.
+3. Avec le compte de service local, exécutez `npm run seed`, puis les seeds d’états requis, dont `npm run seed:internal-projects`.
+4. Ajoutez la configuration Web Firebase dans firebase-config.js; ne publiez jamais le compte de service.
+5. Publiez la branche configurée par GitHub Pages et vérifiez le nouveau service worker.
+6. Ajoutez l’URL https://<organisation>.github.io/<depot>/ aux domaines autorisés Firebase.
+7. Testez la connexion, les règles Firestore, la dictée, les boîtes de rétroaction et la synchronisation locale avant de diffuser le lien.
+
+Le workflow GitHub Pages vérifie le seed en mode `--dry-run`, mais il ne publie ni les règles Firestore ni le document privé. Ces deux opérations demeurent volontaires et locales afin qu’aucun compte de service ne soit exposé dans GitHub Actions.
 
 Le fichier firebase.json est inclus pour publier uniquement les règles Firebase avec la CLI, sans héberger le site chez Firebase :
 
@@ -140,8 +148,12 @@ Les règles Storage publiées refusent toute lecture et toute écriture. Ne les 
 - tasks/{taskId} : titre, message, cible cliquable, responsabilités, statut pending/done et timestamps. Une acceptation de la direction peut clore la tâche; l’administration dispose aussi d’un bouton « Marquer complétée ».
 - changeArchive/{archiveId} : événement immuable avec état avant/après, action, personne et date. Les documents ne peuvent être ni modifiés ni supprimés depuis le frontend.
 - privateContentVersions/{versionId} : copie versionnée du contenu privé chargée à chaque préparation du plan, identifiée par une empreinte de contenu.
+- opportunityStates/{opportunityId} : étape réversible d’une occasion externe (`watch`, `research`, `active`, `submitted`, `completed`).
+- internalProjectStates/{projectId} : étape réversible d’un projet interne (`to_frame`, `planned`, `active`, `blocked`, `completed`), personne et date de mise à jour. Un projet terminé est archivé visuellement, jamais supprimé.
 
-Le frontend crée un journal opérationnel append-only pour chaque statut, choix, commentaire, rétroaction et tâche. Les versions du contenu source restent aussi dans Git et les versions chargées dans privateContentVersions. Seuls les rôles director et admin peuvent créer ces traces; seul admin peut les lire depuis l’interface. La synchronisation locale lit changeArchive, tasks, comments, auditLogs et cockpitFeedback pour reconstruire le contexte sans supprimer une ancienne idée.
+Le registre comprend aussi une banque d’idées non engagées (notamment concours jeunesse, Poésie du lac, réseautage associatif et concours universitaire). Leur état initial `to_frame` signifie qu’elles doivent être priorisées selon la capacité et la planification stratégique avant tout engagement public ou financier.
+
+Le frontend crée un journal opérationnel append-only pour chaque statut, choix, commentaire, rétroaction et tâche. Les versions du contenu source restent aussi dans Git et les versions chargées dans privateContentVersions. Seuls les rôles director et admin peuvent créer ces traces; seul admin peut les lire depuis l’interface. La synchronisation locale lit notamment changeArchive, tasks, comments, auditLogs, cockpitFeedback, opportunityStates et internalProjectStates pour reconstruire le contexte sans supprimer une ancienne idée.
 
 ## Limites assumées
 

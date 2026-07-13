@@ -420,6 +420,31 @@ export function subscribeOpportunityStates(callback, onError) {
   return onSnapshot(collection(db, "opportunityStates"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
 }
 
+const internalProjectStages = new Set(["to_frame", "planned", "active", "blocked", "completed"]);
+
+export async function setInternalProjectStage(projectId, stage, profile) {
+  requireConfigured();
+  if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas modifier le suivi des projets internes.");
+  if (!/^[a-z0-9-]{3,80}$/i.test(String(projectId || "")) || !internalProjectStages.has(stage)) throw new Error("Étape de projet interne invalide.");
+  const reference = doc(db, "internalProjectStates", projectId);
+  const existing = await getDoc(reference);
+  const before = existing.exists() ? existing.data() : {};
+  await setDoc(reference, {
+    projectId,
+    stage,
+    updatedAt: serverTimestamp(),
+    updatedBy: profile.uid,
+    updatedByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120)
+  }, { merge: true });
+  await appendChangeArchive("internalProjectState", projectId, "projet interne : " + stage, { stage: before.stage || "to_frame" }, { stage }, profile);
+}
+
+export function subscribeInternalProjectStates(callback, onError) {
+  requireConfigured();
+  const statesQuery = query(collection(db, "internalProjectStates"), limit(100));
+  return onSnapshot(statesQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+}
+
 const editorialDecisionValues = new Set(["undecided", "chosen", "deferred", "rejected"]);
 
 export async function setEditorialDecision(eventId, decision, profile) {

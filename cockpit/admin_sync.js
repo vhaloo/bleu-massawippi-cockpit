@@ -193,6 +193,7 @@ const BUSINESS_COLLECTIONS = [
   "cockpitFeedback",
   "comments",
   "editorialDecisions",
+  "internalProjectStates",
   "mediaLinks",
   "opportunityStates",
   "privateConfig",
@@ -318,7 +319,7 @@ async function readRecent(collectionName) {
 
 await fs.mkdir(outputDir, { recursive: true });
 
-const [scheduleItems, comments, logs, feedback, tasks, changeArchive, contentVersions, mediaLinks, workflowStates, editorialDecisions] = await Promise.all([
+const [scheduleItems, comments, logs, feedback, tasks, changeArchive, contentVersions, mediaLinks, workflowStates, editorialDecisions, opportunityStates, internalProjectStates] = await Promise.all([
   readRecent("scheduleItems"),
   readRecent("comments"),
   readRecent("auditLogs"),
@@ -328,7 +329,9 @@ const [scheduleItems, comments, logs, feedback, tasks, changeArchive, contentVer
   readRecent("privateContentVersions"),
   readRecent("mediaLinks"),
   readRecent("workflowStates"),
-  readRecent("editorialDecisions")
+  readRecent("editorialDecisions"),
+  readRecent("opportunityStates"),
+  readRecent("internalProjectStates")
 ]);
 
 const changedScheduleItems = scheduleItems.filter((row) =>
@@ -433,7 +436,9 @@ const summary = {
     updatedAt: dateValue(row.updatedAt)?.toISOString() || null
   })),
   workflowStates: workflowStates.map((row) => ({ id: row.id, eventId: row.eventId || row.id, stage: row.stage || "proposal", updatedByLabel: row.updatedByLabel || null, updatedAt: dateValue(row.updatedAt)?.toISOString() || null })),
-  editorialDecisions: editorialDecisions.map((row) => ({ id: row.id, eventId: row.eventId || row.id, decision: row.decision || "undecided", updatedByLabel: row.updatedByLabel || null, updatedAt: dateValue(row.updatedAt)?.toISOString() || null }))
+  editorialDecisions: editorialDecisions.map((row) => ({ id: row.id, eventId: row.eventId || row.id, decision: row.decision || "undecided", updatedByLabel: row.updatedByLabel || null, updatedAt: dateValue(row.updatedAt)?.toISOString() || null })),
+  opportunityStates: opportunityStates.map((row) => ({ id: row.id, opportunityId: row.opportunityId || row.id, stage: row.stage || "watch", updatedByLabel: row.updatedByLabel || null, updatedAt: dateValue(row.updatedAt)?.toISOString() || null })),
+  internalProjectStates: internalProjectStates.map((row) => ({ id: row.id, projectId: row.projectId || row.id, stage: row.stage || "to_frame", updatedByLabel: row.updatedByLabel || null, updatedAt: dateValue(row.updatedAt)?.toISOString() || null }))
 };
 
 const outputFile = path.join(outputDir, "sync-summary.json");
@@ -449,5 +454,7 @@ console.log(JSON.stringify({
   privateContentVersions: summary.privateContentVersions.length,
   mediaLinks: summary.mediaLinks.length,
   workflowStates: summary.workflowStates.length,
-  editorialDecisions: summary.editorialDecisions.length
+  editorialDecisions: summary.editorialDecisions.length,
+  opportunityStates: summary.opportunityStates.length,
+  internalProjectStates: summary.internalProjectStates.length
 }, null, 2));
