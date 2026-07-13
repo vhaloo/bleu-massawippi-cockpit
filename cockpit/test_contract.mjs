@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { applyPlanOverridesToPosts, preparePlanScript } from "./plan-overrides.js";
+import { FUTURE_EDITORIAL_IDS, TONE_VERSION } from "./editorial-copy-overrides.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
@@ -11,6 +12,7 @@ const client = fs.readFileSync(path.join(here, "firebase-client.js"), "utf8");
 const theme = fs.readFileSync(path.join(here, "theme.js"), "utf8");
 const firebaseConfig = fs.readFileSync(path.join(here, "firebase-config.js"), "utf8");
 const firestoreRules = fs.readFileSync(path.join(here, "firestore.rules"), "utf8");
+const privateContentSeed = fs.readFileSync(path.join(here, "seed_private_content.js"), "utf8");
 const source = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const historicalMedia = JSON.parse(fs.readFileSync(path.join(here, "historical_media_manifest.json"), "utf8"));
 const natureMedia = JSON.parse(fs.readFileSync(path.join(here, "nature_media_manifest.json"), "utf8"));
@@ -45,13 +47,29 @@ assert.equal(Object.keys(firstFourWeeks).length, 28);
 assert.equal(Object.values(firstFourWeeks).filter((items) => items.length >= 2).length, 26);
 assert.deepEqual(Object.entries(firstFourWeeks).filter(([, items]) => items.length === 1).map(([date]) => date).sort(), ["Jeudi 30 juillet", "Lundi 13 juillet"]);
 assert.equal(posts.filter((post) => post.t === "Nature").length, 9);
+assert.equal(FUTURE_EDITORIAL_IDS.length, 56, "Les 56 publications futures doivent recevoir la voix éditoriale révisée.");
+assert.equal(new Set(FUTURE_EDITORIAL_IDS).size, 56, "Chaque publication future doit avoir un seul remplacement éditorial.");
+assert.ok(!FUTURE_EDITORIAL_IDS.includes("s1d1"), "La publication du 13 juillet doit rester intacte.");
+assert.equal(first.editorialToneVersion, undefined, "La publication du jour ne doit pas être réécrite par la couche future.");
+const futurePosts = posts.filter((post) => FUTURE_EDITORIAL_IDS.includes(post.id));
+assert.equal(futurePosts.length, 56, "Chaque remplacement éditorial doit correspondre à une publication réelle.");
+for (const post of futurePosts) {
+  assert.equal(post.editorialToneVersion, TONE_VERSION, `La publication ${post.id} doit utiliser la voix chaleureuse.`);
+  assert.ok(post.title && post.cta && post.visual, `La publication ${post.id} doit avoir un titre, un CTA et un brief visuel finalisés.`);
+  assert.ok(post.copy.length <= 2200, `La publication ${post.id} doit rester sous 2 200 caractères.`);
+  assert.doesNotMatch(
+    `${post.title}\n${post.cta}\n${post.visual}\n${post.copy}`,
+    /ne pas toucher|juste regarder|observer sans paniquer|pas de consigne|bon réflexe|bon voisin|sans capturer ni déplacer/i,
+    `La publication ${post.id} ne doit pas adopter un ton professoral ou réprobateur.`
+  );
+}
 for (const post of posts) {
   assert.match(post.copy || "", /FR\s+—/i, `La publication ${post.id} doit contenir son texte français.`);
   assert.match(post.copy || "", /EN\s+—/i, `La publication ${post.id} doit contenir son texte anglais.`);
 }
-for (const historicalTitle of ["Massawippi en 1859 : une fenêtre dessinée sur le passé", "Quand un bateau à vapeur traversait le Massawippi", "North Hatley vue d’en haut, entre 1930 et 1950", "Aux chutes de Massawippi, vers 1865", "Ayer’s Cliff sur une carte postale ancienne", "North Hatley, destination de villégiature"]) {
-  const historicalPost = posts.find((post) => post.title === historicalTitle);
-  assert.ok(historicalPost, `La capsule historique « ${historicalTitle} » doit rester au calendrier.`);
+for (const historicalId of ["alt-20260719", "alt-20260726", "alt-20260801", "alt-20260804", "alt-20260807", "alt-20260810"]) {
+  const historicalPost = posts.find((post) => post.id === historicalId);
+  assert.ok(historicalPost, `La capsule historique ${historicalId} doit rester au calendrier.`);
   assert.match(historicalPost.source, /Domaine public/i);
   assert.equal(historicalPost.t, "Patrimoine");
 }
@@ -103,4 +121,11 @@ assert.doesNotMatch(client, /firebase-storage|uploadBytes|getDownloadURL/);
 assert.doesNotMatch(ui + client, /data-attachment-input|seed_open_house_attachments/);
 assert.match(firebaseConfig, /apiKey:\s*"AIza[A-Za-z0-9_-]{20,}"/);
 assert.doesNotMatch(firebaseConfig, /GEMINI|gemini_api_key/i);
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 26, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialPosters: editorialMedia.length, opportunities: 8, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 238 }, null, 2));
+const seedContentFieldsMatch = privateContentSeed.match(/const contentFields = \{([\s\S]*?)\n  \};\n  if \(existing\.exists\)/);
+assert.ok(seedContentFieldsMatch, "Le seed doit isoler les champs éditoriaux des états collaboratifs.");
+for (const field of ["status", "deleted", "selected", "updatedAt", "updatedBy"]) {
+  assert.doesNotMatch(seedContentFieldsMatch[1], new RegExp(`\\b${field}\\s*:`), `Le seed ne doit pas placer ${field} dans les champs fusionnés aux événements existants.`);
+}
+assert.match(privateContentSeed, /if \(existing\.exists\) \{\s*batch\.set\(ref, contentFields, \{ merge: true \}\);\s*updatedStates \+= 1;/, "Un événement existant ne doit recevoir que les champs de contenu.");
+assert.match(privateContentSeed, /else \{\s*batch\.set\(ref, \{\s*\.\.\.contentFields,\s*status: "pending",\s*deleted: false,\s*selected: post\.choiceRequired !== true,\s*updatedAt: FieldValue\.serverTimestamp\(\),\s*updatedBy: "system_seed"/, "Les valeurs d’état initiales doivent être réservées aux nouveaux événements.");
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 26, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialPosters: editorialMedia.length, opportunities: 8, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 246 }, null, 2));

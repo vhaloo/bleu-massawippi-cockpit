@@ -1,4 +1,5 @@
 import { SPECS as ALTERNATIVE_SPECS } from "./alternatives.js";
+import { applyEditorialCopyOverrides } from "./editorial-copy-overrides.js";
 
 const OPEN_HOUSE_MAP_URL = "https://www.google.com/maps/search/?api=1&query=Eglise+Saint-Barthelemy%2C+911+rue+Clough%2C+Ayer%27s+Cliff%2C+QC+J0B+1C0";
 
@@ -138,7 +139,7 @@ export function applyPlanOverridesToPosts(posts) {
     originals.forEach((post, index) => Object.assign(post, { choiceRequired: true, optionGroup: group, optionLabel: `Option ${String.fromCharCode(65 + index)} — ${post.title}` }));
     if (!posts.some((post) => post.id === spec.id)) posts.push(buildAlternative(spec));
   }
-  return posts;
+  return applyEditorialCopyOverrides(posts);
 }
 
 export function preparePlanScript(script, posts) {

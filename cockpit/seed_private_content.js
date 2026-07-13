@@ -70,10 +70,7 @@ for (const post of posts) {
   if (!/^[a-z0-9-]{3,80}$/i.test(post.id)) throw new Error("Identifiant de publication invalide : " + post.id);
   const ref = db.collection("scheduleItems").doc(post.id);
   const existing = await ref.get();
-  const existingData = existing.exists ? existing.data() : {};
-  const status = ["approved", "needs_work", "pending", "deleted"].includes(existingData.status) ? existingData.status : "pending";
-  const selected = typeof existingData.selected === "boolean" ? existingData.selected : post.choiceRequired !== true;
-  batch.set(ref, {
+  const contentFields = {
     title: String(post.title).slice(0, 220),
     dateKey: String(post.date).slice(0, 80),
     format: String(post.format || "").slice(0, 220),
@@ -85,15 +82,22 @@ for (const post of posts) {
     calendarTime: ({ "Lundi": "09:00", "Mardi": "12:00", "Mercredi": "18:00", "Jeudi": "12:00", "Vendredi": "17:00", "Samedi": "10:00", "Dimanche": "09:00" })[String(post.date || "").split(" ")[0]] || "12:00",
     calendarDurationMinutes: 30,
     calendarLocation: post.id === "s1d1" ? "Église Saint-Barthélemy, 911, rue Clough, Ayer’s Cliff, Québec J0B 1C0" : "En ligne — Facebook / Instagram",
-    calendarCost: "Aucun coût de diffusion; confirmer les droits, la production et tout achat éventuel.",
-    status,
-    deleted: status === "deleted",
-    selected,
-    updatedAt: FieldValue.serverTimestamp(),
-    updatedBy: "system_seed"
-  }, { merge: true });
-  if (existing.exists) updatedStates += 1;
-  else createdStates += 1;
+    calendarCost: "Aucun coût de diffusion; confirmer les droits, la production et tout achat éventuel."
+  };
+  if (existing.exists) {
+    batch.set(ref, contentFields, { merge: true });
+    updatedStates += 1;
+  } else {
+    batch.set(ref, {
+      ...contentFields,
+      status: "pending",
+      deleted: false,
+      selected: post.choiceRequired !== true,
+      updatedAt: FieldValue.serverTimestamp(),
+      updatedBy: "system_seed"
+    }, { merge: true });
+    createdStates += 1;
+  }
 }
 
 await batch.commit();
