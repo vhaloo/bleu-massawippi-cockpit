@@ -106,6 +106,11 @@ Légende : **E** = directement exposé en Vue essentielle; **C** = Vue complète
 | F-053 | États d’erreur Firebase/OneDrive/microphone/réseau | E | E | E | E | E | Message humain, action de reprise, aucune donnée perdue |
 | F-054 | Aucun secret privé ni mot de passe dans GitHub Pages | E | E | E | E | E | Scan dépôt + historique avant publication |
 | F-055 | Règles Firestore par rôle et absence de suppression physique | E | E | E | E | E | Tests Emulator Suite positifs et négatifs |
+| F-056 | Registre distinct des projets internes | E | C | E | C | L | Aucun mélange avec les huit occasions externes |
+| F-057 | Pipeline À cadrer → Plan prêt → En cours → Bloqué → Terminé | E | E | E | E | L | Étape réversible, temps réel et historisée |
+| F-058 | Projet interne terminé classé sans suppression | E | E | E | E | L | Archives consultables; retour à une étape active possible |
+| F-059 | Documents de projet reliés à SharePoint | E | E | E | E | L | Liens HTTPS, `noopener noreferrer`, aucun fichier dans Firestore |
+| F-060 | Résumé local des occasions et projets internes | — | — | — | A | — | `admin_sync.js` restitue les deux collections et leurs auteurs/dates |
 
 ## 4. Tests transversaux obligatoires
 

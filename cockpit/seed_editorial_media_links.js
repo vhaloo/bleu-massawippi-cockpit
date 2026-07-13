@@ -19,17 +19,17 @@ let updated = 0;
 
 for (const item of manifest) {
   const url = links[item.fileName];
-  if (!/^https:\/\/bleumassawippi\.sharepoint\.com\/:i:\/g\//.test(url || "")) throw new Error(`Lien SharePoint privé manquant pour ${item.fileName}.`);
+  if (!/^https:\/\/bleumassawippi\.sharepoint\.com\/:(?:i|v):\/g\//.test(url || "")) throw new Error(`Lien SharePoint privé manquant pour ${item.fileName}.`);
   const reference = db.collection("mediaLinks").doc(item.id);
   const existing = await reference.get();
   const contentFields = {
-    eventId: item.eventId, label: item.label, url, kind: "image",
-    note: `Visuel original, format 4:5 (1080 × 1350). ${item.altText} Vérifier une dernière fois le texte et les faits avant diffusion.`,
-    altText: item.altText, rightsStatus: "original"
+    eventId: item.eventId, label: item.label, url, kind: item.kind || "image",
+    note: item.note || `Visuel original, format 4:5 (1080 × 1350). ${item.altText} Vérifier une dernière fois le texte et les faits avant diffusion.`,
+    altText: item.altText, rightsStatus: item.rightsStatus || "original"
   };
   if (!existing.exists) {
     batch.set(reference, {
-      ...contentFields, stage: "proposal", publicationBlocked: false, archived: false,
+      ...contentFields, stage: item.stage || "proposal", publicationBlocked: false, archived: false,
       authorUid: "system-seed", authorLabel: "Série éditoriale originale",
       createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp(), updatedBy: "system-seed"
     }, { merge: true });

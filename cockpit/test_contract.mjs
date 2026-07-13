@@ -13,6 +13,8 @@ const theme = fs.readFileSync(path.join(here, "theme.js"), "utf8");
 const firebaseConfig = fs.readFileSync(path.join(here, "firebase-config.js"), "utf8");
 const firestoreRules = fs.readFileSync(path.join(here, "firestore.rules"), "utf8");
 const privateContentSeed = fs.readFileSync(path.join(here, "seed_private_content.js"), "utf8");
+const internalProjectSeed = fs.readFileSync(path.join(here, "seed_internal_project_states.js"), "utf8");
+const adminSync = fs.readFileSync(path.join(here, "admin_sync.js"), "utf8");
 const mediaSeedSources = ["seed_nature_media_links.js", "seed_editorial_media_links.js", "seed_historical_media_links.js"].map((file) => ({
   file,
   source: fs.readFileSync(path.join(here, file), "utf8")
@@ -42,14 +44,16 @@ assert.equal(volunteer.w, 5);
 assert.equal(volunteer.coordinationLevel, "high");
 assert.ok(volunteer.tasksValentin.length >= 5);
 assert.ok(volunteer.tasksAnnie.length >= 4);
-assert.equal(firstTuesday.choiceRequired, true);
-assert.equal(firstTuesday.optionGroup, "20260714");
+assert.equal(firstTuesday.choiceRequired, false, "La proposition retenue du mardi est verrouillée et ne demande plus d’arbitrage.");
+assert.equal(firstTuesday.optionGroup, null, "Une proposition verrouillée ne doit plus appartenir à un groupe de choix actif.");
 assert.equal(posts.filter((post) => !post.isAlternative).length, 28);
 assert.equal(posts.length, 57);
 const firstFourWeeks = Object.groupBy(posts.filter((post) => post.w <= 4), (post) => post.date);
 assert.equal(Object.keys(firstFourWeeks).length, 28);
-assert.equal(Object.values(firstFourWeeks).filter((items) => items.length >= 2).length, 26);
-assert.deepEqual(Object.entries(firstFourWeeks).filter(([, items]) => items.length === 1).map(([date]) => date).sort(), ["Jeudi 30 juillet", "Lundi 13 juillet"]);
+assert.equal(Object.values(firstFourWeeks).filter((items) => items.length >= 2).length, 11);
+const decidedFirstTwoWeeks = Object.groupBy(posts.filter((post) => post.w <= 2), (post) => post.date);
+assert.equal(Object.keys(decidedFirstTwoWeeks).length, 14, "Les deux semaines arbitrées doivent conserver une publication par jour.");
+assert.ok(Object.values(decidedFirstTwoWeeks).every((items) => items.length === 1), "Chaque journée déjà arbitrée doit afficher une seule publication retenue.");
 assert.equal(posts.filter((post) => post.t === "Nature").length, 9);
 assert.equal(FUTURE_EDITORIAL_IDS.length, 56, "Les 56 publications futures doivent recevoir la voix éditoriale révisée.");
 assert.equal(new Set(FUTURE_EDITORIAL_IDS).size, 56, "Chaque publication future doit avoir un seul remplacement éditorial.");
@@ -77,7 +81,7 @@ for (const historicalId of ["alt-20260719", "alt-20260726", "alt-20260801", "alt
   assert.match(historicalPost.source, /Domaine public/i);
   assert.equal(historicalPost.t, "Patrimoine");
 }
-assert.match(preparePlanScript(source.match(/<script>\s*(var posts=[\s\S]*?)<\/script>/i)[1], posts), /\[1,2,3,4,5\]\.forEach/);
+assert.match(preparePlanScript(source.match(/<script>\s*(var posts=[\s\S]*?)<\/script>/i)[1], posts), /\[1,2,3,4,5,6,7\]\.forEach/);
 assert.match(source, /Coordination renforcée avant publication/);
 assert.equal(historicalMedia.length, 43);
 assert.equal(new Set(historicalMedia.map((item) => item.id)).size, historicalMedia.length);
@@ -97,16 +101,18 @@ for (const media of natureMedia) {
   assert.ok(media.altText.length >= 60, `L’affiche ${media.fileName} doit conserver un texte alternatif utile.`);
 }
 assert.doesNotMatch(JSON.stringify(natureMedia), /sharepoint\.com|:\/g\/IQ/i);
-assert.equal(editorialMedia.length, 5);
+assert.equal(editorialMedia.length, 13);
 assert.equal(new Set(editorialMedia.map((item) => item.id)).size, editorialMedia.length);
 for (const media of editorialMedia) {
   assert.ok(posts.some((post) => post.id === media.eventId), `Le visuel ${media.fileName} doit être relié à une publication existante.`);
-  assert.match(media.fileName, /\.jpg$/);
+  assert.match(media.fileName, /\.(?:jpg|mp4)$/);
   assert.ok(media.altText.length >= 60, `Le visuel ${media.fileName} doit conserver un texte alternatif utile.`);
 }
+assert.equal(editorialMedia.filter((item) => /\.jpg$/.test(item.fileName)).length, 11);
+assert.equal(editorialMedia.filter((item) => /\.mp4$/.test(item.fileName) && item.kind === "video").length, 2);
 assert.doesNotMatch(JSON.stringify(editorialMedia), /sharepoint\.com|:\/g\/IQ/i);
 
-for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMedia", "button[data-dictate]", "data-add-post-calendar", "data-media-form", "cockpit-media-open-label", "cockpit-media-info", "Informations et actions", "cockpit-media-enlarge", "object-fit: contain", "setupMediaNavigation", "data-media-previous", "data-media-next", "glissez les images ou utilisez les flèches", "cockpit-date-elevator", "data-date-target", "requestDateElevatorUpdate", "data-workflow-stage", "workflowDirection", "aria-pressed=\"false\"", "Feu vert retiré; l’historique est conservé.", "id=\\\"cockpit-task-count\\\" data-task-count", "Mini-chat de l’événement", "data-resolve-comment", "Voir les messages traités", "comment-task", "data-editorial-decision", "Bonne idée — autre jour", "Ne pas retenir cet angle", "editorial-deferred", "data-comment-thread", "MutationObserver", "Connexion…", "bleu-massawippi-guide-collapsed", "data-guide-new-badge", "setOpportunityStage", "data-opportunity-stage", "bleu-massawippi-projects-collapsed", "Valider le texte avec l’aval", "Valider le visuel avec l’aval", "syncResponsiveOffsets", "setAdminSidebarOpen", "--cockpit-session-height"]) {
+for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMedia", "button[data-dictate]", "data-add-post-calendar", "data-media-form", "cockpit-media-open-label", "cockpit-media-info", "Informations et actions", "cockpit-media-enlarge", "object-fit: contain", "setupMediaNavigation", "data-media-previous", "data-media-next", "glissez les images ou utilisez les flèches", "cockpit-date-elevator", "data-date-target", "requestDateElevatorUpdate", "data-workflow-stage", "workflowDirection", "aria-pressed=\"false\"", "Feu vert retiré; l’historique est conservé.", "id=\\\"cockpit-task-count\\\" data-task-count", "Mini-chat de l’événement", "data-resolve-comment", "Voir les messages traités", "comment-task", "data-editorial-decision", "Bonne idée — autre jour", "Ne pas retenir cet angle", "editorial-deferred", "data-comment-thread", "MutationObserver", "Connexion…", "bleu-massawippi-guide-collapsed", "data-guide-new-badge", "setOpportunityStage", "data-opportunity-stage", "bleu-massawippi-projects-collapsed", "setupInternalProjectPreference", "setupInternalProjectEvents", "renderInternalProjectStates", "data-internal-project-stage", "internalProjectUnsubscribe", "Valider le texte avec l’aval", "Valider le visuel avec l’aval", "syncResponsiveOffsets", "setAdminSidebarOpen", "--cockpit-session-height"]) {
   assert.ok(ui.includes(token), `Le cockpit doit contenir le contrat ${token}.`);
 }
 for (const token of ["data-theme-toggle", "bleu-massawippi-theme", "prefers-color-scheme"]) {
@@ -115,11 +121,25 @@ for (const token of ["data-theme-toggle", "bleu-massawippi-theme", "prefers-colo
 for (const token of ["placeThemeToggle", "in-session"]) {
   assert.ok(theme.includes(token), `Le thème mobile doit contenir le contrat ${token}.`);
 }
-for (const token of ["addComment", "subscribeComments", "updateOwnComment", "resolveComment", "resolvedByLabel", "commentaire traité", "setWorkflowStage", "setOpportunityStage", "subscribeOpportunityStates", "setEditorialDecision", "subscribeEditorialDecisions", "editorialDecisions", "addCockpitFeedback", "subscribeMediaLinks", "memoryLocalCache", "withTimeout", "match /comments/{commentId}", "match /workflowStates/{eventId}", "match /opportunityStates/{opportunityId}", "match /editorialDecisions/{eventId}", "match /mediaLinks/{mediaId}"]) {
+for (const token of ["addComment", "subscribeComments", "updateOwnComment", "resolveComment", "resolvedByLabel", "commentaire traité", "setWorkflowStage", "setOpportunityStage", "subscribeOpportunityStates", "setInternalProjectStage", "subscribeInternalProjectStates", "internalProjectStates", "validInternalProjectState", "match /internalProjectStates/{projectId}", "setEditorialDecision", "subscribeEditorialDecisions", "editorialDecisions", "addCockpitFeedback", "subscribeMediaLinks", "memoryLocalCache", "withTimeout", "match /comments/{commentId}", "match /workflowStates/{eventId}", "match /opportunityStates/{opportunityId}", "match /editorialDecisions/{eventId}", "match /mediaLinks/{mediaId}"]) {
   assert.ok((client + firestoreRules).includes(token), `Le flux collaboratif doit contenir ${token}.`);
 }
 assert.equal((source.match(/data-opportunity-id=/g) || []).length, 8);
 assert.match(source, /data-project-register[^>]*data-layout-version="2026-07-11-opportunities-v2"/);
+assert.equal((source.match(/data-internal-project-id=/g) || []).length, 12, "Le registre privé doit contenir les douze projets internes documentés.");
+assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-07-13-internal-projects-v2"/);
+const internalProjectIds = [...source.matchAll(/data-internal-project-id="([a-z0-9-]+)"/g)].map((match) => match[1]).sort();
+const internalProjectSeedIds = [...internalProjectSeed.matchAll(/^  "([a-z0-9-]+)": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm)].map((match) => match[1]).sort();
+assert.deepEqual(internalProjectSeedIds, internalProjectIds, "Les cartes et le seed des projets internes doivent utiliser exactement les mêmes identifiants.");
+for (const stage of ["to_frame", "planned", "active", "blocked", "completed"]) {
+  assert.ok(client.includes(`"${stage}"`) && firestoreRules.includes(`'${stage}'`) && internalProjectSeed.includes(`"${stage}"`), `L’étape interne ${stage} doit rester alignée entre client, règles et initialisation.`);
+}
+assert.equal((internalProjectSeed.match(/^  "[a-z0-9-]+": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm) || []).length, 12, "Le seed initial doit couvrir les douze projets internes documentés.");
+assert.match(internalProjectSeed, /if \(existing\.exists\) \{[\s\S]{0,120}preserved \+= 1;[\s\S]{0,80}continue;/, "Le seed des projets internes doit préserver tout état collaboratif existant.");
+for (const collectionName of ["opportunityStates", "internalProjectStates"]) {
+  assert.match(adminSync, new RegExp(`readRecent\\("${collectionName}"\\)`), `Le résumé local doit lire ${collectionName}.`);
+  assert.match(adminSync, new RegExp(`${collectionName}: ${collectionName}\\.map`), `Le résumé local doit restituer ${collectionName}.`);
+}
 assert.doesNotMatch(ui, /data-attachment-input|uploadImageAttachment|subscribeImageAttachments/);
 assert.doesNotMatch(client, /firebase-storage|uploadBytes|getDownloadURL/);
 assert.doesNotMatch(ui + client, /data-attachment-input|seed_open_house_attachments/);
@@ -140,4 +160,4 @@ for (const { file, source: mediaSeed } of mediaSeedSources) {
   }
   assert.match(mediaSeed, /else \{\s*batch\.set\(reference, contentFields, \{ merge: true \}\);\s*updated \+= 1;/, `${file} doit préserver les décisions d’un média existant.`);
 }
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 26, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialPosters: editorialMedia.length, opportunities: 8, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 273 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 11, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 12, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 300 }, null, 2));

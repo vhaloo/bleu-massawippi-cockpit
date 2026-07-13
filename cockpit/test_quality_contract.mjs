@@ -17,6 +17,8 @@ const files = {
   sw: read("cockpit/sw.js"),
   manifest: read("cockpit/manifest.webmanifest"),
   rules: read("cockpit/firestore.rules"),
+  adminSync: read("cockpit/admin_sync.js"),
+  internalProjectSeed: read("cockpit/seed_internal_project_states.js"),
   workflow: read(".github/workflows/deploy-pages.yml"),
   viewMode: exists("cockpit/view-mode.js") ? read("cockpit/view-mode.js") : "",
   viewStyle: exists("cockpit/view-mode.css") ? read("cockpit/view-mode.css") : ""
@@ -90,6 +92,7 @@ critical("RULE-001", "Profils actifs et rôles vérifiés côté Firestore", has
 critical("RULE-002", "Suppressions physiques refusées", (files.rules.match(/allow delete:\s*if false/g) || []).length >= 8 && !/allow delete:\s*if (?!false)/.test(files.rules), "Commentaires, tâches, médias et décisions restent récupérables.");
 critical("RULE-003", "Archive de changements protégée", has(files.rules, /match \/changeArchive\//) && has(files.client, /appendChangeArchive/), "Les retours arrière reposent sur un historique avant/après.");
 critical("RULE-004", "Viewer sans écriture métier", has(files.rules, /userRole\(\) in \['director', 'admin'\]/), "Seuls director et admin sont éditeurs.");
+critical("RULE-005", "États des projets internes stricts et non destructifs", has(files.rules, /function validInternalProjectState\(data\)/) && has(files.rules, /match \/internalProjectStates\/\{projectId\}/) && /match \/internalProjectStates\/\{projectId\}[\s\S]{0,360}allow delete:\s*if false/.test(files.rules), "Les étapes doivent être bornées, réservées aux éditeurs et impossibles à supprimer physiquement.");
 
 // Authentification et modes d’affichage.
 critical("UX-001", "Connexion accessible et réinitialisation disponibles", has(files.ui, /type="email"/) && has(files.ui, /type="password"/) && has(files.ui, /cockpit-reset-password/) && has(files.ui, /role="alert"/), "Les erreurs doivent rester lisibles sans dépendre d’une couleur.");
@@ -142,6 +145,9 @@ critical("DATA-003", "Aperçu média visible et informations repliables", /cockp
 critical("DATA-004", "Feux verts et décisions sont réversibles", /Feu vert retiré|retiré du choix final|decision.*undecided/is.test(files.ui + files.client), "Chaque retour arrière doit créer une trace.");
 critical("DATA-005", "Un choix média structuré faux surclasse l’ancien marqueur", /hasOwnProperty\.call\(row,\s*["']selectedFinal["']\)/.test(files.ui) && /!hasStructuredChoice/.test(files.ui), "Une ancienne note ne doit pas empêcher de retirer le média final.");
 critical("DATA-006", "Choix média et archive enregistrés atomiquement", /setMediaFinalChoice[\s\S]{0,2200}writeBatch\(db\)[\s\S]{0,1000}batch\.commit\(\)/.test(files.client), "L’interface ne doit pas confirmer un choix si son historique échoue.");
+critical("DATA-007", "Projets internes suivis, bornés et synchronisés localement", /setInternalProjectStage/.test(files.client) && /subscribeInternalProjectStates/.test(files.client) && /internalProjectStates[\s\S]{0,180}limit\(100\)/.test(files.client) && /readRecent\("opportunityStates"\)/.test(files.adminSync) && /readRecent\("internalProjectStates"\)/.test(files.adminSync), "Les deux registres doivent apparaître dans le résumé local et le nouvel abonnement ne doit pas croître sans borne.");
+critical("DATA-008", "Initialisation des projets internes idempotente", /if \(existing\.exists\)[\s\S]{0,160}preserved \+= 1[\s\S]{0,100}continue/.test(files.internalProjectSeed), "Un nouveau déploiement ne doit jamais écraser une étape déjà choisie.");
+critical("DATA-009", "Interface des projets internes branchée et nettoyée", /setupInternalProjectEvents/.test(files.ui) && /renderInternalProjectStates/.test(files.ui) && /subscribeInternalProjectStates/.test(files.ui) && /internalProjectUnsubscribe\?\.\(\)/.test(files.ui), "Le registre doit écouter les états en direct et désabonner sa lecture à la déconnexion.");
 
 const failedCritical = results.filter((item) => item.severity === "CRITIQUE" && !item.pass);
 const failedWarnings = results.filter((item) => item.severity === "AVERTISSEMENT" && !item.pass);
