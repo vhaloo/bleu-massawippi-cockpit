@@ -20,6 +20,7 @@ import {
   subscribeActionTasks,
   addMediaLink,
   archiveMediaLink,
+  setMediaFinalChoice,
   subscribeMediaLinks,
   subscribeComments,
   updateOwnComment,
@@ -52,8 +53,22 @@ const projectSeenVersionKey = "bleu-massawippi-projects-seen-version";
 let dateElevatorFrame = 0;
 let dateElevatorScrollBound = false;
 
+function notifyViewUpdate(reason = "data") {
+  dispatchEvent(new CustomEvent("cockpit:data-updated", { detail: { reason } }));
+}
+
+function announce(message) {
+  const node = document.querySelector("#cockpit-announcer");
+  if (!node) return;
+  node.textContent = "";
+  requestAnimationFrame(() => { node.textContent = message; });
+}
+
 const style = document.createElement("style");
 style.textContent = `
+  .cockpit-skip-link { position:fixed; top:8px; left:8px; z-index:2000; padding:10px 14px; border-radius:10px; color:#fff; background:#073a52; font-weight:850; transform:translateY(-160%); transition:transform .15s ease; }
+  .cockpit-skip-link:focus { transform:translateY(0); }
+  .cockpit-visually-hidden { position:absolute !important; width:1px !important; height:1px !important; padding:0 !important; margin:-1px !important; overflow:hidden !important; clip:rect(0,0,0,0) !important; white-space:nowrap !important; border:0 !important; }
   body.cockpit-locked > *:not(#cockpit-login) { filter: blur(5px); pointer-events: none; user-select: none; }
   #cockpit-login { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px; background: rgba(5, 35, 51, .72); backdrop-filter: blur(14px); }
   #cockpit-login[hidden] { display: none; }
@@ -187,6 +202,9 @@ style.textContent = `
   .post.workflow-complete { box-shadow:0 0 0 2px rgba(33,134,109,.18); }
   .post.workflow-complete:after { position:absolute; top:10px; right:10px; z-index:2; padding:3px 7px; border-radius:999px; content:"✓ Terminé"; color:#155c4e; background:#dff4ea; font-size:.62rem; font-weight:900; }
   .ready { display:none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+  }
   .cockpit-thread { margin-top:12px; padding:10px; border:2px solid #8dcfd4; border-bottom:1px solid #c8e3e5; border-radius:14px 14px 0 0; background:linear-gradient(180deg,#effafa,#fff); }
   .cockpit-thread-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
   .cockpit-thread h5 { margin:0; color:#073a52; font-size:.82rem; }
@@ -506,11 +524,15 @@ else buildInstallWidget();
 function buildLogin() {
   const login = document.createElement("div");
   login.id = "cockpit-login";
+  login.setAttribute("role", "dialog");
+  login.setAttribute("aria-modal", "true");
+  login.setAttribute("aria-labelledby", "cockpit-login-title");
+  login.setAttribute("aria-describedby", "cockpit-login-description");
   login.innerHTML = `
     <form class="cockpit-login-card" id="cockpit-login-form">
       <p class="eyebrow">Bleu Massawippi · espace sécurisé</p>
-      <h2>Connexion</h2>
-      <p>Accédez au cockpit de collaboration avec votre compte Firebase autorisé.</p>
+      <h2 id="cockpit-login-title">Connexion</h2>
+      <p id="cockpit-login-description">Accédez au cockpit de collaboration avec votre compte Firebase autorisé.</p>
       <label>Adresse courriel<input id="cockpit-email" type="email" autocomplete="username" required></label>
       <label>Mot de passe<input id="cockpit-password" type="password" autocomplete="current-password" required></label>
       <button type="submit">Ouvrir la session</button>
@@ -1284,14 +1306,15 @@ function renderMediaForCard(card) {
     const visual = preview
       ? `<img data-media-preview src="${esc(preview)}" alt="${esc(row.label || "Aperçu du média")}" loading="lazy" decoding="async" referrerpolicy="no-referrer"><span class="cockpit-media-enlarge" aria-hidden="true">Agrandir ↗</span>`
       : `<span><span class="cockpit-media-icon" aria-hidden="true">${mediaKindIcons[row.kind] || "🔗"}</span><span class="cockpit-media-open-label">Ouvrir ${row.kind === "image" ? "l’image" : "le média"}</span></span>`;
-    const isFinal = latestDecision.startsWith(`[MÉDIA RETENU:${row.id}]`);
+    const hasStructuredChoice = Object.prototype.hasOwnProperty.call(row, "selectedFinal");
+    const isFinal = row.selectedFinal === true || (!hasStructuredChoice && latestDecision.startsWith(`[MÉDIA RETENU:${row.id}]`));
     return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}" data-media-id="${esc(row.id)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
       <details class="cockpit-media-info"><summary><span>Informations et actions</span><small class="cockpit-media-info-status ${isFinal ? "is-final" : ""}">${isFinal ? "✓ Retenu" : "Ouvrir"}</small></summary><div class="cockpit-media-info-body">
         ${row.rightsStatus === "unconfirmed" ? `<span class="cockpit-media-rights-warning">⚠ Droits à confirmer — référence interne seulement</span>` : ""}
         <div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span><br><a class="cockpit-media-source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Ouvrir l’original dans OneDrive ↗</a></div>
         ${isFinal ? `<span class="cockpit-media-final-badge">✓ Média final retenu par la direction</span>` : ""}
-        ${["director","admin"].includes(state.profile?.role) ? `<button type="button" class="cockpit-media-final-action" data-select-final-media="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${isFinal}">${isFinal ? "✓ Média final choisi" : "Choisir ce média"}</button><div class="cockpit-media-comment"><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button></div>` : ""}
+        ${["director","admin"].includes(state.profile?.role) ? `<button type="button" class="cockpit-media-final-action" data-select-final-media="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${isFinal}">${isFinal ? "Retirer ce choix final" : "Choisir ce média"}</button><div class="cockpit-media-comment"><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button></div>` : ""}
         ${canEdit() ? `<button type="button" data-archive-media="${esc(row.id)}" aria-label="Archiver ce lien média" title="Archiver sans supprimer">Archiver ce lien</button>` : ""}
       </div></details>
     </article>`;
@@ -1449,8 +1472,12 @@ function renderWorkflow(card) {
   if (state.profile?.role === "director") {
     if (["content_review","proposal","changes_requested"].includes(stage)) buttons.push(["content_approved","✓ Approuver le texte et le concept","primary"]);
     if (stage === "content_review") buttons.push(["changes_requested","Correction demandée au texte","correction"]);
-    const mediaDecision = (state.commentsByEvent.get(card.dataset.itemId) || []).filter((comment) => comment.deleted !== true && /^\[MÉDIA RETENU:/.test(comment.comment || "")).at(-1);
-    const finalMediaCount = mediaDecision ? 1 : 0;
+    const eventMedia = (state.mediaByEvent.get(card.dataset.itemId) || []).filter((media) => media.archived !== true);
+    const selectedMedia = eventMedia.filter((media) => media.selectedFinal === true);
+    const legacyMediaDecision = (state.commentsByEvent.get(card.dataset.itemId) || []).filter((comment) => comment.deleted !== true && /^\[MÉDIA RETENU:/.test(comment.comment || "")).at(-1);
+    const legacyMediaId = legacyMediaDecision?.comment?.match(/^\[MÉDIA RETENU:([^\]]+)\]/)?.[1] || "";
+    const legacyMediaStillUnmigrated = eventMedia.some((media) => media.id === legacyMediaId && !Object.prototype.hasOwnProperty.call(media, "selectedFinal"));
+    const finalMediaCount = selectedMedia.length || (legacyMediaStillUnmigrated ? 1 : 0);
     if (stage === "media_review" && finalMediaCount > 0) buttons.push(["final_approved",`✓ Approuver ${finalMediaCount > 1 ? finalMediaCount + " médias retenus" : "le média retenu"}`,"primary"]);
     if (stage === "media_review" && finalMediaCount === 0) buttons.push(["","Choisir d’abord un média ci-dessus","disabled"]);
     if (stage === "media_review") buttons.push(["changes_requested","Correction demandée au visuel","correction"]);
@@ -1468,7 +1495,8 @@ function renderCommentThread(card) {
     const when = row.createdAt?.toDate ? row.createdAt.toDate().toLocaleString("fr-CA", { dateStyle:"short", timeStyle:"short" }) : "à l’instant";
     const edited = row.updatedAt?.toMillis && row.createdAt?.toMillis && row.updatedAt.toMillis() > row.createdAt.toMillis() + 1000;
     const handledLabel = handled && row.resolvedByLabel ? ` · traité par ${esc(row.resolvedByLabel)}` : "";
-    return `<article class="cockpit-message ${mine ? "mine" : "other"}${handled ? " handled" : ""}" data-comment-id="${esc(row.id)}"><header><b>💬 ${esc(row.authorLabel || "Utilisateur")}${mine ? " · vous" : ""}</b><span>${esc(when)}${edited ? " · modifié" : ""}${handledLabel}</span></header><p>${esc(row.comment || "")}</p><div class="cockpit-message-actions">${handled ? "" : `<button type="button" data-resolve-comment="${esc(row.id)}">✓ Marquer traité</button>`}${mine && !handled ? `<button type="button" data-edit-comment="${esc(row.id)}">Modifier</button><button type="button" data-archive-comment="${esc(row.id)}">Archiver</button>` : ""}</div></article>`;
+    const createdAt = row.createdAt?.toMillis ? row.createdAt.toMillis() : row.createdAt instanceof Date ? row.createdAt.valueOf() : 0;
+    return `<article class="cockpit-message ${mine ? "mine" : "other"}${handled ? " handled" : ""}" data-comment-id="${esc(row.id)}" data-created-at="${Number.isFinite(createdAt) ? createdAt : 0}"><header><b>💬 ${esc(row.authorLabel || "Utilisateur")}${mine ? " · vous" : ""}</b><span>${esc(when)}${edited ? " · modifié" : ""}${handledLabel}</span></header><p>${esc(row.comment || "")}</p><div class="cockpit-message-actions">${handled ? "" : `<button type="button" data-resolve-comment="${esc(row.id)}">✓ Marquer traité</button>`}${mine && !handled ? `<button type="button" data-edit-comment="${esc(row.id)}">Modifier</button><button type="button" data-archive-comment="${esc(row.id)}">Archiver</button>` : ""}</div></article>`;
   };
   const active = rows.filter((row) => row.resolved !== true);
   const handled = rows.filter((row) => row.resolved === true);
@@ -1965,17 +1993,14 @@ function enhanceCardEvents() {
     if (finalMediaButton) {
       event.preventDefault();
       event.stopPropagation();
-      if (finalMediaButton.getAttribute("aria-pressed") === "true") {
-        toast("Ce média est déjà le choix final.");
-        return;
-      }
       const mediaId = finalMediaButton.dataset.selectFinalMedia;
       const label = finalMediaButton.dataset.mediaLabel || "Média OneDrive";
-      addComment(card.dataset.itemId, `[MÉDIA RETENU:${mediaId}] ${label}`, state.profile, null, false)
-        .then(async (commentId) => {
+      const selected = finalMediaButton.getAttribute("aria-pressed") !== "true";
+      setMediaFinalChoice(mediaId, selected, state.profile)
+        .then(async () => {
           const planItem = getPlanItem(card);
-          await recordActionTask(`media-choice-${commentId}`, { status:"pending", title:`Média retenu — ${planItem?.title || card.dataset.itemId}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${label}`, message:`La direction a retenu « ${label} » comme média final.` });
-          toast("Média final retenu. La décision est conservée dans le fil.");
+          await recordActionTask(`media-choice-${mediaId}`, { status:selected ? "pending" : "done", title:`Média ${selected ? "retenu" : "retiré"} — ${planItem?.title || card.dataset.itemId}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${label}`, message:selected ? `La direction a retenu « ${label} » comme média final.` : `Le choix final de « ${label} » a été retiré; l’historique demeure conservé.` });
+          toast(selected ? "Média final retenu et historisé." : "Média retiré du choix final; l’historique est conservé.");
         }).catch((error) => toast(error.message, true));
       return;
     }
@@ -2087,7 +2112,7 @@ async function applyProfile(profile) {
   document.querySelector("#cockpit-login")?.setAttribute("hidden", "");
   const session = buildSession();
   session.querySelector("#cockpit-session-label").innerHTML = "Connecté : <strong>" + esc(profile.displayLabel) + "</strong> · rôle " + esc(profile.role);
-  dispatchEvent(new CustomEvent("cockpit:session-ready"));
+  dispatchEvent(new CustomEvent("cockpit:session-ready", { detail: { profile } }));
   setupResponsiveOffsets();
   if (profile.role === "admin") {
     document.body.classList.add("cockpit-admin");
@@ -2159,6 +2184,7 @@ function applySignedOut(message = "") {
   state.decisionUnsubscribe = null;
   state.tasks = [];
   clearPrivateContent();
+  dispatchEvent(new CustomEvent("cockpit:session-ended"));
   document.body.classList.add("cockpit-locked");
   document.querySelector("#cockpit-session")?.remove();
   document.querySelector("#cockpit-sidebar")?.remove();
@@ -2187,6 +2213,7 @@ function subscribeRemoteData() {
   state.scheduleUnsubscribe = subscribeScheduleItems((rows) => {
     state.rows = new Map(rows.map((row) => [row.id, row]));
     applyRemoteRows();
+    notifyViewUpdate("schedule");
   }, (error) => toast("Le calendrier n’est pas accessible : " + error.message, true));
   state.mediaUnsubscribe?.();
   state.mediaUnsubscribe = subscribeMediaLinks((rows) => {
@@ -2199,26 +2226,29 @@ function subscribeRemoteData() {
     state.mediaByEvent = grouped;
     renderAllMedia();
     renderAllCollaboration();
+    notifyViewUpdate("media");
   }, (error) => toast("Les liens médias ne sont pas accessibles : " + error.message, true));
   state.commentsUnsubscribe?.();
   state.commentsUnsubscribe = subscribeComments((rows) => {
     const grouped = new Map();
     rows.forEach((row) => { const id=String(row.sectionId||""); if(!grouped.has(id)) grouped.set(id,[]); grouped.get(id).push(row); });
-    state.commentsByEvent = grouped; renderAllCollaboration(); renderAllMedia();
+    state.commentsByEvent = grouped; renderAllCollaboration(); renderAllMedia(); notifyViewUpdate("comments");
   }, (error) => toast("Le fil de commentaires n’est pas accessible : " + error.message, true));
   state.workflowUnsubscribe?.();
   state.workflowUnsubscribe = subscribeWorkflowStates((rows) => {
-    state.workflows = new Map(rows.map((row) => [row.eventId || row.id, row])); renderAllCollaboration();
+    state.workflows = new Map(rows.map((row) => [row.eventId || row.id, row])); renderAllCollaboration(); notifyViewUpdate("workflow");
   }, (error) => toast("Le cycle de validation n’est pas accessible : " + error.message, true));
   state.opportunityUnsubscribe?.();
   state.opportunityUnsubscribe = subscribeOpportunityStates((rows) => {
     state.opportunities = new Map(rows.map((row) => [row.opportunityId || row.id, row]));
     renderOpportunityStates();
+    notifyViewUpdate("opportunities");
   }, (error) => toast("Le suivi des occasions n’est pas accessible : " + error.message, true));
   state.decisionUnsubscribe?.();
   state.decisionUnsubscribe = subscribeEditorialDecisions((rows) => {
     state.decisions = new Map(rows.map((row) => [row.eventId || row.id, row]));
     document.querySelectorAll(".post[data-item-id]").forEach(renderEditorialDecision);
+    notifyViewUpdate("decisions");
   }, (error) => toast("Les décisions éditoriales ne sont pas accessibles : " + error.message, true));
 }
 

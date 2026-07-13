@@ -523,8 +523,20 @@ export async function setMediaFinalChoice(mediaId, selected, profile) {
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid
   };
-  await updateDoc(reference, next);
-  await appendChangeArchive("mediaLink", mediaId, selected ? "média final retenu" : "média retiré du choix final", { selectedFinal: before.selectedFinal === true }, { selectedFinal: Boolean(selected) }, profile);
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.update(reference, next);
+  batch.set(archiveReference, {
+    entityType: "mediaLink",
+    entityId: mediaId,
+    action: selected ? "média final retenu" : "média retiré du choix final",
+    before: { selectedFinal: before.selectedFinal === true },
+    after: { selectedFinal: Boolean(selected) },
+    actorUid: profile.uid,
+    actorLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
+    createdAt: serverTimestamp()
+  });
+  await batch.commit();
 }
 
 export function subscribeMediaLinks(callback, onError) {
