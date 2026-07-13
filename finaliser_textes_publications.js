@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { applyPlanOverridesToPosts } from "./cockpit/plan-overrides.js";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const separator = "=========================================";
@@ -362,29 +363,29 @@ function synchronizeHtml(file) {
 }
 
 function renderMarkdown(posts) {
-  const details = new Map(final.map((item) => [item.id, item]));
   const headings = [
-    "# Textes complets finalisés — Plan d’attaque été 2026 V2 stratégique",
+    "# Textes complets finalisés — Cockpit Communication Bleu Massawippi",
     "",
-    "**Période :** lundi 13 juillet au dimanche 9 août 2026  ",
-    "**Usage :** textes bilingues prêts à programmer sur Facebook et Instagram, séparés par la ligne réglementaire du plan.  ",
-    "**Règle :** chaque légende demeure sous 2 200 caractères au total; les visuels doivent être authentiques, autorisés et accompagnés du texte alternatif indiqué.",
+    "**Période active :** lundi 13 juillet au mardi 11 août 2026",
+    "**Usage :** textes bilingues prêts à programmer sur Facebook et Instagram, séparés par la ligne réglementaire du plan.",
+    "**Voix :** chaleureuse, invitante et curieuse; les précautions techniques demeurent dans les notes de préparation plutôt que dans le message public.",
+    "**Règle :** chaque légende demeure sous 2 200 caractères au total; les visuels doivent être authentiques, autorisés et accompagnés d’un texte alternatif descriptif.",
     "",
     "Les contenus V1 ont servi d’inspiration pour les formats éprouvés — quiz, preuve d’action, conseil, humour et appel à l’action — sans reprendre les sujets désormais exclus ni les faits non revalidés.",
     ""
   ];
   for (const post of posts) {
-    const item = details.get(post.id) || post;
+    const item = post;
     headings.push(
       "## " + post.date + " — " + post.title,
       "",
-      "**Thème :** " + post.t + "  ",
-      "**Format :** " + post.format + "  ",
-      "**Objectif :** " + post.role + "  ",
-      "**CTA :** " + post.cta + "  ",
-      "**Visuel final :** " + item.visual + "  ",
-      "**Texte alternatif :** " + (item.alt || "Décrire précisément le visuel retenu et son contexte.") + "  ",
-      "**Source de référence :** " + item.source + "  ",
+      "**Thème :** " + post.t,
+      "**Format :** " + post.format,
+      "**Objectif :** " + post.role,
+      "**CTA :** " + post.cta,
+      "**Visuel final :** " + item.visual,
+      "**Texte alternatif :** " + (item.alt || "Décrire précisément le visuel retenu et son contexte."),
+      "**Source de référence :** " + item.source,
       "**Préparation :** " + item.task,
       "",
       "### Légende prête à programmer",
@@ -404,7 +405,7 @@ const ids = new Set(originalPosts.map((post) => post.id));
 for (const item of final) if (!ids.has(item.id)) throw new Error("Identifiant inconnu : " + item.id);
 
 synchronizeHtml(planHtml);
-const updatedPosts = readPosts(planHtml);
+const updatedPosts = applyPlanOverridesToPosts(readPosts(planHtml));
 const markdownPath = path.join(directory, "TEXTES_COMPLETS_PUBLICATIONS_13_JUILLET_9_AOUT_2026.md");
 fs.writeFileSync(markdownPath, renderMarkdown(updatedPosts), "utf8");
 
