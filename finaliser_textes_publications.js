@@ -13,8 +13,8 @@ const volunteerPage = "https://bleumassawippi.com/benevolat";
 const boatingSafety = "https://tc.canada.ca/en/marine-transportation/preparing-operate-your-vessel/maintaining-safe-pleasure-craft";
 const laccessible = "https://bleumassawippi.com/laccessible/en";
 
-function bilingual(fr, en) {
-  return `FR — ${fr}\n\n${separator}\n\nEN — ${en}`;
+function bilingual(frOriginal, enAdaptation) {
+  return `FR — ${frOriginal}\n\n${separator}\n\nEN — ${enAdaptation}`;
 }
 
 const final = [
@@ -53,13 +53,15 @@ const final = [
   },
   {
     id: "s1d4",
+    title: "Le moment où le lac vous appelle",
+    cta: "Racontez-nous ce moment",
     visual: "Photo paysage réelle du lac, sans personne identifiable; question unique en surimpression : Le Massawippi, pour vous, c’est…",
     alt: "FR — Vue calme du lac Massawippi et de ses rives. / EN — A calm view of Lake Massawippi and its shoreline.",
     source: "Banque photo de l’association — droits documentés",
     task: "Publier aussi une story avec une boîte de réponse; relever les mots récurrents sans reproduire les réponses comme citations sans autorisation.",
     copy: bilingual(
-      "Une couleur, une odeur, un son, un souvenir : quel est le premier mot qui vous vient quand vous pensez au Massawippi?\n\nRépondez en un mot dans les commentaires. Nous avons envie de lire ce que le lac évoque pour vous.\n\n#BleuMassawippi #LacMassawippi #NotreLac #Estrie",
-      "A colour, a scent, a sound, a memory: what is the first word that comes to mind when you think of Massawippi?\n\nAnswer with one word in the comments. We would love to hear what the lake brings to mind for you.\n\n#BleuMassawippi #LakeMassawippi #OurLake #EasternTownships"
+      "Parfois, il suffit d’une couleur, d’un parfum, d’un son ou d’un souvenir pour avoir envie de retrouver le lac.\n\nQuel moment vous donne le plus envie de retrouver le Massawippi : le calme du matin, une baignade, une sortie en famille ou la lumière du soir? Racontez-le-nous en un mot ou en quelques mots. Nous avons hâte de vous lire.\n\n#BleuMassawippi #LacMassawippi #NotreLac #Estrie",
+      "Sometimes a colour, a familiar scent, a sound or a memory is all it takes to make us long for the lake.\n\nWhat makes you want to return to Massawippi most: a quiet morning, a swim, time with family or the evening light? Tell us in a word or two. We would love to hear from you.\n\n#BleuMassawippi #LakeMassawippi #OurLake #EasternTownships"
     )
   },
   {
@@ -75,13 +77,15 @@ const final = [
   },
   {
     id: "s1d6",
-    visual: "Reel de 10 à 15 secondes : eau, rive et lumière réelle; aucun texte durant les trois premières secondes, puis Minute bleue.",
+    title: "Juste un instant",
+    cta: "Prendre un instant",
+    visual: "Reel de 10 à 15 secondes : eau, rive et lumière réelle; aucun texte durant les trois premières secondes, puis Un instant bleu.",
     alt: "FR — La lumière se reflète sur la surface calme du lac. / EN — Light reflects on the lake’s calm surface.",
     source: "Banque vidéo de l’association — droits documentés",
     task: "Choisir une captation réelle du Massawippi, sans filtre qui modifie la couleur de l’eau ni image générée.",
     copy: bilingual(
-      "Aujourd’hui, pas de consigne.\n\nJuste une minute pour regarder ce que nous avons la chance de protéger : une eau, des rives, des habitats et des souvenirs qui comptent.\n\nPrenez une respiration. Puis gardez ce regard pour votre prochaine sortie.\n\n#MinuteBleue #BleuMassawippi #LacMassawippi #Estrie",
-      "Today, no instruction.\n\nJust a minute to look at what we are fortunate enough to protect: water, shorelines, habitats and memories that matter.\n\nTake a breath. Then carry that attention into your next outing.\n\n#BlueMinute #BleuMassawippi #LakeMassawippi #EasternTownships"
+      "Juste un instant pour regarder ce que nous avons la chance de protéger : le lac, ses rives, les habitats qu’il abrite et les souvenirs qui nous y rattachent.\n\n#InstantBleu #BleuMassawippi #LacMassawippi #Estrie",
+      "Take a moment to appreciate what we are fortunate to protect: the lake, its shorelines, the habitats it supports and the memories that connect us to this place.\n\n#BlueMoment #BleuMassawippi #LakeMassawippi #EasternTownships"
     )
   },
   {
@@ -353,7 +357,15 @@ function synchronizeHtml(file) {
   const finalById = new Map(final.map((item) => [item.id, item]));
   const mergedPosts = currentPosts.map((post) => {
     const item = finalById.get(post.id);
-    const merged = item ? { ...post, visual: item.visual, source: item.source, task: item.task, copy: item.copy } : post;
+    const merged = item ? {
+      ...post,
+      ...(item.title ? { title: item.title } : {}),
+      ...(item.cta ? { cta: item.cta } : {}),
+      visual: item.visual,
+      source: item.source,
+      task: item.task,
+      copy: item.copy
+    } : post;
     const dateIso = planDateIsoFromLabel(merged.date);
     return dateIso ? { ...merged, dateIso } : merged;
   });
@@ -380,6 +392,7 @@ function renderMarkdown(posts) {
     "**Calendrier actif :** à partir du lundi 13 juillet 2026; la réserve éditoriale est actuellement planifiée jusqu’au mardi 1er septembre 2026.",
     "**Usage :** textes bilingues prêts à programmer sur Facebook et Instagram, séparés par la ligne réglementaire du plan.",
     "**Voix :** chaleureuse, invitante et curieuse; les précautions techniques demeurent dans les notes de préparation plutôt que dans le message public.",
+    "**Langues :** le français est rédigé d’abord avec naturel; l’anglais en est une adaptation fidèle au sens et au ton, jamais une traduction mot à mot.",
     "**Règle :** chaque légende demeure sous 2 200 caractères au total; les visuels doivent être authentiques, autorisés et accompagnés d’un texte alternatif descriptif.",
     "",
     "Les contenus V1 ont servi d’inspiration pour les formats éprouvés — quiz, preuve d’action, conseil, humour et appel à l’action — sans reprendre les sujets désormais exclus ni les faits non revalidés.",

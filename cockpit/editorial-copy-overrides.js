@@ -3,9 +3,10 @@ import { EDITORIAL_OVERRIDES_JUL27_AUG09 } from "./editorial-overrides-jul27-aug
 
 const SEPARATOR = "=========================================";
 const TONE_VERSION = "warm-neighbourly-v2-2026-07-13";
+const BILINGUAL_POLICY_VERSION = "fr-original-en-adaptation-v1";
 
-function bilingual(fr, en) {
-  return `FR — ${fr}\n\n${SEPARATOR}\n\nEN — ${en}`;
+function bilingual(frOriginal, enAdaptation) {
+  return `FR — ${frOriginal}\n\n${SEPARATOR}\n\nEN — ${enAdaptation}`;
 }
 
 const RESERVE_OVERRIDES = {
@@ -52,7 +53,10 @@ export function applyEditorialCopyOverrides(posts) {
   for (const post of posts) {
     const override = EDITORIAL_COPY_OVERRIDES[post.id];
     if (!override) continue;
-    Object.assign(post, override, { editorialToneVersion: TONE_VERSION });
+    Object.assign(post, override, {
+      editorialToneVersion: TONE_VERSION,
+      bilingualPolicyVersion: BILINGUAL_POLICY_VERSION
+    });
     if (post.optionLabel) {
       post.optionLabel = post.optionLabel.replace(/^(Option\s+[A-Z]+\s+—\s+).*$/u, `$1${post.title}`);
     }
@@ -60,4 +64,4 @@ export function applyEditorialCopyOverrides(posts) {
   return posts;
 }
 
-export { TONE_VERSION };
+export { BILINGUAL_POLICY_VERSION, TONE_VERSION };

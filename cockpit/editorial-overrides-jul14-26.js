@@ -1,7 +1,7 @@
 const SEPARATOR = "=========================================";
 
-function bilingual(fr, en) {
-  return `FR — ${fr}\n\n${SEPARATOR}\n\nEN — ${en}`;
+function bilingual(frOriginal, enAdaptation) {
+  return `FR — ${frOriginal}\n\n${SEPARATOR}\n\nEN — ${enAdaptation}`;
 }
 
 const OFFICIAL_BOAT_CLEANING_URL = "https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques";
@@ -19,9 +19,9 @@ export const EDITORIAL_OVERRIDES_JUL14_26 = Object.freeze({
 Merci à toutes les personnes qui intègrent déjà ces gestes à leur routine. Retrouvez les étapes recommandées ici : ${OFFICIAL_BOAT_CLEANING_URL}
 
 #BleuMassawippi #NautismeResponsable #LacMassawippi #Prévention`,
-      `Before enjoying the lake, let’s take the time to check our boat and our trailer. Removing debris, draining water and washing everything according to the recommended steps are three simple actions that help keep invasive species from travelling between bodies of water.
+      `Before heading out, take a moment to check the boat and trailer. Removing debris, draining water and washing everything according to the recommended steps are three simple actions that help keep invasive species from travelling between bodies of water.
 
-Thank you to everyone who already makes these steps part of their routine. Find the recommended guidance here: ${OFFICIAL_BOAT_CLEANING_URL}
+Thank you to everyone who already makes these steps part of their routine. Follow the official steps here: ${OFFICIAL_BOAT_CLEANING_URL}
 
 #BleuMassawippi #ResponsibleBoating #LakeMassawippi #Prevention`
     ),
@@ -46,19 +46,19 @@ Share your essential in the comments. Your idea might make someone else’s next
   },
   s1d4: {
     title: "Le moment où le lac vous appelle",
-    cta: "Répondre en un mot",
+    cta: "Racontez-nous ce moment",
     calendarTime: "10:00",
     source: "Meta — privilégier une conversation authentique et éviter les appels artificiels à commenter : https://about.fb.com/news/2017/12/news-feed-fyi-fighting-engagement-bait-on-facebook/ · Banque photo de l’association — droits à documenter.",
     task: "Publier le samedi et compléter par une story avec boîte de réponse. Accueillir chaque réponse sans relance insistante, puis évaluer ce format après au moins trois essais comparables dans Meta Business Suite; un premier silence ne justifie ni appât à l’engagement ni répétition immédiate.",
     copy: bilingual(
-      `Une couleur, un parfum, un son, un souvenir… Il y a parfois un moment précis où le lac nous appelle.
+      `Parfois, il suffit d’une couleur, d’un parfum, d’un son ou d’un souvenir pour avoir envie de retrouver le lac.
 
-Quel est ce moment pour vous : le calme du matin, une baignade, une sortie en famille, la lumière du soir? Un mot ou une courte phrase suffit. Nous avons envie de découvrir ce qui fait vivre votre lien avec le Massawippi.
+Quel moment vous donne le plus envie de retrouver le Massawippi : le calme du matin, une baignade, une sortie en famille ou la lumière du soir? Racontez-le-nous en un mot ou en quelques mots. Nous avons hâte de vous lire.
 
 #BleuMassawippi #LacMassawippi #NotreLac #Estrie`,
-      `A colour, a scent, a sound, a memory… Sometimes there is one particular moment when the lake calls to us.
+      `Sometimes a colour, a familiar scent, a sound or a memory is all it takes to make us long for the lake.
 
-What is that moment for you: a quiet morning, a swim, time with family, the evening light? One word or a short sentence is enough. We would love to learn what brings your connection with Massawippi to life.
+What makes you want to return to Massawippi most: a quiet morning, a swim, time with family or the evening light? Tell us in a word or two. We would love to hear from you.
 
 #BleuMassawippi #LakeMassawippi #OurLake #EasternTownships`
     ),
@@ -76,7 +76,7 @@ Avant de prendre son envol, la libellule vit sous l’eau au stade larvaire. Lar
 Si vous en croisez une, accordez-lui simplement un peu d’espace et profitez du spectacle. Quel petit être vivant avez-vous remarqué près du lac dernièrement?
 
 #BleuMassawippi #LacMassawippi #NatureDuLac #Libellule`,
-      `A dragonfly lands, takes off and returns to dance near the water. These small moments remind us that Massawippi’s shores welcome life that is both quiet and fascinating.
+      `A dragonfly lands, takes off and returns to dance near the water. Encounters like this reveal the remarkable wildlife found along Massawippi’s shores.
 
 Before taking flight, a dragonfly lives underwater as a larva. Both larvae and adults are predators as well as prey: they take part in the food web and connect aquatic habitats with the shoreline.
 
@@ -125,17 +125,17 @@ Observation shows what is visible today. Measurement provides a precise referenc
     visual: "Carrousel façon carnet de terrain : une personne observe le lac, une main note une mesure, puis une petite ligne du temps relie plusieurs observations. Titre chaleureux « Observer · mesurer · comparer », sans esthétique clinique."
   },
   s1d6: {
-    title: "Juste une minute",
-    cta: "Regarder avec nous",
+    title: "Juste un instant",
+    cta: "Prendre un instant",
     copy: bilingual(
-      `Juste une minute pour regarder ce que nous avons la chance de protéger : une eau, des rives, des habitats et des souvenirs qui comptent.
+      `Juste un instant pour regarder ce que nous avons la chance de protéger : le lac, ses rives, les habitats qu’il abrite et les souvenirs qui nous y rattachent.
 
-#MinuteBleue #BleuMassawippi #LacMassawippi #Estrie`,
-      `Just one minute to look at what we are fortunate to protect: water, shorelines, habitats and memories that matter.
+#InstantBleu #BleuMassawippi #LacMassawippi #Estrie`,
+      `Take a moment to appreciate what we are fortunate to protect: the lake, its shorelines, the habitats it supports and the memories that connect us to this place.
 
-#BlueMinute #BleuMassawippi #LakeMassawippi #EasternTownships`
+#BlueMoment #BleuMassawippi #LakeMassawippi #EasternTownships`
     ),
-    visual: "Reel réel de 10 à 15 secondes : arrivée d’une personne au bord du lac, reflet de lumière, main sur une rambarde, respiration et plan final large. Son naturel; afficher « Une minute bleue » seulement à la fin."
+    visual: "Reel réel de 10 à 15 secondes : arrivée d’une personne au bord du lac, reflet de lumière, main sur une rambarde, respiration et plan final large. Son naturel; afficher « Un instant bleu » seulement à la fin."
   },
   "alt-20260717": {
     title: "Votre journée en bleu",
@@ -281,7 +281,7 @@ Laquelle de ces fonctions aimeriez-vous explorer dans une prochaine capsule?
 
 A — Slow water and encourage some sediment to settle.
 B — Provide habitat for many species.
-C — Help filter water and stabilize shoreline environments.
+C — Help filter water and stabilize shorelines.
 
 Answer: all of the above! One wetland can perform several functions at the same time. Exactly how it does so depends on its type, condition and location.
 
@@ -302,7 +302,7 @@ Les bâtiments et les habitudes changent, mais l’amour du lac et des lieux qui
 Crédit : Jean B. Le Baron — domaine public.
 
 #Patrimoine #BleuMassawippi #LacMassawippi #MémoireDuLac`,
-      `Dated 1900, this postcard shows North Hatley’s former library. Let us view it without a montage or comparison: its facade, roof, windows and snow each tell part of the village’s story.
+      `Dated 1900, this postcard shows North Hatley’s former library. Its facade, steep roof, windows and snow-covered setting offer a glimpse of village life at the turn of the century.
 
 Buildings and daily habits change, but love for the places surrounding Massawippi is passed on. This image is a fragment of local memory that still connects us to the lake and its community today.
 
@@ -435,7 +435,7 @@ Un jardin de pluie lui offre un endroit où ralentir et pénétrer doucement dan
 Vous aimeriez recevoir les détails? Écrivez-nous en message privé et nous vous tiendrons au courant.
 
 #JardinsDePluie #BleuMassawippi #BassinVersant #LacMassawippi`,
-      `After a rainfall, water begins travelling toward ditches, streams and sometimes the lake. Along the way, it can also carry soil and other material.
+      `After a downpour, runoff flows toward ditches and streams—and sometimes all the way to the lake. Along the way, it can carry soil and other material.
 
 A rain garden gives that water a place to slow down and gently soak into the ground. This fall, Bleu Massawippi is preparing a workshop to explore the idea, see examples and answer questions. The date will be shared as soon as it is confirmed.
 
@@ -458,7 +458,7 @@ Cette rencontre vous intéresserait? Dites-le-nous en commentaire ou écrivez-no
 #JardinsDePluie #BleuMassawippi #BassinVersant #CetAutomne`,
       `What if we helped rainwater slow down before it continued toward ditches, streams and the lake?
 
-This fall, Bleu Massawippi is preparing an accessible workshop on rain gardens: how they work, what they can offer and where to begin. The date and details will be announced once they are confirmed.
+This fall, Bleu Massawippi is preparing a practical, beginner-friendly workshop on rain gardens: how they work, what they can offer and where to begin. The date and details will be announced once they are confirmed.
 
 Would you be interested? Tell us in the comments or send us a private message.
 
@@ -548,7 +548,7 @@ Votre famille conserve-t-elle une histoire ou une photo du lac de ces années-l�
 #BleuMassawippi #LacMassawippi #Patrimoine #MémoireDuLac`,
       `Around 1904, a steamship crosses Lake Massawippi while a sailboat appears near the shore. This photograph opens a fascinating window onto travel and summer life in another era.
 
-Does your family preserve a story or photograph of the lake from those years?
+Does your family have stories or photographs of the lake from that era?
 
 #BleuMassawippi #LakeMassawippi #Heritage #LakeMemories`
     ),

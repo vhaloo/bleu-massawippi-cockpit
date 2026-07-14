@@ -23,6 +23,12 @@ La direction souhaite tester une publication principale quotidienne. Meta ne pub
 - [Meta — métriques de comptes professionnels Instagram](https://www.facebook.com/help/instagram/788388387972460)
 - [Google Analytics — paramètres UTM](https://support.google.com/analytics/answer/10917952)
 
+## Rédaction bilingue : deux textes autonomes, une même promesse
+
+- Le français est rédigé d’abord comme un texte original, naturel et idiomatique pour un public québécois. Il ne doit jamais donner l’impression d’avoir été calqué sur l’anglais.
+- L’anglais est ensuite une adaptation autonome. Il conserve les mêmes faits, la même promesse, le même appel à l’action, les mêmes nuances et les mêmes obligations, mais son rythme, l’ordre des idées et ses images peuvent différer pour rester naturels.
+- La traduction phrase par phrase est exclue. Avant validation, une personne relit chaque version séparément, comme si l’autre n’existait pas, puis vérifie leur équivalence factuelle et stratégique.
+
 ## Consentement, droits et contenu participatif
 
 - Le consentement doit être manifeste, libre, éclairé, spécifique et limité dans le temps. Les mineurs de moins de 14 ans exigent le consentement du parent ou du tuteur : [Commission d’accès à l’information du Québec](https://www.cai.gouv.qc.ca/protection-renseignements-personnels/information-entreprises-privees/consentement-personnes-entreprises).
