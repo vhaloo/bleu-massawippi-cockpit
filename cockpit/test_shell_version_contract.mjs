@@ -4,6 +4,7 @@ import fs from "node:fs";
 const index = fs.readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const worker = fs.readFileSync(new URL("./sw.js", import.meta.url), "utf8");
 const packageFile = JSON.parse(fs.readFileSync(new URL("./package.json", import.meta.url), "utf8"));
+const deploymentWorkflow = fs.readFileSync(new URL("../.github/workflows/deploy-pages.yml", import.meta.url), "utf8");
 
 const releaseMatch = worker.match(/const RELEASE = "([^"]+)"/);
 const cacheMatch = worker.match(/const CACHE = "bleu-massawippi-cockpit-shell-v(\d+)"/);
@@ -23,6 +24,7 @@ assert.match(index, /serviceWorker\.register\("\.\/sw\.js", \{ scope: "\.\/" \}\
   "Le service worker doit conserver la portée locale exigée par GitHub Pages.");
 for (const resource of ["firebase-config.js", "theme.js", "cockpit-ui.js", "action-items-ui.js", "client-health-ui.js", "admin-lazy-data.js", "view-mode.js"]) {
   assert.match(worker, new RegExp(resource.replace(".", "\\.")), `${resource} doit faire partie du shell hors ligne.`);
+  assert.match(deploymentWorkflow, new RegExp(`cp cockpit/${resource.replace(".", "\\.")} public/`), `${resource} doit faire partie de l’artefact GitHub Pages.`);
 }
 const firebaseVersion = cockpitUi.match(/firebase-client\.js\?v=([^"']+)/)?.[1];
 assert.ok(firebaseVersion, "Le module principal doit versionner explicitement le client Firebase.");
