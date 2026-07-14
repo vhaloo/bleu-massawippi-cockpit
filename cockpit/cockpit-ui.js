@@ -35,12 +35,12 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-subtle-motion-v9";
-import { createEventContextController } from "./event-context-data.js?v=20260714-subtle-motion-v9";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-subtle-motion-v9";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-subtle-motion-v9";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-subtle-motion-v9";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-subtle-motion-v9";
+} from "./firebase-client.js?v=20260714-context-hotfix-v10";
+import { createEventContextController } from "./event-context-data.js?v=20260714-context-hotfix-v10";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-context-hotfix-v10";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-context-hotfix-v10";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-context-hotfix-v10";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-context-hotfix-v10";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";

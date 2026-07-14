@@ -334,6 +334,12 @@
   display: none !important;
 }
 
+/* Le contexte reste compact en Vue essentielle, mais une ouverture volontaire
+   doit toujours révéler son contenu au lieu d’afficher un panneau vide. */
+.cockpit-view-essential #context-collapsible[open] > .context-body > * {
+  display: block !important;
+}
+
 .cockpit-view-essential .nav a:not([data-vm-nav]):not([href="#projets"]):not([href="#calendrier"]) { display: none; }
 .cockpit-view-essential .nav .wrap::before {
   content: "Vue essentielle";

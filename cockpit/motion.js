@@ -114,7 +114,7 @@ function buildInstallAdvice() {
 
 const style = document.createElement("style");
 style.textContent = `
-  #cockpit-motion-toggle { position:fixed; left:12px; bottom:12px; z-index:36; display:grid; width:42px; height:42px; padding:0; place-items:center; overflow:hidden; border:1px solid rgba(255,255,255,.7); border-radius:50%; color:#fff; background:#073a52; box-shadow:0 7px 20px rgba(7,58,82,.22); cursor:pointer; isolation:isolate; }
+  #cockpit-motion-toggle { position:fixed; left:150px; bottom:15px; z-index:30; display:grid; width:42px; height:42px; padding:0; place-items:center; overflow:hidden; border:1px solid rgba(255,255,255,.7); border-radius:50%; color:#fff; background:#073a52; box-shadow:0 7px 20px rgba(7,58,82,.22); cursor:pointer; isolation:isolate; }
   #cockpit-motion-toggle::before { position:absolute; inset:54% -20% -12%; z-index:-2; border-radius:45% 48% 0 0; content:""; background:#20a8bd; transform:rotate(-2deg); }
   #cockpit-motion-toggle::after { position:absolute; left:-12%; right:-12%; top:48%; z-index:-1; height:9px; border-radius:50%; content:""; background:rgba(117,225,231,.7); }
   html[data-motion="on"] #cockpit-motion-toggle::after { animation:cockpit-water-level 3.8s ease-in-out infinite; }
@@ -144,7 +144,7 @@ style.textContent = `
   @keyframes cockpit-voice-ring { from { opacity:.8; transform:scale(.86); } to { opacity:0; transform:scale(1.28); } }
   @keyframes cockpit-voice-meter { from { transform:scaleY(.45); opacity:.7; } to { transform:scaleY(1); opacity:1; } }
   @media (max-width:700px) {
-    #cockpit-motion-toggle { left:8px; bottom:8px; width:40px; height:40px; }
+    #cockpit-motion-toggle { left:8px; bottom:62px; width:40px; height:40px; }
     #cockpit-install-launch { right:8px; bottom:62px; max-width:calc(100vw - 16px); }
   }
   @media (prefers-reduced-motion: reduce) {
