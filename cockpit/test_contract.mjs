@@ -33,6 +33,11 @@ const posts = applyPlanOverridesToPosts(JSON.parse(postsJson));
 const activePosts = posts.filter((post) => post.archivedEditorial !== true);
 assert.ok(activePosts.every((post) => /^2026-\d{2}-\d{2}$/.test(post.dateIso || "")), "Chaque publication active doit avoir une date ISO canonique.");
 assert.ok(posts.every((post) => /^2026-\d{2}-\d{2}$/.test(post.dateIso || "")), "Chaque document planifié ou archivé envoyé à Firestore doit conserver une date ISO canonique.");
+for (const post of posts) {
+  assert.ok(Array.isArray(post.tasksValentin) && post.tasksValentin.length > 0, `La publication ${post.id} doit conserver les responsabilités des communications.`);
+  assert.ok(Array.isArray(post.tasksAnnie), `La publication ${post.id} doit définir explicitement les responsabilités de la direction, même lorsque la liste est vide.`);
+  assert.ok(post.taskOwnersVersion, `La publication ${post.id} doit versionner sa répartition des responsabilités.`);
+}
 assert.deepEqual(
   Object.fromEntries(posts.filter((post) => post.archivedEditorial === true).map((post) => [post.id, post.dateIso])),
   { s2d3: "2026-07-22", s2d6: "2026-07-26", s3d1b: "2026-07-27" },
@@ -193,6 +198,14 @@ for (const token of ["calendarTime", "calendarDurationMinutes", "calendarLocatio
   assert.ok(ui.includes(token), `Le fichier calendrier doit utiliser ${token}.`);
 }
 assert.match(source, /Coordination renforcée avant publication/);
+assert.match(source, /class="responsibility-empty"/,
+  "Une colonne sans action doit rester visible au lieu de disparaître.");
+assert.doesNotMatch(source, /if\(!Array\.isArray\(tasks\)\|\|!tasks\.length\)return ""/,
+  "Le rendu ne doit jamais supprimer une colonne de responsabilités vide.");
+assert.match(source, /ownerBlock\("Valentin — Directeur des communications"[\s\S]{0,700}ownerBlock\("Annie — Direction générale"/,
+  "Chaque publication doit afficher les deux colonnes dans l’ordre communications puis direction générale.");
+assert.match(source, /Aucune action requise de la direction générale à cette étape\./,
+  "Une absence volontaire de tâche DG doit être expliquée explicitement.");
 assert.match(source, /Interaction utile, jamais répétitive/);
 assert.match(source, /Meta — engagement authentique/);
 assert.match(source, /<option value="8">Semaine 8<\/option>/);

@@ -112,6 +112,7 @@ Légende : **E** = directement exposé en Vue essentielle; **C** = Vue complète
 | F-059 | Documents de projet reliés à SharePoint | E | E | E | E | L | Liens HTTPS, `noopener noreferrer`, aucun fichier dans Firestore |
 | F-060 | Résumé local des occasions et projets internes | — | — | — | A | — | `admin_sync.js` restitue les deux collections et leurs auteurs/dates |
 | F-061 | Contrôle humain des textes bilingues | L | C | L | C | L | Français original, naturel et idiomatique pour le public québécois; anglais adapté de façon autonome; mêmes faits, promesse, appel à l’action, nuances et obligations; aucune traduction phrase par phrase; chaque version relue séparément |
+| F-062 | Deux colonnes de responsabilités par publication | E | E | E | E | L | Communications puis direction générale toujours visibles; une liste vide affiche explicitement qu’aucune action n’est requise; deux colonnes sur ordinateur et empilement lisible sur mobile |
 
 ## 4. Tests transversaux obligatoires
 
