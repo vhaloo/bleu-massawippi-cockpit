@@ -20,11 +20,17 @@ function emptyOverride() {
 }
 
 function agreementFor(communications, direction, override, textApproved) {
-  if (textApproved && override?.active && override.mediaIds?.length && String(override.reason || "").trim()) {
+  const directionIds = direction?.status === "selected" ? direction.mediaIds || [] : [];
+  if (textApproved
+    && override?.active
+    && override.mediaIds?.length
+    && String(override.reason || "").trim()
+    && directionIds.length === override.mediaIds.length
+    && directionIds.every((id, index) => id === override.mediaIds[index])) {
     return { status: "overridden", mediaIds: [...override.mediaIds], divergent: false };
   }
   const left = communications?.status === "selected" ? communications.mediaIds || [] : [];
-  const right = direction?.status === "selected" ? direction.mediaIds || [] : [];
+  const right = directionIds;
   if (left.length && right.length) {
     if (textApproved && left.length === right.length && left.every((id, index) => id === right[index])) {
       return { status: "agreed", mediaIds: [...left], divergent: false };
@@ -32,6 +38,16 @@ function agreementFor(communications, direction, override, textApproved) {
     if (left.join("\u0000") !== right.join("\u0000")) return { status: "divergent", mediaIds: [], divergent: true };
   }
   return { status: "pending", mediaIds: [], divergent: false };
+}
+
+function reconciledWorkflowStage(currentStage, agreement) {
+  const approved = ["agreed", "overridden"].includes(agreement.status);
+  if (approved && !["final_approved", "scheduled", "published"].includes(currentStage)) return "final_approved";
+  if (!approved && currentStage === "final_approved") return "media_review";
+  if (!approved && ["scheduled", "published"].includes(currentStage)) {
+    throw new Error("La publication est déjà programmée ou publiée sans accord média structuré; une correction humaine est requise avant la réconciliation M0.");
+  }
+  return currentStage;
 }
 
 function sameSnapshotVersion(expected, current) {
@@ -90,11 +106,22 @@ async function main() {
   const directionSide = beforeDecision.direction || emptySide("director");
   const override = beforeDecision.override || emptyOverride();
   const agreement = agreementFor(communicationsSide, directionSide, override, textApproved);
-  const directionHasDecided = directionSide.status === "selected" && directionSide.mediaIds?.includes(MEDIA_ID);
+  if (override.active === true && agreement.status !== "overridden") {
+    throw new Error("L’override existant ne correspond pas au choix structuré de la direction; aucune écriture automatique n’est permise.");
+  }
+  const nextWorkflowStage = reconciledWorkflowStage(workflowStage, agreement);
+  const workflowAfter = {
+    eventId: EVENT_ID,
+    stage: nextWorkflowStage,
+    updatedAt: now,
+    updatedBy: communications.uid,
+    updatedByLabel: communicationsSide.actorLabel
+  };
+  const workflowNeedsWrite = !workflowSnap.exists || nextWorkflowStage !== workflowStage;
   const action = {
     assigneeUid: director.uid,
     assigneeRole: "director",
-    state: directionHasDecided ? "done" : "pending",
+    state: ["agreed", "overridden"].includes(agreement.status) ? "done" : "pending",
     sourceType: "schedule",
     sourceId: EVENT_ID,
     mediaId: MEDIA_ID,
@@ -126,7 +153,7 @@ async function main() {
     updatedByLabel: communicationsSide.actorLabel
   };
 
-  console.log(JSON.stringify({ mode: APPLY ? "apply" : "dry-run", eventId: EVENT_ID, mediaId: MEDIA_ID, workflowStage, textApproved, recommendationEvidence, recommendationAuthorized, knownIntentConfirmed: CONFIRM_KNOWN_INTENT, knownIntentSource: KNOWN_INTENT_SOURCE, actionId: ACTION_ID, actionState: action.state, agreement: agreement.status }, null, 2));
+  console.log(JSON.stringify({ mode: APPLY ? "apply" : "dry-run", eventId: EVENT_ID, mediaId: MEDIA_ID, workflowStage, nextWorkflowStage, textApproved, recommendationEvidence, recommendationAuthorized, knownIntentConfirmed: CONFIRM_KNOWN_INTENT, knownIntentSource: KNOWN_INTENT_SOURCE, actionId: ACTION_ID, actionState: action.state, agreement: agreement.status }, null, 2));
   if (!APPLY) return;
   await db.runTransaction(async (transaction) => {
     const [currentMedia, currentDecision, currentWorkflow, currentAction, currentArchive] = await Promise.all([
@@ -142,12 +169,13 @@ async function main() {
     }
     transaction.set(refs.decision, decision);
     transaction.set(refs.action, action);
+    if (workflowNeedsWrite) transaction.set(refs.workflow, workflowAfter);
     transaction.set(refs.archive, {
       entityType: "m0Reconciliation",
       entityId: EVENT_ID,
       action: "recommandation communications v5 et décision personnelle direction",
-      before: { mediaDecision: currentDecision.exists ? currentDecision.data() : {}, actionItem: currentAction.exists ? currentAction.data() : {} },
-      after: { mediaDecision: decision, actionItem: action },
+      before: { mediaDecision: currentDecision.exists ? currentDecision.data() : {}, actionItem: currentAction.exists ? currentAction.data() : {}, workflow: currentWorkflow.exists ? currentWorkflow.data() : {} },
+      after: { mediaDecision: decision, actionItem: action, workflow: workflowNeedsWrite ? workflowAfter : currentWorkflow.data() },
       actorUid: communications.uid,
       actorLabel: communicationsSide.actorLabel,
       createdAt: FieldValue.serverTimestamp()

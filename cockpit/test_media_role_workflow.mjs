@@ -59,6 +59,10 @@ assert.match(rules, /request\.resource\.data\.override == resource\.data\.overri
 assert.match(rules, /isDirector\(\)[\s\S]*?affectedKeys\(\)\.hasOnly\(\['direction'/);
 assert.match(rules, /publicationBlocked[\s\S]*?== false/);
 assert.match(rules, /request\.resource\.data\.stage in \['scheduled', 'published'\][\s\S]*?isAdmin\(\)/, "Terminer doit être réservé aux communications dans les règles.");
+assert.match(rules, /function validMediaDecision\(data\)[\s\S]*validMediaAgreement\(data\)[\s\S]*mediaWorkflowMatchesAgreement\(data\)/,
+  "Toute décision média doit imposer le même état dérivé dans workflowStates au sein de la mutation atomique.");
+assert.match(rules, /match \/mediaDecisions\/\{eventId\}[\s\S]*allow update: if isEditor\(\)[\s\S]*validMediaDecisionEnvelope\(request\.resource\.data\)[\s\S]*mediaWorkflowMatchesAgreement\(request\.resource\.data\)/,
+  "Les mises à jour par les deux rôles doivent aussi imposer l’atomicité décision-workflow.");
 assert.doesNotMatch(rules, /allow delete: if true/);
 
 console.log("Contrat média par rôle : OK (accord, divergence, réversibilité, héritage, rôles et blocage). ");

@@ -982,6 +982,38 @@ export function subscribeActionTasks(callback, onError) {
   );
 }
 
+function personalActionSnapshotValue(item) {
+  const data = typeof item?.data === "function" ? item.data() : (item || {});
+  return { ...data, id: String(item?.id || data.id || "") };
+}
+
+function comparePersonalActions(left, right) {
+  return Number(left.priorityKey ?? 9999) - Number(right.priorityKey ?? 9999)
+    || String(left.eventDateIso || "9999-12-31").localeCompare(String(right.eventDateIso || "9999-12-31"))
+    || String(left.id || "").localeCompare(String(right.id || ""));
+}
+
+export function personalActionHeadSignature(documents = []) {
+  return documents.map((item) => {
+    const value = personalActionSnapshotValue(item);
+    return [value.id, value.priorityKey ?? 9999, value.eventDateIso || "9999-12-31"].join("\u0000");
+  }).join("\u0001");
+}
+
+export function displacedPersonalActionHead(previousDocuments = [], nextDocuments = []) {
+  const nextIds = new Set(nextDocuments.map((item) => personalActionSnapshotValue(item).id));
+  return previousDocuments.filter((item) => !nextIds.has(personalActionSnapshotValue(item).id));
+}
+
+export function mergePersonalActionWindows(liveDocuments = [], retainedPages = [], boundaryDocuments = []) {
+  const byId = new Map();
+  [...retainedPages.flat(), ...boundaryDocuments, ...liveDocuments].forEach((item) => {
+    const value = personalActionSnapshotValue(item);
+    if (value.id) byId.set(value.id, value);
+  });
+  return [...byId.values()].sort(comparePersonalActions);
+}
+
 /**
  * File Firestore strictement personnelle et bornée.
  *
@@ -1006,25 +1038,113 @@ export function subscribePersonalActionItems(profile, callback, onError) {
   ];
   let liveDocs = [];
   let retainedPages = [];
+  let boundaryDocs = [];
+  let headSignature = "";
+  let desiredPageCount = 0;
   let pageCursor = null;
   let hasMore = true;
+  let tailExhausted = false;
   let loading = false;
+  let rebasing = false;
+  let rebaseRequested = false;
   let stopped = false;
   let lastError = "";
 
   const emit = (extra = {}) => {
-    const byId = new Map();
-    [...liveDocs, ...retainedPages.flat()].forEach((item) => byId.set(item.id, { id: item.id, ...item.data() }));
-    callback([...byId.values()], { pageSize, hasMore, loading, error: lastError, ...extra });
+    callback(mergePersonalActionWindows(liveDocs, retainedPages, boundaryDocs), {
+      pageSize,
+      hasMore,
+      loading: loading || rebasing,
+      error: lastError,
+      ...extra
+    });
   };
+
+  const pageQueryAfter = (cursor) => query(
+    collection(db, "actionItems"),
+    ...constraints,
+    startAfter(cursor),
+    limit(pageSize)
+  );
+
+  async function rebaseLoadedPages() {
+    if (stopped || rebasing || desiredPageCount < 1) return;
+    if (!liveDocs.length) {
+      retainedPages = [];
+      boundaryDocs = [];
+      desiredPageCount = 0;
+      pageCursor = null;
+      tailExhausted = true;
+      hasMore = false;
+      rebaseRequested = false;
+      emit({ source: "rebase-empty" });
+      return;
+    }
+    rebasing = true;
+    rebaseRequested = false;
+    const expectedHead = headSignature;
+    const targetPageCount = desiredPageCount;
+    let rebaseCursor = liveDocs.at(-1) || null;
+    const nextPages = [];
+    let exhausted = liveDocs.length < pageSize;
+    emit({ source: "rebase-start" });
+    try {
+      for (let page = 0; page < targetPageCount && rebaseCursor && !exhausted; page += 1) {
+        const snapshot = await getDocs(pageQueryAfter(rebaseCursor));
+        if (stopped) return;
+        if (headSignature !== expectedHead) {
+          rebaseRequested = true;
+          break;
+        }
+        if (snapshot.docs.length) {
+          nextPages.push(snapshot.docs);
+          rebaseCursor = snapshot.docs.at(-1);
+        }
+        exhausted = snapshot.docs.length < pageSize;
+      }
+      if (!rebaseRequested && headSignature === expectedHead) {
+        retainedPages = nextPages;
+        boundaryDocs = [];
+        desiredPageCount = nextPages.length;
+        pageCursor = rebaseCursor || liveDocs.at(-1) || null;
+        tailExhausted = exhausted;
+        hasMore = !tailExhausted && Boolean(pageCursor);
+        lastError = "";
+      }
+    } catch (error) {
+      if (!stopped) {
+        lastError = error?.message || "Impossible d’actualiser les pages déjà chargées.";
+        onError?.(error);
+      }
+    } finally {
+      rebasing = false;
+      if (!stopped) emit({ source: "rebase-complete" });
+      if (!stopped && rebaseRequested) void rebaseLoadedPages();
+    }
+  }
 
   const firstPageQuery = query(collection(db, "actionItems"), ...constraints, limit(pageSize));
   const unsubscribe = onSnapshot(firstPageQuery, (snapshot) => {
+    const nextSignature = personalActionHeadSignature(snapshot.docs);
+    const headChanged = Boolean(headSignature && nextSignature !== headSignature);
+    if (headChanged && desiredPageCount > 0) {
+      boundaryDocs = mergePersonalActionWindows(
+        [],
+        [boundaryDocs],
+        displacedPersonalActionHead(liveDocs, snapshot.docs)
+      );
+      rebaseRequested = true;
+    }
     lastError = "";
     liveDocs = snapshot.docs;
-    if (!retainedPages.length) pageCursor = liveDocs.at(-1) || null;
-    hasMore = snapshot.docs.length === pageSize;
+    headSignature = nextSignature;
+    if (desiredPageCount < 1) {
+      pageCursor = liveDocs.at(-1) || null;
+      tailExhausted = snapshot.docs.length < pageSize;
+      hasMore = !tailExhausted && Boolean(pageCursor);
+    }
     emit({ source: snapshot.metadata.fromCache ? "cache" : "server" });
+    if (rebaseRequested) void rebaseLoadedPages();
   }, (error) => {
     hasMore = false;
     lastError = error?.message || "File personnelle indisponible.";
@@ -1033,21 +1153,26 @@ export function subscribePersonalActionItems(profile, callback, onError) {
   });
 
   async function loadMore() {
-    if (stopped || loading || !hasMore || !pageCursor) return;
+    if (stopped || loading || rebasing || !hasMore || !pageCursor) return;
     loading = true;
+    const expectedHead = headSignature;
+    const requestedPageCount = desiredPageCount + 1;
     emit();
     try {
-      const nextPage = await getDocs(query(
-        collection(db, "actionItems"),
-        ...constraints,
-        startAfter(pageCursor),
-        limit(pageSize)
-      ));
+      const nextPage = await getDocs(pageQueryAfter(pageCursor));
       if (stopped) return;
-      retainedPages.push(nextPage.docs);
+      if (headSignature !== expectedHead) {
+        desiredPageCount = Math.max(desiredPageCount, requestedPageCount);
+        rebaseRequested = true;
+        return;
+      }
+      if (nextPage.docs.length) retainedPages.push(nextPage.docs);
+      boundaryDocs = [];
+      desiredPageCount = retainedPages.length;
       lastError = "";
       pageCursor = nextPage.docs.at(-1) || pageCursor;
-      hasMore = nextPage.docs.length === pageSize;
+      tailExhausted = nextPage.docs.length < pageSize;
+      hasMore = !tailExhausted;
       emit({ source: nextPage.metadata.fromCache ? "cache" : "server" });
     } catch (error) {
       if (!stopped) {
@@ -1058,15 +1183,23 @@ export function subscribePersonalActionItems(profile, callback, onError) {
     } finally {
       loading = false;
       if (!stopped) emit();
+      if (!stopped && rebaseRequested) void rebaseLoadedPages();
     }
   }
 
   return {
     loadMore,
     setLocalState(actionItemId, nextState) {
-      if (nextState !== "done") return;
-      liveDocs = liveDocs.filter((item) => item.id !== actionItemId);
-      retainedPages = retainedPages.map((page) => page.filter((item) => item.id !== actionItemId));
+      if (nextState === "done") {
+        liveDocs = liveDocs.filter((item) => item.id !== actionItemId);
+        retainedPages = retainedPages.map((page) => page.filter((item) => item.id !== actionItemId));
+        boundaryDocs = boundaryDocs.filter((item) => personalActionSnapshotValue(item).id !== actionItemId);
+        headSignature = personalActionHeadSignature(liveDocs);
+      }
+      if (desiredPageCount > 0) {
+        rebaseRequested = true;
+        void rebaseLoadedPages();
+      }
       emit();
     },
     unsubscribe() {
@@ -1074,6 +1207,7 @@ export function subscribePersonalActionItems(profile, callback, onError) {
       unsubscribe();
       liveDocs = [];
       retainedPages = [];
+      boundaryDocs = [];
     }
   };
 }

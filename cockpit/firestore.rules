@@ -191,11 +191,12 @@ service cloud.firestore {
     }
 
     function mediaWorkflowMatchesAgreement(data) {
-      return existsAfter(/databases/$(database)/documents/workflowStates/$(data.eventId))
+      let workflowPath = /databases/$(database)/documents/workflowStates/$(data.eventId);
+      return existsAfter(workflowPath)
         && ((data.agreement.status in ['agreed', 'overridden']
-            && getAfter(/databases/$(database)/documents/workflowStates/$(data.eventId)).data.stage in ['final_approved', 'scheduled', 'published'])
+            && getAfter(workflowPath).data.stage in ['final_approved', 'scheduled', 'published'])
           || (!(data.agreement.status in ['agreed', 'overridden'])
-            && !(getAfter(/databases/$(database)/documents/workflowStates/$(data.eventId)).data.stage in ['final_approved', 'scheduled', 'published'])));
+            && !(getAfter(workflowPath).data.stage in ['final_approved', 'scheduled', 'published'])));
     }
 
     function validMediaDecisionEnvelope(data) {
@@ -217,7 +218,8 @@ service cloud.firestore {
         && validMediaOverride(data.override)
         && validSelectedMedia(data.eventId, data.communications)
         && validSelectedMedia(data.eventId, data.direction)
-        && validMediaAgreement(data);
+        && validMediaAgreement(data)
+        && mediaWorkflowMatchesAgreement(data);
     }
 
     function mediaAgreementAfter(eventId) {
@@ -523,6 +525,7 @@ service cloud.firestore {
       allow update: if isEditor()
         && validMediaDecisionEnvelope(request.resource.data)
         && request.resource.data.eventId == eventId
+        && mediaWorkflowMatchesAgreement(request.resource.data)
           && ((isAdmin()
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['communications', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
             && request.resource.data.direction == resource.data.direction

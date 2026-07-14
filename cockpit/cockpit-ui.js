@@ -36,8 +36,8 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-media-role-v2";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-m0-v2";
+} from "./firebase-client.js?v=20260714-media-role-v3";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-m0-v3";
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
