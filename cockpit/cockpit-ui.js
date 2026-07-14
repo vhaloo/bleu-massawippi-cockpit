@@ -35,12 +35,12 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-atomic-mutations-v8";
-import { createEventContextController } from "./event-context-data.js?v=20260714-atomic-mutations-v8";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-atomic-mutations-v8";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-atomic-mutations-v8";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-atomic-mutations-v8";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-atomic-mutations-v8";
+} from "./firebase-client.js?v=20260714-subtle-motion-v9";
+import { createEventContextController } from "./event-context-data.js?v=20260714-subtle-motion-v9";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-subtle-motion-v9";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-subtle-motion-v9";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-subtle-motion-v9";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-subtle-motion-v9";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -368,11 +368,6 @@ style.textContent = `
   #cockpit-task-launch[data-has-tasks="true"] { background: #c26b50; }
   .task-focus { outline: 3px solid #2ab6bb; outline-offset: 5px; animation: cockpit-task-pulse 1.4s ease; }
   @keyframes cockpit-task-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(42,182,187,0); } 35% { box-shadow: 0 0 0 8px rgba(42,182,187,.23); } }
-  #cockpit-install-launch { position: fixed; right: 15px; bottom: 121px; z-index: 31; display: flex; align-items: center; gap: 8px; max-width: min(340px, calc(100vw - 30px)); padding: 10px 12px; border: 1px solid #b9dde2; border-radius: 14px; color: #073a52; background: #f8fcfc; box-shadow: 0 11px 28px rgba(7,58,82,.16); font-size: .76rem; }
-  #cockpit-install-launch[hidden] { display: none; }
-  #cockpit-install-launch p { margin: 0; line-height: 1.3; }
-  #cockpit-install-launch button { padding: 6px 8px; border: 0; border-radius: 8px; color: #fff; background: #0b7895; font-size: .7rem; font-weight: 850; cursor: pointer; white-space: nowrap; }
-  #cockpit-install-launch button[data-dismiss-install] { padding: 2px 4px; color: #55727d; background: transparent; font-size: 1rem; }
   #cockpit-sidebar .cockpit-log { padding: 10px 0; border-bottom: 1px solid #d6e8ea; color: #4f6c77; font-size: .76rem; }
   #cockpit-sidebar .cockpit-log b { display: block; color: #073a52; }
   #cockpit-sidebar-toggle { position: fixed; right: 15px; bottom: 15px; z-index: 31; display: none; min-height: 42px; padding: 0 13px; border: 1px solid #073a52; border-radius: 999px; color: #fff; background: #073a52; font-weight: 850; cursor: pointer; }
@@ -433,7 +428,6 @@ style.textContent = `
     body.cockpit-admin #cockpit-sidebar-toggle { right:8px; width:calc((100vw - 32px) / 3); }
     body:not(.cockpit-admin) #cockpit-feedback-launch { left:8px; width:calc(50vw - 12px); }
     body:not(.cockpit-admin) #cockpit-task-launch { right:8px; width:calc(50vw - 12px); }
-    #cockpit-install-launch { right:8px; bottom:62px; max-width:calc(100vw - 16px); }
     #cockpit-feedback-panel { left:8px; bottom:62px; width:calc(100vw - 16px); max-height:72vh; overflow:auto; padding:13px; border-radius:15px; }
     #cockpit-sidebar { top:0; width:100vw; padding:72px 14px 80px; border-left:0; }
     #cockpit-sidebar.open + #cockpit-sidebar-toggle { z-index:42; }
@@ -585,48 +579,6 @@ function setupDateElevator() {
   }
   requestDateElevatorUpdate();
 }
-
-let deferredInstallPrompt = null;
-const installDismissKey = "bleu-massawippi-install-dismissed";
-
-function buildInstallWidget() {
-  if (document.querySelector("#cockpit-install-launch") || localStorage.getItem(installDismissKey) === "1") return;
-  if (window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true) return;
-  const node = document.createElement("aside");
-  node.id = "cockpit-install-launch";
-  node.setAttribute("aria-label", "Installer le cockpit");
-  node.innerHTML = `<p><strong>Accès rapide</strong><br>Ajouter le cockpit comme application sur cet appareil.</p><button type="button" data-install-app>Installer</button><button type="button" data-dismiss-install aria-label="Masquer ce conseil">×</button>`;
-  node.querySelector("[data-dismiss-install]").addEventListener("click", () => {
-    localStorage.setItem(installDismissKey, "1");
-    node.remove();
-  });
-  node.querySelector("[data-install-app]").addEventListener("click", async () => {
-    if (deferredInstallPrompt) {
-      deferredInstallPrompt.prompt();
-      const choice = await deferredInstallPrompt.userChoice;
-      deferredInstallPrompt = null;
-      if (choice?.outcome === "accepted") {
-        localStorage.setItem(installDismissKey, "1");
-        node.remove();
-      }
-      return;
-    }
-    toast("Dans le menu du navigateur, choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil ».");
-  });
-  document.body.appendChild(node);
-}
-
-window.addEventListener("beforeinstallprompt", (event) => {
-  event.preventDefault();
-  deferredInstallPrompt = event;
-  buildInstallWidget();
-});
-window.addEventListener("appinstalled", () => {
-  localStorage.setItem(installDismissKey, "1");
-  document.querySelector("#cockpit-install-launch")?.remove();
-});
-if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", buildInstallWidget, { once: true });
-else buildInstallWidget();
 
 function buildLogin() {
   const login = document.createElement("div");
