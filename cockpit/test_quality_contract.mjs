@@ -20,6 +20,7 @@ const files = {
   rules: read("cockpit/firestore.rules"),
   indexes: read("cockpit/firestore.indexes.json"),
   adminSync: read("cockpit/admin_sync.js"),
+  indexDeploy: read("cockpit/deploy_firestore_indexes.mjs"),
   internalProjectSeed: read("cockpit/seed_internal_project_states.js"),
   editorialMediaManifest: read("cockpit/editorial_media_manifest.json"),
   workflow: read(".github/workflows/deploy-pages.yml"),
@@ -157,6 +158,7 @@ warning("PERF-003", "Source privée initiale sous 180 Kio", sourceBytes < 180 * 
 critical("PERF-004", "Requêtes collaboratives bornées", /limit\(\d+\)/.test(files.client), "Les historiques volumineux devront ensuite être paginés par fenêtre.");
 warning("PERF-005", "Chargement par fenêtre de dates détecté", /startAt|startAfter|where\([^\n]*(?:date|dateKey)|IntersectionObserver/i.test(files.client + files.ui), "Éviter de monter toutes les années du calendrier au démarrage.");
 critical("PERF-006", "Index contextuels versionnés", has(files.indexes, /"collectionGroup":\s*"comments"/) && has(files.indexes, /"fieldPath":\s*"sectionId"/) && has(files.indexes, /"collectionGroup":\s*"mediaLinks"/) && has(files.indexes, /"fieldPath":\s*"eventId"/), "Les commentaires et médias ouverts doivent utiliser leurs requêtes contextuelles bornées sans repli global.");
+critical("PERF-007", "Déploiement d’index ciblé et non destructif", has(files.indexDeploy, /--confirm-no-delete/) && has(files.indexDeploy, /deletes:\s*0/) && !/method:\s*["']DELETE["']/.test(files.indexDeploy), "Le déploiement local ne doit créer que les index manquants et ne jamais supprimer un index existant.");
 critical("DATA-001", "Commentaires, tâches, médias et workflows sous écoute temps réel", ["subscribeComments", "subscribeActionTasks", "subscribeMediaLinks", "subscribeWorkflowStates"].every((token) => files.client.includes(token) && files.ui.includes(token)), "Chaque abonnement doit aussi être désabonné à la déconnexion.");
 critical("DATA-002", "Médias externes sans Firebase Storage", !/firebase-storage|uploadBytes|getDownloadURL/.test(files.client + files.ui), "OneDrive/SharePoint reste la source des médias volumineux.");
 critical("DATA-003", "Aperçu média visible et informations repliables", /cockpit-media-preview/.test(files.ui) && /<details class="cockpit-media-info"/.test(files.ui) && /Informations et actions/.test(files.ui), "Le volet externe peut replier l’ensemble; l’aperçu reste visible par défaut.");
