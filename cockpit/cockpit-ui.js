@@ -35,11 +35,11 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-media-select-overlay-v3";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-media-select-overlay-v3";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-media-select-overlay-v3";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-media-select-overlay-v3";
-import { buildMediaChoiceModel, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-media-select-overlay-v3";
+} from "./firebase-client.js?v=20260714-clear-toggles-v4";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-clear-toggles-v4";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-clear-toggles-v4";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-clear-toggles-v4";
+import { buildMediaChoiceModel, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-clear-toggles-v4";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -901,7 +901,7 @@ function revealTaskTarget(type, id, allowRetry = true) {
     const cardToggle = card.querySelector(":scope > .vm-card-summary [data-vm-card-toggle]");
     if (cardToggle) {
       cardToggle.setAttribute("aria-expanded", "true");
-      cardToggle.textContent = "Réduire";
+      cardToggle.textContent = "− Réduire";
     }
   }
   target.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1178,7 +1178,7 @@ function focusMonthlySnapshotEvent(itemId, allowRetry = true) {
   if (document.body.classList.contains("cockpit-view-essential")) {
     card.classList.add("vm-expanded");
     const toggle = card.querySelector(":scope > .vm-card-summary [data-vm-card-toggle]");
-    if (toggle) { toggle.setAttribute("aria-expanded", "true"); toggle.textContent = "Réduire"; }
+    if (toggle) { toggle.setAttribute("aria-expanded", "true"); toggle.textContent = "− Réduire"; }
   }
   card.scrollIntoView({ behavior:"smooth", block:"center" });
   card.classList.remove("monthly-snapshot-focus");
