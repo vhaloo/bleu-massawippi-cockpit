@@ -10,6 +10,7 @@ Le volet des pièces jointes est désactivé : aucune image n’est chargée ni 
 - firebase-client.js : SDK Web Firebase modulaire, version CDN 12.15.0; Auth reste persistant, tandis que Firestore utilise un cache mémoire multi-onglets sûr par défaut pour éviter les verrous IndexedDB. Le mode hors ligne explicite se teste avec `?offline=1`.
 - cockpit-ui.js : couche d’interface et de pilotage, choix d’option par journée, responsabilités Valentin / Annie pour chaque événement, tâches administratives cliquables, rétroaction par section, boîte à idées flottante, dictée progressive Chrome / Edge / Safari, calendrier contextualisé et installation PWA.
 - admin_sync.js : pont local Firebase Admin pour lire les modifications du calendrier, les commentaires, les rétroactions, les tâches, les occasions, les projets internes et l’archive append-only.
+- seed_editorial_media_links.js : ajout idempotent des médias éditoriaux; utiliser `--event=<identifiant>` pour limiter les lectures et écritures à un seul événement lors des mises à jour quotidiennes.
 - seed_private_content.js : charge localement le plan, les 28 publications principales, les six alternatives et leurs états dans Firestore, après configuration du compte de service.
 - seed_internal_project_states.js : crée uniquement les états initiaux manquants des projets internes; un état déjà choisi n’est jamais écrasé.
 - ../refine_calendar.js : réorganise les dates pour éviter les répétitions voisines et génère les six journées à choix exclusif.
