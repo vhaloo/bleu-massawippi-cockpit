@@ -826,7 +826,7 @@ function enhanceCardSummaries() {
       <div class="vm-card-progress" aria-label="Texte ${state.content ? "approuvé" : "à valider"}; média ${state.media ? "approuvé" : "à valider"}; publication ${state.publication ? "terminée" : "à faire"}">
         ${step("Texte", state.content)}${step("Média", state.media)}${step("Publication", state.publication)}
       </div>
-      <button type="button" data-vm-card-toggle aria-expanded="${expanded}">${expanded ? "Réduire" : "Voir et décider"}</button>`;
+      <button type="button" data-vm-card-toggle aria-expanded="${expanded}">${expanded ? "− Réduire" : "+ Voir et décider"}</button>`;
   });
 }
 
@@ -997,7 +997,7 @@ function handleClick(event) {
     const expanded = !card.classList.contains("vm-expanded");
     card.classList.toggle("vm-expanded", expanded);
     cardToggle.setAttribute("aria-expanded", String(expanded));
-    cardToggle.textContent = expanded ? "Réduire" : "Voir et décider";
+    cardToggle.textContent = expanded ? "− Réduire" : "+ Voir et décider";
     card.querySelector(":scope > .vm-card-summary")?.removeAttribute("data-signature");
     return;
   }
