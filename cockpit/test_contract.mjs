@@ -283,6 +283,16 @@ assert.match(correctedDragonfly.note, /quatre ailes en répartition 2 \+ 2[\s\S]
 assert.equal(correctedDragonfly.stage, "proposal");
 assert.equal(correctedDragonfly.publicationBlocked, false);
 assert.equal(correctedDragonfly.archived, false);
+const fieldPlateDragonfly = natureMedia.find((item) => item.id === "nature-alt-20260715-libellule-field-plate-v6");
+assert.ok(fieldPlateDragonfly, "La nouvelle planche naturaliste doit être proposée à la sélection.");
+assert.match(fieldPlateDragonfly.note, /quatre ailes et six pattes/i);
+assert.equal(fieldPlateDragonfly.stage, "proposal");
+assert.equal(fieldPlateDragonfly.publicationBlocked, false);
+for (const conceptId of ["nature-alt-20260715-libellule-water-cycle-v7-concept", "nature-alt-20260715-libellule-lake-flash-v8-concept"]) {
+  const concept = natureMedia.find((item) => item.id === conceptId);
+  assert.equal(concept.stage, "reference", `${conceptId} doit rester une référence visible.`);
+  assert.equal(concept.publicationBlocked, true, `${conceptId} ne doit pas pouvoir être approuvé avant correction.`);
+}
 const dragonflyStyleReference = natureMedia.find((item) => item.id === "nature-alt-20260715-libellule-manuscript-v2");
 assert.equal(dragonflyStyleReference.stage, "reference");
 assert.equal(dragonflyStyleReference.publicationBlocked, true);
@@ -296,15 +306,15 @@ assert.deepEqual(
   natureMedia
     .filter((item) => item.eventId === "alt-20260715" && item.stage === "proposal" && item.publicationBlocked !== true && item.archived !== true)
     .map((item) => item.id),
-  [correctedDragonfly.id],
-  "La v5 anatomiquement validée doit être la seule proposition active pour la libellule."
+  [correctedDragonfly.id, fieldPlateDragonfly.id],
+  "Seules les propositions anatomiquement contrôlées doivent pouvoir être retenues pour la libellule."
 );
 assert.ok(editorialMedia.some((item) => /\.jpg$/.test(item.fileName)), "Le registre doit accepter les photographies JPEG.");
 assert.ok(editorialMedia.some((item) => /\.png$/.test(item.fileName)), "Le registre doit accepter les compositions PNG.");
 assert.ok(editorialMedia.some((item) => /\.mp4$/.test(item.fileName) && item.kind === "video"), "Le registre doit accepter les vidéos MP4 déclarées comme telles.");
 assert.doesNotMatch(JSON.stringify(editorialMedia), /sharepoint\.com|:\/g\/IQ/i);
 
-for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMedia", "button[data-dictate]", "data-add-post-calendar", "data-media-form", "cockpit-media-open-label", "cockpit-media-info", "Informations et actions", "cockpit-media-enlarge", "object-fit: contain", "setupMediaNavigation", "data-media-previous", "data-media-next", "glissez les images ou utilisez les flèches", "cockpit-date-elevator", "data-date-target", "requestDateElevatorUpdate", "data-workflow-stage", "workflowDirection", "aria-pressed=\"false\"", "Feu vert retiré; l’historique est conservé.", "id=\\\"cockpit-task-count\\\" data-task-count", "Mini-chat de l’événement", "data-resolve-comment", "Voir les messages traités", "comment-task", "data-editorial-decision", "Bonne idée — autre jour", "Ne pas retenir cet angle", "editorial-deferred", "data-comment-thread", "MutationObserver", "Connexion…", "bleu-massawippi-guide-collapsed", "data-guide-new-badge", "setOpportunityStage", "data-opportunity-stage", "bleu-massawippi-projects-collapsed", "setupInternalProjectPreference", "setupInternalProjectEvents", "renderInternalProjectStates", "data-internal-project-stage", "internalProjectUnsubscribe", "Valider le texte avec l’aval", "Valider le visuel avec l’aval", "syncResponsiveOffsets", "setAdminSidebarOpen", "--cockpit-session-height"]) {
+for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMedia", "button[data-dictate]", "data-add-post-calendar", "data-media-form", "cockpit-media-open-label", "cockpit-media-info", "Informations et actions", "cockpit-media-enlarge", "object-fit: contain", "setupMediaNavigation", "data-media-previous", "data-media-next", "glissez les images ou utilisez les flèches", "cockpit-date-elevator", "data-date-target", "requestDateElevatorUpdate", "data-workflow-stage", "workflowDirection", "aria-pressed=\"false\"", "Feu vert retiré; l’historique est conservé.", "id=\\\"cockpit-task-count\\\" data-task-count", "Mini-chat de l’événement", "data-resolve-comment", "Voir les messages traités", "comment-task", "data-editorial-decision", "Bonne idée — autre jour", "Ne pas retenir cet angle", "editorial-deferred", "data-comment-thread", "MutationObserver", "Connexion…", "bleu-massawippi-guide-collapsed", "data-guide-new-badge", "setOpportunityStage", "data-opportunity-stage", "bleu-massawippi-projects-collapsed", "setupInternalProjectPreference", "setupInternalProjectEvents", "renderInternalProjectStates", "data-internal-project-stage", "internalProjectUnsubscribe", "Valider le texte avec l’aval", "Le texte et le visuel peuvent avancer en parallèle", "syncResponsiveOffsets", "setAdminSidebarOpen", "--cockpit-session-height"]) {
   assert.ok(ui.includes(token), `Le cockpit doit contenir le contrat ${token}.`);
 }
 for (const token of ["stateTimestampMillis", "actionTaskPriority", "data-task-target-type", "data-task-updated-at", "cockpit-task-priority", "data-media-updated-at", "dataset.workflowUpdatedAt", "dataset.editorialUpdatedAt", "cockpit-media-blocked", "Référence non diffusable"]) {

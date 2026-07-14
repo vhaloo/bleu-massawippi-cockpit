@@ -851,8 +851,8 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
   const workflowReference = doc(db, "workflowStates", eventId);
   const wantsOverride = options.override === true;
   const overrideReason = String(options.reason || "").trim().slice(0, 500);
-  if (wantsOverride && profile.role !== "director") {
-    throw new Error("L’override des communications exige une preuve d’aval structurée et n’est pas offert dans cette version. La direction peut retenir explicitement son choix.");
+  if (wantsOverride && !["director", "admin"].includes(profile.role)) {
+    throw new Error("Ce compte ne peut pas appliquer un override média.");
   }
   const actorLabel = String(profile.displayLabel || "Utilisateur").slice(0, 120);
   const sideName = profile.role === "admin" ? "communications" : "direction";
@@ -877,9 +877,6 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
     const workflowBefore = workflowSnapshot.exists() ? workflowSnapshot.data() : { eventId, stage: "proposal" };
     const workflowStage = String(workflowBefore.stage || "proposal");
     const textApproved = contentApprovedWorkflowStages.has(workflowStage);
-    if (profile.role === "director" && selected && !textApproved) {
-      throw new Error("Le texte doit être approuvé avant que la direction puisse approuver le visuel.");
-    }
     if (wantsOverride && (!selected || !textApproved || !overrideReason)) {
       throw new Error("Un override exige le texte approuvé, un média choisi et un motif explicite.");
     }
@@ -899,7 +896,7 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
       // Une action des communications ne peut jamais révoquer implicitement
       // une décision motivée de la direction. Seule la direction peut la
       // remplacer ou la retirer; les règles Firestore imposent la même limite.
-      override: profile.role === "admin"
+      override: profile.role === "admin" && !wantsOverride
         ? { ...before.override, mediaIds: [...before.override.mediaIds] }
         : emptyOverride(),
       textGateStage: workflowStage

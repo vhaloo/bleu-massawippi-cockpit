@@ -1,4 +1,4 @@
-import { subscribeAuditLogs, subscribeCockpitFeedback } from "./firebase-client.js?v=20260714-opt-local-v1";
+import { subscribeAuditLogs, subscribeCockpitFeedback } from "./firebase-client.js?v=20260714-media-select-v2";
 
 let auditUnsubscribe = null;
 let feedbackUnsubscribe = null;

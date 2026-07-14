@@ -5,7 +5,7 @@ import {
   setPersistentCachePreference,
   requestSafeMode,
   forgetThisDevice
-} from "./firebase-client.js?v=20260714-opt-local-v1";
+} from "./firebase-client.js?v=20260714-media-select-v2";
 
 let unsubscribeDiagnostics = null;
 

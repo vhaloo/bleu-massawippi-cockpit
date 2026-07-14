@@ -155,13 +155,23 @@ function ensureDashboard() {
 function ensureEssentialNav() {
   const wrap = document.querySelector(".nav .wrap");
   if (!wrap) return null;
-  if (!wrap.querySelector('[data-vm-nav="today"]')) {
-    const today = document.createElement("a");
+  let decisions = wrap.querySelector('[data-vm-nav="decision"]');
+  if (!decisions) {
+    decisions = document.createElement("a");
+    decisions.href = "#vm-panel-decision";
+    decisions.dataset.vmNav = "decision";
+    decisions.innerHTML = `${icon("decision")}<span>Décisions</span>`;
+  }
+  let today = wrap.querySelector('[data-vm-nav="today"]');
+  if (!today) {
+    today = document.createElement("a");
     today.href = "#vm-panel-today";
     today.dataset.vmNav = "today";
     today.innerHTML = `${icon("today")}<span>Aujourd’hui</span>`;
-    wrap.prepend(today);
   }
+  // L'ordre du sommaire reflète l'ordre d'action du tableau de bord.
+  wrap.prepend(today);
+  wrap.prepend(decisions);
   if (!wrap.querySelector('[data-vm-nav="messages"]')) {
     const messages = document.createElement("a");
     messages.href = "#vm-panel-message";
@@ -654,11 +664,30 @@ function roleDecisionForEvent(event, role, tasks = []) {
 
 function urgencyFor(decision, now) {
   if (!decision.date) return { rank: 3, dateValue: Number.POSITIVE_INFINITY, className: "undated" };
-  const distance = Math.round((dayStart(decision.date) - dayStart(now)) / 86400000);
-  if (distance < 0) return { rank: 0, dateValue: decision.date.valueOf(), className: "overdue" };
-  if (distance === 0) return { rank: 1, dateValue: decision.date.valueOf(), className: "today" };
-  if (distance <= 2) return { rank: 2, dateValue: decision.date.valueOf(), className: "soon" };
-  return { rank: 4, dateValue: decision.date.valueOf(), className: "later" };
+  const publicationTarget = new Date(
+    decision.date.getFullYear(),
+    decision.date.getMonth(),
+    decision.date.getDate(),
+    7,
+    30,
+    0,
+    0
+  );
+  const hoursUntilPublication = (publicationTarget - now) / 3600000;
+  if (hoursUntilPublication <= 48) {
+    return { rank: 0, dateValue: publicationTarget.valueOf(), className: "urgent" };
+  }
+
+  // Semaine locale du lundi au dimanche. Le repère demeure visuel et ne
+  // déclenche aucune lecture ou écriture supplémentaire dans Firestore.
+  const weekEnd = dayStart(now);
+  const mondayBasedDay = (weekEnd.getDay() + 6) % 7;
+  weekEnd.setDate(weekEnd.getDate() - mondayBasedDay + 6);
+  weekEnd.setHours(23, 59, 59, 999);
+  if (publicationTarget <= weekEnd) {
+    return { rank: 1, dateValue: publicationTarget.valueOf(), className: "current-week" };
+  }
+  return { rank: 2, dateValue: publicationTarget.valueOf(), className: "later" };
 }
 
 function roleDecisionModels(events, role, now) {
@@ -721,14 +750,14 @@ function roleDecisionModels(events, role, now) {
     queueSourceRank: decision.queueSourceRank ?? 1,
     urgency: urgencyFor(decision, now)
   })).sort((left, right) =>
-    left.queueSourceRank - right.queueSourceRank
+    left.urgency.rank - right.urgency.rank
+    || left.urgency.dateValue - right.urgency.dateValue
+    || left.queueSourceRank - right.queueSourceRank
     || (left.queueSourceRank === 0 ? (left.priorityKey - right.priorityKey
       || String(left.queueDateIso).localeCompare(String(right.queueDateIso))
       || String(left.actionItemId).localeCompare(String(right.actionItemId))) : 0)
     ||
-    left.urgency.rank - right.urgency.rank
-    || left.urgency.dateValue - right.urgency.dateValue
-    || String(left.id).localeCompare(String(right.id), "fr")
+    String(left.id).localeCompare(String(right.id), "fr")
     || right.updatedAt - left.updatedAt
     || left.title.localeCompare(right.title, "fr")
   );
@@ -867,8 +896,8 @@ function renderDashboard(now = new Date()) {
     : empty("Aucun message actif dans les événements visibles.");
 
   grid.innerHTML = [
-    panel("today", "Aujourd’hui", `${today.length} événement${today.length > 1 ? "s" : ""}`, todayBody, "vm-today"),
     panel("decision", "Décisions qui m’attendent", `${allDecisions.length}${remoteMore ? "+" : ""} pour vous`, decisionsBody, "vm-decisions"),
+    panel("today", "Aujourd’hui", `${today.length} événement${today.length > 1 ? "s" : ""}`, todayBody, "vm-today"),
     panel("week", "Les sept prochains jours", `${nextWeek.length} événement${nextWeek.length > 1 ? "s" : ""}`, weekBody, "vm-week"),
     panel("message", "Messages actifs", `${messages.length} récent${messages.length > 1 ? "s" : ""}`, messagesBody, "vm-messages")
   ].join("");

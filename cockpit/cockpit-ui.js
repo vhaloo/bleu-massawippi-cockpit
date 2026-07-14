@@ -35,10 +35,10 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-opt-local-v1";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-opt-local-v1";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-opt-local-v1";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-opt-local-v1";
+} from "./firebase-client.js?v=20260714-media-select-v2";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-media-select-v2";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-media-select-v2";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-media-select-v2";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -2082,18 +2082,18 @@ function renderMediaForCard(card) {
     const role = state.profile?.role;
     const myChoiceSelected = role === "admin" ? choice.communicationsSelected : role === "director" ? choice.directionSelected : false;
     const chooseLabel = role === "admin"
-      ? (myChoiceSelected ? "Retirer ma recommandation" : "Recommander ce visuel")
-      : (myChoiceSelected ? "Retirer mon approbation" : "Approuver ce visuel");
-    const choiceDisabled = isBlocked || (role === "director" && !textApproved);
+      ? (myChoiceSelected ? "Retirer mon choix" : "Choisir ce visuel")
+      : (myChoiceSelected ? "Retirer mon choix" : textApproved ? "Approuver ce visuel" : "Choisir ce visuel");
+    const choiceDisabled = isBlocked;
     const infoStatus = isFinal ? "✓ Accord" : choice.communicationsSelected ? "Recommandé" : choice.directionSelected ? "Choix direction" : choice.legacySelected ? "Hérité" : "Ouvrir";
     const roleBadges = [
       choice.communicationsSelected ? `<span class="cockpit-media-role-badge communications">✓ Recommandé par les communications</span>` : "",
-      choice.directionSelected ? `<span class="cockpit-media-role-badge direction">✓ Choisi par la direction générale</span>` : "",
+      choice.directionSelected ? `<span class="cockpit-media-role-badge direction">✓ Choisi par la direction générale · visuel prêt</span>` : "",
       choice.agreementSelected ? `<span class="cockpit-media-role-badge agreement">✓ Accord communications + direction</span>` : "",
       choice.divergent && (choice.communicationsSelected || choice.directionSelected) ? `<span class="cockpit-media-role-badge divergence">Choix différents — harmonisation requise</span>` : "",
       choice.legacySelected ? `<span class="cockpit-media-role-badge">Choix hérité à confirmer — acteur non attribué</span>` : ""
     ].join("");
-    const canOverride = !isBlocked && textApproved && myChoiceSelected && !choice.agreementSelected && role === "director";
+    const canOverride = !isBlocked && textApproved && myChoiceSelected && !choice.agreementSelected && ["director", "admin"].includes(role);
     const mediaUpdatedAt = stateTimestampMillis(row.updatedAt || row.createdAt);
     return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}${choice.communicationsSelected ? " is-recommended" : ""}${choice.directionSelected ? " is-direction-selected" : ""}${choice.divergent ? " is-divergent" : ""}${isBlocked ? " is-blocked" : ""}" data-media-id="${esc(row.id)}" data-media-stage="${esc(row.stage || "reference")}" data-media-updated-at="${mediaUpdatedAt}" data-media-selected-final="${String(isFinal)}" data-media-communications-selected="${String(choice.communicationsSelected)}" data-media-direction-selected="${String(choice.directionSelected)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
@@ -2102,7 +2102,7 @@ function renderMediaForCard(card) {
         ${isBlocked ? `<span class="cockpit-media-blocked">Référence conservée pour comparaison — ne pas choisir pour diffusion.</span>` : ""}
         <div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span><br><a class="cockpit-media-source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Ouvrir l’original dans OneDrive ↗</a></div>
         ${roleBadges ? `<div class="cockpit-media-role-badges">${roleBadges}</div>` : ""}
-        ${["director","admin"].includes(role) ? `<button type="button" class="cockpit-media-final-action" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}"${choiceDisabled ? " disabled" : ""}>${isBlocked ? "Référence non diffusable" : role === "director" && !textApproved ? "Approuver d’abord le texte" : chooseLabel}</button>${canOverride ? `<button type="button" class="cockpit-media-override-action" data-media-override="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Retenir comme décision finale…</button>` : ""}<div class="cockpit-media-comment" data-voice-container><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire sur ce média" title="Dicter un commentaire sur ce média">🎙️</button><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div></div>` : ""}
+        ${["director","admin"].includes(role) ? `<button type="button" class="cockpit-media-final-action" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}"${choiceDisabled ? " disabled" : ""}>${isBlocked ? "Référence non diffusable" : chooseLabel}</button>${canOverride ? `<button type="button" class="cockpit-media-override-action" data-media-override="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Retenir comme décision finale…</button>` : ""}<div class="cockpit-media-comment" data-voice-container><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire sur ce média" title="Dicter un commentaire sur ce média">🎙️</button><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div></div>` : ""}
         ${canEdit() ? `<button type="button" data-archive-media="${esc(row.id)}" aria-label="Archiver ce lien média" title="Archiver sans supprimer">Archiver ce lien</button>` : ""}
       </div></details>
     </article>`;
@@ -2187,7 +2187,7 @@ const workflowOrder = ["proposal", "content_review", "changes_requested", "conte
 function workflowRank(stage) { return workflowOrder.indexOf(stage || "proposal"); }
 
 function workflowMarkup(planItem) {
-  return `<section class="cockpit-workflow" data-workflow><h5>Les 3 feux verts</h5><p class="cockpit-workflow-intro">Le texte est approuvé par la direction, puis chacun choisit le visuel dans la galerie. Cliquez de nouveau sur votre choix pour le retirer; chaque changement reste dans l’historique. L’option « Valider le visuel avec l’aval » demeure indisponible aux communications tant qu’une preuve d’aval structurée n’est pas jointe.</p><div class="cockpit-workflow-gates"><button type="button" class="cockpit-workflow-gate" data-gate="content" aria-pressed="false"><b>1 · Texte</b><span data-gate-label>À valider</span></button><button type="button" class="cockpit-workflow-gate" data-gate="media" aria-pressed="false"><b>2 · Visuel</b><span data-gate-label>Commence après le texte</span></button><button type="button" class="cockpit-workflow-gate" data-gate="publication" aria-pressed="false"><b>3 · Terminé</b><span data-gate-label>Publié ou programmé</span></button></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
+  return `<section class="cockpit-workflow" data-workflow><h5>Les 3 feux verts</h5><p class="cockpit-workflow-intro">Le texte et le visuel peuvent avancer en parallèle. Chacun peut choisir son visuel dans la galerie; le choix de la direction marque le visuel comme prêt et un choix identique des deux rôles affiche automatiquement leur accord. Cliquez de nouveau pour retirer votre choix : chaque changement reste dans l’historique. La publication demeure réservée aux communications et exige les deux feux verts.</p><div class="cockpit-workflow-gates"><button type="button" class="cockpit-workflow-gate" data-gate="content" aria-pressed="false"><b>1 · Texte</b><span data-gate-label>À valider</span></button><button type="button" class="cockpit-workflow-gate" data-gate="media" aria-pressed="false"><b>2 · Visuel</b><span data-gate-label>Choix en attente</span></button><button type="button" class="cockpit-workflow-gate" data-gate="publication" aria-pressed="false"><b>3 · Terminé</b><span data-gate-label>Publié ou programmé</span></button></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
 }
 
 function editorialDecisionMarkup(planItem) {
@@ -2219,6 +2219,9 @@ function renderWorkflow(card) {
   const stage = row.stage || "proposal";
   const structuredMediaDecision = state.mediaDecisions.get(card.dataset.itemId) || null;
   const structuredMediaAgreement = ["agreed", "overridden"].includes(structuredMediaDecision?.agreement?.status);
+  const directionMediaReady = structuredMediaDecision?.direction?.status === "selected"
+    && Array.isArray(structuredMediaDecision.direction.mediaIds)
+    && structuredMediaDecision.direction.mediaIds.length > 0;
   card.dataset.workflowStage = stage;
   card.dataset.workflowUpdatedAt = String(stateTimestampMillis(row.updatedAt));
   const contentDone = ["content_approved","media_review","final_approved","scheduled","published"].includes(stage);
@@ -2226,7 +2229,7 @@ function renderWorkflow(card) {
   // marqueurs de commentaires hérités. L'étape visuelle n'est alors signée
   // que par l'accord dérivé ou un override motivé.
   const mediaDone = structuredMediaDecision
-    ? contentDone && structuredMediaAgreement
+    ? directionMediaReady || structuredMediaAgreement
     : ["final_approved","scheduled","published"].includes(stage);
   const publicationDone = ["scheduled","published"].includes(stage);
   const contentGate = card.querySelector('[data-gate="content"]');
@@ -2242,11 +2245,12 @@ function renderWorkflow(card) {
   const publicationLabel = publicationGate?.querySelector("[data-gate-label]");
   if (contentLabel) contentLabel.textContent = contentDone ? "Approuvé" : (stage === "changes_requested" ? "Corrections demandées" : stage === "content_review" ? "Prêt pour validation" : "En préparation");
   if (mediaLabel) mediaLabel.textContent = mediaDone
-    ? (structuredMediaDecision?.agreement?.status === "overridden" ? "Validé avec aval" : "Accord des deux rôles")
+    ? (structuredMediaDecision?.agreement?.status === "overridden" ? "Validé avec aval" : structuredMediaAgreement ? "Accord des deux rôles" : "Choisi par la direction")
     : structuredMediaDecision?.agreement?.status === "divergent"
       ? "Choix à harmoniser"
-      : (stage === "media_review" ? "Prêt pour validation" : contentDone ? "En production" : "Attend le texte");
-  if (publicationLabel) publicationLabel.textContent = publicationDone ? "Publié ou programmé" : mediaDone ? "Prêt à publier" : "Attend les 2 validations";
+      : (stage === "media_review" ? "Prêt pour validation" : "Choix en attente");
+  const publicationReady = contentDone && mediaDone;
+  if (publicationLabel) publicationLabel.textContent = publicationDone ? "Publié ou programmé" : publicationReady ? "Prêt à publier" : "Attend les 2 validations";
   const configureGate = (gate, done, canCheck, checkStage, uncheckStage, checkedName, roleAllowed = true) => {
     if (!gate) return;
     gate.setAttribute("aria-pressed", String(done));
@@ -2264,7 +2268,7 @@ function renderWorkflow(card) {
   };
   configureGate(contentGate, contentDone, true, "content_approved", "content_review", "Texte", !(state.profile?.role === "director" && ["scheduled", "published"].includes(stage)));
   configureGate(mediaGate, mediaDone, false, "final_approved", "media_review", "Visuel", false);
-  configureGate(publicationGate, publicationDone, mediaDone, "published", "final_approved", "Terminé", state.profile?.role === "admin");
+  configureGate(publicationGate, publicationDone, publicationReady, "published", "final_approved", "Terminé", state.profile?.role === "admin");
   card.classList.toggle("workflow-complete", publicationDone);
   const completeNote = card.querySelector("[data-workflow-complete]");
   if (completeNote) completeNote.hidden = !publicationDone;

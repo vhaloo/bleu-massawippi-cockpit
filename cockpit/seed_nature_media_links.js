@@ -10,7 +10,12 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
 }
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const manifest = JSON.parse(fs.readFileSync(path.join(here, "nature_media_manifest.json"), "utf8"));
+const fullManifest = JSON.parse(fs.readFileSync(path.join(here, "nature_media_manifest.json"), "utf8"));
+const requestedIds = new Set(String(process.env.MEDIA_IDS || "").split(",").map((value) => value.trim()).filter(Boolean));
+const manifest = requestedIds.size ? fullManifest.filter((item) => requestedIds.has(item.id)) : fullManifest;
+if (requestedIds.size && manifest.length !== requestedIds.size) {
+  throw new Error("Un ou plusieurs MEDIA_IDS ne figurent pas dans le manifeste nature.");
+}
 const privateLinksPath = path.join(here, "secrets", "nature-media-links.json");
 if (!fs.existsSync(privateLinksPath)) {
   throw new Error("Le registre local secrets/nature-media-links.json est requis et ne doit jamais être publié.");

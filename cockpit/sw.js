@@ -2,11 +2,11 @@
 // Cela force l’activation du nouveau service worker et purge les modules
 // précédemment mis en cache, notamment firebase-client.js.
 const CACHE_PREFIX = "bleu-massawippi-cockpit-shell-";
-const RELEASE = "20260714-opt-local-v1";
-const CACHE = "bleu-massawippi-cockpit-shell-v39";
+const RELEASE = "20260714-media-select-v2";
+const CACHE = "bleu-massawippi-cockpit-shell-v40";
 const SHELL = [
   "./", "./index.html", `./firebase-config.js?v=${RELEASE}`, `./theme.js?v=${RELEASE}`,
-  `./cockpit-ui.js?v=${RELEASE}`, "./firebase-client.js?v=20260714-opt-local-v1", `./action-items-ui.js?v=${RELEASE}`, `./client-health-ui.js?v=${RELEASE}`, `./admin-lazy-data.js?v=${RELEASE}`, `./view-mode.js?v=${RELEASE}`, "./view-mode.css",
+  `./cockpit-ui.js?v=${RELEASE}`, "./firebase-client.js?v=20260714-media-select-v2", `./action-items-ui.js?v=${RELEASE}`, `./client-health-ui.js?v=${RELEASE}`, `./admin-lazy-data.js?v=${RELEASE}`, `./view-mode.js?v=${RELEASE}`, "./view-mode.css",
   "./manifest.webmanifest", "./icon.svg", "./icons.svg"
 ];
 

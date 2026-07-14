@@ -1,4 +1,4 @@
-import { subscribePersonalActionItems } from "./firebase-client.js?v=20260714-opt-local-v1";
+import { subscribePersonalActionItems } from "./firebase-client.js?v=20260714-media-select-v2";
 
 let controller = null;
 let activeProfile = null;
