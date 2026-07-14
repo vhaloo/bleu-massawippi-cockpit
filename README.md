@@ -36,5 +36,6 @@ Le plan retient une cadence d’une publication principale par jour, mais l’en
 - Privilégier les photos/vidéos réelles de l’association et les licences explicitement vérifiées.
 - Pour une éventuelle opération de concours photo : ne pas lancer avant règlement, budget, responsabilités, droits de réutilisation et validation de la direction. L’appel éditorial sans prix est l’option de départ recommandée.
 - Conserver le ton : factuel, chaleureux, orienté solutions et jamais moralisateur.
+- Rédiger le français comme un texte original, naturel et idiomatique pour le public québécois, puis adapter l’anglais de façon autonome. Les deux versions conservent les mêmes faits, la même promesse, le même appel à l’action, les mêmes nuances et les mêmes obligations, mais leur rythme, l’ordre des idées et leurs images peuvent différer. Ne jamais traduire phrase par phrase; relire chaque version séparément avant de vérifier leur équivalence.
 
 Consulter `SOURCES_ET_GARDES_FOUS.md` pour les sources, les décisions de méthode et les références utiles.

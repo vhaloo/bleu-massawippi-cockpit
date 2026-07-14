@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { applyPlanOverridesToPosts, preparePlanScript } from "./plan-overrides.js";
-import { FUTURE_EDITORIAL_IDS, TONE_VERSION } from "./editorial-copy-overrides.js";
+import { BILINGUAL_POLICY_VERSION, FUTURE_EDITORIAL_IDS, TONE_VERSION } from "./editorial-copy-overrides.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
@@ -119,7 +119,11 @@ const deferredBlueMinute = posts.find((post) => post.id === "s1d6");
 const deferredMemories = posts.find((post) => post.id === "s1d7");
 const deferredShoreLife = posts.find((post) => post.id === "alt-20260718");
 assert.equal(saturdayCommunity.date, "Samedi 18 juillet", "Le choix communautaire de la direction doit rester seul le samedi.");
-assert.equal(deferredBlueMinute.date, "Mardi 21 juillet", "La Minute bleue doit rester espacée du contenu communautaire.");
+assert.equal(deferredBlueMinute.date, "Mardi 21 juillet", "L’Instant bleu doit rester espacé du contenu communautaire.");
+assert.equal(deferredBlueMinute.title, "Juste un instant");
+assert.match(deferredBlueMinute.copy, /#InstantBleu/);
+assert.doesNotMatch(`${deferredBlueMinute.title}\n${deferredBlueMinute.visual}\n${deferredBlueMinute.copy}`, /Juste une minute|Une minute bleue|#MinuteBleue/i);
+assert.doesNotMatch(saturdayCommunity.copy, /Nous avons envie de découvrir ce qui fait vivre votre lien/i);
 assert.equal(deferredMemories.date, "Jeudi 20 août", "La capsule souvenirs doit rester conservée à une autre date.");
 assert.equal(deferredShoreLife.date, "Samedi 22 août", "La biodiversité sous les feuilles doit rester conservée à une autre date.");
 const frogSeries = posts.find((post) => post.id === "alt-20260802");
@@ -139,6 +143,7 @@ const futurePosts = posts.filter((post) => FUTURE_EDITORIAL_IDS.includes(post.id
 assert.equal(futurePosts.length, 56, "Chaque remplacement éditorial doit correspondre à une publication réelle.");
 for (const post of futurePosts) {
   assert.equal(post.editorialToneVersion, TONE_VERSION, `La publication ${post.id} doit utiliser la voix chaleureuse.`);
+  assert.equal(post.bilingualPolicyVersion, BILINGUAL_POLICY_VERSION, `La publication ${post.id} doit suivre la règle français original / anglais adapté.`);
   assert.ok(post.title && post.cta && post.visual, `La publication ${post.id} doit avoir un titre, un CTA et un brief visuel finalisés.`);
   assert.ok(post.copy.length <= 2200, `La publication ${post.id} doit rester sous 2 200 caractères.`);
   assert.doesNotMatch(
@@ -150,7 +155,9 @@ for (const post of futurePosts) {
 for (const post of posts) {
   assert.match(post.copy || "", /FR\s+—/i, `La publication ${post.id} doit contenir son texte français.`);
   assert.match(post.copy || "", /EN\s+—/i, `La publication ${post.id} doit contenir son texte anglais.`);
+  assert.ok(post.copy.indexOf("FR —") < post.copy.indexOf("EN —"), `La publication ${post.id} doit présenter le français avant l’anglais.`);
 }
+assert.match(source, /Le français d’abord/);
 for (const historicalId of ["alt-20260719", "alt-20260726", "alt-20260801", "alt-20260804", "alt-20260807", "alt-20260810"]) {
   const historicalPost = posts.find((post) => post.id === historicalId);
   assert.ok(historicalPost, `La capsule historique ${historicalId} doit rester au calendrier.`);
