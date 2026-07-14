@@ -12,7 +12,7 @@ assert.ok(releaseMatch, "Le service worker doit déclarer une version de publica
 assert.ok(cacheMatch && Number(cacheMatch[1]) >= 36, "Le cache public doit être incrémenté après une mutation du shell.");
 
 const release = releaseMatch[1];
-for (const resource of ["firebase-config.js", "theme.js", "cockpit-ui.js", "view-mode.js"]) {
+for (const resource of ["firebase-config.js", "theme.js", "motion.js", "cockpit-ui.js", "view-mode.js"]) {
   assert.match(index, new RegExp(`${resource.replace(".", "\\.")}\\?v=${release}`), `${resource} doit utiliser la version ${release}.`);
 }
 const cockpitUi = fs.readFileSync(new URL("./cockpit-ui.js", import.meta.url), "utf8");
@@ -23,7 +23,7 @@ const mediaChoiceUi = fs.readFileSync(new URL("./media-choice-ui.js", import.met
 assert.match(cockpitUi, new RegExp(`action-items-ui\\.js\\?v=${release}`), "Le module actionItems doit partager la version du shell.");
 assert.match(index, /serviceWorker\.register\("\.\/sw\.js", \{ scope: "\.\/" \}\)/,
   "Le service worker doit conserver la portée locale exigée par GitHub Pages.");
-for (const resource of ["firebase-config.js", "theme.js", "cockpit-ui.js", "event-context-data.js", "action-items-ui.js", "client-health-ui.js", "admin-lazy-data.js", "media-choice-ui.js", "view-mode.js"]) {
+for (const resource of ["firebase-config.js", "theme.js", "motion.js", "cockpit-ui.js", "event-context-data.js", "action-items-ui.js", "client-health-ui.js", "admin-lazy-data.js", "media-choice-ui.js", "view-mode.js"]) {
   assert.match(worker, new RegExp(resource.replace(".", "\\.")), `${resource} doit faire partie du shell hors ligne.`);
   assert.match(deploymentWorkflow, new RegExp(`cp cockpit/${resource.replace(".", "\\.")} public/`), `${resource} doit faire partie de l’artefact GitHub Pages.`);
 }
@@ -38,7 +38,7 @@ assert.match(worker, /key\.startsWith\(CACHE_PREFIX\) && key !== CACHE/, "La pur
 assert.match(worker, /event\.request\.method !== "GET"/, "Le cache ne doit jamais intercepter les écritures.");
 
 const testScript = packageFile.scripts?.test || "";
-for (const script of ["test:shell", "test:resilience", "test:sync", "test:media", "test:view-mode", "test:action-items", "test:contract", "test:quality"]) {
+for (const script of ["test:shell", "test:motion-install", "test:resilience", "test:sync", "test:media", "test:view-mode", "test:action-items", "test:contract", "test:quality"]) {
   assert.ok(testScript.includes(`npm run ${script}`), `${script} doit faire partie de npm test.`);
 }
 

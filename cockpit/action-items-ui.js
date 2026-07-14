@@ -1,4 +1,4 @@
-import { subscribePersonalActionItems } from "./firebase-client.js?v=20260714-atomic-mutations-v8";
+import { subscribePersonalActionItems } from "./firebase-client.js?v=20260714-subtle-motion-v9";
 
 let controller = null;
 let activeProfile = null;
