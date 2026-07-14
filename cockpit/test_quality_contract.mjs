@@ -36,7 +36,7 @@ const has = (text, pattern) => pattern instanceof RegExp ? pattern.test(text) : 
 
 // Coque publique et dépendances déclarées.
 for (const relative of [
-  "cockpit/index.html", "cockpit/cockpit-ui.js", "cockpit/firebase-client.js", "cockpit/theme.js",
+  "cockpit/index.html", "cockpit/cockpit-ui.js", "cockpit/action-items-ui.js", "cockpit/firebase-client.js", "cockpit/theme.js",
   "cockpit/sw.js", "cockpit/manifest.webmanifest", "cockpit/icon.svg", "cockpit/firestore.rules"
 ]) {
   critical("PUB-001", `Fichier public requis : ${relative}`, exists(relative), "Le déploiement ne doit pas produire une coque partielle.");
@@ -142,7 +142,7 @@ critical("PWA-003", "Cycle SW versionné et activation immédiate", /const CACHE
 critical("PWA-004", "Anciens caches purgés", /caches\.keys\(\)/.test(files.sw) && /caches\.delete/.test(files.sw), "Évite le mélange de versions de modules.");
 critical("PWA-008", "Purge limitée aux caches du cockpit", /CACHE_PREFIX/.test(files.sw) && /key\.startsWith\(CACHE_PREFIX\)/.test(files.sw), "GitHub Pages partage Cache Storage entre les projets d’une même origine.");
 critical("PWA-005", "Seules les requêtes GET et même origine sont mises en cache", /request\.method\s*!==\s*["']GET["']/.test(files.sw) && /origin\s*===\s*self\.location\.origin/.test(files.sw), "Ne jamais mettre en cache une écriture Firestore ou une ressource externe privée.");
-warning("PWA-006", "Entrées JavaScript essentielles préchargées", ["cockpit-ui.js", "firebase-client.js", "theme.js"].every((name) => files.sw.includes(name)), "Le réseau-d’abord peut les ajouter à l’usage, mais une PWA fraîche hors ligne doit être prévisible.");
+warning("PWA-006", "Entrées JavaScript essentielles préchargées", ["cockpit-ui.js", "action-items-ui.js", "firebase-client.js", "theme.js"].every((name) => files.sw.includes(name)), "Le réseau-d’abord peut les ajouter à l’usage, mais une PWA fraîche hors ligne doit être prévisible.");
 warning("PWA-007", "Repli index réservé aux navigations", /request\.mode\s*===\s*["']navigate["']|destination\s*===\s*["']document["']/.test(files.sw), "Un module JS manquant ne doit jamais recevoir du HTML en guise de réponse.");
 
 // Performance et contrats métier structurants.

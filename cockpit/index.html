@@ -10,6 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script>try{const t=localStorage.getItem("bleu-massawippi-theme");document.documentElement.dataset.theme=t==="dark"||t==="light"?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch{}</script>
   <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <title>Cockpit Communication Bleu Massawippi</title>
 </head>
 <body>
@@ -17,12 +18,12 @@
   <main id="cockpit-content" tabindex="-1"></main>
   <div id="cockpit-announcer" class="cockpit-visually-hidden" aria-live="polite" aria-atomic="true"></div>
   <noscript>Ce cockpit nécessite JavaScript pour ouvrir une session sécurisée.</noscript>
-  <script src="./firebase-config.js?v=20260711-media-v1"></script>
+  <script src="./firebase-config.js?v=20260714-m0-v4"></script>
   <script>
     if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch((error) => console.warn("Service worker indisponible", error)));
   </script>
-  <script type="module" src="./theme.js?v=20260713-comments-priorities-v1"></script>
-  <script type="module" src="./cockpit-ui.js?v=20260713-comments-priorities-v1"></script>
-  <script type="module" src="./view-mode.js?v=20260713-comments-priorities-v1"></script>
+  <script type="module" src="./theme.js?v=20260714-m0-v4"></script>
+  <script type="module" src="./cockpit-ui.js?v=20260714-m0-v4"></script>
+  <script type="module" src="./view-mode.js?v=20260714-m0-v4"></script>
 </body>
 </html>
