@@ -1,4 +1,4 @@
-import { subscribePersonalActionItems } from "./firebase-client.js?v=20260714-subtle-motion-v9";
+import { subscribePersonalActionItems } from "./firebase-client.js?v=20260714-context-hotfix-v10";
 
 let controller = null;
 let activeProfile = null;

@@ -1,4 +1,4 @@
-import { subscribeAuditLogs, subscribeCockpitFeedback } from "./firebase-client.js?v=20260714-subtle-motion-v9";
+import { subscribeAuditLogs, subscribeCockpitFeedback } from "./firebase-client.js?v=20260714-context-hotfix-v10";
 
 let auditUnsubscribe = null;
 let feedbackUnsubscribe = null;
