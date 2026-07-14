@@ -8,6 +8,8 @@ export function buildMediaChoiceModel(hasStructuredChoice, decision, row, latest
   return {
     communicationsSelected, directionSelected,
     agreementSelected: hasStructuredChoice && agreementIds.includes(row.id),
+    agreementStatus: hasStructuredChoice ? (decision?.agreement?.status || "pending") : "legacy",
+    overrideActorRole: hasStructuredChoice ? (decision?.override?.actorRole || "") : "",
     sameRoleChoice: communicationsSelected && directionSelected,
     divergent: decision?.agreement?.status === "divergent",
     legacySelected,
@@ -22,6 +24,14 @@ export function mediaImageChoicePresentation(choice, role, myChoiceSelected) {
   if (role === "admin" && choice.directionSelected) return { label: "Choisi par la direction · choisir aussi", className: " is-role-choice" };
   if (role === "director" && choice.communicationsSelected) return { label: "Recommandé · choisir ce visuel", className: " is-role-choice" };
   return { label: "Choisir ce visuel", className: "" };
+}
+
+export function mediaAgreementPresentation(choice) {
+  if (choice.agreementStatus !== "overridden") return { info: "✓ Accord final", badge: "✓ Accord communications + direction · décision finale" };
+  const actor = choice.overrideActorRole === "admin"
+    ? "les communications"
+    : choice.overrideActorRole === "director" ? "la direction" : "override motivé";
+  return { info: "✓ Décision finale par override", badge: `✓ Décision finale par ${actor}${actor === "override motivé" ? "" : " · motif consigné"}` };
 }
 
 export function synchronizeMediaInfoPanels(gallery) {

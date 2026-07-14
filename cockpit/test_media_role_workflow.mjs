@@ -54,7 +54,12 @@ assert.match(ui, /Choisi par la direction générale/);
 assert.match(ui, /directionMediaReady/);
 assert.match(ui, /const publicationReady = contentDone && mediaDone/,
   "Un choix visuel anticipé ne doit jamais suffire à autoriser la publication sans le texte.");
-assert.match(ui, /Accord communications \+ direction/);
+assert.match(mediaUi, /Accord communications \+ direction/);
+assert.match(mediaUi, /Décision finale par \$\{actor\}/,
+  "Un override des communications ne doit jamais être présenté comme un accord de la direction.");
+assert.match(ui, /Validé par override motivé/);
+assert.doesNotMatch(ui, /Validé avec aval/,
+  "Le libellé générique ne doit pas inventer un aval externe non structuré.");
 assert.match(ui, /cockpit-media-image-choice/, "Le choix média doit aussi être accessible directement sur l’image.");
 assert.match(ui, /details class="cockpit-media-info" open/, "Les actions média doivent être ouvertes par défaut.");
 assert.match(mediaUi, /synchronizeMediaInfoPanels/, "Les panneaux média d’un même événement doivent rester synchronisés.");
