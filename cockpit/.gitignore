@@ -2,3 +2,4 @@ secrets/
 sync-output/
 node_modules/
 firebase-config.local.js
+firestore-debug.log

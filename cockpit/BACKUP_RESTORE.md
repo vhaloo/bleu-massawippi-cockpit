@@ -148,14 +148,56 @@ if ($actual -ne $expected) { throw "Le manifeste ne correspond pas à son emprei
 
 Vérifier aussi chaque fichier de `manifest.json`. `EXPORT_COMPLETE.json` doit être présent et `EXPORT_IN_PROGRESS.json` absent.
 
-## 8. Politique de restauration
+## 8. Sauvegarde restaurable de reprise
+
+L’export d’audit précédent est volontairement assaini. Pour une reprise complète, utiliser l’outil distinct :
+
+```powershell
+npm run backup:firestore
+```
+
+Cette commande :
+
+- lit chaque document une fois, y compris les sous-collections;
+- conserve les types Firestore dans une enveloppe JSON portable;
+- produit `documents.ndjson`, un résumé, un manifeste et leurs SHA-256;
+- écrit d’abord `BACKUP_IN_PROGRESS.json`, puis `BACKUP_COMPLETE.json` seulement après succès;
+- n’inclut jamais le fichier d’identifiants ni les variables d’environnement;
+- crée toujours un nouveau dossier `sync-output/disaster-backup-...`, ignoré par Git.
+
+Comme cette opération est un balayage complet facturable, elle doit être lancée délibérément, idéalement une fois par jour en période calme, jamais dans le cycle d’interface ou la synchronisation ordinaire.
+
+## 9. Vérification et restauration
+
+Une vérification locale sans écriture est le comportement par défaut :
+
+```powershell
+npm run restore:firestore -- --backup="sync-output\disaster-backup-..."
+```
+
+Le script refuse un fichier modifié, un manifeste incohérent, un nombre de documents différent ou un chemin Firestore invalide.
+
+Pour un exercice dans l’Emulator :
+
+```powershell
+$env:FIRESTORE_EMULATOR_HOST = "127.0.0.1:8080"
+npm run restore:firestore -- --backup="sync-output\disaster-backup-..." --apply
+npm run verify:restore -- --backup="sync-output\disaster-backup-..."
+```
+
+La seconde commande relit la cible Emulator et compare chaque document encodé à sa sauvegarde. Elle refuse de fonctionner contre la production.
+
+Hors Emulator, l’écriture est refusée à moins de fournir simultanément `--apply`, `--allow-production`, le `--expected-project-id` exact et `--confirm-document-count` exact. Même avec ces confirmations, la restauration ne supprime aucun document absent de la sauvegarde. Elle est donc idempotente et adaptée d’abord à un projet vide de préproduction ou à une reprise contrôlée.
+
+## 10. Politique de restauration
 
 La restauration est volontairement absente de `admin_sync.js`. L’export assaini n’est pas restaurable tel quel.
 
 1. Copier l’export hors de `sync-output` vers un emplacement privé et durable.
 2. Vérifier `manifest.sha256` puis toutes les empreintes du manifeste.
 3. Confirmer le `projectId`, `EXPORT_COMPLETE.json` et l’absence de marqueur incomplet.
-4. Pour une vraie reprise, utiliser une sauvegarde Firestore qui conserve les sous-collections et les types natifs.
-5. Tester toute restauration dans un projet de préproduction distinct.
+4. Utiliser `backup_firestore.mjs`, qui conserve les sous-collections et les types, pour une vraie reprise.
+5. Tester toute restauration dans l’Emulator ou un projet de préproduction distinct avant la production.
+6. Après restauration, comparer les comptes de documents, les identifiants, les horodatages et un échantillon de commentaires, médias, décisions, tâches et archives.
 
 Les sorties sont ignorées par Git, peuvent contenir des renseignements personnels et ne doivent jamais être publiées sur GitHub Pages. La clé de compte de service doit rester dans un emplacement local privé déjà exclu du dépôt.
