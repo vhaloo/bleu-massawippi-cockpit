@@ -1,4 +1,4 @@
-import { subscribeAuditLogs, subscribeCockpitFeedback } from "./firebase-client.js?v=20260714-media-select-v2";
+import { subscribeAuditLogs, subscribeCockpitFeedback } from "./firebase-client.js?v=20260714-media-select-overlay-v3";
 
 let auditUnsubscribe = null;
 let feedbackUnsubscribe = null;

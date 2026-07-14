@@ -1,4 +1,4 @@
-import { subscribePersonalActionItems } from "./firebase-client.js?v=20260714-media-select-v2";
+import { subscribePersonalActionItems } from "./firebase-client.js?v=20260714-media-select-overlay-v3";
 
 let controller = null;
 let activeProfile = null;

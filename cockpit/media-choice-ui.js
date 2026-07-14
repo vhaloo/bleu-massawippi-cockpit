@@ -1,0 +1,36 @@
+export function buildMediaChoiceModel(hasStructuredChoice, decision, row, latestLegacyDecision = "") {
+  const communicationsIds = decision?.communications?.status === "selected" && Array.isArray(decision.communications.mediaIds) ? decision.communications.mediaIds : [];
+  const directionIds = decision?.direction?.status === "selected" && Array.isArray(decision.direction.mediaIds) ? decision.direction.mediaIds : [];
+  const agreementIds = ["agreed", "overridden"].includes(decision?.agreement?.status) && Array.isArray(decision.agreement.mediaIds) ? decision.agreement.mediaIds : [];
+  const legacySelected = !hasStructuredChoice && (row.selectedFinal === true || (!("selectedFinal" in row) && latestLegacyDecision.startsWith(`[MÉDIA RETENU:${row.id}]`)));
+  const communicationsSelected = hasStructuredChoice && communicationsIds.includes(row.id);
+  const directionSelected = hasStructuredChoice && directionIds.includes(row.id);
+  return {
+    communicationsSelected, directionSelected,
+    agreementSelected: hasStructuredChoice && agreementIds.includes(row.id),
+    sameRoleChoice: communicationsSelected && directionSelected,
+    divergent: decision?.agreement?.status === "divergent",
+    legacySelected,
+    finalSelected: hasStructuredChoice ? agreementIds.includes(row.id) : legacySelected
+  };
+}
+
+export function mediaImageChoicePresentation(choice, role, myChoiceSelected) {
+  if (choice.agreementSelected) return { label: "✓ Visuel retenu", className: " is-agreed" };
+  if (choice.sameRoleChoice) return { label: "✓ Choix commun", className: " is-agreed" };
+  if (myChoiceSelected) return { label: "✓ Mon choix — retirer", className: " is-selected" };
+  if (role === "admin" && choice.directionSelected) return { label: "Choisi par la direction · choisir aussi", className: " is-role-choice" };
+  if (role === "director" && choice.communicationsSelected) return { label: "Recommandé · choisir ce visuel", className: " is-role-choice" };
+  return { label: "Choisir ce visuel", className: "" };
+}
+
+export function synchronizeMediaInfoPanels(gallery) {
+  const panels = [...gallery.querySelectorAll("details.cockpit-media-info")];
+  let synchronizing = false;
+  panels.forEach((panel) => panel.addEventListener("toggle", () => {
+    if (synchronizing) return;
+    synchronizing = true;
+    panels.forEach((peer) => { if (peer !== panel) peer.open = panel.open; });
+    queueMicrotask(() => { synchronizing = false; });
+  }));
+}

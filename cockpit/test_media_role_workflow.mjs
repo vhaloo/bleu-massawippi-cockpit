@@ -4,6 +4,7 @@ import vm from "node:vm";
 
 const client = fs.readFileSync(new URL("./firebase-client.js", import.meta.url), "utf8");
 const ui = fs.readFileSync(new URL("./cockpit-ui.js", import.meta.url), "utf8");
+const mediaUi = fs.readFileSync(new URL("./media-choice-ui.js", import.meta.url), "utf8");
 const rules = fs.readFileSync(new URL("./firestore.rules", import.meta.url), "utf8");
 
 const pureStart = client.indexOf("function sameOrderedMedia");
@@ -44,13 +45,16 @@ assert.match(client, /stage === "final_approved" && !\(profile\.role === "admin"
 assert.match(client, /subscribeMediaDecisions[\s\S]*?limit\(80\)/);
 assert.doesNotMatch(client + ui, /alt-20260715|nature-alt-20260715-libellule/, "Le code générique ne doit pas fabriquer une approbation spéciale pour la libellule.");
 
-assert.match(ui, /hasStructuredDecision \? agreementIds\.includes\(row\.id\) : legacySelected/);
+assert.match(mediaUi, /hasStructuredChoice \? agreementIds\.includes\(row\.id\) : legacySelected/);
 assert.match(ui, /Recommandé par les communications/);
 assert.match(ui, /Choisi par la direction générale/);
 assert.match(ui, /directionMediaReady/);
 assert.match(ui, /const publicationReady = contentDone && mediaDone/,
   "Un choix visuel anticipé ne doit jamais suffire à autoriser la publication sans le texte.");
 assert.match(ui, /Accord communications \+ direction/);
+assert.match(ui, /cockpit-media-image-choice/, "Le choix média doit aussi être accessible directement sur l’image.");
+assert.match(ui, /details class="cockpit-media-info" open/, "Les actions média doivent être ouvertes par défaut.");
+assert.match(mediaUi, /synchronizeMediaInfoPanels/, "Les panneaux média d’un même événement doivent rester synchronisés.");
 assert.match(ui, /state\.profile\?\.role === "admin"\)/, "La porte Terminer doit être autorisée seulement aux communications.");
 assert.doesNotMatch(ui, /data-select-final-media=/, "Le contrôle global hérité ne doit plus être rendu par le nouveau client.");
 assert.match(ui, /Votre session demeure connectée/);

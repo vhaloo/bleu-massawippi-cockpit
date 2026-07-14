@@ -35,10 +35,11 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-media-select-v2";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-media-select-v2";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-media-select-v2";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-media-select-v2";
+} from "./firebase-client.js?v=20260714-media-select-overlay-v3";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-media-select-overlay-v3";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-media-select-overlay-v3";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-media-select-overlay-v3";
+import { buildMediaChoiceModel, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-media-select-overlay-v3";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -1966,30 +1967,6 @@ const mediaStageLabels = {
 
 const workflowTextApprovedStages = new Set(["content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"]);
 
-function mediaChoiceModel(eventId, row, latestLegacyDecision = "") {
-  const hasStructuredChoice = state.mediaDecisions.has(eventId);
-  const hasStructuredDecision = hasStructuredChoice;
-  const decision = state.mediaDecisions.get(eventId) || null;
-  const communicationsIds = decision?.communications?.status === "selected" && Array.isArray(decision.communications.mediaIds) ? decision.communications.mediaIds : [];
-  const directionIds = decision?.direction?.status === "selected" && Array.isArray(decision.direction.mediaIds) ? decision.direction.mediaIds : [];
-  const agreementIds = ["agreed", "overridden"].includes(decision?.agreement?.status) && Array.isArray(decision.agreement.mediaIds) ? decision.agreement.mediaIds : [];
-  const hasLegacyField = Object.prototype.hasOwnProperty.call(row, "selectedFinal");
-  const legacySelected = !hasStructuredChoice && (row.selectedFinal === true || (!hasLegacyField && latestLegacyDecision.startsWith(`[MÉDIA RETENU:${row.id}]`)));
-  const communicationsSelected = hasStructuredDecision && communicationsIds.includes(row.id);
-  const directionSelected = hasStructuredDecision && directionIds.includes(row.id);
-  return {
-    hasStructuredDecision,
-    decision,
-    communicationsSelected,
-    directionSelected,
-    agreementSelected: hasStructuredDecision && agreementIds.includes(row.id),
-    sameRoleChoice: communicationsSelected && directionSelected,
-    divergent: decision?.agreement?.status === "divergent",
-    legacySelected,
-    finalSelected: hasStructuredDecision ? agreementIds.includes(row.id) : legacySelected
-  };
-}
-
 function showAuthenticatedLoadError(message, retryAction = null) {
   // Une panne Firestore ou un quota épuisé n'annule jamais une authentification
   // Firebase valide. On conserve la session et on offre un réessai volontaire,
@@ -2077,7 +2054,7 @@ function renderMediaForCard(card) {
     const visual = preview
       ? `<img data-media-preview src="${esc(preview)}" alt="${esc(row.label || "Aperçu du média")}" loading="lazy" decoding="async" referrerpolicy="no-referrer"><span class="cockpit-media-enlarge" aria-hidden="true">Agrandir ↗</span>`
       : `<span><span class="cockpit-media-icon" aria-hidden="true">${mediaKindIcons[row.kind] || "🔗"}</span><span class="cockpit-media-open-label">Ouvrir ${row.kind === "image" ? "l’image" : "le média"}</span></span>`;
-    const choice = mediaChoiceModel(card.dataset.itemId, row, latestDecision);
+    const choice = buildMediaChoiceModel(state.mediaDecisions.has(card.dataset.itemId), state.mediaDecisions.get(card.dataset.itemId) || null, row, latestDecision);
     const isFinal = choice.finalSelected;
     const isBlocked = row.publicationBlocked === true;
     const workflowStage = state.workflows.get(card.dataset.itemId)?.stage || "proposal";
@@ -2089,6 +2066,7 @@ function renderMediaForCard(card) {
       : (myChoiceSelected ? "Retirer mon choix" : textApproved ? "Approuver ce visuel" : "Choisir ce visuel");
     const choiceDisabled = isBlocked;
     const infoStatus = isFinal ? "✓ Accord final" : choice.sameRoleChoice ? "✓ Même choix" : choice.communicationsSelected ? "Recommandé" : choice.directionSelected ? "Choix direction" : choice.legacySelected ? "Hérité" : "Ouvrir";
+    const { label: imageChoiceLabel, className: imageChoiceClass } = mediaImageChoicePresentation(choice, role, myChoiceSelected);
     const roleBadges = [
       choice.communicationsSelected ? `<span class="cockpit-media-role-badge communications">✓ Recommandé par les communications</span>` : "",
       choice.directionSelected ? `<span class="cockpit-media-role-badge direction">✓ Choisi par la direction générale · visuel prêt</span>` : "",
@@ -2100,7 +2078,8 @@ function renderMediaForCard(card) {
     const mediaUpdatedAt = stateTimestampMillis(row.updatedAt || row.createdAt);
     return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}${choice.communicationsSelected ? " is-recommended" : ""}${choice.directionSelected ? " is-direction-selected" : ""}${choice.divergent ? " is-divergent" : ""}${isBlocked ? " is-blocked" : ""}" data-media-id="${esc(row.id)}" data-media-stage="${esc(row.stage || "reference")}" data-media-updated-at="${mediaUpdatedAt}" data-media-selected-final="${String(isFinal)}" data-media-communications-selected="${String(choice.communicationsSelected)}" data-media-direction-selected="${String(choice.directionSelected)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
-      <details class="cockpit-media-info"><summary><span>Informations et actions</span><small class="cockpit-media-info-status ${isFinal ? "is-final" : ""}">${infoStatus}</small></summary><div class="cockpit-media-info-body">
+      ${["director","admin"].includes(role) && !isBlocked ? `<button type="button" class="cockpit-media-image-choice${imageChoiceClass}" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}" aria-label="${esc(imageChoiceLabel)} — ${esc(row.label || "média")}">${esc(imageChoiceLabel)}</button>` : isBlocked ? `<span class="cockpit-media-image-status">Référence seulement</span>` : ""}
+      <details class="cockpit-media-info" open><summary><span>Informations et actions</span><small class="cockpit-media-info-status ${isFinal ? "is-final" : ""}">${infoStatus}</small></summary><div class="cockpit-media-info-body">
         ${row.rightsStatus === "unconfirmed" ? `<span class="cockpit-media-rights-warning">⚠ Droits à confirmer — référence interne seulement</span>` : ""}
         ${isBlocked ? `<span class="cockpit-media-blocked">Référence conservée pour comparaison — ne pas choisir pour diffusion.</span>` : ""}
         <div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span><br><a class="cockpit-media-source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Ouvrir l’original dans OneDrive ↗</a></div>
@@ -2110,6 +2089,7 @@ function renderMediaForCard(card) {
       </div></details>
     </article>`;
   }).join("");
+  synchronizeMediaInfoPanels(gallery);
   gallery.querySelectorAll("img[data-media-preview]").forEach((image) => {
     image.addEventListener("error", () => {
       const replacement = document.createElement("span");
