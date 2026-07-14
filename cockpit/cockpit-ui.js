@@ -1,5 +1,6 @@
 import {
   getClientState,
+  waitForClientReady,
   fetchPrivateContent,
   fetchMediaConfig,
   observeAuth,
@@ -11,9 +12,7 @@ import {
   setScheduleSelection,
   addComment,
   writeAuditLog,
-  subscribeAuditLogs,
   addCockpitFeedback,
-  subscribeCockpitFeedback,
   updateCockpitFeedbackStatus,
   upsertActionTask,
   completeActionTask,
@@ -36,12 +35,14 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-media-role-v4";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-m0-v4";
+} from "./firebase-client.js?v=20260714-opt-local-v1";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-opt-local-v1";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-opt-local-v1";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-opt-local-v1";
 
-const { configured } = getClientState();
+const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
-const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
+const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
 let activeRecognition = null;
 let activeTextarea = null;
 let recognitionRestart = false;
@@ -736,6 +737,7 @@ function setAdminSidebarOpen(open) {
   const toggle = document.querySelector("#cockpit-sidebar-toggle");
   if (!sidebar) return;
   if (open) {
+    startAdminLazyData({ enabled: configured && !safeMode && state.profile?.role === "admin", onFeedback: renderFeedbackList, onError: (label, error) => toast(`Les ${label} ne sont pas accessibles : ${error.message}`, true) });
     sidebar.hidden = false;
     sidebar.removeAttribute("inert");
     sidebar.setAttribute("aria-hidden", "false");
@@ -743,6 +745,7 @@ function setAdminSidebarOpen(open) {
     void sidebar.offsetWidth;
     sidebar.classList.add("open");
   } else {
+    scheduleAdminLazyDataStop();
     if (sidebar.contains(document.activeElement)) toggle?.focus();
     sidebar.classList.remove("open");
     sidebar.setAttribute("inert", "");
@@ -1437,7 +1440,7 @@ function getPlanItem(card) {
 }
 
 function canEdit() {
-  return Boolean(state.profile && ["director", "admin"].includes(state.profile.role));
+  return Boolean(!safeMode && state.profile && ["director", "admin"].includes(state.profile.role));
 }
 
 function choiceGroupIds(planItem) {
@@ -2974,6 +2977,7 @@ function clearPrivateContent() {
 
 async function applyProfile(profile) {
   state.profile = profile;
+  await waitForClientReady();
   const loginNote = document.querySelector("#cockpit-login-note");
   if (loginNote) loginNote.textContent = "Identifiants vérifiés. Chargement du cockpit…";
   state.mediaConfig = await fetchMediaConfig().catch((error) => {
@@ -2983,11 +2987,13 @@ async function applyProfile(profile) {
   await loadPrivateContent();
   document.body.classList.remove("cockpit-locked");
   document.body.classList.remove("cockpit-readonly");
+  document.body.classList.toggle("cockpit-safe-mode", safeMode);
+  if (safeMode) document.body.classList.add("cockpit-readonly");
   document.querySelector("#cockpit-login")?.setAttribute("hidden", "");
   const retry = document.querySelector("#cockpit-retry-content");
   if (retry) { retry.hidden = true; retry.onclick = null; }
   const session = buildSession();
-  session.querySelector("#cockpit-session-label").innerHTML = "Connecté : <strong>" + esc(profile.displayLabel) + "</strong> · rôle " + esc(profile.role);
+  session.querySelector("#cockpit-session-label").innerHTML = "Connecté : <strong>" + esc(profile.displayLabel) + "</strong> · rôle " + esc(profile.role) + (safeMode ? " · mode secours" : "");
   dispatchEvent(new CustomEvent("cockpit:session-ready", { detail: { profile } }));
   setupResponsiveOffsets();
   setupPersonalActionItems(profile, configured);
@@ -2995,27 +3001,19 @@ async function applyProfile(profile) {
     document.body.classList.add("cockpit-admin");
     buildAdminSidebar();
     buildTaskWidget();
+    buildHealthWidget(profile);
     enhanceTaskEvents();
-    state.auditUnsubscribe?.();
-    state.feedbackUnsubscribe?.();
+    clearAdminLazyData();
     state.tasksUnsubscribe?.();
     if (configured) {
-      state.auditUnsubscribe = subscribeAuditLogs((logs) => {
-        const list = document.querySelector("#cockpit-log-list");
-        if (!list) return;
-        list.innerHTML = logs.length ? logs.map((log) => {
-          const when = log.createdAt?.toDate ? log.createdAt.toDate().toLocaleString("fr-CA") : "date en attente";
-          return `<div class="cockpit-log"><b>${esc(when)} · ${esc(log.action || "modification")}</b><span>section: ${esc(log.sectionId || "—")} · utilisateur: ${esc(log.userLabel || log.userUid || "—")}</span></div>`;
-        }).join("") : "<p>Aucun journal accessible pour le moment.</p>";
-      }, (error) => toast("Le journal n’est pas accessible : " + error.message, true));
-      state.feedbackUnsubscribe = subscribeCockpitFeedback(renderFeedbackList, (error) => toast("Les rétroactions ne sont pas accessibles : " + error.message, true));
-      state.tasksUnsubscribe = subscribeActionTasks(renderActionTasks, (error) => toast("La liste des tâches n’est pas accessible : " + error.message, true));
+      // Le journal et la liste détaillée des rétroactions sont chargés seulement
+      // lorsque le panneau est ouvert. La file de tâches reste visible en tête.
+      if (!safeMode) state.tasksUnsubscribe = subscribeActionTasks(renderActionTasks, (error) => toast("La liste des tâches n’est pas accessible : " + error.message, true));
     }
   } else {
     document.body.classList.remove("cockpit-admin");
-    state.feedbackUnsubscribe?.();
+    clearAdminLazyData();
     state.tasksUnsubscribe?.();
-    state.feedbackUnsubscribe = null;
     state.tasksUnsubscribe = null;
     document.querySelector("#cockpit-task-launch")?.remove();
   }
@@ -3047,8 +3045,7 @@ function applySignedOut(message = "") {
   state.decisions = new Map();
   state.mediaConfig = null;
   state.scheduleUnsubscribe?.();
-  state.auditUnsubscribe?.();
-  state.feedbackUnsubscribe?.();
+  clearAdminLazyData();
   state.tasksUnsubscribe?.();
   clearPersonalActionItems();
   state.mediaUnsubscribe?.();
@@ -3059,8 +3056,6 @@ function applySignedOut(message = "") {
   state.internalProjectUnsubscribe?.();
   state.decisionUnsubscribe?.();
   state.scheduleUnsubscribe = null;
-  state.auditUnsubscribe = null;
-  state.feedbackUnsubscribe = null;
   state.tasksUnsubscribe = null;
   state.mediaUnsubscribe = null;
   state.mediaDecisionUnsubscribe = null;
@@ -3079,7 +3074,9 @@ function applySignedOut(message = "") {
   document.querySelector("#cockpit-task-launch")?.remove();
   document.querySelector("#cockpit-feedback-launch")?.remove();
   document.querySelector("#cockpit-feedback-panel")?.remove();
+  clearHealthWidget();
   document.body.classList.remove("cockpit-admin");
+  document.body.classList.remove("cockpit-safe-mode");
   document.body.classList.add("cockpit-readonly");
   const login = document.querySelector("#cockpit-login") || buildLogin();
   login.removeAttribute("hidden");
@@ -3105,6 +3102,29 @@ function subscribeRemoteData() {
     renderMonthlyEditorialSnapshot();
     notifyViewUpdate("schedule");
   }, (error) => toast("Le calendrier n’est pas accessible : " + error.message, true));
+  if (safeMode) {
+    state.mediaDecisionUnsubscribe?.();
+    state.mediaDecisionUnsubscribe = subscribeMediaDecisions((rows) => {
+      state.mediaDecisions = new Map(rows.map((row) => [row.eventId || row.id, row]));
+      renderAllMedia();
+      renderAllCollaboration();
+      notifyViewUpdate("media-decisions-cache");
+    }, (error) => console.warn("Décisions média absentes du cache", error));
+    state.workflowUnsubscribe?.();
+    state.workflowUnsubscribe = subscribeWorkflowStates((rows) => {
+      state.workflows = new Map(rows.map((row) => [row.eventId || row.id, row]));
+      renderAllCollaboration();
+      notifyViewUpdate("workflow-cache");
+    }, (error) => console.warn("Workflows absents du cache", error));
+    state.decisionUnsubscribe?.();
+    state.decisionUnsubscribe = subscribeEditorialDecisions((rows) => {
+      state.decisions = new Map(rows.map((row) => [row.eventId || row.id, row]));
+      document.querySelectorAll(".post[data-item-id]").forEach(renderEditorialDecision);
+      renderMonthlyEditorialSnapshot();
+      notifyViewUpdate("decisions-cache");
+    }, (error) => console.warn("Décisions éditoriales absentes du cache", error));
+    return;
+  }
   state.mediaUnsubscribe?.();
   state.mediaUnsubscribe = subscribeMediaLinks((rows) => {
     const grouped = new Map();
