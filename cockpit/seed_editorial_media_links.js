@@ -8,6 +8,9 @@ import { FieldValue, getFirestore } from "firebase-admin/firestore";
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) throw new Error("GOOGLE_APPLICATION_CREDENTIALS doit pointer vers un compte de service Firebase privé.");
 const here = path.dirname(fileURLToPath(import.meta.url));
 const manifest = JSON.parse(fs.readFileSync(path.join(here, "editorial_media_manifest.json"), "utf8"));
+const eventFilter = process.argv.slice(2).find((arg) => arg.startsWith("--event="))?.slice("--event=".length).trim() || "";
+const selectedManifest = eventFilter ? manifest.filter((item) => item.eventId === eventFilter) : manifest;
+if (!selectedManifest.length) throw new Error(`Aucun média éditorial trouvé pour l’événement ${eventFilter || "demandé"}.`);
 const linksPath = path.join(here, "secrets", "editorial-media-links.json");
 if (!fs.existsSync(linksPath)) throw new Error("Le registre local secrets/editorial-media-links.json est requis et ne doit jamais être publié.");
 const links = JSON.parse(fs.readFileSync(linksPath, "utf8"));
@@ -17,7 +20,7 @@ const batch = db.batch();
 let created = 0;
 let updated = 0;
 
-for (const item of manifest) {
+for (const item of selectedManifest) {
   const url = links[item.fileName];
   if (!/^https:\/\/bleumassawippi\.sharepoint\.com\/:(?:i|v):\/g\//.test(url || "")) throw new Error(`Lien SharePoint privé manquant pour ${item.fileName}.`);
   const reference = db.collection("mediaLinks").doc(item.id);
@@ -40,4 +43,4 @@ for (const item of manifest) {
   }
 }
 await batch.commit();
-console.log(JSON.stringify({ seeded: true, media: manifest.length, created, updated, events: new Set(manifest.map((item) => item.eventId)).size }, null, 2));
+console.log(JSON.stringify({ seeded: true, eventFilter: eventFilter || null, media: selectedManifest.length, created, updated, events: new Set(selectedManifest.map((item) => item.eventId)).size }, null, 2));
