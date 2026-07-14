@@ -5,7 +5,7 @@ import {
   setPersistentCachePreference,
   requestSafeMode,
   forgetThisDevice
-} from "./firebase-client.js?v=20260714-accurate-override-labels-v7";
+} from "./firebase-client.js?v=20260714-atomic-mutations-v8";
 
 let unsubscribeDiagnostics = null;
 
