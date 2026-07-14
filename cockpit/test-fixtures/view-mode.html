@@ -34,17 +34,37 @@
     <section id="calendrier" class="wrap">
       <h2>Calendrier</h2>
       <div id="posts" class="posts">
-        <article class="post" data-item-id="fixture-today" data-t="Communauté">
+        <article class="post" data-item-id="fixture-today" data-t="Communauté" data-workflow-stage="content_review" data-workflow-updated-at="1783958400000">
           <div class="post-head"><span class="date">Dimanche 12 juillet</span><h4>Publication du jour</h4></div>
-          <div class="cockpit-controls"><div data-workflow-actions><button class="primary">Valider le texte</button></div></div>
+          <div class="cockpit-controls">
+            <div data-editorial-controls><button data-editorial-decision="undecided" class="active">Décision en attente</button></div>
+            <button data-gate="content" class="current" aria-pressed="false"><b>1 · Texte</b><span data-gate-label>Prêt pour validation</span></button>
+            <button data-gate="media" aria-pressed="false"><b>2 · Visuel</b><span data-gate-label>Attend le texte</span></button>
+            <button data-gate="publication" aria-pressed="false"><b>3 · Terminé</b><span data-gate-label>Attend les validations</span></button>
+            <div data-workflow-actions><button class="primary">Approuver le texte</button></div>
+          </div>
         </article>
-        <article class="post" data-item-id="fixture-tomorrow" data-t="Nature">
+        <article class="post" data-item-id="fixture-tomorrow" data-t="Nature" data-workflow-stage="media_review" data-workflow-updated-at="1784041200000">
           <div class="post-head"><span class="date">Lundi 13 juillet</span><h4>Publication de demain</h4></div>
-          <div class="cockpit-controls"><div data-workflow-actions><button class="primary">Choisir le média</button></div></div>
+          <div class="cockpit-controls">
+            <button data-gate="content" class="done" aria-pressed="true"><b>1 · Texte</b><span data-gate-label>Approuvé</span></button>
+            <button data-gate="media" class="current" aria-pressed="false"><b>2 · Visuel</b><span data-gate-label>Prêt pour validation</span></button>
+            <button data-gate="publication" aria-pressed="false"><b>3 · Terminé</b><span data-gate-label>Attend les validations</span></button>
+            <div class="cockpit-media-card" data-media-stage="draft" data-media-updated-at="1784044800000" data-media-selected-final="false"></div>
+            <div data-workflow-actions><button class="primary">Choisir le média</button></div>
+          </div>
         </article>
       </div>
     </section>
   </main>
+  <aside id="cockpit-sidebar" hidden>
+    <div id="cockpit-task-list">
+      <article class="cockpit-task-item comment-task" data-task-id="comment-fixture" data-task-target-type="schedule" data-task-target="fixture-today" data-task-updated-at="1784048400000">
+        <b>Corriger la formulation demandée</b><p>Une consigne de la direction est prête à être intégrée.</p>
+        <button data-open-task="comment-fixture" data-task-target-type="schedule" data-task-target="fixture-today">Ouvrir</button>
+      </article>
+    </div>
+  </aside>
   <div id="cockpit-announcer" aria-live="polite"></div>
   <script>
     globalThis.posts = [

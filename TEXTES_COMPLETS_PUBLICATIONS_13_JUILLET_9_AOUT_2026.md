@@ -147,25 +147,29 @@ Have you ever seen this tool in action?
 **Format :** Photo historique avec contexte court
 **Objectif :** Publication patrimoniale retenue et avancée au vendredi afin de diversifier la séquence avant le contenu communautaire du samedi.
 **CTA :** Regarder les détails
-**Visuel final :** Visuel « regarder ensemble » : photographie historique complète, créditée et non colorisée; ajouter au besoin un détail agrandi et la note manuscrite « Le même amour du lac », sans question ni élément qui masque l’image.
+**Visuel final :** Utiliser uniquement la carte postale historique complète 1900_ancienne-bibliotheque-north-hatley.png, non colorisée et sans photo récente, maison actuelle ni montage avant/après. Préserver l’inscription d’origine; si une note manuscrite est ajoutée, la limiter à « Le même amour du lac » dans une marge qui ne masque aucun détail.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Archives Bleu Massawippi — droits documentés
-**Préparation :** Conserver le crédit de l’image dans la publication et dans les métadonnées; ne pas dater l’image si la date n’est pas confirmée.
+**Source de référence :** Domaine public · 1900 · Jean B. Le Baron / Wikimedia Commons : https://commons.wikimedia.org/wiki/File:Old_North_Hatley_Library.png
+**Préparation :** Mettre en valeur uniquement la carte postale de 1900, conserver son inscription et son crédit, puis vérifier l’aperçu mobile avant programmation.
 
 ### Légende prête à programmer
 
 ```text
-FR — Cette image nous ramène à une autre époque du Massawippi. Le paysage et les habitudes ont changé, mais l’amour du lac continue de relier les générations.
+FR — Datée de 1900, cette carte postale montre l’ancienne bibliothèque de North Hatley. Regardons-la sans montage ni comparaison : sa façade, son toit, ses fenêtres et la neige racontent à leur manière une époque du village.
 
-Prenons le temps d’en explorer les détails : la rive, les embarcations, les bâtiments et les façons d’habiter le lieu. Une photographie ancienne peut raconter beaucoup sans demander un seul mot.
+Les bâtiments et les habitudes changent, mais l’amour du lac et des lieux qui l’entourent se transmet. Cette image est un fragment de la mémoire locale qui nous relie encore aujourd’hui au Massawippi et à sa communauté.
+
+Crédit : Jean B. Le Baron — domaine public.
 
 #Patrimoine #BleuMassawippi #LacMassawippi #MémoireDuLac
 
 =========================================
 
-EN — This image takes us back to another time at Massawippi. The landscape and daily habits have changed, but a shared love for the lake continues to connect generations.
+EN — Dated 1900, this postcard shows North Hatley’s former library. Let us view it without a montage or comparison: its facade, roof, windows and snow each tell part of the village’s story.
 
-Let us take time to explore its details: the shoreline, boats, buildings and ways of living in this place. An old photograph can tell us a great deal without asking for a single word.
+Buildings and daily habits change, but love for the places surrounding Massawippi is passed on. This image is a fragment of local memory that still connects us to the lake and its community today.
+
+Credit: Jean B. Le Baron — public domain.
 
 #Heritage #BleuMassawippi #LakeMassawippi #LakeMemories
 ```

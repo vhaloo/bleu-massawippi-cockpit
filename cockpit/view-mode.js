@@ -226,6 +226,47 @@ function cardForId(id) {
   return [...document.querySelectorAll(".post[data-item-id]")].find((card) => card.dataset.itemId === id) || null;
 }
 
+function dataMillis(value) {
+  const numeric = Number(value || 0);
+  return Number.isFinite(numeric) ? numeric : 0;
+}
+
+function inferredWorkflowStage(card) {
+  if (card.dataset.workflowStage) return card.dataset.workflowStage;
+  if (gateIsDone(card, "publication")) return "published";
+  if (gateIsDone(card, "media")) return "final_approved";
+  if (gateIsDone(card, "content")) {
+    const mediaLabel = card.querySelector('[data-gate="media"] [data-gate-label]')?.textContent || "";
+    return /prêt pour validation/i.test(mediaLabel) ? "media_review" : "content_approved";
+  }
+  const contentLabel = card.querySelector('[data-gate="content"] [data-gate-label]')?.textContent || "";
+  if (/correction/i.test(contentLabel)) return "changes_requested";
+  if (/prêt pour validation/i.test(contentLabel)) return "content_review";
+  return "proposal";
+}
+
+function incomingMessageFor(card) {
+  return [...card.querySelectorAll('[data-comment-thread] .cockpit-message.other:not(.handled)')]
+    .map((message) => ({
+      text: message.querySelector("p")?.textContent?.trim() || "",
+      updatedAt: dataMillis(message.dataset.createdAt)
+    }))
+    .filter((message) => message.text)
+    .sort((left, right) => right.updatedAt - left.updatedAt)[0] || null;
+}
+
+function mediaStateFor(card) {
+  const proposals = [...card.querySelectorAll(".cockpit-media-card")].filter((media) => {
+    const stage = media.dataset.mediaStage || "";
+    return !["source", "reference"].includes(stage);
+  });
+  return {
+    count: proposals.length,
+    selectedCount: proposals.filter((media) => media.classList.contains("is-final") || media.dataset.mediaSelectedFinal === "true").length,
+    latestUpdate: proposals.reduce((latest, media) => Math.max(latest, dataMillis(media.dataset.mediaUpdatedAt)), 0)
+  };
+}
+
 function eventModels(now = new Date()) {
   const planById = new Map(planItems().map((item) => [String(item.id), item]));
   return [...document.querySelectorAll(".post[data-item-id]")].map((card) => {
@@ -241,10 +282,15 @@ function eventModels(now = new Date()) {
     const complete = Boolean(card.querySelector('[data-gate="publication"][aria-pressed="true"], [data-gate="publication"].done'));
     const undecided = Boolean(card.querySelector('[data-editorial-controls] [data-editorial-decision="undecided"].active'));
     const setAside = card.classList.contains("editorial-deferred") || card.classList.contains("editorial-rejected") || card.classList.contains("is-deleted");
+    const media = mediaStateFor(card);
+    const incomingMessage = incomingMessageFor(card);
     return {
       id, card, item, title, date, dateLabel, complete,
       action: action?.textContent?.trim() || (complete ? "Terminé" : currentGateName ? `${currentGateName} — ${currentGateLabel}` : "Ouvrir l’événement"),
-      needsDecision: !complete && !setAside && (Boolean(action) || undecided),
+      undecided, setAside, incomingMessage, media,
+      stage: inferredWorkflowStage(card),
+      workflowUpdatedAt: dataMillis(card.dataset.workflowUpdatedAt),
+      editorialUpdatedAt: dataMillis(card.dataset.editorialUpdatedAt),
       theme: item.t || card.dataset.t || "Publication"
     };
   }).filter((model) => model.id);
@@ -255,10 +301,141 @@ function relativeDateLabel(date, now) {
   const distance = Math.round((dayStart(date) - dayStart(now)) / 86400000);
   if (distance === 0) return "Aujourd’hui";
   if (distance === 1) return "Demain";
-  return new Intl.DateTimeFormat("fr-CA", { weekday: "short", day: "numeric", month: "short" }).format(date);
+  const formatted = new Intl.DateTimeFormat("fr-CA", { weekday: "short", day: "numeric", month: "short" }).format(date);
+  return distance < 0 ? `En retard · ${formatted}` : formatted;
+}
+
+function pendingTaskModels() {
+  return [...document.querySelectorAll("#cockpit-task-list .cockpit-task-item[data-task-id]")].map((task) => ({
+    id: task.dataset.taskId || "",
+    targetType: task.dataset.taskTargetType || task.querySelector("[data-open-task]")?.dataset.taskTargetType || "schedule",
+    targetId: task.dataset.taskTarget || task.querySelector("[data-open-task]")?.dataset.taskTarget || "",
+    title: task.querySelector(":scope > b")?.textContent?.trim() || "Tâche à accomplir",
+    message: task.querySelector(":scope > p")?.textContent?.trim() || "",
+    updatedAt: dataMillis(task.dataset.taskUpdatedAt),
+    isComment: task.classList.contains("comment-task")
+  })).filter((task) => task.id && task.targetId);
+}
+
+function roleDecisionForEvent(event, role, tasks = []) {
+  const latestTask = [...tasks].sort((left, right) => right.updatedAt - left.updatedAt)[0] || null;
+  const baseUpdatedAt = Math.max(event.workflowUpdatedAt, event.editorialUpdatedAt, event.media.latestUpdate, event.incomingMessage?.updatedAt || 0);
+
+  // Les tâches Firestore sont créées par la direction et destinées aux
+  // communications. Elles ne sont jamais montrées à la direction comme si
+  // elles lui appartenaient.
+  if (role === "admin" && latestTask) {
+    return {
+      ...event,
+      action: latestTask.title,
+      whyNow: latestTask.isComment ? "Nouvelle consigne de la direction" : tasks.length > 1 ? `${tasks.length} actions de la direction à intégrer` : "Décision de la direction à exécuter",
+      updatedAt: Math.max(baseUpdatedAt, latestTask.updatedAt)
+    };
+  }
+
+  if (event.incomingMessage) {
+    return {
+      ...event,
+      action: role === "director" ? "Lire et traiter le message des communications" : "Lire et traiter le message de la direction",
+      whyNow: role === "director" ? "Nouveau message des communications" : "Nouveau message de la direction",
+      updatedAt: Math.max(baseUpdatedAt, event.incomingMessage.updatedAt)
+    };
+  }
+
+  if (event.complete || event.setAside) return null;
+
+  if (role === "director") {
+    if (event.stage === "content_review") {
+      return {
+        ...event,
+        action: event.undecided ? "Choisir la proposition puis valider son texte" : "Approuver le texte ou demander une correction",
+        whyNow: "Texte prêt pour votre validation",
+        updatedAt: baseUpdatedAt
+      };
+    }
+
+    const mediaUpdatedAfterWorkflow = event.media.count > 0 && event.media.latestUpdate > event.workflowUpdatedAt;
+    const contentAlreadyApproved = ["content_approved", "media_review", "final_approved", "scheduled"].includes(event.stage);
+    if (event.stage === "media_review" || (contentAlreadyApproved && mediaUpdatedAfterWorkflow)) {
+      return {
+        ...event,
+        action: event.media.selectedCount > 0 ? "Approuver le média retenu" : "Choisir le média final et l’approuver",
+        whyNow: mediaUpdatedAfterWorkflow ? "Un média vient d’être ajouté ou mis à jour" : "Média prêt pour votre validation",
+        updatedAt: Math.max(baseUpdatedAt, event.media.latestUpdate)
+      };
+    }
+
+    if (event.undecided) {
+      return {
+        ...event,
+        action: "Choisir l’angle éditorial pour cette journée",
+        whyNow: "Choix éditorial demandé à la direction",
+        updatedAt: baseUpdatedAt
+      };
+    }
+    return null;
+  }
+
+  if (role === "admin") {
+    const adminActions = {
+      proposal: ["Finaliser le texte et le soumettre à la direction", "Brouillon à préparer par les communications"],
+      changes_requested: ["Appliquer les corrections demandées", "Retour de la direction à intégrer"],
+      content_approved: ["Produire ou finaliser le média, puis l’envoyer", "Texte approuvé : le média devient prioritaire"],
+      final_approved: ["Publier ou programmer la publication", "Texte et média approuvés : feu vert de diffusion"]
+    };
+    const action = adminActions[event.stage];
+    if (!action) return null;
+    return { ...event, action: action[0], whyNow: action[1], updatedAt: baseUpdatedAt };
+  }
+
+  return null;
+}
+
+function urgencyFor(decision, now) {
+  if (!decision.date) return { rank: 3, dateValue: Number.POSITIVE_INFINITY, className: "undated" };
+  const distance = Math.round((dayStart(decision.date) - dayStart(now)) / 86400000);
+  if (distance < 0) return { rank: 0, dateValue: decision.date.valueOf(), className: "overdue" };
+  if (distance === 0) return { rank: 1, dateValue: decision.date.valueOf(), className: "today" };
+  if (distance <= 2) return { rank: 2, dateValue: decision.date.valueOf(), className: "soon" };
+  return { rank: 4, dateValue: decision.date.valueOf(), className: "later" };
+}
+
+function roleDecisionModels(events, role, now) {
+  const tasks = role === "admin" ? pendingTaskModels() : [];
+  const tasksByEvent = new Map();
+  tasks.filter((task) => task.targetType === "schedule").forEach((task) => {
+    const rows = tasksByEvent.get(task.targetId) || [];
+    rows.push(task);
+    tasksByEvent.set(task.targetId, rows);
+  });
+
+  const eventDecisions = events
+    .map((event) => roleDecisionForEvent(event, role, tasksByEvent.get(event.id) || []))
+    .filter(Boolean);
+  const sectionTasks = role === "admin" ? tasks.filter((task) => task.targetType === "section").map((task) => ({
+    id: `task-${task.id}`,
+    taskId: task.id,
+    targetType: task.targetType,
+    targetId: task.targetId,
+    title: task.title,
+    date: null,
+    dateLabel: "Sans date",
+    theme: "Suivi transmis par la direction",
+    action: task.title,
+    whyNow: task.isComment ? "Nouvelle consigne de la direction" : "Action de coordination à traiter",
+    updatedAt: task.updatedAt
+  })) : [];
+
+  return [...eventDecisions, ...sectionTasks].map((decision) => ({ ...decision, urgency: urgencyFor(decision, now) })).sort((left, right) =>
+    left.urgency.rank - right.urgency.rank
+    || left.urgency.dateValue - right.urgency.dateValue
+    || right.updatedAt - left.updatedAt
+    || left.title.localeCompare(right.title, "fr")
+  );
 }
 
 function linkButton(event, label = "Ouvrir") {
+  if (event.taskId) return `<button type="button" class="vm-open" data-vm-task="${escapeHtml(event.taskId)}">${escapeHtml(label)}<span aria-hidden="true">→</span></button>`;
   return `<button type="button" class="vm-open" data-vm-target="${escapeHtml(event.id)}">${escapeHtml(label)}<span aria-hidden="true">→</span></button>`;
 }
 
@@ -279,9 +456,10 @@ function empty(message) {
   return `<p class="vm-empty">${escapeHtml(message)}</p>`;
 }
 
-function compactEvent(event, now, { showAction = true } = {}) {
-  return `<article class="vm-event">
+function compactEvent(event, now, { showAction = true, showReason = false } = {}) {
+  return `<article class="vm-event${event.urgency?.className ? ` priority-${event.urgency.className}` : ""}">
     <div><span class="vm-event-date">${escapeHtml(relativeDateLabel(event.date, now))}</span><h3>${escapeHtml(event.title)}</h3><p>${escapeHtml(event.theme)}${showAction ? ` · ${escapeHtml(event.action)}` : ""}</p></div>
+    ${showReason ? `<span class="vm-why-now"><b>Pourquoi maintenant</b>${escapeHtml(event.whyNow || "Action à traiter")}</span>` : ""}
     ${linkButton(event)}
   </article>`;
 }
@@ -354,14 +532,17 @@ function renderDashboard(now = new Date()) {
     const distance = (dayStart(event.date) - start) / 86400000;
     return distance > 0 && distance <= 7;
   });
-  const decisions = events.filter((event) => event.needsDecision && (!event.date || dayStart(event.date) >= start)).slice(0, 7);
+  // File strictement personnelle : aucun élément « en attente de l’autre
+  // rôle » n’est mélangé aux actions de la personne connectée.
+  const allDecisions = roleDecisionModels(events, runtime.identity.role, now);
+  const decisions = allDecisions.slice(0, 7);
   const messages = messageModels();
 
   const todayBody = today.length
     ? today.map((event) => compactEvent(event, now)).join("")
     : empty("Aucune publication prévue aujourd’hui.");
   const decisionsBody = decisions.length
-    ? decisions.map((event) => compactEvent(event, now)).join("")
+    ? decisions.map((event) => compactEvent(event, now, { showReason: true })).join("") + (allDecisions.length > decisions.length ? `<p class="vm-priority-overflow">${allDecisions.length - decisions.length} autre${allDecisions.length - decisions.length > 1 ? "s" : ""} action${allDecisions.length - decisions.length > 1 ? "s" : ""} reste${allDecisions.length - decisions.length > 1 ? "nt" : ""} dans la file; les sept priorités sont affichées.</p>` : "")
     : `<div class="vm-all-clear"><b>Tout est à jour.</b><span>Aucune décision n’est requise pour le moment.</span></div>`;
   const weekBody = nextWeek.length
     ? nextWeek.map((event) => compactEvent(event, now, { showAction: false })).join("")
@@ -372,7 +553,7 @@ function renderDashboard(now = new Date()) {
 
   grid.innerHTML = [
     panel("today", "Aujourd’hui", `${today.length} événement${today.length > 1 ? "s" : ""}`, todayBody, "vm-today"),
-    panel("decision", "Décisions qui m’attendent", `${decisions.length} à traiter`, decisionsBody, "vm-decisions"),
+    panel("decision", "Décisions qui m’attendent", `${allDecisions.length} pour vous`, decisionsBody, "vm-decisions"),
     panel("week", "Les sept prochains jours", `${nextWeek.length} événement${nextWeek.length > 1 ? "s" : ""}`, weekBody, "vm-week"),
     panel("message", "Messages actifs", `${messages.length} récent${messages.length > 1 ? "s" : ""}`, messagesBody, "vm-messages")
   ].join("");
@@ -389,6 +570,19 @@ function renderDashboard(now = new Date()) {
 function openEvent(id) {
   const card = cardForId(id);
   if (!card) return;
+  const item = planItems().find((candidate) => String(candidate.id) === String(id));
+  const eventDate = inferDate(item?.dateIso || item?.date || "");
+  if (eventDate && dayStart(eventDate) < dayStart(new Date())) {
+    const pastToggle = document.querySelector("#past-toggle");
+    if (pastToggle?.dataset.active !== "true") pastToggle.click();
+  }
+  const search = document.querySelector("#search");
+  const week = document.querySelector("#week");
+  const theme = document.querySelector("#theme");
+  if (search) search.value = "";
+  if (week) week.value = "all";
+  if (theme) theme.value = "all";
+  search?.dispatchEvent(new Event("input", { bubbles: true }));
   const calendar = document.querySelector("#calendrier");
   if (calendar?.hidden) calendar.hidden = false;
   if (runtime.mode === "essential") {
@@ -412,6 +606,17 @@ function openEvent(id) {
   }, 2200);
 }
 
+function openTask(taskId) {
+  const task = [...document.querySelectorAll("#cockpit-task-list .cockpit-task-item[data-task-id]")]
+    .find((candidate) => candidate.dataset.taskId === taskId);
+  const openButton = task?.querySelector("[data-open-task]");
+  if (!openButton) return;
+  if (openButton.dataset.taskTargetType === "section" && runtime.mode === "essential") {
+    applyMode("complete");
+  }
+  openButton.click();
+}
+
 function scheduleRender() {
   clearTimeout(runtime.renderTimer);
   runtime.renderTimer = setTimeout(() => renderDashboard(), 80);
@@ -424,7 +629,7 @@ function observeDataDom() {
   runtime.observer = new MutationObserver(scheduleRender);
   targets.forEach((target) => runtime.observer.observe(target, {
     childList: true, subtree: true, attributes: true,
-    attributeFilter: ["class", "aria-pressed", "hidden", "data-status"]
+    attributeFilter: ["class", "aria-pressed", "hidden", "data-status", "data-workflow-stage", "data-workflow-updated-at", "data-editorial-updated-at", "data-media-updated-at", "data-media-selected-final", "data-task-updated-at"]
   }));
 }
 
@@ -457,7 +662,12 @@ function handleClick(event) {
     return;
   }
   const target = event.target.closest("[data-vm-target]");
-  if (target) openEvent(target.dataset.vmTarget);
+  if (target) {
+    openEvent(target.dataset.vmTarget);
+    return;
+  }
+  const task = event.target.closest("[data-vm-task]");
+  if (task) openTask(task.dataset.vmTask);
 }
 
 /** Initialise le module. L'appel est idempotent. */

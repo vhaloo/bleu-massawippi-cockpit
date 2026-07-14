@@ -10,6 +10,7 @@ import { applyPlanOverridesToPosts, preparePlanScript } from "./plan-overrides.j
 const workspaceDir = path.dirname(fileURLToPath(import.meta.url));
 const sourcePath = path.resolve(workspaceDir, "..", "index.html");
 const dryRun = process.argv.includes("--dry-run");
+const contentOnly = process.argv.includes("--content-only");
 const source = await fs.readFile(sourcePath, "utf8");
 const css = source.match(/<style>([\s\S]*?)<\/style>/i)?.[1];
 const html = source.match(/<body>([\s\S]*?)<script>\s*var posts=/i)?.[1]?.trim();
@@ -37,7 +38,7 @@ if (size > 900000) throw new Error("Le contenu privé dépasse la limite de séc
 const contentHash = crypto.createHash("sha256").update(JSON.stringify(privateContent)).digest("hex");
 
 if (dryRun) {
-  console.log(JSON.stringify({ sourcePath, posts: posts.length, privateContentBytes: size, ready: true }, null, 2));
+  console.log(JSON.stringify({ sourcePath, posts: posts.length, privateContentBytes: size, contentOnly, ready: true }, null, 2));
   process.exit(0);
 }
 
@@ -67,7 +68,7 @@ batch.set(db.collection("privateContent").doc("plan"), {
 let createdStates = 0;
 let updatedStates = 0;
 let unchangedStates = 0;
-for (const post of posts) {
+for (const post of contentOnly ? [] : posts) {
   if (!/^[a-z0-9-]{3,80}$/i.test(post.id)) throw new Error("Identifiant de publication invalide : " + post.id);
   const ref = db.collection("scheduleItems").doc(post.id);
   const existing = await ref.get();
@@ -126,4 +127,4 @@ for (const post of posts) {
 }
 
 await batch.commit();
-console.log(JSON.stringify({ seeded: true, posts: posts.length, mainPosts: mainPosts.length, createdStates, updatedStates, unchangedStates, privateContentBytes: size, contentHash, versionId: versionRef.id }, null, 2));
+console.log(JSON.stringify({ seeded: true, contentOnly, posts: posts.length, mainPosts: mainPosts.length, createdStates, updatedStates, unchangedStates, privateContentBytes: size, contentHash, versionId: versionRef.id }, null, 2));

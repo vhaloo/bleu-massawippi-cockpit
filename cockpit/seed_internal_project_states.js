@@ -14,7 +14,7 @@ const defaults = {
   "caracterisation-benthos": "to_frame",
   "surveillance-cyanobacteries": "to_frame",
   "technicien-un-jour": "to_frame",
-  "jeux-provinciaux-peche": "blocked",
+  "jeux-provinciaux-peche": "completed",
   "moules-zebrees-continuite": "blocked",
   "concours-dessin-jeunesse": "to_frame",
   "poesie-du-lac": "to_frame",

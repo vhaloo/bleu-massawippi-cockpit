@@ -5,6 +5,7 @@
   "scripts": {
     "sync": "node admin_sync.js",
     "seed": "node seed_private_content.js",
+    "seed:content": "node seed_private_content.js --content-only",
     "seed:media": "node seed_media_config.js",
     "seed:history-media": "node seed_historical_media_links.js",
     "seed:nature-media": "node seed_nature_media_links.js",

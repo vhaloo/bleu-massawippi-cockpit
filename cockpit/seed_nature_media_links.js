@@ -34,16 +34,16 @@ for (const item of manifest) {
     label: item.label,
     url: mediaUrl,
     kind: "image",
-    note: `Illustration originale, format 4:5 (1080 × 1350). ${item.altText} Vérifier une dernière fois la justesse naturaliste et le texte avant diffusion.`,
+    note: item.note || `Illustration originale, format 4:5. ${item.altText} Vérifier une dernière fois la justesse naturaliste et le texte avant diffusion.`,
     altText: item.altText,
-    rightsStatus: "original"
+    rightsStatus: item.rightsStatus || "original"
   };
   if (!existing.exists) {
     batch.set(reference, {
       ...contentFields,
-      stage: "proposal",
-      publicationBlocked: false,
-      archived: false,
+      stage: item.stage || "proposal",
+      publicationBlocked: item.publicationBlocked === true,
+      archived: item.archived === true,
       authorUid: "system-seed",
       authorLabel: "Série éducative vintage",
       createdAt: FieldValue.serverTimestamp(),
