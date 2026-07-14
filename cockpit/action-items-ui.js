@@ -1,4 +1,4 @@
-import { subscribePersonalActionItems } from "./firebase-client.js?v=20260714-media-role-v3";
+import { subscribePersonalActionItems } from "./firebase-client.js?v=20260714-media-role-v4";
 
 let controller = null;
 let activeProfile = null;

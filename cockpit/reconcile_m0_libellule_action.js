@@ -5,7 +5,7 @@ import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
 const EVENT_ID = "alt-20260715";
 const MEDIA_ID = "nature-alt-20260715-libellule-manuscript-v5-scientific-bilingual";
 const ACTION_ID = `media-direction-approval-${EVENT_ID}`;
-const MUTATION_ID = "m0-libellule-v5-reconcile-20260714";
+const MUTATION_ID = "m0-libellule-v5-queuekey-reconcile-20260714";
 const APPLY = process.argv.includes("--apply");
 const CONFIRM_KNOWN_INTENT = process.argv.includes("--confirm-known-intent");
 const KNOWN_INTENT_SOURCE = "PLAN_MAITRE_OPTIMISATION_COCKPIT_2026-07-14.md — sections 1B et 18A (instruction explicite de Valentin)";
@@ -17,6 +17,14 @@ function emptySide(role) {
 
 function emptyOverride() {
   return { active: false, mediaIds: [], reason: "", actorUid: "", actorLabel: "", actorRole: "", decidedAt: null };
+}
+
+function actionItemQueueKey(value, actionItemId) {
+  const priority = Number(value.priorityKey);
+  if (!Number.isInteger(priority) || priority < 0 || priority > 9999) throw new Error("Priorité de décision invalide.");
+  const stateToken = value.state === "pending" ? "p" : value.state === "done" ? "d" : "";
+  if (!stateToken) throw new Error("État de décision invalide.");
+  return `aq1|${value.assigneeUid.length}|${value.assigneeUid}|${value.assigneeRole}|${stateToken}|${String(priority).padStart(4, "0")}|${value.eventDateIso}|${actionItemId}`;
 }
 
 function agreementFor(communications, direction, override, textApproved) {
@@ -126,7 +134,7 @@ async function main() {
     sourceId: EVENT_ID,
     mediaId: MEDIA_ID,
     eventDateIso: "2026-07-15",
-    actionType: textApproved ? "approve_media" : "approve_text_then_media",
+    actionType: textApproved ? "media_direction_approval" : "approve_text_then_media",
     title: textApproved ? "Vérifier et approuver le visuel scientifique de la libellule" : "Valider le texte, puis le visuel recommandé de la libellule",
     message: textApproved
       ? "Les communications recommandent le visuel bilingue v5 à quatre ailes. Vérifier le visuel, puis le choisir ou demander une correction."
@@ -139,6 +147,7 @@ async function main() {
     lastMutationId: MUTATION_ID,
     schemaVersion: 1
   };
+  action.queueKey = actionItemQueueKey(action, ACTION_ID);
   const decision = {
     eventId: EVENT_ID,
     schemaVersion: 2,

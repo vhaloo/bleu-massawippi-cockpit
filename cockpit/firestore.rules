@@ -293,12 +293,32 @@ service cloud.firestore {
         && data.updatedBy is string && data.updatedBy.size() > 0;
     }
 
-    function validActionItem(data) {
-      return data.keys().hasAll(['assigneeUid', 'assigneeRole', 'state', 'sourceType', 'sourceId', 'mediaId', 'eventDateIso', 'actionType', 'title', 'message', 'priorityKey', 'createdByUid', 'createdAt', 'updatedAt', 'updatedBy', 'lastMutationId', 'schemaVersion'])
-        && data.keys().hasOnly(['assigneeUid', 'assigneeRole', 'state', 'sourceType', 'sourceId', 'mediaId', 'eventDateIso', 'actionType', 'title', 'message', 'priorityKey', 'createdByUid', 'createdAt', 'updatedAt', 'updatedBy', 'lastMutationId', 'schemaVersion'])
+    function actionPriorityToken(priorityKey) {
+      return priorityKey < 10 ? '000' + string(priorityKey)
+        : priorityKey < 100 ? '00' + string(priorityKey)
+        : priorityKey < 1000 ? '0' + string(priorityKey)
+        : string(priorityKey);
+    }
+
+    function expectedActionQueueKey(data, actionItemId) {
+      return 'aq1|' + string(data.assigneeUid.size()) + '|' + data.assigneeUid + '|' + data.assigneeRole + '|'
+        + (data.state == 'pending' ? 'p' : 'd') + '|'
+        + actionPriorityToken(data.priorityKey) + '|'
+        + data.eventDateIso + '|' + actionItemId;
+    }
+
+    function personalPendingQueuePrefix() {
+      return 'aq1|' + string(request.auth.uid.size()) + '|' + request.auth.uid + '|' + userRole() + '|p|';
+    }
+
+    function validActionItem(data, actionItemId) {
+      return actionItemId is string && actionItemId.matches('^[A-Za-z0-9_-]{3,180}$')
+        && data.keys().hasAll(['assigneeUid', 'assigneeRole', 'state', 'queueKey', 'sourceType', 'sourceId', 'mediaId', 'eventDateIso', 'actionType', 'title', 'message', 'priorityKey', 'createdByUid', 'createdAt', 'updatedAt', 'updatedBy', 'lastMutationId', 'schemaVersion'])
+        && data.keys().hasOnly(['assigneeUid', 'assigneeRole', 'state', 'queueKey', 'sourceType', 'sourceId', 'mediaId', 'eventDateIso', 'actionType', 'title', 'message', 'priorityKey', 'createdByUid', 'createdAt', 'updatedAt', 'updatedBy', 'lastMutationId', 'schemaVersion'])
         && data.assigneeUid is string && data.assigneeUid.size() > 0 && data.assigneeUid.size() <= 128
         && data.assigneeRole in ['director', 'admin']
         && data.state in ['pending', 'done']
+        && data.queueKey is string && data.queueKey.size() > 0 && data.queueKey.size() <= 1400
         && data.sourceType in ['schedule', 'section', 'opportunity', 'internalProject']
         && data.sourceId is string && data.sourceId.size() > 0 && data.sourceId.size() <= 160
         && data.mediaId is string && data.mediaId.size() <= 180
@@ -307,6 +327,7 @@ service cloud.firestore {
         && data.title is string && data.title.size() > 0 && data.title.size() <= 220
         && data.message is string && data.message.size() <= 1500
         && data.priorityKey is int && data.priorityKey >= 0 && data.priorityKey <= 9999
+        && data.queueKey == expectedActionQueueKey(data, actionItemId)
         && data.createdByUid is string && data.createdByUid.size() > 0 && data.createdByUid.size() <= 128
         && data.createdAt is timestamp && data.updatedAt is timestamp
         && data.updatedBy is string && data.updatedBy.size() > 0 && data.updatedBy.size() <= 128
@@ -465,11 +486,11 @@ service cloud.firestore {
         && resource.data.assigneeUid == request.auth.uid
         && resource.data.assigneeRole == userRole();
       allow list: if activeUser()
-        && request.query.limit != null && request.query.limit <= 25
-        && resource.data.assigneeUid == request.auth.uid
-        && resource.data.assigneeRole == userRole();
+        && request.query.limit != null && request.query.limit > 0 && request.query.limit <= 25
+        && resource.data.queueKey >= personalPendingQueuePrefix()
+        && resource.data.queueKey < personalPendingQueuePrefix() + '\uf8ff';
       allow create: if isEditor()
-        && validActionItem(request.resource.data)
+        && validActionItem(request.resource.data, actionItemId)
         && request.resource.data.state == 'pending'
         && request.resource.data.createdByUid == request.auth.uid
         && request.resource.data.updatedBy == request.auth.uid
@@ -479,8 +500,8 @@ service cloud.firestore {
       allow update: if isEditor()
         && resource.data.assigneeUid == request.auth.uid
         && resource.data.assigneeRole == userRole()
-        && validActionItem(request.resource.data)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['state', 'updatedAt', 'updatedBy', 'lastMutationId'])
+        && validActionItem(request.resource.data, actionItemId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['state', 'queueKey', 'updatedAt', 'updatedBy', 'lastMutationId'])
         && request.resource.data.updatedBy == request.auth.uid;
       allow delete: if false;
     }

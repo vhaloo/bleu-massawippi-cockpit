@@ -18,7 +18,6 @@ import {
   query,
   where,
   orderBy,
-  documentId,
   limit,
   startAfter,
   onSnapshot,
@@ -987,6 +986,33 @@ function personalActionSnapshotValue(item) {
   return { ...data, id: String(item?.id || data.id || "") };
 }
 
+export function actionItemQueueKey(value = {}) {
+  const id = String(value.id || "");
+  const assigneeUid = String(value.assigneeUid || "");
+  const assigneeRole = String(value.assigneeRole || "");
+  const state = value.state === "done" ? "done" : value.state === "pending" ? "pending" : "";
+  const priorityKey = Number(value.priorityKey);
+  const eventDateIso = String(value.eventDateIso || "");
+  if (!id || !/^[A-Za-z0-9_-]{3,180}$/.test(id)) throw new Error("Identifiant de décision invalide pour la file.");
+  if (!assigneeUid || assigneeUid.length > 128) throw new Error("Destinataire invalide pour la file.");
+  if (!['director', 'admin'].includes(assigneeRole)) throw new Error("Rôle invalide pour la file.");
+  if (!state) throw new Error("État invalide pour la file.");
+  if (!Number.isInteger(priorityKey) || priorityKey < 0 || priorityKey > 9999) throw new Error("Priorité invalide pour la file.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(eventDateIso)) throw new Error("Date invalide pour la file.");
+  const stateToken = state === "pending" ? "p" : "d";
+  return `aq1|${assigneeUid.length}|${assigneeUid}|${assigneeRole}|${stateToken}|${String(priorityKey).padStart(4, "0")}|${eventDateIso}|${id}`;
+}
+
+export function personalPendingActionBounds(profile = {}) {
+  const assigneeUid = String(profile.uid || "");
+  const assigneeRole = String(profile.role || "");
+  if (!assigneeUid || assigneeUid.length > 128 || !["director", "admin"].includes(assigneeRole)) {
+    throw new Error("Profil invalide pour la file personnelle.");
+  }
+  const lower = `aq1|${assigneeUid.length}|${assigneeUid}|${assigneeRole}|p|`;
+  return { lower, upper: `${lower}\uf8ff` };
+}
+
 function comparePersonalActions(left, right) {
   return Number(left.priorityKey ?? 9999) - Number(right.priorityKey ?? 9999)
     || String(left.eventDateIso || "9999-12-31").localeCompare(String(right.eventDateIso || "9999-12-31"))
@@ -1020,7 +1046,9 @@ export function mergePersonalActionWindows(liveDocuments = [], retainedPages = [
  * Un seul listener maintient la première fenêtre. Les pages suivantes sont
  * lues une seule fois, avec un curseur startAfter; elles restent en mémoire
  * et sont dédupliquées avec la fenêtre vivante. Le DOM historique demeure un
- * repli indépendant si cette collection ou son index est indisponible.
+ * repli indépendant si cette collection est indisponible. Une clé unique
+ * ordonnable évite tout index composite et encode compte, rôle, état, priorité,
+ * date et identifiant dans un ordre stable.
  */
 export function subscribePersonalActionItems(profile, callback, onError) {
   requireConfigured();
@@ -1028,13 +1056,11 @@ export function subscribePersonalActionItems(profile, callback, onError) {
     throw new Error("Profil requis pour charger la file personnelle.");
   }
   const pageSize = profile.role === "director" ? 5 : 7;
+  const queueBounds = personalPendingActionBounds(profile);
   const constraints = [
-    where("assigneeUid", "==", profile.uid),
-    where("assigneeRole", "==", profile.role),
-    where("state", "==", "pending"),
-    orderBy("priorityKey", "asc"),
-    orderBy("eventDateIso", "asc"),
-    orderBy(documentId(), "asc")
+    where("queueKey", ">=", queueBounds.lower),
+    where("queueKey", "<", queueBounds.upper),
+    orderBy("queueKey", "asc")
   ];
   let liveDocs = [];
   let retainedPages = [];
@@ -1220,13 +1246,24 @@ export async function setPersonalActionItemState(actionItemId, state, profile) {
   const mutationId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  // Pas de lecture préalable : les règles vérifient l’assignation et les
-  // champs immuables. Une validation média ne paie donc qu’une écriture utile.
-  await updateDoc(doc(db, "actionItems", actionItemId), {
-    state: nextState,
-    updatedAt: serverTimestamp(),
-    updatedBy: profile.uid,
-    lastMutationId: mutationId
+  const reference = doc(db, "actionItems", actionItemId);
+  // Une lecture ciblée de ce seul document permet de reconstruire la clé de
+  // file lors d'un retour done -> pending, même après rechargement du cockpit.
+  // Aucune requête de collection ni aucun index composite n'est impliqué.
+  await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(reference);
+    if (!snapshot.exists()) throw new Error("Cette décision personnelle n’existe plus.");
+    const current = snapshot.data();
+    if (current.assigneeUid !== profile.uid || current.assigneeRole !== profile.role) {
+      throw new Error("Cette décision appartient à une autre file personnelle.");
+    }
+    transaction.update(reference, {
+      state: nextState,
+      queueKey: actionItemQueueKey({ ...current, id: actionItemId, state: nextState }),
+      updatedAt: serverTimestamp(),
+      updatedBy: profile.uid,
+      lastMutationId: mutationId
+    });
   });
   if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("cockpit:action-item-state-saved", { detail: { id: actionItemId, state: nextState } }));
 }

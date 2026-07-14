@@ -36,8 +36,8 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-media-role-v3";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-m0-v3";
+} from "./firebase-client.js?v=20260714-media-role-v4";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-m0-v4";
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -2819,13 +2819,14 @@ function enhanceCardEvents() {
           if (state.profile.role === "director") {
             const actionItem = [...document.querySelectorAll("#cockpit-action-item-source [data-action-item-id]")]
               .find((item) => item.dataset.actionTarget === card.dataset.itemId && (!item.dataset.actionMedia || item.dataset.actionMedia === mediaId));
-            if (actionItem) {
-              const resolved = selected && ["agreed", "overridden"].includes(decision?.agreement?.status);
-              try {
-                await setPersonalActionItemState(actionItem.dataset.actionItemId, resolved ? "done" : "pending", state.profile);
-              } catch (error) {
-                console.warn("La décision média est conservée, mais la file personnelle sera réconciliée au prochain cycle.", error);
-              }
+            const actionItemId = actionItem?.dataset.actionItemId || `media-direction-approval-${card.dataset.itemId}`;
+            const resolved = selected && ["agreed", "overridden"].includes(decision?.agreement?.status);
+            try {
+              // Le fallback déterministe est indispensable au retour pending :
+              // une action done n'est volontairement plus présente dans la file.
+              await setPersonalActionItemState(actionItemId, resolved ? "done" : "pending", state.profile);
+            } catch (error) {
+              console.warn("La décision média est conservée, mais la file personnelle sera réconciliée au prochain cycle.", error);
             }
             await recordActionTask(`media-choice-${card.dataset.itemId}`, {
               status: selected ? "pending" : "done",
@@ -2862,10 +2863,9 @@ function enhanceCardEvents() {
           if (state.profile.role === "director" && ["agreed", "overridden"].includes(decision?.agreement?.status)) {
             const actionItem = [...document.querySelectorAll("#cockpit-action-item-source [data-action-item-id]")]
               .find((item) => item.dataset.actionTarget === card.dataset.itemId && (!item.dataset.actionMedia || item.dataset.actionMedia === mediaId));
-            if (actionItem) {
-              try { await setPersonalActionItemState(actionItem.dataset.actionItemId, "done", state.profile); }
-              catch (error) { console.warn("La décision finale est conservée; la file sera réconciliée au prochain cycle.", error); }
-            }
+            const actionItemId = actionItem?.dataset.actionItemId || `media-direction-approval-${card.dataset.itemId}`;
+            try { await setPersonalActionItemState(actionItemId, "done", state.profile); }
+            catch (error) { console.warn("La décision finale est conservée; la file sera réconciliée au prochain cycle.", error); }
           }
           toast(state.profile.role === "director" ? "Décision finale de la direction enregistrée." : "Validation avec aval enregistrée sans usurper l’identité de la direction.");
         })
