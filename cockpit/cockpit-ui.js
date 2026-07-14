@@ -1975,12 +1975,15 @@ function mediaChoiceModel(eventId, row, latestLegacyDecision = "") {
   const agreementIds = ["agreed", "overridden"].includes(decision?.agreement?.status) && Array.isArray(decision.agreement.mediaIds) ? decision.agreement.mediaIds : [];
   const hasLegacyField = Object.prototype.hasOwnProperty.call(row, "selectedFinal");
   const legacySelected = !hasStructuredChoice && (row.selectedFinal === true || (!hasLegacyField && latestLegacyDecision.startsWith(`[MÉDIA RETENU:${row.id}]`)));
+  const communicationsSelected = hasStructuredDecision && communicationsIds.includes(row.id);
+  const directionSelected = hasStructuredDecision && directionIds.includes(row.id);
   return {
     hasStructuredDecision,
     decision,
-    communicationsSelected: hasStructuredDecision && communicationsIds.includes(row.id),
-    directionSelected: hasStructuredDecision && directionIds.includes(row.id),
+    communicationsSelected,
+    directionSelected,
     agreementSelected: hasStructuredDecision && agreementIds.includes(row.id),
+    sameRoleChoice: communicationsSelected && directionSelected,
     divergent: decision?.agreement?.status === "divergent",
     legacySelected,
     finalSelected: hasStructuredDecision ? agreementIds.includes(row.id) : legacySelected
@@ -2085,11 +2088,11 @@ function renderMediaForCard(card) {
       ? (myChoiceSelected ? "Retirer mon choix" : "Choisir ce visuel")
       : (myChoiceSelected ? "Retirer mon choix" : textApproved ? "Approuver ce visuel" : "Choisir ce visuel");
     const choiceDisabled = isBlocked;
-    const infoStatus = isFinal ? "✓ Accord" : choice.communicationsSelected ? "Recommandé" : choice.directionSelected ? "Choix direction" : choice.legacySelected ? "Hérité" : "Ouvrir";
+    const infoStatus = isFinal ? "✓ Accord final" : choice.sameRoleChoice ? "✓ Même choix" : choice.communicationsSelected ? "Recommandé" : choice.directionSelected ? "Choix direction" : choice.legacySelected ? "Hérité" : "Ouvrir";
     const roleBadges = [
       choice.communicationsSelected ? `<span class="cockpit-media-role-badge communications">✓ Recommandé par les communications</span>` : "",
       choice.directionSelected ? `<span class="cockpit-media-role-badge direction">✓ Choisi par la direction générale · visuel prêt</span>` : "",
-      choice.agreementSelected ? `<span class="cockpit-media-role-badge agreement">✓ Accord communications + direction</span>` : "",
+      choice.agreementSelected ? `<span class="cockpit-media-role-badge agreement">✓ Accord communications + direction · décision finale</span>` : choice.sameRoleChoice ? `<span class="cockpit-media-role-badge agreement">✓ Même visuel choisi par les deux rôles</span>` : "",
       choice.divergent && (choice.communicationsSelected || choice.directionSelected) ? `<span class="cockpit-media-role-badge divergence">Choix différents — harmonisation requise</span>` : "",
       choice.legacySelected ? `<span class="cockpit-media-role-badge">Choix hérité à confirmer — acteur non attribué</span>` : ""
     ].join("");
