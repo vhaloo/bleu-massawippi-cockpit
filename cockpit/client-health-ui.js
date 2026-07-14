@@ -5,7 +5,7 @@ import {
   setPersistentCachePreference,
   requestSafeMode,
   forgetThisDevice
-} from "./firebase-client.js?v=20260714-clickable-post-head-v5";
+} from "./firebase-client.js?v=20260714-quota-safe-admin-override-v6";
 
 let unsubscribeDiagnostics = null;
 

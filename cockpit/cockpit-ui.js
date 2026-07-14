@@ -35,15 +35,17 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-clickable-post-head-v5";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-clickable-post-head-v5";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-clickable-post-head-v5";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-clickable-post-head-v5";
-import { buildMediaChoiceModel, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-clickable-post-head-v5";
+} from "./firebase-client.js?v=20260714-quota-safe-admin-override-v6";
+import { createEventContextController } from "./event-context-data.js?v=20260714-quota-safe-admin-override-v6";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-quota-safe-admin-override-v6";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-quota-safe-admin-override-v6";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-quota-safe-admin-override-v6";
+import { buildMediaChoiceModel, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-quota-safe-admin-override-v6";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
 const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
+let eventContextController = null;
 let activeRecognition = null;
 let activeTextarea = null;
 let recognitionRestart = false;
@@ -1968,9 +1970,6 @@ const mediaStageLabels = {
 const workflowTextApprovedStages = new Set(["content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"]);
 
 function showAuthenticatedLoadError(message, retryAction = null) {
-  // Une panne Firestore ou un quota épuisé n'annule jamais une authentification
-  // Firebase valide. On conserve la session et on offre un réessai volontaire,
-  // sans boucle ni spinner infini.
   const login = document.querySelector("#cockpit-login") || buildLogin();
   document.body.classList.add("cockpit-locked", "cockpit-readonly");
   login.removeAttribute("hidden");
@@ -2024,10 +2023,6 @@ function mediaPreviewUrl(row) {
   if (!url || row.kind !== "image") return "";
   const parsed = new URL(url);
   if (parsed.hostname.toLowerCase().endsWith(".sharepoint.com") && parsed.pathname.includes("/:i:/")) {
-    // A SharePoint image-sharing link normally opens the Microsoft viewer.
-    // download=1 resolves that same public link to the image bytes, so the
-    // browser can display a real thumbnail while the card still opens the
-    // original viewer URL in a new tab.
     parsed.searchParams.set("download", "1");
     return parsed.href;
   }
@@ -2074,7 +2069,7 @@ function renderMediaForCard(card) {
       choice.divergent && (choice.communicationsSelected || choice.directionSelected) ? `<span class="cockpit-media-role-badge divergence">Choix différents — harmonisation requise</span>` : "",
       choice.legacySelected ? `<span class="cockpit-media-role-badge">Choix hérité à confirmer — acteur non attribué</span>` : ""
     ].join("");
-    const canOverride = !isBlocked && textApproved && myChoiceSelected && !choice.agreementSelected && ["director", "admin"].includes(role);
+    const canOverride = !isBlocked && myChoiceSelected && !choice.agreementSelected && (role === "admin" || (role === "director" && textApproved));
     const mediaUpdatedAt = stateTimestampMillis(row.updatedAt || row.createdAt);
     return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}${choice.communicationsSelected ? " is-recommended" : ""}${choice.directionSelected ? " is-direction-selected" : ""}${choice.divergent ? " is-divergent" : ""}${isBlocked ? " is-blocked" : ""}" data-media-id="${esc(row.id)}" data-media-stage="${esc(row.stage || "reference")}" data-media-updated-at="${mediaUpdatedAt}" data-media-selected-final="${String(isFinal)}" data-media-communications-selected="${String(choice.communicationsSelected)}" data-media-direction-selected="${String(choice.directionSelected)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
@@ -2084,7 +2079,7 @@ function renderMediaForCard(card) {
         ${isBlocked ? `<span class="cockpit-media-blocked">Référence conservée pour comparaison — ne pas choisir pour diffusion.</span>` : ""}
         <div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span><br><a class="cockpit-media-source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Ouvrir l’original dans OneDrive ↗</a></div>
         ${roleBadges ? `<div class="cockpit-media-role-badges">${roleBadges}</div>` : ""}
-        ${["director","admin"].includes(role) ? `<button type="button" class="cockpit-media-final-action" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}"${choiceDisabled ? " disabled" : ""}>${isBlocked ? "Référence non diffusable" : chooseLabel}</button>${canOverride ? `<button type="button" class="cockpit-media-override-action" data-media-override="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Retenir comme décision finale…</button>` : ""}<div class="cockpit-media-comment" data-voice-container><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire sur ce média" title="Dicter un commentaire sur ce média">🎙️</button><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div></div>` : ""}
+        ${["director","admin"].includes(role) ? `<button type="button" class="cockpit-media-final-action" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}"${choiceDisabled ? " disabled" : ""}>${isBlocked ? "Référence non diffusable" : chooseLabel}</button>${canOverride ? `<button type="button" class="cockpit-media-override-action" data-media-override="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">${role === "admin" && !textApproved ? "Valider le texte et retenir ce visuel…" : "Retenir comme décision finale…"}</button>` : ""}<div class="cockpit-media-comment" data-voice-container><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire sur ce média" title="Dicter un commentaire sur ce média">🎙️</button><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div></div>` : ""}
         ${canEdit() ? `<button type="button" data-archive-media="${esc(row.id)}" aria-label="Archiver ce lien média" title="Archiver sans supprimer">Archiver ce lien</button>` : ""}
       </div></details>
     </article>`;
@@ -2208,9 +2203,6 @@ function renderWorkflow(card) {
   card.dataset.workflowStage = stage;
   card.dataset.workflowUpdatedAt = String(stateTimestampMillis(row.updatedAt));
   const contentDone = ["content_approved","media_review","final_approved","scheduled","published"].includes(stage);
-  // Dès qu'un résumé structuré existe, il surclasse selectedFinal et les
-  // marqueurs de commentaires hérités. L'étape visuelle n'est alors signée
-  // que par l'accord dérivé ou un override motivé.
   const mediaDone = structuredMediaDecision
     ? directionMediaReady || structuredMediaAgreement
     : ["final_approved","scheduled","published"].includes(stage);
@@ -2295,6 +2287,20 @@ function renderCommentThread(card, sectionId = card.dataset.itemId) {
 
 function renderAllCollaboration() {
   document.querySelectorAll(".post[data-item-id]").forEach((card) => { renderWorkflow(card); renderCommentThread(card); renderEditorialDecision(card); });
+}
+
+function stopEventContext() {
+  eventContextController?.stop();
+  eventContextController = null;
+}
+
+function activateEventContext(eventId) {
+  eventContextController ||= createEventContextController({
+    enabled: configured && !safeMode && Boolean(state.profile),
+    onRows: (kind,id,rows) => { (kind==="comments"?state.commentsByEvent:state.mediaByEvent).set(id,rows); const card=document.querySelector(`.post[data-item-id="${CSS.escape(id)}"]`); if(card){renderCommentThread(card);renderMediaForCard(card);renderWorkflow(card);} notifyViewUpdate(`event-${kind}`); },
+    onError: (error) => console.warn("Contexte temps réel de l’événement indisponible", error)
+  });
+  eventContextController.activate(eventId);
 }
 
 function installBrandLogo() {
@@ -2718,6 +2724,7 @@ function enhanceCardEvents() {
   document.addEventListener("click", (event) => {
     const card = event.target.closest(".post[data-item-id]");
     if (!card) return;
+    activateEventContext(card.dataset.itemId);
     const editorialButton = event.target.closest("button[data-editorial-decision]");
     if (editorialButton) {
       editorialButton.disabled = true;
@@ -2841,9 +2848,10 @@ function enhanceCardEvents() {
       event.stopPropagation();
       const mediaId = mediaOverrideButton.dataset.mediaOverride;
       const label = mediaOverrideButton.dataset.mediaLabel || "Média OneDrive";
+      const textApproved = workflowTextApprovedStages.has(state.workflows.get(card.dataset.itemId)?.stage || "proposal");
       const promptLabel = state.profile?.role === "director"
         ? "Pourquoi retenir ce visuel comme décision finale?"
-        : "Quel aval de la direction autorise cette validation?";
+        : textApproved ? "Quel motif autorise cette validation finale par les communications?" : "Pourquoi les communications valident-elles maintenant le texte et ce visuel?";
       const reason = prompt(promptLabel, "");
       if (reason === null) return;
       if (!reason.trim()) { toast("Ajoutez un motif clair afin de préserver la trace de décision.", true); return; }
@@ -2857,7 +2865,7 @@ function enhanceCardEvents() {
             try { await setPersonalActionItemState(actionItemId, "done", state.profile); }
             catch (error) { console.warn("La décision finale est conservée; la file sera réconciliée au prochain cycle.", error); }
           }
-          toast(state.profile.role === "director" ? "Décision finale de la direction enregistrée." : "Validation avec aval enregistrée sans usurper l’identité de la direction.");
+          toast(state.profile.role === "director" ? "Décision finale de la direction enregistrée." : "Validation des communications enregistrée avec son motif, sans usurper l’identité de la direction.");
         })
         .catch((error) => toast(error.message, true))
         .finally(() => { mediaOverrideButton.disabled = false; });
@@ -2993,8 +3001,6 @@ async function applyProfile(profile) {
     clearAdminLazyData();
     state.tasksUnsubscribe?.();
     if (configured) {
-      // Le journal et la liste détaillée des rétroactions sont chargés seulement
-      // lorsque le panneau est ouvert. La file de tâches reste visible en tête.
       if (!safeMode) state.tasksUnsubscribe = subscribeActionTasks(renderActionTasks, (error) => toast("La liste des tâches n’est pas accessible : " + error.message, true));
     }
   } else {
@@ -3020,6 +3026,7 @@ async function applyProfile(profile) {
 
 function applySignedOut(message = "") {
   if (activeRecognition) stopDictation("Session fermée.");
+  stopEventContext();
   state.profile = null;
   state.user = null;
   state.rows = new Map();

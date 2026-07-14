@@ -172,8 +172,12 @@ service cloud.firestore {
             && data.agreement.divergent == true)
           || (data.agreement.status == 'overridden'
             && data.override.active == true
-            && data.direction.status == 'selected'
-            && data.override.mediaIds == data.direction.mediaIds
+            && ((data.override.actorRole == 'director'
+                && data.direction.status == 'selected'
+                && data.override.mediaIds == data.direction.mediaIds)
+              || (data.override.actorRole == 'admin'
+                && data.communications.status == 'selected'
+                && data.override.mediaIds == data.communications.mediaIds))
             && data.agreement.mediaIds == data.override.mediaIds
             && data.agreement.divergent == false
             && workflowTextApproved(data.eventId))
@@ -535,7 +539,10 @@ service cloud.firestore {
           && ((isAdmin()
             && request.resource.data.direction.status == 'none'
             && request.resource.data.communications.actorUid == request.auth.uid
-            && request.resource.data.override.active == false)
+            && (request.resource.data.override.active == false
+              || (request.resource.data.override.active == true
+                && request.resource.data.override.actorUid == request.auth.uid
+                && request.resource.data.override.actorRole == 'admin')))
           || (isDirector()
             && request.resource.data.communications.status == 'none'
             && request.resource.data.direction.actorUid == request.auth.uid
