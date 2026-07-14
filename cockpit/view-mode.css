@@ -362,6 +362,19 @@
 
 .vm-card-summary { display: none; }
 
+.cockpit-view-essential .post > .post-head[data-vm-header-toggle] {
+  cursor: pointer;
+  transition: background-color .16s ease, box-shadow .16s ease;
+}
+.cockpit-view-essential .post > .post-head[data-vm-header-toggle]:hover {
+  background: color-mix(in srgb, #dff4f2 42%, transparent);
+}
+.cockpit-view-essential .post > .post-head[data-vm-header-toggle]:focus-visible {
+  outline: 3px solid #0b7895;
+  outline-offset: -3px;
+  box-shadow: inset 0 0 0 1px #fff;
+}
+
 .cockpit-view-essential .vm-card-summary {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;

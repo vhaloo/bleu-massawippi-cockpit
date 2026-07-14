@@ -35,11 +35,11 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-clear-toggles-v4";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-clear-toggles-v4";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-clear-toggles-v4";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-clear-toggles-v4";
-import { buildMediaChoiceModel, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-clear-toggles-v4";
+} from "./firebase-client.js?v=20260714-clickable-post-head-v5";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-clickable-post-head-v5";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-clickable-post-head-v5";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-clickable-post-head-v5";
+import { buildMediaChoiceModel, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-clickable-post-head-v5";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";

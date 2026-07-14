@@ -378,12 +378,8 @@ function revealTargetTree(target) {
     return null;
   }
   card.hidden = false;
-  card.classList.add("vm-expanded", "vm-navigation-reveal");
-  const toggle = card.querySelector(":scope > .vm-card-summary [data-vm-card-toggle]");
-  if (toggle) {
-    toggle.setAttribute("aria-expanded", "true");
-    toggle.textContent = "Réduire";
-  }
+  card.classList.add("vm-navigation-reveal");
+  setCardExpanded(card, true);
   card.querySelector(":scope > details")?.setAttribute("open", "");
   card.querySelector("details.cockpit-media")?.setAttribute("open", "");
   return card;
@@ -798,6 +794,41 @@ function gateIsDone(card, gate) {
   return Boolean(card.querySelector(`[data-gate="${gate}"][aria-pressed="true"], [data-gate="${gate}"].done`));
 }
 
+function setCardExpanded(card, expanded) {
+  if (!card) return;
+  const isExpanded = Boolean(expanded);
+  card.classList.toggle("vm-expanded", isExpanded);
+  const toggle = card.querySelector(":scope > .vm-card-summary [data-vm-card-toggle]");
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", String(isExpanded));
+    toggle.textContent = isExpanded ? "− Réduire" : "+ Voir et décider";
+  }
+  const head = card.querySelector(":scope > .post-head[data-vm-header-toggle]");
+  if (head) {
+    const title = head.querySelector("h4")?.textContent?.trim() || "cette publication";
+    head.setAttribute("aria-expanded", String(isExpanded));
+    head.setAttribute("aria-label", `${isExpanded ? "Réduire" : "Voir et décider"} — ${title}`);
+  }
+  card.querySelector(":scope > .vm-card-summary")?.removeAttribute("data-signature");
+}
+
+function configureCardHeaderToggle(card, head, expanded) {
+  if (runtime.mode !== "essential") {
+    delete head.dataset.vmHeaderToggle;
+    head.removeAttribute("role");
+    head.removeAttribute("tabindex");
+    head.removeAttribute("aria-expanded");
+    head.removeAttribute("aria-label");
+    return;
+  }
+  const title = head.querySelector("h4")?.textContent?.trim() || "cette publication";
+  head.dataset.vmHeaderToggle = "";
+  head.setAttribute("role", "button");
+  head.setAttribute("tabindex", "0");
+  head.setAttribute("aria-expanded", String(expanded));
+  head.setAttribute("aria-label", `${expanded ? "Réduire" : "Voir et décider"} — ${title}`);
+}
+
 function enhanceCardSummaries() {
   document.querySelectorAll(".post[data-item-id]").forEach((card) => {
     const head = card.querySelector(":scope > .post-head");
@@ -817,6 +848,7 @@ function enhanceCardSummaries() {
       publication: gateIsDone(card, "publication")
     };
     const expanded = card.classList.contains("vm-expanded");
+    configureCardHeaderToggle(card, head, expanded);
     const signature = JSON.stringify({ action, state, expanded });
     if (summary.dataset.signature === signature) return;
     summary.dataset.signature = signature;
@@ -990,15 +1022,19 @@ function handleClick(event) {
     if (runtime.mode === "essential") renderDashboard();
     return;
   }
+  const cardHeader = event.target.closest("[data-vm-header-toggle]");
+  const nestedInteractive = event.target.closest("a, button, input, textarea, select, summary, [role='button']");
+  if (cardHeader && (!nestedInteractive || nestedInteractive === cardHeader)) {
+    const card = cardHeader.closest(".post[data-item-id]");
+    if (!card) return;
+    setCardExpanded(card, !card.classList.contains("vm-expanded"));
+    return;
+  }
   const cardToggle = event.target.closest("[data-vm-card-toggle]");
   if (cardToggle) {
     const card = cardToggle.closest(".post[data-item-id]");
     if (!card) return;
-    const expanded = !card.classList.contains("vm-expanded");
-    card.classList.toggle("vm-expanded", expanded);
-    cardToggle.setAttribute("aria-expanded", String(expanded));
-    cardToggle.textContent = expanded ? "− Réduire" : "+ Voir et décider";
-    card.querySelector(":scope > .vm-card-summary")?.removeAttribute("data-signature");
+    setCardExpanded(card, !card.classList.contains("vm-expanded"));
     return;
   }
   const target = event.target.closest("[data-vm-target]");
@@ -1020,6 +1056,16 @@ function handleClick(event) {
   if (loadMore) loadMoreDecisions(loadMore);
 }
 
+function handleKeydown(event) {
+  if (!['Enter', ' '].includes(event.key)) return;
+  const cardHeader = event.target.closest?.("[data-vm-header-toggle]");
+  if (!cardHeader || event.target !== cardHeader) return;
+  const card = cardHeader.closest(".post[data-item-id]");
+  if (!card) return;
+  event.preventDefault();
+  setCardExpanded(card, !card.classList.contains("vm-expanded"));
+}
+
 /** Initialise le module. L'appel est idempotent. */
 export function init(options = {}) {
   runtime.options = { ...runtime.options, ...options };
@@ -1035,6 +1081,7 @@ export function init(options = {}) {
   runtime.explicitMode = Boolean(requested);
 
   listen(document, "click", handleClick);
+  listen(document, "keydown", handleKeydown);
   listen(window, "cockpit:content-ready", () => update());
   listen(window, "cockpit:action-items-updated", () => update());
   listen(window, "cockpit:session-ready", (event) => update(event.detail || {}));
