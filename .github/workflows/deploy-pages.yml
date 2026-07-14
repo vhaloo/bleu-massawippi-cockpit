@@ -76,6 +76,8 @@ jobs:
           cp cockpit/index.html public/
           cp cockpit/cockpit-ui.js public/
           cp cockpit/action-items-ui.js public/
+          cp cockpit/client-health-ui.js public/
+          cp cockpit/admin-lazy-data.js public/
           cp cockpit/view-mode.js public/
           cp cockpit/view-mode.css public/
           cp cockpit/firebase-client.js public/
