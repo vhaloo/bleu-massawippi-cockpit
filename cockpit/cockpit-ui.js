@@ -1,5 +1,6 @@
 import {
   getClientState,
+  waitForClientReady,
   fetchPrivateContent,
   fetchMediaConfig,
   observeAuth,
@@ -11,9 +12,7 @@ import {
   setScheduleSelection,
   addComment,
   writeAuditLog,
-  subscribeAuditLogs,
   addCockpitFeedback,
-  subscribeCockpitFeedback,
   updateCockpitFeedbackStatus,
   upsertActionTask,
   completeActionTask,
@@ -36,12 +35,14 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-media-role-v4";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-m0-v4";
+} from "./firebase-client.js?v=20260714-media-select-v2";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-media-select-v2";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-media-select-v2";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-media-select-v2";
 
-const { configured } = getClientState();
+const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
-const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
+const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
 let activeRecognition = null;
 let activeTextarea = null;
 let recognitionRestart = false;
@@ -736,6 +737,7 @@ function setAdminSidebarOpen(open) {
   const toggle = document.querySelector("#cockpit-sidebar-toggle");
   if (!sidebar) return;
   if (open) {
+    startAdminLazyData({ enabled: configured && !safeMode && state.profile?.role === "admin", onFeedback: renderFeedbackList, onError: (label, error) => toast(`Les ${label} ne sont pas accessibles : ${error.message}`, true) });
     sidebar.hidden = false;
     sidebar.removeAttribute("inert");
     sidebar.setAttribute("aria-hidden", "false");
@@ -743,6 +745,7 @@ function setAdminSidebarOpen(open) {
     void sidebar.offsetWidth;
     sidebar.classList.add("open");
   } else {
+    scheduleAdminLazyDataStop();
     if (sidebar.contains(document.activeElement)) toggle?.focus();
     sidebar.classList.remove("open");
     sidebar.setAttribute("inert", "");
@@ -1437,7 +1440,7 @@ function getPlanItem(card) {
 }
 
 function canEdit() {
-  return Boolean(state.profile && ["director", "admin"].includes(state.profile.role));
+  return Boolean(!safeMode && state.profile && ["director", "admin"].includes(state.profile.role));
 }
 
 function choiceGroupIds(planItem) {
@@ -1972,12 +1975,15 @@ function mediaChoiceModel(eventId, row, latestLegacyDecision = "") {
   const agreementIds = ["agreed", "overridden"].includes(decision?.agreement?.status) && Array.isArray(decision.agreement.mediaIds) ? decision.agreement.mediaIds : [];
   const hasLegacyField = Object.prototype.hasOwnProperty.call(row, "selectedFinal");
   const legacySelected = !hasStructuredChoice && (row.selectedFinal === true || (!hasLegacyField && latestLegacyDecision.startsWith(`[MÉDIA RETENU:${row.id}]`)));
+  const communicationsSelected = hasStructuredDecision && communicationsIds.includes(row.id);
+  const directionSelected = hasStructuredDecision && directionIds.includes(row.id);
   return {
     hasStructuredDecision,
     decision,
-    communicationsSelected: hasStructuredDecision && communicationsIds.includes(row.id),
-    directionSelected: hasStructuredDecision && directionIds.includes(row.id),
+    communicationsSelected,
+    directionSelected,
     agreementSelected: hasStructuredDecision && agreementIds.includes(row.id),
+    sameRoleChoice: communicationsSelected && directionSelected,
     divergent: decision?.agreement?.status === "divergent",
     legacySelected,
     finalSelected: hasStructuredDecision ? agreementIds.includes(row.id) : legacySelected
@@ -2079,18 +2085,18 @@ function renderMediaForCard(card) {
     const role = state.profile?.role;
     const myChoiceSelected = role === "admin" ? choice.communicationsSelected : role === "director" ? choice.directionSelected : false;
     const chooseLabel = role === "admin"
-      ? (myChoiceSelected ? "Retirer ma recommandation" : "Recommander ce visuel")
-      : (myChoiceSelected ? "Retirer mon approbation" : "Approuver ce visuel");
-    const choiceDisabled = isBlocked || (role === "director" && !textApproved);
-    const infoStatus = isFinal ? "✓ Accord" : choice.communicationsSelected ? "Recommandé" : choice.directionSelected ? "Choix direction" : choice.legacySelected ? "Hérité" : "Ouvrir";
+      ? (myChoiceSelected ? "Retirer mon choix" : "Choisir ce visuel")
+      : (myChoiceSelected ? "Retirer mon choix" : textApproved ? "Approuver ce visuel" : "Choisir ce visuel");
+    const choiceDisabled = isBlocked;
+    const infoStatus = isFinal ? "✓ Accord final" : choice.sameRoleChoice ? "✓ Même choix" : choice.communicationsSelected ? "Recommandé" : choice.directionSelected ? "Choix direction" : choice.legacySelected ? "Hérité" : "Ouvrir";
     const roleBadges = [
       choice.communicationsSelected ? `<span class="cockpit-media-role-badge communications">✓ Recommandé par les communications</span>` : "",
-      choice.directionSelected ? `<span class="cockpit-media-role-badge direction">✓ Choisi par la direction générale</span>` : "",
-      choice.agreementSelected ? `<span class="cockpit-media-role-badge agreement">✓ Accord communications + direction</span>` : "",
+      choice.directionSelected ? `<span class="cockpit-media-role-badge direction">✓ Choisi par la direction générale · visuel prêt</span>` : "",
+      choice.agreementSelected ? `<span class="cockpit-media-role-badge agreement">✓ Accord communications + direction · décision finale</span>` : choice.sameRoleChoice ? `<span class="cockpit-media-role-badge agreement">✓ Même visuel choisi par les deux rôles</span>` : "",
       choice.divergent && (choice.communicationsSelected || choice.directionSelected) ? `<span class="cockpit-media-role-badge divergence">Choix différents — harmonisation requise</span>` : "",
       choice.legacySelected ? `<span class="cockpit-media-role-badge">Choix hérité à confirmer — acteur non attribué</span>` : ""
     ].join("");
-    const canOverride = !isBlocked && textApproved && myChoiceSelected && !choice.agreementSelected && role === "director";
+    const canOverride = !isBlocked && textApproved && myChoiceSelected && !choice.agreementSelected && ["director", "admin"].includes(role);
     const mediaUpdatedAt = stateTimestampMillis(row.updatedAt || row.createdAt);
     return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}${choice.communicationsSelected ? " is-recommended" : ""}${choice.directionSelected ? " is-direction-selected" : ""}${choice.divergent ? " is-divergent" : ""}${isBlocked ? " is-blocked" : ""}" data-media-id="${esc(row.id)}" data-media-stage="${esc(row.stage || "reference")}" data-media-updated-at="${mediaUpdatedAt}" data-media-selected-final="${String(isFinal)}" data-media-communications-selected="${String(choice.communicationsSelected)}" data-media-direction-selected="${String(choice.directionSelected)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
@@ -2099,7 +2105,7 @@ function renderMediaForCard(card) {
         ${isBlocked ? `<span class="cockpit-media-blocked">Référence conservée pour comparaison — ne pas choisir pour diffusion.</span>` : ""}
         <div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span><br><a class="cockpit-media-source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Ouvrir l’original dans OneDrive ↗</a></div>
         ${roleBadges ? `<div class="cockpit-media-role-badges">${roleBadges}</div>` : ""}
-        ${["director","admin"].includes(role) ? `<button type="button" class="cockpit-media-final-action" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}"${choiceDisabled ? " disabled" : ""}>${isBlocked ? "Référence non diffusable" : role === "director" && !textApproved ? "Approuver d’abord le texte" : chooseLabel}</button>${canOverride ? `<button type="button" class="cockpit-media-override-action" data-media-override="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Retenir comme décision finale…</button>` : ""}<div class="cockpit-media-comment" data-voice-container><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire sur ce média" title="Dicter un commentaire sur ce média">🎙️</button><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div></div>` : ""}
+        ${["director","admin"].includes(role) ? `<button type="button" class="cockpit-media-final-action" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}"${choiceDisabled ? " disabled" : ""}>${isBlocked ? "Référence non diffusable" : chooseLabel}</button>${canOverride ? `<button type="button" class="cockpit-media-override-action" data-media-override="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Retenir comme décision finale…</button>` : ""}<div class="cockpit-media-comment" data-voice-container><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire sur ce média" title="Dicter un commentaire sur ce média">🎙️</button><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div></div>` : ""}
         ${canEdit() ? `<button type="button" data-archive-media="${esc(row.id)}" aria-label="Archiver ce lien média" title="Archiver sans supprimer">Archiver ce lien</button>` : ""}
       </div></details>
     </article>`;
@@ -2184,7 +2190,7 @@ const workflowOrder = ["proposal", "content_review", "changes_requested", "conte
 function workflowRank(stage) { return workflowOrder.indexOf(stage || "proposal"); }
 
 function workflowMarkup(planItem) {
-  return `<section class="cockpit-workflow" data-workflow><h5>Les 3 feux verts</h5><p class="cockpit-workflow-intro">Le texte est approuvé par la direction, puis chacun choisit le visuel dans la galerie. Cliquez de nouveau sur votre choix pour le retirer; chaque changement reste dans l’historique. L’option « Valider le visuel avec l’aval » demeure indisponible aux communications tant qu’une preuve d’aval structurée n’est pas jointe.</p><div class="cockpit-workflow-gates"><button type="button" class="cockpit-workflow-gate" data-gate="content" aria-pressed="false"><b>1 · Texte</b><span data-gate-label>À valider</span></button><button type="button" class="cockpit-workflow-gate" data-gate="media" aria-pressed="false"><b>2 · Visuel</b><span data-gate-label>Commence après le texte</span></button><button type="button" class="cockpit-workflow-gate" data-gate="publication" aria-pressed="false"><b>3 · Terminé</b><span data-gate-label>Publié ou programmé</span></button></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
+  return `<section class="cockpit-workflow" data-workflow><h5>Les 3 feux verts</h5><p class="cockpit-workflow-intro">Le texte et le visuel peuvent avancer en parallèle. Chacun peut choisir son visuel dans la galerie; le choix de la direction marque le visuel comme prêt et un choix identique des deux rôles affiche automatiquement leur accord. Cliquez de nouveau pour retirer votre choix : chaque changement reste dans l’historique. La publication demeure réservée aux communications et exige les deux feux verts.</p><div class="cockpit-workflow-gates"><button type="button" class="cockpit-workflow-gate" data-gate="content" aria-pressed="false"><b>1 · Texte</b><span data-gate-label>À valider</span></button><button type="button" class="cockpit-workflow-gate" data-gate="media" aria-pressed="false"><b>2 · Visuel</b><span data-gate-label>Choix en attente</span></button><button type="button" class="cockpit-workflow-gate" data-gate="publication" aria-pressed="false"><b>3 · Terminé</b><span data-gate-label>Publié ou programmé</span></button></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
 }
 
 function editorialDecisionMarkup(planItem) {
@@ -2216,6 +2222,9 @@ function renderWorkflow(card) {
   const stage = row.stage || "proposal";
   const structuredMediaDecision = state.mediaDecisions.get(card.dataset.itemId) || null;
   const structuredMediaAgreement = ["agreed", "overridden"].includes(structuredMediaDecision?.agreement?.status);
+  const directionMediaReady = structuredMediaDecision?.direction?.status === "selected"
+    && Array.isArray(structuredMediaDecision.direction.mediaIds)
+    && structuredMediaDecision.direction.mediaIds.length > 0;
   card.dataset.workflowStage = stage;
   card.dataset.workflowUpdatedAt = String(stateTimestampMillis(row.updatedAt));
   const contentDone = ["content_approved","media_review","final_approved","scheduled","published"].includes(stage);
@@ -2223,7 +2232,7 @@ function renderWorkflow(card) {
   // marqueurs de commentaires hérités. L'étape visuelle n'est alors signée
   // que par l'accord dérivé ou un override motivé.
   const mediaDone = structuredMediaDecision
-    ? contentDone && structuredMediaAgreement
+    ? directionMediaReady || structuredMediaAgreement
     : ["final_approved","scheduled","published"].includes(stage);
   const publicationDone = ["scheduled","published"].includes(stage);
   const contentGate = card.querySelector('[data-gate="content"]');
@@ -2239,11 +2248,12 @@ function renderWorkflow(card) {
   const publicationLabel = publicationGate?.querySelector("[data-gate-label]");
   if (contentLabel) contentLabel.textContent = contentDone ? "Approuvé" : (stage === "changes_requested" ? "Corrections demandées" : stage === "content_review" ? "Prêt pour validation" : "En préparation");
   if (mediaLabel) mediaLabel.textContent = mediaDone
-    ? (structuredMediaDecision?.agreement?.status === "overridden" ? "Validé avec aval" : "Accord des deux rôles")
+    ? (structuredMediaDecision?.agreement?.status === "overridden" ? "Validé avec aval" : structuredMediaAgreement ? "Accord des deux rôles" : "Choisi par la direction")
     : structuredMediaDecision?.agreement?.status === "divergent"
       ? "Choix à harmoniser"
-      : (stage === "media_review" ? "Prêt pour validation" : contentDone ? "En production" : "Attend le texte");
-  if (publicationLabel) publicationLabel.textContent = publicationDone ? "Publié ou programmé" : mediaDone ? "Prêt à publier" : "Attend les 2 validations";
+      : (stage === "media_review" ? "Prêt pour validation" : "Choix en attente");
+  const publicationReady = contentDone && mediaDone;
+  if (publicationLabel) publicationLabel.textContent = publicationDone ? "Publié ou programmé" : publicationReady ? "Prêt à publier" : "Attend les 2 validations";
   const configureGate = (gate, done, canCheck, checkStage, uncheckStage, checkedName, roleAllowed = true) => {
     if (!gate) return;
     gate.setAttribute("aria-pressed", String(done));
@@ -2261,7 +2271,7 @@ function renderWorkflow(card) {
   };
   configureGate(contentGate, contentDone, true, "content_approved", "content_review", "Texte", !(state.profile?.role === "director" && ["scheduled", "published"].includes(stage)));
   configureGate(mediaGate, mediaDone, false, "final_approved", "media_review", "Visuel", false);
-  configureGate(publicationGate, publicationDone, mediaDone, "published", "final_approved", "Terminé", state.profile?.role === "admin");
+  configureGate(publicationGate, publicationDone, publicationReady, "published", "final_approved", "Terminé", state.profile?.role === "admin");
   card.classList.toggle("workflow-complete", publicationDone);
   const completeNote = card.querySelector("[data-workflow-complete]");
   if (completeNote) completeNote.hidden = !publicationDone;
@@ -2974,6 +2984,7 @@ function clearPrivateContent() {
 
 async function applyProfile(profile) {
   state.profile = profile;
+  await waitForClientReady();
   const loginNote = document.querySelector("#cockpit-login-note");
   if (loginNote) loginNote.textContent = "Identifiants vérifiés. Chargement du cockpit…";
   state.mediaConfig = await fetchMediaConfig().catch((error) => {
@@ -2983,11 +2994,13 @@ async function applyProfile(profile) {
   await loadPrivateContent();
   document.body.classList.remove("cockpit-locked");
   document.body.classList.remove("cockpit-readonly");
+  document.body.classList.toggle("cockpit-safe-mode", safeMode);
+  if (safeMode) document.body.classList.add("cockpit-readonly");
   document.querySelector("#cockpit-login")?.setAttribute("hidden", "");
   const retry = document.querySelector("#cockpit-retry-content");
   if (retry) { retry.hidden = true; retry.onclick = null; }
   const session = buildSession();
-  session.querySelector("#cockpit-session-label").innerHTML = "Connecté : <strong>" + esc(profile.displayLabel) + "</strong> · rôle " + esc(profile.role);
+  session.querySelector("#cockpit-session-label").innerHTML = "Connecté : <strong>" + esc(profile.displayLabel) + "</strong> · rôle " + esc(profile.role) + (safeMode ? " · mode secours" : "");
   dispatchEvent(new CustomEvent("cockpit:session-ready", { detail: { profile } }));
   setupResponsiveOffsets();
   setupPersonalActionItems(profile, configured);
@@ -2995,27 +3008,19 @@ async function applyProfile(profile) {
     document.body.classList.add("cockpit-admin");
     buildAdminSidebar();
     buildTaskWidget();
+    buildHealthWidget(profile);
     enhanceTaskEvents();
-    state.auditUnsubscribe?.();
-    state.feedbackUnsubscribe?.();
+    clearAdminLazyData();
     state.tasksUnsubscribe?.();
     if (configured) {
-      state.auditUnsubscribe = subscribeAuditLogs((logs) => {
-        const list = document.querySelector("#cockpit-log-list");
-        if (!list) return;
-        list.innerHTML = logs.length ? logs.map((log) => {
-          const when = log.createdAt?.toDate ? log.createdAt.toDate().toLocaleString("fr-CA") : "date en attente";
-          return `<div class="cockpit-log"><b>${esc(when)} · ${esc(log.action || "modification")}</b><span>section: ${esc(log.sectionId || "—")} · utilisateur: ${esc(log.userLabel || log.userUid || "—")}</span></div>`;
-        }).join("") : "<p>Aucun journal accessible pour le moment.</p>";
-      }, (error) => toast("Le journal n’est pas accessible : " + error.message, true));
-      state.feedbackUnsubscribe = subscribeCockpitFeedback(renderFeedbackList, (error) => toast("Les rétroactions ne sont pas accessibles : " + error.message, true));
-      state.tasksUnsubscribe = subscribeActionTasks(renderActionTasks, (error) => toast("La liste des tâches n’est pas accessible : " + error.message, true));
+      // Le journal et la liste détaillée des rétroactions sont chargés seulement
+      // lorsque le panneau est ouvert. La file de tâches reste visible en tête.
+      if (!safeMode) state.tasksUnsubscribe = subscribeActionTasks(renderActionTasks, (error) => toast("La liste des tâches n’est pas accessible : " + error.message, true));
     }
   } else {
     document.body.classList.remove("cockpit-admin");
-    state.feedbackUnsubscribe?.();
+    clearAdminLazyData();
     state.tasksUnsubscribe?.();
-    state.feedbackUnsubscribe = null;
     state.tasksUnsubscribe = null;
     document.querySelector("#cockpit-task-launch")?.remove();
   }
@@ -3047,8 +3052,7 @@ function applySignedOut(message = "") {
   state.decisions = new Map();
   state.mediaConfig = null;
   state.scheduleUnsubscribe?.();
-  state.auditUnsubscribe?.();
-  state.feedbackUnsubscribe?.();
+  clearAdminLazyData();
   state.tasksUnsubscribe?.();
   clearPersonalActionItems();
   state.mediaUnsubscribe?.();
@@ -3059,8 +3063,6 @@ function applySignedOut(message = "") {
   state.internalProjectUnsubscribe?.();
   state.decisionUnsubscribe?.();
   state.scheduleUnsubscribe = null;
-  state.auditUnsubscribe = null;
-  state.feedbackUnsubscribe = null;
   state.tasksUnsubscribe = null;
   state.mediaUnsubscribe = null;
   state.mediaDecisionUnsubscribe = null;
@@ -3079,7 +3081,9 @@ function applySignedOut(message = "") {
   document.querySelector("#cockpit-task-launch")?.remove();
   document.querySelector("#cockpit-feedback-launch")?.remove();
   document.querySelector("#cockpit-feedback-panel")?.remove();
+  clearHealthWidget();
   document.body.classList.remove("cockpit-admin");
+  document.body.classList.remove("cockpit-safe-mode");
   document.body.classList.add("cockpit-readonly");
   const login = document.querySelector("#cockpit-login") || buildLogin();
   login.removeAttribute("hidden");
@@ -3105,6 +3109,29 @@ function subscribeRemoteData() {
     renderMonthlyEditorialSnapshot();
     notifyViewUpdate("schedule");
   }, (error) => toast("Le calendrier n’est pas accessible : " + error.message, true));
+  if (safeMode) {
+    state.mediaDecisionUnsubscribe?.();
+    state.mediaDecisionUnsubscribe = subscribeMediaDecisions((rows) => {
+      state.mediaDecisions = new Map(rows.map((row) => [row.eventId || row.id, row]));
+      renderAllMedia();
+      renderAllCollaboration();
+      notifyViewUpdate("media-decisions-cache");
+    }, (error) => console.warn("Décisions média absentes du cache", error));
+    state.workflowUnsubscribe?.();
+    state.workflowUnsubscribe = subscribeWorkflowStates((rows) => {
+      state.workflows = new Map(rows.map((row) => [row.eventId || row.id, row]));
+      renderAllCollaboration();
+      notifyViewUpdate("workflow-cache");
+    }, (error) => console.warn("Workflows absents du cache", error));
+    state.decisionUnsubscribe?.();
+    state.decisionUnsubscribe = subscribeEditorialDecisions((rows) => {
+      state.decisions = new Map(rows.map((row) => [row.eventId || row.id, row]));
+      document.querySelectorAll(".post[data-item-id]").forEach(renderEditorialDecision);
+      renderMonthlyEditorialSnapshot();
+      notifyViewUpdate("decisions-cache");
+    }, (error) => console.warn("Décisions éditoriales absentes du cache", error));
+    return;
+  }
   state.mediaUnsubscribe?.();
   state.mediaUnsubscribe = subscribeMediaLinks((rows) => {
     const grouped = new Map();

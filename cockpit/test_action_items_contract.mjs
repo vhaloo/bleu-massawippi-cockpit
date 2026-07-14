@@ -18,7 +18,7 @@ assert.match(subscription, /where\("queueKey", "<", queueBounds\.upper\)/);
 assert.match(subscription, /orderBy\("queueKey", "asc"\)/);
 assert.doesNotMatch(subscription, /where\("assigneeUid"|where\("assigneeRole"|where\("state"|orderBy\("priorityKey"|documentId\(/,
   "La file ne doit dépendre que de l’index automatique de queueKey.");
-assert.equal((subscription.match(/onSnapshot\(/g) || []).length, 1, "Un seul listener est autorisé pour la fenêtre vivante.");
+assert.equal((subscription.match(/trackedOnSnapshot\("personalActionItems"/g) || []).length, 1, "Un seul listener suivi est autorisé pour la fenêtre vivante.");
 assert.match(subscription, /startAfter\(cursor\)/);
 assert.match(subscription, /getDocs\(/);
 assert.doesNotMatch(subscription, /offset\s*\(/i);
@@ -36,7 +36,8 @@ assert.match(subscription, /tailExhausted = exhausted;[\s\S]*hasMore = !tailExha
 assert.match(subscription, /if \(!liveDocs\.length\)[\s\S]*retainedPages = \[\][\s\S]*hasMore = false/);
 
 const pureStart = client.indexOf("function personalActionSnapshotValue");
-const pureEnd = client.indexOf("/**\n * File Firestore strictement personnelle", pureStart);
+const pureMarker = client.indexOf(" * File Firestore strictement personnelle", pureStart);
+const pureEnd = client.lastIndexOf("/**", pureMarker);
 assert.ok(pureStart >= 0 && pureEnd > pureStart, "Le modèle de fenêtres doit rester testable sans Firebase.");
 const sandbox = {};
 vm.runInNewContext(

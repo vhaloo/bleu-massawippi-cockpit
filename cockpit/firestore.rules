@@ -117,7 +117,7 @@ service cloud.firestore {
         && value.reason is string && value.reason.size() <= 500
         && value.actorUid is string
         && value.actorLabel is string && value.actorLabel.size() <= 120
-        && value.actorRole in ['', 'director']
+        && value.actorRole in ['', 'director', 'admin']
         && ((value.active == false
             && value.mediaIds.size() == 0
             && value.reason == ''
@@ -130,7 +130,7 @@ service cloud.firestore {
             && value.reason.size() > 0
             && value.actorUid.size() > 0
             && value.actorLabel.size() > 0
-            && value.actorRole == 'director'
+            && value.actorRole in ['director', 'admin']
             && value.decidedAt is timestamp));
     }
 
@@ -539,7 +539,6 @@ service cloud.firestore {
           || (isDirector()
             && request.resource.data.communications.status == 'none'
             && request.resource.data.direction.actorUid == request.auth.uid
-            && workflowTextApproved(eventId)
             && (request.resource.data.override.active == false
               || (request.resource.data.override.actorUid == request.auth.uid
                 && request.resource.data.override.actorRole == 'director'))));
@@ -548,9 +547,13 @@ service cloud.firestore {
         && request.resource.data.eventId == eventId
         && mediaWorkflowMatchesAgreement(request.resource.data)
           && ((isAdmin()
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['communications', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['communications', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
             && request.resource.data.direction == resource.data.direction
-            && request.resource.data.override == resource.data.override
+            && validMediaOverride(request.resource.data.override)
+            && (request.resource.data.override == resource.data.override
+              || (request.resource.data.override.active == true
+                && request.resource.data.override.actorUid == request.auth.uid
+                && request.resource.data.override.actorRole == 'admin'))
             && validMediaDecisionSide(request.resource.data.communications, 'admin')
             && validSelectedMedia(eventId, request.resource.data.communications)
             && validMediaAgreement(request.resource.data)
@@ -564,7 +567,6 @@ service cloud.firestore {
             && validSelectedMedia(eventId, request.resource.data.direction)
             && validMediaAgreement(request.resource.data)
             && request.resource.data.direction.actorUid == request.auth.uid
-            && (request.resource.data.direction.status != 'selected' || workflowTextApproved(eventId))
             && (request.resource.data.override.active == false
               || (request.resource.data.override.actorUid == request.auth.uid
                 && request.resource.data.override.actorRole == 'director'))));

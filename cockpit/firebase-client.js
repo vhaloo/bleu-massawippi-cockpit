@@ -14,6 +14,10 @@ import {
   memoryLocalCache,
   persistentLocalCache,
   persistentMultipleTabManager,
+  clearIndexedDbPersistence,
+  terminate,
+  disableNetwork,
+  enableNetwork,
   collection,
   query,
   where,
@@ -43,7 +47,94 @@ let app;
 let auth;
 let db;
 let persistenceState = "not-configured";
+const CACHE_PREFERENCE_KEY = "bleu-massawippi-firestore-cache-v1";
+const SAFE_MODE_QUERY_KEY = "safe";
+const queryParameters = typeof location !== "undefined" ? new URLSearchParams(location.search) : new URLSearchParams();
+const safeModeRequested = queryParameters.get(SAFE_MODE_QUERY_KEY) === "1";
+const persistentCacheRequested = safeModeRequested
+  || queryParameters.get("offline") === "1"
+  || (typeof localStorage !== "undefined" && localStorage.getItem(CACHE_PREFERENCE_KEY) === "persistent");
+let networkReady = Promise.resolve();
+let listenerSequence = 0;
+const diagnosticSubscribers = new Set();
+const diagnostics = {
+  safeMode: safeModeRequested,
+  networkState: safeModeRequested ? "cache-only" : (typeof navigator !== "undefined" && navigator.onLine === false ? "offline" : "online"),
+  persistenceState,
+  persistentCacheRequested,
+  activeListeners: 0,
+  listenerNames: [],
+  deliveredDocuments: 0,
+  deliveredFromCache: 0,
+  confirmedWrites: 0,
+  lastServerSyncAt: "",
+  lastErrorAt: "",
+  lastErrorCode: "",
+  lastErrorMessage: ""
+};
+const activeListenerNames = new Map();
 const REQUEST_TIMEOUT_MS = 15000;
+
+function diagnosticsSnapshot() {
+  return Object.freeze({
+    ...diagnostics,
+    persistenceState,
+    listenerNames: [...activeListenerNames.values()].sort()
+  });
+}
+
+function emitDiagnostics() {
+  const snapshot = diagnosticsSnapshot();
+  diagnosticSubscribers.forEach((subscriber) => {
+    try { subscriber(snapshot); } catch (error) { console.warn("Diagnostic client non rendu", error); }
+  });
+  if (typeof dispatchEvent === "function" && typeof CustomEvent === "function") {
+    dispatchEvent(new CustomEvent("cockpit:client-diagnostics", { detail: snapshot }));
+  }
+}
+
+function recordClientError(error) {
+  diagnostics.lastErrorAt = new Date().toISOString();
+  diagnostics.lastErrorCode = String(error?.code || "unknown").slice(0, 120);
+  diagnostics.lastErrorMessage = String(error?.message || error || "Erreur inconnue").slice(0, 500);
+  emitDiagnostics();
+}
+
+function recordConfirmedWrites(count = 1) {
+  diagnostics.confirmedWrites += Math.max(0, Number(count) || 0);
+  emitDiagnostics();
+}
+
+function trackedOnSnapshot(name, reference, onNext, onError) {
+  const listenerId = `${String(name || "listener").slice(0, 80)}#${++listenerSequence}`;
+  activeListenerNames.set(listenerId, String(name || "listener").slice(0, 80));
+  diagnostics.activeListeners = activeListenerNames.size;
+  emitDiagnostics();
+  let closed = false;
+  const unsubscribe = onSnapshot(
+    reference,
+    (snapshot) => {
+      const size = Number.isFinite(snapshot?.size) ? snapshot.size : snapshot?.exists?.() ? 1 : 0;
+      diagnostics.deliveredDocuments += size;
+      if (snapshot?.metadata?.fromCache) diagnostics.deliveredFromCache += size;
+      else diagnostics.lastServerSyncAt = new Date().toISOString();
+      emitDiagnostics();
+      onNext(snapshot);
+    },
+    (error) => {
+      recordClientError(error);
+      onError?.(error);
+    }
+  );
+  return () => {
+    if (closed) return;
+    closed = true;
+    activeListenerNames.delete(listenerId);
+    diagnostics.activeListeners = activeListenerNames.size;
+    emitDiagnostics();
+    unsubscribe();
+  };
+}
 
 function withTimeout(promise, message, timeoutMs = REQUEST_TIMEOUT_MS) {
   let timer;
@@ -57,8 +148,7 @@ if (configured) {
   app = getApps().length ? getApps()[0] : initializeApp(config);
   auth = getAuth(app);
   try {
-    const offlineRequested = typeof location !== "undefined" && new URLSearchParams(location.search).get("offline") === "1";
-    if (offlineRequested) {
+    if (persistentCacheRequested) {
       db = initializeFirestore(app, {
         localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
       });
@@ -74,8 +164,33 @@ if (configured) {
     db = getFirestore(app);
     persistenceState = "unavailable";
   }
+  diagnostics.persistenceState = persistenceState;
+  if (safeModeRequested) {
+    networkReady = disableNetwork(db)
+      .then(() => {
+        diagnostics.networkState = "cache-only";
+        emitDiagnostics();
+      })
+      .catch((error) => {
+        recordClientError(error);
+        throw error;
+      });
+  }
   setPersistence(auth, browserLocalPersistence).catch(() => {
     persistenceState = "unavailable";
+    diagnostics.persistenceState = persistenceState;
+    emitDiagnostics();
+  });
+}
+
+if (typeof addEventListener === "function") {
+  addEventListener("online", () => {
+    if (!safeModeRequested) diagnostics.networkState = "online";
+    emitDiagnostics();
+  });
+  addEventListener("offline", () => {
+    if (!safeModeRequested) diagnostics.networkState = "offline";
+    emitDiagnostics();
   });
 }
 
@@ -83,6 +198,11 @@ function requireConfigured() {
   if (!configured) {
     throw new Error("Firebase n’est pas configuré. Renseignez firebase-config.js.");
   }
+}
+
+function requireWritable() {
+  requireConfigured();
+  if (safeModeRequested) throw new Error("Le mode secours est en lecture seule. Revenez au mode normal pour enregistrer un changement.");
 }
 
 async function appendChangeArchive(entityType, entityId, action, before, after, profile) {
@@ -102,6 +222,7 @@ async function appendChangeArchive(entityType, entityId, action, before, after, 
       actorLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
       createdAt: serverTimestamp()
     });
+    recordConfirmedWrites(1);
   } catch (error) {
     console.warn("Archive de changement non écrite", error);
   }
@@ -133,11 +254,54 @@ async function getProfile(user) {
 }
 
 export function getClientState() {
-  return { configured, persistenceState, auth, db };
+  return { configured, persistenceState, persistentCacheRequested, safeMode: safeModeRequested, auth, db };
+}
+
+export async function waitForClientReady() {
+  await networkReady;
+  return diagnosticsSnapshot();
+}
+
+export function getClientDiagnostics() {
+  return diagnosticsSnapshot();
+}
+
+export function subscribeClientDiagnostics(callback) {
+  if (typeof callback !== "function") return () => {};
+  diagnosticSubscribers.add(callback);
+  callback(diagnosticsSnapshot());
+  return () => diagnosticSubscribers.delete(callback);
+}
+
+export function setPersistentCachePreference(enabled) {
+  if (typeof localStorage === "undefined") return;
+  if (enabled) localStorage.setItem(CACHE_PREFERENCE_KEY, "persistent");
+  else localStorage.removeItem(CACHE_PREFERENCE_KEY);
+}
+
+export function requestSafeMode(enabled) {
+  if (typeof location === "undefined") return;
+  const url = new URL(location.href);
+  if (enabled) url.searchParams.set(SAFE_MODE_QUERY_KEY, "1");
+  else url.searchParams.delete(SAFE_MODE_QUERY_KEY);
+  location.assign(url.href);
+}
+
+export async function forgetThisDevice() {
+  requireConfigured();
+  try { await signOut(auth); } catch (error) { recordClientError(error); }
+  try { await disableNetwork(db); } catch (error) { recordClientError(error); }
+  await terminate(db);
+  await clearIndexedDbPersistence(db);
+  if (typeof localStorage !== "undefined") localStorage.removeItem(CACHE_PREFERENCE_KEY);
+  diagnostics.networkState = "cleared";
+  diagnostics.persistenceState = "cleared";
+  emitDiagnostics();
 }
 
 export async function fetchPrivateContent() {
   requireConfigured();
+  await waitForClientReady();
   const snapshot = await withTimeout(getDoc(doc(db, "privateContent", "plan")), "Le contenu sécurisé ne répond pas après 15 secondes. Réessayez.");
   if (!snapshot.exists()) {
     throw new Error("Le contenu sécurisé n’a pas encore été préparé.");
@@ -151,6 +315,7 @@ export async function fetchPrivateContent() {
 
 export async function fetchMediaConfig() {
   requireConfigured();
+  await waitForClientReady();
   const snapshot = await withTimeout(getDoc(doc(db, "privateConfig", "media")), "La configuration OneDrive ne répond pas.");
   if (!snapshot.exists()) return { folderUrl: "", folderViewUrl: "" };
   const data = snapshot.data();
@@ -196,7 +361,8 @@ export async function logOut() {
 
 export function subscribeScheduleItems(callback, onError) {
   requireConfigured();
-  const unsubscribe = onSnapshot(
+  const unsubscribe = trackedOnSnapshot(
+    "scheduleItems",
     collection(db, "scheduleItems"),
     (snapshot) => {
       const rows = snapshot.docs
@@ -210,7 +376,7 @@ export function subscribeScheduleItems(callback, onError) {
 }
 
 export async function updateScheduleItem(itemId, changes, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) {
     throw new Error("Ce compte n’a pas le droit de modifier le calendrier.");
   }
@@ -219,10 +385,11 @@ export async function updateScheduleItem(itemId, changes, profile) {
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid
   });
+  recordConfirmedWrites(1);
 }
 
 export async function upsertScheduleItem(itemId, payload, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) {
     throw new Error("Ce compte n’a pas le droit de modifier le calendrier.");
   }
@@ -242,6 +409,7 @@ export async function upsertScheduleItem(itemId, payload, profile) {
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid
   }, { merge: true });
+  recordConfirmedWrites(1);
   await appendChangeArchive("scheduleItem", itemId, "calendrier : " + payload.status, {
     title: before.title || "",
     dateKey: before.dateKey || "",
@@ -258,7 +426,7 @@ export async function upsertScheduleItem(itemId, payload, profile) {
 }
 
 export async function setScheduleSelection(itemId, groupIds, selected, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) {
     throw new Error("Ce compte n’a pas le droit d’arbitrer le calendrier.");
   }
@@ -275,6 +443,7 @@ export async function setScheduleSelection(itemId, groupIds, selected, profile) 
     });
   }
   await batch.commit();
+  recordConfirmedWrites(ids.length);
   await Promise.all(ids.map((id, index) => {
     const before = beforeDocs[index].exists() ? beforeDocs[index].data() : {};
     return appendChangeArchive("scheduleItem", id, "choix éditorial : " + (selected && id === itemId ? "sélectionné" : "désélectionné"), {
@@ -294,7 +463,7 @@ export async function setScheduleSelection(itemId, groupIds, selected, profile) 
 }
 
 export async function addComment(itemId, comment, profile, quickTag = null, dictated = false) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) {
     throw new Error("Ce compte n’a pas le droit d’ajouter un commentaire.");
   }
@@ -317,6 +486,7 @@ export async function addComment(itemId, comment, profile, quickTag = null, dict
     updatedAt: now,
     updatedBy: profile.uid
   });
+  recordConfirmedWrites(1);
   await appendChangeArchive("comment", reference.id, dictated ? "commentaire dicté" : "commentaire ajouté", {}, {
     sectionId: itemId,
     comment: text,
@@ -329,31 +499,33 @@ export async function addComment(itemId, comment, profile, quickTag = null, dict
 export function subscribeComments(callback, onError) {
   requireConfigured();
   const commentsQuery = query(collection(db, "comments"), orderBy("createdAt", "asc"), limit(500));
-  return onSnapshot(commentsQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+  return trackedOnSnapshot("comments", commentsQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
 }
 
 export async function updateOwnComment(commentId, text, profile) {
-  requireConfigured();
+  requireWritable();
   const reference = doc(db, "comments", commentId);
   const existing = await getDoc(reference);
   if (!existing.exists() || existing.data().authorUid !== profile?.uid) throw new Error("Vous pouvez modifier uniquement votre propre commentaire.");
   const comment = String(text || "").trim().slice(0, 5000);
   if (!comment) throw new Error("Le commentaire ne peut pas être vide.");
   await updateDoc(reference, { comment, updatedAt: serverTimestamp(), updatedBy: profile.uid });
+  recordConfirmedWrites(1);
   await appendChangeArchive("comment", commentId, "commentaire modifié", { comment: existing.data().comment || "" }, { comment }, profile);
 }
 
 export async function archiveOwnComment(commentId, profile) {
-  requireConfigured();
+  requireWritable();
   const reference = doc(db, "comments", commentId);
   const existing = await getDoc(reference);
   if (!existing.exists() || existing.data().authorUid !== profile?.uid) throw new Error("Vous pouvez archiver uniquement votre propre commentaire.");
   await updateDoc(reference, { deleted: true, updatedAt: serverTimestamp(), updatedBy: profile.uid });
+  recordConfirmedWrites(1);
   await appendChangeArchive("comment", commentId, "commentaire archivé", { deleted: false, comment: existing.data().comment || "" }, { deleted: true, comment: existing.data().comment || "" }, profile);
 }
 
 export async function resolveComment(commentId, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas traiter ce commentaire.");
   const reference = doc(db, "comments", commentId);
   const existing = await getDoc(reference);
@@ -367,6 +539,7 @@ export async function resolveComment(commentId, profile) {
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid
   });
+  recordConfirmedWrites(1);
   await appendChangeArchive("comment", commentId, "commentaire traité", {
     resolved: before.resolved === true,
     comment: before.comment || ""
@@ -380,7 +553,7 @@ const workflowStages = new Set(["proposal", "content_review", "changes_requested
 const contentApprovedWorkflowStages = new Set(["content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"]);
 
 export async function setWorkflowStage(eventId, stage, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas modifier le cycle de validation.");
   if (!/^[a-z0-9-]{3,80}$/i.test(String(eventId || "")) || !workflowStages.has(stage)) throw new Error("Étape de validation invalide.");
   const reference = doc(db, "workflowStates", eventId);
@@ -402,18 +575,19 @@ export async function setWorkflowStage(eventId, stage, profile) {
     updatedBy: profile.uid,
     updatedByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120)
   }, { merge: true });
+  recordConfirmedWrites(1);
   await appendChangeArchive("workflowState", eventId, "cycle : " + stage, { stage: before.stage || "proposal" }, { stage }, profile);
 }
 
 export function subscribeWorkflowStates(callback, onError) {
   requireConfigured();
-  return onSnapshot(collection(db, "workflowStates"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+  return trackedOnSnapshot("workflowStates", collection(db, "workflowStates"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
 }
 
 const opportunityStages = new Set(["watch", "research", "active", "submitted", "completed"]);
 
 export async function setOpportunityStage(opportunityId, stage, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas modifier le suivi des occasions.");
   if (!/^[a-z0-9-]{3,80}$/i.test(String(opportunityId || "")) || !opportunityStages.has(stage)) throw new Error("Étape de projet invalide.");
   const reference = doc(db, "opportunityStates", opportunityId);
@@ -426,18 +600,19 @@ export async function setOpportunityStage(opportunityId, stage, profile) {
     updatedBy: profile.uid,
     updatedByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120)
   }, { merge: true });
+  recordConfirmedWrites(1);
   await appendChangeArchive("opportunityState", opportunityId, "occasion : " + stage, { stage: before.stage || "watch" }, { stage }, profile);
 }
 
 export function subscribeOpportunityStates(callback, onError) {
   requireConfigured();
-  return onSnapshot(collection(db, "opportunityStates"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+  return trackedOnSnapshot("opportunityStates", collection(db, "opportunityStates"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
 }
 
 const internalProjectStages = new Set(["to_frame", "planned", "active", "blocked", "completed"]);
 
 export async function setInternalProjectStage(projectId, stage, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas modifier le suivi des projets internes.");
   if (!/^[a-z0-9-]{3,80}$/i.test(String(projectId || "")) || !internalProjectStages.has(stage)) throw new Error("Étape de projet interne invalide.");
   const reference = doc(db, "internalProjectStates", projectId);
@@ -450,19 +625,20 @@ export async function setInternalProjectStage(projectId, stage, profile) {
     updatedBy: profile.uid,
     updatedByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120)
   }, { merge: true });
+  recordConfirmedWrites(1);
   await appendChangeArchive("internalProjectState", projectId, "projet interne : " + stage, { stage: before.stage || "to_frame" }, { stage }, profile);
 }
 
 export function subscribeInternalProjectStates(callback, onError) {
   requireConfigured();
   const statesQuery = query(collection(db, "internalProjectStates"), limit(100));
-  return onSnapshot(statesQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+  return trackedOnSnapshot("internalProjectStates", statesQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
 }
 
 const editorialDecisionValues = new Set(["undecided", "chosen", "deferred", "rejected"]);
 
 export async function setEditorialDecision(eventId, decision, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas arbitrer cette proposition.");
   if (!/^[a-z0-9-]{3,80}$/i.test(String(eventId || "")) || !editorialDecisionValues.has(decision)) throw new Error("Décision éditoriale invalide.");
   const reference = doc(db, "editorialDecisions", eventId);
@@ -475,12 +651,13 @@ export async function setEditorialDecision(eventId, decision, profile) {
     updatedBy: profile.uid,
     updatedByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120)
   }, { merge: true });
+  recordConfirmedWrites(1);
   await appendChangeArchive("editorialDecision", eventId, "arbitrage : " + decision, { decision: before.decision || "undecided" }, { decision }, profile);
 }
 
 export function subscribeEditorialDecisions(callback, onError) {
   requireConfigured();
-  return onSnapshot(collection(db, "editorialDecisions"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+  return trackedOnSnapshot("editorialDecisions", collection(db, "editorialDecisions"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
 }
 
 function normalizeMediaUrl(value) {
@@ -497,7 +674,7 @@ function normalizeMediaUrl(value) {
 }
 
 export async function addMediaLink(eventId, payload, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) {
     throw new Error("Ce compte n’a pas le droit d’ajouter un média.");
   }
@@ -525,6 +702,7 @@ export async function addMediaLink(eventId, payload, profile) {
     updatedBy: profile.uid
   };
   const reference = await addDoc(collection(db, "mediaLinks"), data);
+  recordConfirmedWrites(1);
   await appendChangeArchive("mediaLink", reference.id, "lien média ajouté", {}, {
     eventId, label: data.label, url: data.url, kind, stage, note: data.note, archived: false
   }, profile);
@@ -532,7 +710,7 @@ export async function addMediaLink(eventId, payload, profile) {
 }
 
 export async function archiveMediaLink(mediaId, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) {
     throw new Error("Ce compte n’a pas le droit d’archiver un média.");
   }
@@ -541,6 +719,7 @@ export async function archiveMediaLink(mediaId, profile) {
   const existing = await getDoc(reference);
   if (!existing.exists()) throw new Error("Ce média n’existe plus.");
   await updateDoc(reference, { archived: true, updatedAt: serverTimestamp(), updatedBy: profile.uid });
+  recordConfirmedWrites(1);
   const before = existing.data();
   await appendChangeArchive("mediaLink", mediaId, "lien média archivé", {
     eventId: before.eventId || "", label: before.label || "", url: before.url || "", kind: before.kind || "other", stage: before.stage || "reference", note: before.note || "", archived: false
@@ -662,7 +841,7 @@ function mediaDecisionArchiveView(value) {
 }
 
 export async function setMediaDecision(eventId, mediaId, selected, profile, options = {}) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas choisir ce média.");
   if (!/^[a-z0-9-]{3,80}$/i.test(String(eventId || ""))) throw new Error("Événement média invalide.");
   if (!/^[A-Za-z0-9_-]{3,160}$/.test(String(mediaId || ""))) throw new Error("Média invalide.");
@@ -672,8 +851,8 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
   const workflowReference = doc(db, "workflowStates", eventId);
   const wantsOverride = options.override === true;
   const overrideReason = String(options.reason || "").trim().slice(0, 500);
-  if (wantsOverride && profile.role !== "director") {
-    throw new Error("L’override des communications exige une preuve d’aval structurée et n’est pas offert dans cette version. La direction peut retenir explicitement son choix.");
+  if (wantsOverride && !["director", "admin"].includes(profile.role)) {
+    throw new Error("Ce compte ne peut pas appliquer un override média.");
   }
   const actorLabel = String(profile.displayLabel || "Utilisateur").slice(0, 120);
   const sideName = profile.role === "admin" ? "communications" : "direction";
@@ -682,7 +861,8 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const archiveReference = doc(db, "changeArchive", `media-${mutationId}`.slice(0, 160));
 
-  return runTransaction(db, async (transaction) => {
+  let confirmedWriteCount = 0;
+  const result = await runTransaction(db, async (transaction) => {
     const [mediaSnapshot, decisionSnapshot, workflowSnapshot] = await Promise.all([
       transaction.get(mediaReference),
       transaction.get(decisionReference),
@@ -697,9 +877,6 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
     const workflowBefore = workflowSnapshot.exists() ? workflowSnapshot.data() : { eventId, stage: "proposal" };
     const workflowStage = String(workflowBefore.stage || "proposal");
     const textApproved = contentApprovedWorkflowStages.has(workflowStage);
-    if (profile.role === "director" && selected && !textApproved) {
-      throw new Error("Le texte doit être approuvé avant que la direction puisse approuver le visuel.");
-    }
     if (wantsOverride && (!selected || !textApproved || !overrideReason)) {
       throw new Error("Un override exige le texte approuvé, un média choisi et un motif explicite.");
     }
@@ -719,7 +896,7 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
       // Une action des communications ne peut jamais révoquer implicitement
       // une décision motivée de la direction. Seule la direction peut la
       // remplacer ou la retirer; les règles Firestore imposent la même limite.
-      override: profile.role === "admin"
+      override: profile.role === "admin" && !wantsOverride
         ? { ...before.override, mediaIds: [...before.override.mediaIds] }
         : emptyOverride(),
       textGateStage: workflowStage
@@ -763,6 +940,7 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
     }
 
     transaction.set(decisionReference, next);
+    confirmedWriteCount = 2;
     if (!workflowSnapshot.exists() || nextWorkflowStage !== workflowStage) {
       transaction.set(workflowReference, {
         eventId,
@@ -771,6 +949,7 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
         updatedBy: profile.uid,
         updatedByLabel: actorLabel
       });
+      confirmedWriteCount += 1;
     }
     transaction.set(archiveReference, {
       entityType: "mediaDecision",
@@ -784,6 +963,8 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
     });
     return next;
   });
+  if (confirmedWriteCount) recordConfirmedWrites(confirmedWriteCount);
+  return result;
 }
 
 export function subscribeMediaDecisions(callback, onError) {
@@ -792,7 +973,8 @@ export function subscribeMediaDecisions(callback, onError) {
   // listener par carte. La projection par fenêtre de dates remplacera ce
   // plafond après validation de parité.
   const decisionsQuery = query(collection(db, "mediaDecisions"), orderBy("updatedAt", "desc"), limit(80));
-  return onSnapshot(
+  return trackedOnSnapshot(
+    "mediaDecisions",
     decisionsQuery,
     (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
     onError
@@ -803,7 +985,7 @@ export function subscribeMediaDecisions(callback, onError) {
 // marqueur global. Les nouveaux lecteurs le montrent comme héritage non
 // attribué seulement lorsqu'aucune décision structurée n'existe.
 export async function setMediaFinalChoice(mediaId, selected, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas retenir le média final.");
   if (!/^[A-Za-z0-9_-]{3,160}$/.test(String(mediaId || ""))) throw new Error("Média invalide.");
   const reference = doc(db, "mediaLinks", mediaId);
@@ -835,12 +1017,14 @@ export async function setMediaFinalChoice(mediaId, selected, profile) {
     createdAt: serverTimestamp()
   });
   await batch.commit();
+  recordConfirmedWrites(2);
 }
 
 export function subscribeMediaLinks(callback, onError) {
   requireConfigured();
   const mediaQuery = query(collection(db, "mediaLinks"), orderBy("createdAt", "desc"), limit(500));
-  return onSnapshot(
+  return trackedOnSnapshot(
+    "mediaLinks",
     mediaQuery,
     (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
     onError
@@ -848,7 +1032,7 @@ export function subscribeMediaLinks(callback, onError) {
 }
 
 export async function writeAuditLog(sectionId, action, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) return;
   await addDoc(collection(db, "auditLogs"), {
     sectionId: String(sectionId || "").slice(0, 120),
@@ -857,10 +1041,11 @@ export async function writeAuditLog(sectionId, action, profile) {
     userLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
     createdAt: serverTimestamp()
   });
+  recordConfirmedWrites(1);
 }
 
 export async function addCockpitFeedback(sectionId, message, category, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) {
     throw new Error("Ce compte n’a pas le droit d’envoyer une rétroaction.");
   }
@@ -879,6 +1064,7 @@ export async function addCockpitFeedback(sectionId, message, category, profile) 
     updatedAt: now,
     updatedBy: profile.uid
   });
+  recordConfirmedWrites(1);
   await appendChangeArchive("cockpitFeedback", reference.id, "rétroaction déposée", {}, {
     sectionId,
     message: text,
@@ -888,7 +1074,7 @@ export async function addCockpitFeedback(sectionId, message, category, profile) 
 }
 
 export async function upsertActionTask(taskId, payload, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) {
     throw new Error("Ce compte n’a pas le droit de signaler une tâche.");
   }
@@ -924,6 +1110,7 @@ export async function upsertActionTask(taskId, payload, profile) {
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid
   }, { merge: true });
+  recordConfirmedWrites(1);
   await appendChangeArchive("task", taskId, "tâche : " + status, {
     title: before.title || "",
     message: before.message || "",
@@ -942,7 +1129,7 @@ export async function upsertActionTask(taskId, payload, profile) {
 }
 
 export async function completeActionTask(taskId, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas terminer cette tâche.");
   if (!/^[a-z0-9-]{3,160}$/i.test(String(taskId || ""))) throw new Error("Identifiant de tâche invalide.");
   const reference = doc(db, "tasks", taskId);
@@ -954,6 +1141,7 @@ export async function completeActionTask(taskId, profile) {
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid
   });
+  recordConfirmedWrites(1);
   await appendChangeArchive("task", taskId, "tâche complétée manuellement", {
     title: existing.data()?.title || "",
     message: existing.data()?.message || "",
@@ -974,7 +1162,8 @@ export async function completeActionTask(taskId, profile) {
 export function subscribeActionTasks(callback, onError) {
   requireConfigured();
   const tasksQuery = query(collection(db, "tasks"), orderBy("createdAt", "desc"), limit(200));
-  return onSnapshot(
+  return trackedOnSnapshot(
+    "tasks",
     tasksQuery,
     (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
     onError
@@ -1150,7 +1339,7 @@ export function subscribePersonalActionItems(profile, callback, onError) {
   }
 
   const firstPageQuery = query(collection(db, "actionItems"), ...constraints, limit(pageSize));
-  const unsubscribe = onSnapshot(firstPageQuery, (snapshot) => {
+  const unsubscribe = trackedOnSnapshot("personalActionItems", firstPageQuery, (snapshot) => {
     const nextSignature = personalActionHeadSignature(snapshot.docs);
     const headChanged = Boolean(headSignature && nextSignature !== headSignature);
     if (headChanged && desiredPageCount > 0) {
@@ -1239,7 +1428,7 @@ export function subscribePersonalActionItems(profile, callback, onError) {
 }
 
 export async function setPersonalActionItemState(actionItemId, state, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile?.uid || !["director", "admin"].includes(profile.role)) throw new Error("Profil requis pour mettre à jour cette décision.");
   if (!/^[A-Za-z0-9_-]{3,180}$/.test(String(actionItemId || ""))) throw new Error("Décision personnelle invalide.");
   const nextState = state === "done" ? "done" : "pending";
@@ -1265,11 +1454,12 @@ export async function setPersonalActionItemState(actionItemId, state, profile) {
       lastMutationId: mutationId
     });
   });
+  recordConfirmedWrites(1);
   if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("cockpit:action-item-state-saved", { detail: { id: actionItemId, state: nextState } }));
 }
 
 export async function updateCockpitFeedbackStatus(feedbackId, status, profile) {
-  requireConfigured();
+  requireWritable();
   if (!profile || profile.role !== "admin") {
     throw new Error("Seule l’administration peut classer une rétroaction.");
   }
@@ -1280,12 +1470,14 @@ export async function updateCockpitFeedbackStatus(feedbackId, status, profile) {
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid
   });
+  recordConfirmedWrites(1);
 }
 
 export function subscribeCockpitFeedback(callback, onError) {
   requireConfigured();
   const feedbackQuery = query(collection(db, "cockpitFeedback"), orderBy("createdAt", "desc"), limit(100));
-  return onSnapshot(
+  return trackedOnSnapshot(
+    "cockpitFeedback",
     feedbackQuery,
     (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
     onError
@@ -1295,7 +1487,8 @@ export function subscribeCockpitFeedback(callback, onError) {
 export function subscribeAuditLogs(callback, onError) {
   requireConfigured();
   const logsQuery = query(collection(db, "auditLogs"), orderBy("createdAt", "desc"), limit(100));
-  return onSnapshot(
+  return trackedOnSnapshot(
+    "auditLogs",
     logsQuery,
     (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
     onError

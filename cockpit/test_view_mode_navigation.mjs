@@ -120,7 +120,15 @@ const decisionCards = () => [...document.querySelectorAll(".vm-decisions .vm-eve
 // La direction ne reçoit jamais la tâche des communications et sa première
 // fenêtre reste petite, triée et paginable sans requête supplémentaire.
 assert.equal(document.body.classList.contains("cockpit-view-essential"), true);
+const initialPanels = [...document.querySelectorAll(".vm-dashboard-grid > .vm-panel")];
+assert.ok(initialPanels[0].classList.contains("vm-decisions"), "Les décisions doivent être le premier panneau.");
+assert.ok(initialPanels[1].classList.contains("vm-today"), "Aujourd'hui doit suivre les décisions.");
+const essentialNav = [...document.querySelectorAll(".nav .wrap > [data-vm-nav]")];
+assert.equal(essentialNav[0].dataset.vmNav, "decision", "Le raccourci Décisions doit être le premier.");
+assert.equal(essentialNav[1].dataset.vmNav, "today", "Le raccourci Aujourd'hui doit être le deuxième.");
 assert.equal(decisionCards().length, 5, "La file initiale DG doit rester bornée à cinq décisions.");
+assert.ok(document.querySelector('[data-vm-target="future-1"]').closest(".vm-event").classList.contains("priority-urgent"), "Le 15 juillet à 7 h 30 doit être urgent à moins de 48 h.");
+assert.ok(decisionCards().some((card) => card.classList.contains("priority-current-week")), "Le reste de la semaine doit être orange, sans urgence pulsante.");
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Action réservée aux communications/);
 assert.ok(document.querySelector("[data-vm-load-more]"), "La suite de la file doit être disponible à la demande.");
 const firstOpenControl = document.querySelector(".vm-decisions [data-vm-target]");
