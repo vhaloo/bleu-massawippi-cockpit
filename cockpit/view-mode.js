@@ -10,6 +10,9 @@
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
 const VALID_MODES = new Set(["essential", "complete"]);
+const QUEUE_PAGE_SIZE = Object.freeze({ director: 5, admin: 7 });
+const NAVIGATION_ATTEMPTS = 5;
+const NAVIGATION_DELAY_MS = 60;
 const MONTHS = new Map([
   ["janvier", 0], ["février", 1], ["fevrier", 1], ["mars", 2],
   ["avril", 3], ["mai", 4], ["juin", 5], ["juillet", 6],
@@ -27,7 +30,10 @@ const runtime = {
   renderTimer: 0,
   listeners: [],
   focusedCard: null,
-  focusTimer: 0
+  focusTimer: 0,
+  navigationToken: 0,
+  queueRole: "",
+  queueVisibleCount: 0
 };
 
 const icon = (name) => {
@@ -137,7 +143,8 @@ function ensureDashboard() {
       <div><p class="vm-eyebrow">Tableau de bord</p><h1 id="vm-dashboard-title">Ce qui demande votre attention</h1></div>
       <button type="button" class="vm-show-complete" data-view-mode="complete">Afficher tous les détails</button>
     </header>
-    <div class="vm-dashboard-grid" data-vm-dashboard-grid></div>`;
+    <div class="vm-dashboard-grid" data-vm-dashboard-grid></div>
+    <div class="vm-navigation-status" data-vm-navigation-status role="alert" hidden></div>`;
 
   const hero = host.querySelector(".hero");
   if (hero) hero.before(dashboard);
@@ -226,6 +233,242 @@ function cardForId(id) {
   return [...document.querySelectorAll(".post[data-item-id]")].find((card) => card.dataset.itemId === id) || null;
 }
 
+function planItemForId(id) {
+  return planItems().find((candidate) => String(candidate.id) === String(id)) || null;
+}
+
+function queuePageSize(role = runtime.identity.role) {
+  return QUEUE_PAGE_SIZE[role] || QUEUE_PAGE_SIZE.director;
+}
+
+function announce(message) {
+  const announcer = document.querySelector("#cockpit-announcer");
+  if (announcer) announcer.textContent = message;
+}
+
+function navigationStatus() {
+  return ensureDashboard()?.querySelector("[data-vm-navigation-status]") || null;
+}
+
+function clearNavigationError() {
+  const status = navigationStatus();
+  if (!status) return;
+  status.hidden = true;
+  status.replaceChildren();
+}
+
+function reportNavigationError({ type = "schedule", id = "" } = {}, detail = "") {
+  const status = navigationStatus();
+  const label = detail || "La cible n’est pas encore disponible dans cette vue.";
+  if (status) {
+    status.hidden = false;
+    status.innerHTML = `<span><b>Impossible d’ouvrir cet élément.</b> ${escapeHtml(label)}</span>
+      <button type="button" data-vm-retry-type="${escapeHtml(type)}" data-vm-retry-id="${escapeHtml(id)}">Réessayer</button>`;
+  }
+  announce(`Impossible d’ouvrir cet élément. ${label} Vous pouvez réessayer.`);
+}
+
+function normaliseTargetType(type) {
+  const value = String(type || "schedule").trim().toLowerCase().replaceAll("-", "_");
+  if (["schedule", "event", "post", "publication"].includes(value)) return "schedule";
+  if (["project", "internal_project", "internalproject"].includes(value)) return "project";
+  if (["opportunity", "occasion"].includes(value)) return "opportunity";
+  if (value === "task") return "task";
+  return "section";
+}
+
+function targetWithDataset(name, id) {
+  return [...document.querySelectorAll(`[${name}]`)].find((node) => node.getAttribute(name) === id) || null;
+}
+
+function findEntityTarget(type, id) {
+  const targetType = normaliseTargetType(type);
+  const targetId = String(id || "").trim();
+  if (!targetId) return null;
+  if (targetType === "schedule") return cardForId(targetId);
+  if (targetType === "project") {
+    return targetWithDataset("data-internal-project-id", targetId)
+      || document.getElementById(targetId)
+      || document.getElementById(`internal-project-${targetId}`)
+      || targetWithDataset("data-id", targetId);
+  }
+  if (targetType === "opportunity") {
+    return targetWithDataset("data-opportunity-id", targetId)
+      || document.getElementById(targetId)
+      || document.getElementById(`opportunity-${targetId}`)
+      || targetWithDataset("data-id", targetId);
+  }
+  return document.getElementById(targetId)
+    || targetWithDataset("data-id", targetId)
+    || targetWithDataset("data-item-id", targetId);
+}
+
+function dispatchFilterRender(search, week, theme) {
+  // Le moteur du calendrier relit les trois valeurs à chaque rendu. Un seul
+  // événement suffit donc et évite trois reconstructions successives du DOM.
+  if (search) search.dispatchEvent(new Event("input", { bubbles: true }));
+  else if (week) week.dispatchEvent(new Event("change", { bubbles: true }));
+  else theme?.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function clearCalendarFilters() {
+  const search = document.querySelector("#search");
+  const week = document.querySelector("#week");
+  const theme = document.querySelector("#theme");
+  if (search) search.value = "";
+  if (week) week.value = "all";
+  if (theme) theme.value = "all";
+  dispatchFilterRender(search, week, theme);
+}
+
+function prepareCalendarTarget(id) {
+  clearCalendarFilters();
+  const calendar = document.querySelector("#calendrier");
+  if (calendar?.hidden) calendar.hidden = false;
+  const item = planItemForId(id);
+  const eventDate = inferDate(item?.dateIso || item?.date || "");
+  if (eventDate && dayStart(eventDate) < dayStart(new Date())) {
+    const pastToggle = document.querySelector("#past-toggle");
+    if (pastToggle?.dataset.active !== "true") pastToggle.click();
+  }
+}
+
+function delay(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+async function waitForEntityTarget(type, id, navigationToken) {
+  for (let attempt = 0; attempt < NAVIGATION_ATTEMPTS; attempt += 1) {
+    if (navigationToken !== runtime.navigationToken) return null;
+    const target = findEntityTarget(type, id);
+    if (target) return target;
+    await delay(NAVIGATION_DELAY_MS * (attempt + 1));
+  }
+  return null;
+}
+
+function shouldUseCompleteView(target, type) {
+  if (runtime.mode !== "essential") return false;
+  if (normaliseTargetType(type) !== "section") return false;
+  const section = target.matches?.("section, details") ? target : target.closest?.("section, details");
+  return Boolean(section && !["calendrier", "projets", "cockpit-essential-dashboard"].includes(section.id));
+}
+
+function revealTargetTree(target) {
+  let ancestor = target;
+  while (ancestor && ancestor !== document.documentElement) {
+    if (ancestor.hidden) ancestor.hidden = false;
+    if (ancestor.getAttribute?.("aria-hidden") === "true") ancestor.removeAttribute("aria-hidden");
+    if (ancestor.matches?.("details")) ancestor.setAttribute("open", "");
+    ancestor = ancestor.parentElement;
+  }
+  const card = target.matches?.(".post[data-item-id]") ? target : target.closest?.(".post[data-item-id]");
+  if (!card) {
+    target.querySelector?.(":scope > details")?.setAttribute("open", "");
+    return null;
+  }
+  card.hidden = false;
+  card.classList.add("vm-expanded", "vm-navigation-reveal");
+  const toggle = card.querySelector(":scope > .vm-card-summary [data-vm-card-toggle]");
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", "true");
+    toggle.textContent = "Réduire";
+  }
+  card.querySelector(":scope > details")?.setAttribute("open", "");
+  card.querySelector("details.cockpit-media")?.setAttribute("open", "");
+  return card;
+}
+
+function targetLabel(target, fallback) {
+  return target.querySelector?.(".post-head h4, h2, h3, summary, b")?.textContent?.trim()
+    || target.getAttribute?.("aria-label")
+    || fallback
+    || "Élément";
+}
+
+function focusAndHighlight(target, card = null) {
+  const focusTarget = card || target;
+  runtime.focusedCard?.classList.remove("vm-focus", "vm-target-focus");
+  runtime.focusedCard = focusTarget;
+  focusTarget.classList.add(card ? "vm-focus" : "vm-target-focus");
+  if (!focusTarget.hasAttribute("tabindex")) {
+    focusTarget.setAttribute("tabindex", "-1");
+    focusTarget.dataset.vmTemporaryTabindex = "true";
+  }
+  const reducedMotion = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true;
+  focusTarget.scrollIntoView?.({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
+  try { focusTarget.focus({ preventScroll: true }); } catch { focusTarget.focus?.(); }
+  clearTimeout(runtime.focusTimer);
+  runtime.focusTimer = setTimeout(() => {
+    focusTarget.classList.remove("vm-focus", "vm-target-focus");
+    if (runtime.focusedCard === focusTarget) runtime.focusedCard = null;
+  }, 2200);
+}
+
+/**
+ * Ouvre une entité déjà autorisée par la session, sans lecture Firestore.
+ * La recherche est bornée afin de laisser le calendrier se rerendre après la
+ * levée de ses filtres. Un échec reste visible et peut être réessayé.
+ */
+export async function navigateToEntity({ type = "schedule", id = "", mediaId = "" } = {}) {
+  const targetType = normaliseTargetType(type);
+  const targetId = String(id || "").trim();
+  if (!targetId) {
+    reportNavigationError({ type: targetType, id: targetId }, "La cible ne possède pas d’identifiant.");
+    return false;
+  }
+
+  if (targetType === "task") {
+    const task = [...document.querySelectorAll("#cockpit-task-list .cockpit-task-item[data-task-id]")]
+      .find((candidate) => candidate.dataset.taskId === targetId);
+    const openButton = task?.querySelector("[data-open-task]");
+    if (!openButton) {
+      reportNavigationError({ type: targetType, id: targetId }, "Cette décision a changé ou n’est plus chargée.");
+      return false;
+    }
+    return navigateToEntity({
+      type: openButton.dataset.taskTargetType || task.dataset.taskTargetType || "schedule",
+      id: openButton.dataset.taskTarget || task.dataset.taskTarget || ""
+    });
+  }
+
+  const navigationToken = ++runtime.navigationToken;
+  clearNavigationError();
+  if (targetType === "schedule") prepareCalendarTarget(targetId);
+  let target = await waitForEntityTarget(targetType, targetId, navigationToken);
+  if (!target) {
+    reportNavigationError(
+      { type: targetType, id: targetId },
+      planItemForId(targetId)?.archivedEditorial === true
+        ? "Cette ancienne proposition est conservée dans les archives et n’est pas chargée dans le calendrier courant."
+        : "La cible n’a pas pu être chargée. Vérifiez la connexion, puis réessayez."
+    );
+    return false;
+  }
+  if (navigationToken !== runtime.navigationToken) return false;
+
+  if (shouldUseCompleteView(target, targetType)) {
+    applyMode("complete");
+    await delay(0);
+    target = findEntityTarget(targetType, targetId) || target;
+  }
+  const card = revealTargetTree(target);
+  let focusTarget = card || target;
+  if (card && mediaId) {
+    const media = [...card.querySelectorAll(".cockpit-media-card[data-media-id]")]
+      .find((candidate) => candidate.dataset.mediaId === mediaId);
+    if (media) {
+      media.querySelector("details.cockpit-media-info")?.setAttribute("open", "");
+      focusTarget = media;
+    }
+  }
+  focusAndHighlight(focusTarget, focusTarget === card ? card : null);
+  const label = targetLabel(card || target, targetId);
+  announce(`Élément ouvert : ${label}. Le brief et les médias sont prêts à être consultés.`);
+  clearNavigationError();
+  return true;
+}
+
 function dataMillis(value) {
   const numeric = Number(value || 0);
   return Number.isFinite(numeric) ? numeric : 0;
@@ -305,16 +548,17 @@ function relativeDateLabel(date, now) {
   return distance < 0 ? `En retard · ${formatted}` : formatted;
 }
 
-function pendingTaskModels() {
+function pendingTaskModels(role = runtime.identity.role) {
   return [...document.querySelectorAll("#cockpit-task-list .cockpit-task-item[data-task-id]")].map((task) => ({
     id: task.dataset.taskId || "",
+    assigneeRole: normaliseRole(task.dataset.taskAssigneeRole || ""),
     targetType: task.dataset.taskTargetType || task.querySelector("[data-open-task]")?.dataset.taskTargetType || "schedule",
     targetId: task.dataset.taskTarget || task.querySelector("[data-open-task]")?.dataset.taskTarget || "",
     title: task.querySelector(":scope > b")?.textContent?.trim() || "Tâche à accomplir",
     message: task.querySelector(":scope > p")?.textContent?.trim() || "",
     updatedAt: dataMillis(task.dataset.taskUpdatedAt),
     isComment: task.classList.contains("comment-task")
-  })).filter((task) => task.id && task.targetId);
+  })).filter((task) => task.id && task.targetId && (!task.assigneeRole || task.assigneeRole === role));
 }
 
 function roleDecisionForEvent(event, role, tasks = []) {
@@ -401,7 +645,7 @@ function urgencyFor(decision, now) {
 }
 
 function roleDecisionModels(events, role, now) {
-  const tasks = role === "admin" ? pendingTaskModels() : [];
+  const tasks = role === "admin" ? pendingTaskModels(role) : [];
   const tasksByEvent = new Map();
   tasks.filter((task) => task.targetType === "schedule").forEach((task) => {
     const rows = tasksByEvent.get(task.targetId) || [];
@@ -429,6 +673,7 @@ function roleDecisionModels(events, role, now) {
   return [...eventDecisions, ...sectionTasks].map((decision) => ({ ...decision, urgency: urgencyFor(decision, now) })).sort((left, right) =>
     left.urgency.rank - right.urgency.rank
     || left.urgency.dateValue - right.urgency.dateValue
+    || String(left.id).localeCompare(String(right.id), "fr")
     || right.updatedAt - left.updatedAt
     || left.title.localeCompare(right.title, "fr")
   );
@@ -535,14 +780,24 @@ function renderDashboard(now = new Date()) {
   // File strictement personnelle : aucun élément « en attente de l’autre
   // rôle » n’est mélangé aux actions de la personne connectée.
   const allDecisions = roleDecisionModels(events, runtime.identity.role, now);
-  const decisions = allDecisions.slice(0, 7);
+  const pageSize = queuePageSize();
+  if (runtime.queueRole !== runtime.identity.role) {
+    runtime.queueRole = runtime.identity.role;
+    runtime.queueVisibleCount = pageSize;
+  }
+  runtime.queueVisibleCount = Math.max(pageSize, runtime.queueVisibleCount || 0);
+  const decisions = allDecisions.slice(0, runtime.queueVisibleCount);
   const messages = messageModels();
 
   const todayBody = today.length
     ? today.map((event) => compactEvent(event, now)).join("")
     : empty("Aucune publication prévue aujourd’hui.");
+  const remainingDecisions = Math.max(0, allDecisions.length - decisions.length);
+  const queueFooter = remainingDecisions
+    ? `<div class="vm-queue-footer"><p>${remainingDecisions} autre${remainingDecisions > 1 ? "s" : ""} décision${remainingDecisions > 1 ? "s" : ""} dans votre file.</p><button type="button" data-vm-load-more>Charger plus</button></div>`
+    : decisions.length ? `<p class="vm-queue-end">Fin de la file · toutes vos décisions chargées.</p>` : "";
   const decisionsBody = decisions.length
-    ? decisions.map((event) => compactEvent(event, now, { showReason: true })).join("") + (allDecisions.length > decisions.length ? `<p class="vm-priority-overflow">${allDecisions.length - decisions.length} autre${allDecisions.length - decisions.length > 1 ? "s" : ""} action${allDecisions.length - decisions.length > 1 ? "s" : ""} reste${allDecisions.length - decisions.length > 1 ? "nt" : ""} dans la file; les sept priorités sont affichées.</p>` : "")
+    ? decisions.map((event) => compactEvent(event, now, { showReason: true })).join("") + queueFooter
     : `<div class="vm-all-clear"><b>Tout est à jour.</b><span>Aucune décision n’est requise pour le moment.</span></div>`;
   const weekBody = nextWeek.length
     ? nextWeek.map((event) => compactEvent(event, now, { showAction: false })).join("")
@@ -567,54 +822,42 @@ function renderDashboard(now = new Date()) {
   }
 }
 
-function openEvent(id) {
-  const card = cardForId(id);
-  if (!card) return;
-  const item = planItems().find((candidate) => String(candidate.id) === String(id));
-  const eventDate = inferDate(item?.dateIso || item?.date || "");
-  if (eventDate && dayStart(eventDate) < dayStart(new Date())) {
-    const pastToggle = document.querySelector("#past-toggle");
-    if (pastToggle?.dataset.active !== "true") pastToggle.click();
+async function runNavigation(control, target) {
+  if (!control || control.dataset.vmNavigating === "true") return;
+  const original = control.innerHTML;
+  control.dataset.vmNavigating = "true";
+  control.setAttribute("aria-busy", "true");
+  control.disabled = true;
+  control.textContent = "Ouverture…";
+  try {
+    await navigateToEntity(target);
+  } finally {
+    control.disabled = false;
+    control.removeAttribute("aria-busy");
+    delete control.dataset.vmNavigating;
+    control.innerHTML = original;
   }
-  const search = document.querySelector("#search");
-  const week = document.querySelector("#week");
-  const theme = document.querySelector("#theme");
-  if (search) search.value = "";
-  if (week) week.value = "all";
-  if (theme) theme.value = "all";
-  search?.dispatchEvent(new Event("input", { bubbles: true }));
-  const calendar = document.querySelector("#calendrier");
-  if (calendar?.hidden) calendar.hidden = false;
-  if (runtime.mode === "essential") {
-    card.classList.add("vm-expanded");
-    const toggle = card.querySelector(":scope > .vm-card-summary [data-vm-card-toggle]");
-    if (toggle) {
-      toggle.setAttribute("aria-expanded", "true");
-      toggle.textContent = "Réduire";
-    }
-  } else {
-    card.querySelector(":scope > details")?.setAttribute("open", "");
-  }
-  card.scrollIntoView({ behavior: "smooth", block: "start" });
-  card.classList.add("vm-focus");
-  runtime.focusedCard?.classList.remove("vm-focus");
-  runtime.focusedCard = card;
-  clearTimeout(runtime.focusTimer);
-  runtime.focusTimer = setTimeout(() => {
-    card.classList.remove("vm-focus");
-    if (runtime.focusedCard === card) runtime.focusedCard = null;
-  }, 2200);
 }
 
-function openTask(taskId) {
-  const task = [...document.querySelectorAll("#cockpit-task-list .cockpit-task-item[data-task-id]")]
-    .find((candidate) => candidate.dataset.taskId === taskId);
-  const openButton = task?.querySelector("[data-open-task]");
-  if (!openButton) return;
-  if (openButton.dataset.taskTargetType === "section" && runtime.mode === "essential") {
-    applyMode("complete");
-  }
-  openButton.click();
+function loadMoreDecisions(control) {
+  if (!control || control.dataset.vmLoading === "true") return;
+  control.dataset.vmLoading = "true";
+  control.disabled = true;
+  control.setAttribute("aria-busy", "true");
+  control.textContent = "Chargement…";
+  setTimeout(() => {
+    try {
+      runtime.queueVisibleCount += queuePageSize();
+      renderDashboard();
+      announce("La page suivante de votre file est chargée.");
+    } catch {
+      control.disabled = false;
+      control.removeAttribute("aria-busy");
+      delete control.dataset.vmLoading;
+      control.textContent = "Réessayer";
+      announce("La suite de la file n’a pas pu être affichée. Réessayez.");
+    }
+  }, 0);
 }
 
 function scheduleRender() {
@@ -637,6 +880,10 @@ function refreshIdentity(detail = null) {
   const next = detectIdentity(detail);
   const changed = next.uid !== runtime.identity.uid || next.role !== runtime.identity.role;
   runtime.identity = next;
+  if (changed) {
+    runtime.queueRole = "";
+    runtime.queueVisibleCount = 0;
+  }
   if (changed && !runtime.explicitMode) {
     applyMode(readPreference(next) || defaultMode(next));
   }
@@ -663,11 +910,21 @@ function handleClick(event) {
   }
   const target = event.target.closest("[data-vm-target]");
   if (target) {
-    openEvent(target.dataset.vmTarget);
+    void runNavigation(target, { type: "schedule", id: target.dataset.vmTarget });
     return;
   }
   const task = event.target.closest("[data-vm-task]");
-  if (task) openTask(task.dataset.vmTask);
+  if (task) {
+    void runNavigation(task, { type: "task", id: task.dataset.vmTask });
+    return;
+  }
+  const retry = event.target.closest("[data-vm-retry-type][data-vm-retry-id]");
+  if (retry) {
+    void runNavigation(retry, { type: retry.dataset.vmRetryType, id: retry.dataset.vmRetryId });
+    return;
+  }
+  const loadMore = event.target.closest("[data-vm-load-more]");
+  if (loadMore) loadMoreDecisions(loadMore);
 }
 
 /** Initialise le module. L'appel est idempotent. */
@@ -690,6 +947,9 @@ export function init(options = {}) {
   listen(window, "cockpit:session-ended", () => {
     runtime.identity = { uid: "", role: "" };
     runtime.explicitMode = false;
+    runtime.queueRole = "";
+    runtime.queueVisibleCount = 0;
+    runtime.navigationToken += 1;
     document.querySelector("#cockpit-view-mode-toggle")?.remove();
     document.querySelector("#cockpit-essential-dashboard")?.remove();
     document.querySelectorAll("[data-vm-nav]").forEach((node) => node.remove());
@@ -730,6 +990,9 @@ export function destroy() {
   runtime.explicitMode = false;
   runtime.observer = null;
   runtime.focusedCard = null;
+  runtime.navigationToken += 1;
+  runtime.queueRole = "";
+  runtime.queueVisibleCount = 0;
 }
 
 // Autonome lorsque chargé directement; init() reste exporté pour les tests et

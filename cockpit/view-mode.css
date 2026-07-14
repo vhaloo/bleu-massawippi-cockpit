@@ -194,6 +194,56 @@
   text-align: center;
 }
 
+.vm-queue-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 2px 3px;
+}
+
+.vm-queue-footer p,
+.vm-queue-end {
+  margin: 0;
+  color: #667f87;
+  font-size: .67rem;
+}
+
+.vm-queue-footer button,
+.vm-navigation-status button {
+  min-height: 44px;
+  padding: 7px 11px;
+  border: 1px solid #0b7895;
+  border-radius: 10px;
+  color: #0b6077;
+  background: #fff;
+  font: inherit;
+  font-size: .7rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.vm-queue-end {
+  padding: 10px 2px 3px;
+  text-align: center;
+}
+
+.vm-navigation-status:not([hidden]) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid #d69b8e;
+  border-radius: 12px;
+  color: #713f36;
+  background: #fff3ef;
+  font-size: .76rem;
+}
+
+.vm-navigation-status b { color: #713f36; }
+
 .vm-event h3,
 .vm-message h3 {
   margin: 3px 0 2px;
@@ -359,10 +409,20 @@
 .cockpit-view-essential .post .cockpit-controls { padding: 9px; }
 .cockpit-view-essential .post .cockpit-workflow { margin-top: 9px; }
 
-.post.vm-focus {
+.post.vm-focus,
+.vm-target-focus {
+  scroll-margin-top: calc(var(--cockpit-session-height, 54px) + var(--cockpit-nav-height, 46px) + 16px);
   outline: 4px solid #2ab6bb;
   outline-offset: 5px;
   animation: vm-focus 1.15s ease;
+}
+
+/* Révélation visuelle temporaire d'une carte explicitement ouverte depuis la
+   file. Aucun statut métier n'est retiré et aucune donnée n'est modifiée. */
+.post.vm-navigation-reveal {
+  display: block !important;
+  opacity: 1 !important;
+  filter: none !important;
 }
 
 @keyframes vm-focus {
@@ -403,6 +463,12 @@ html[data-theme="dark"] .vm-all-clear { color: #b9f0d7; background: #214c3e; }
 html[data-theme="dark"] .vm-why-now { color: #ffe7ad; background: #493c24; }
 html[data-theme="dark"] .vm-why-now b { color: #fff1c9; }
 html[data-theme="dark"] .vm-priority-overflow { color: #c5dade; }
+html[data-theme="dark"] .vm-queue-footer p,
+html[data-theme="dark"] .vm-queue-end { color: #c5dade; }
+html[data-theme="dark"] .vm-queue-footer button,
+html[data-theme="dark"] .vm-navigation-status button { color: #d9f4f6; border-color: #64c3cc; background: #173c47; }
+html[data-theme="dark"] .vm-navigation-status { color: #ffd7ca; border-color: #9a675b; background: #4a332f; }
+html[data-theme="dark"] .vm-navigation-status b { color: #fff0eb; }
 
 @media (max-width: 780px) {
   .cockpit-view-essential .nav .wrap {
@@ -438,6 +504,10 @@ html[data-theme="dark"] .vm-priority-overflow { color: #c5dade; }
   .vm-panel-body { max-height: 330px; }
   .vm-open { min-width: 44px; min-height: 44px; justify-content: center; }
   .vm-event, .vm-message { gap: 8px; }
+  .vm-queue-footer,
+  .vm-navigation-status:not([hidden]) { align-items: stretch; flex-direction: column; }
+  .vm-queue-footer button,
+  .vm-navigation-status button { width: 100%; }
   .cockpit-view-essential .vm-card-summary { grid-template-columns: 1fr; gap: 9px; }
   .vm-card-next b { white-space: normal; }
   .vm-card-summary button { width: 100%; }
@@ -461,6 +531,6 @@ html[data-theme="dark"] .vm-card-progress span.done { color: #b9f0d7; background
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .post.vm-focus { animation: none; }
+  .post.vm-focus, .vm-target-focus { animation: none; }
   html:focus-within { scroll-behavior: auto; }
 }
