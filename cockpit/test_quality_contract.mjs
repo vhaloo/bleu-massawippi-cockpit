@@ -19,6 +19,7 @@ const files = {
   rules: read("cockpit/firestore.rules"),
   adminSync: read("cockpit/admin_sync.js"),
   internalProjectSeed: read("cockpit/seed_internal_project_states.js"),
+  editorialMediaManifest: read("cockpit/editorial_media_manifest.json"),
   workflow: read(".github/workflows/deploy-pages.yml"),
   viewMode: exists("cockpit/view-mode.js") ? read("cockpit/view-mode.js") : "",
   viewStyle: exists("cockpit/view-mode.css") ? read("cockpit/view-mode.css") : ""
@@ -104,6 +105,13 @@ const viewModuleWired = scriptSources.includes("./view-mode.js") || localImports
 critical("UX-003", "Bascule Vue essentielle / Vue complète intégrée", viewModuleWired && viewModePresent && viewLabelsPresent, "Le module doit être chargé par la coque ou cockpit-ui.js; le contrôle change la présentation, jamais les permissions.");
 critical("UX-004", "Préférence de vue mémorisée", viewPreferencePresent, "Le choix est mémorisé par profil/appareil et ne perd aucune saisie.");
 warning("UX-005", "Vue par défaut pilotée par le rôle", /(?:identity\.)?role\s*===\s*["']director["'][\s\S]{0,100}(?:essential|essentiel)/i.test(files.viewMode + files.ui) && /return\s+["']complete["']/.test(files.viewMode + files.ui), "DG : essentielle; communications : complète.");
+critical("UX-006", "File personnelle triée par rôle, échéance et récence",
+  /roleDecisionForEvent/.test(files.viewMode)
+    && /role === "admin" && latestTask/.test(files.viewMode)
+    && /left\.urgency\.rank - right\.urgency\.rank/.test(files.viewMode)
+    && /right\.updatedAt - left\.updatedAt/.test(files.viewMode)
+    && /media\.latestUpdate > event\.workflowUpdatedAt/.test(files.viewMode),
+  "La direction et les communications ne doivent voir que leurs propres actions; un média modifié doit remonter pour nouvelle validation.");
 
 // Accessibilité statique.
 critical("A11Y-001", "Langue et viewport définis", /<html\s+lang="fr(?:-CA)?"/i.test(files.shell) && /name="viewport"/i.test(files.shell), "Préserve lecture d’écran et reflow mobile.");
@@ -115,6 +123,12 @@ warning("A11Y-006", "Animations réduites selon la préférence système", /pref
 critical("A11Y-007", "Dictée accompagnée d’un champ texte et d’un état vocal", has(files.ui, /data-dictate/) && has(files.ui, /aria-label="Dicter un commentaire"/) && has(files.ui, /data-voice-status aria-live="polite"/), "La dictée reste facultative et son état est annoncé.");
 critical("A11Y-008", "Contrôles de panneaux exposent aria-expanded", (files.ui.match(/aria-expanded/g) || []).length >= 4, "Les widgets repliables doivent annoncer leur état.");
 warning("A11Y-009", "Cibles mobiles essentielles d’au moins 44 px", /@media\s*\(max-width:\s*700px\)[\s\S]*min-height:\s*44px/.test(files.ui + files.theme), "Vérifier également les boutons injectés après connexion.");
+critical("A11Y-010", "Dictée disponible dans toutes les zones de commentaire non techniques",
+  /data-feedback-message[\s\S]{0,900}aria-label="Dicter une recommandation"/.test(files.ui)
+    && /data-internal-project-comment[\s\S]{0,500}aria-label="Dicter un commentaire de projet"/.test(files.ui)
+    && /data-media-comment[\s\S]{0,500}aria-label="Dicter un commentaire sur ce média"/.test(files.ui)
+    && /name="media-note"[\s\S]{0,500}aria-label="Dicter une note sur le média"/.test(files.ui),
+  "Les avis de section, projets internes, commentaires et notes média ont tous un micro; les champs URL, nom de média et recherche restent techniques.");
 
 // Thème et responsive.
 critical("VIS-001", "Modes clair/sombre présents et mémorisés", has(files.theme, /data-theme/) && has(files.theme, /bleu-massawippi-theme/) && has(files.theme, /prefers-color-scheme/), "Le mode sombre ne doit pas être un filtre visuel.");
@@ -145,6 +159,27 @@ critical("DATA-003", "Aperçu média visible et informations repliables", /cockp
 critical("DATA-004", "Feux verts et décisions sont réversibles", /Feu vert retiré|retiré du choix final|decision.*undecided/is.test(files.ui + files.client), "Chaque retour arrière doit créer une trace.");
 critical("DATA-005", "Un choix média structuré faux surclasse l’ancien marqueur", /hasOwnProperty\.call\(row,\s*["']selectedFinal["']\)/.test(files.ui) && /!hasStructuredChoice/.test(files.ui), "Une ancienne note ne doit pas empêcher de retirer le média final.");
 critical("DATA-006", "Choix média et archive enregistrés atomiquement", /setMediaFinalChoice[\s\S]{0,2200}writeBatch\(db\)[\s\S]{0,1000}batch\.commit\(\)/.test(files.client), "L’interface ne doit pas confirmer un choix si son historique échoue.");
+critical("DATA-010", "Références non diffusables impossibles à retenir", /publicationBlocked === true/.test(files.ui) && /Référence non diffusable/.test(files.ui) && /cockpit-media-final-action[\s\S]{0,800}disabled/.test(files.ui) && /selected && \(before\.publicationBlocked === true \|\| before\.archived === true\)/.test(files.client) && /publicationBlocked' in resource\.data/.test(files.rules), "Une référence de style anatomiquement invalide doit rester consultable sans pouvoir devenir le média final.");
+critical("DATA-011", "Métadonnées des médias initialisés acceptées par les règles", ["publicationBlocked", "altText", "rightsStatus"].every((field) => files.rules.includes(`'${field}'`)), "Une sélection ne doit pas échouer parce que le média contient ses métadonnées de sécurité et d’accessibilité.");
+const editorialMedia = JSON.parse(files.editorialMediaManifest);
+const archivedSecchiIds = new Set([
+  "editorial-s1d5-secchi-v1",
+  "editorial-s1d5-secchi-answer-v1",
+  "editorial-s1d5-secchi-manuscript-v2",
+  "editorial-s1d5-secchi-answer-manuscript-v2"
+]);
+const secchiV4 = editorialMedia.find((item) => item.id === "editorial-s1d5-secchi-real-manuscript-v4");
+const secchiSource = editorialMedia.find((item) => item.id === "editorial-s1d5-secchi-real-photo-v3");
+critical("DATA-012", "Le visuel Secchi réel remplace les illustrations sans détruire l’historique",
+  Boolean(secchiV4)
+    && secchiV4.eventId === "s1d5"
+    && secchiV4.stage === "proposal"
+    && /bilingue-v4\.png$/.test(secchiV4.fileName || "")
+    && /photographie du domaine public/i.test(secchiV4.rightsStatus || "")
+    && secchiSource?.stage === "source"
+    && [...archivedSecchiIds].every((id) => editorialMedia.find((item) => item.id === id)?.stage === "archived")
+    && editorialMedia.filter((item) => item.eventId === "s1d5" && !["source", "archived"].includes(item.stage || "proposal")).length === 1,
+  "La v4 doit être la seule proposition active; la photo brute reste une source et les quatre cartes précédentes restent consultables comme archives.");
 critical("DATA-007", "Projets internes suivis, bornés et synchronisés localement", /setInternalProjectStage/.test(files.client) && /subscribeInternalProjectStates/.test(files.client) && /internalProjectStates[\s\S]{0,180}limit\(100\)/.test(files.client) && /readRecent\("opportunityStates"\)/.test(files.adminSync) && /readRecent\("internalProjectStates"\)/.test(files.adminSync), "Les deux registres doivent apparaître dans le résumé local et le nouvel abonnement ne doit pas croître sans borne.");
 critical("DATA-008", "Initialisation des projets internes idempotente", /if \(existing\.exists\)[\s\S]{0,160}preserved \+= 1[\s\S]{0,100}continue/.test(files.internalProjectSeed), "Un nouveau déploiement ne doit jamais écraser une étape déjà choisie.");
 critical("DATA-009", "Interface des projets internes branchée et nettoyée", /setupInternalProjectEvents/.test(files.ui) && /renderInternalProjectStates/.test(files.ui) && /subscribeInternalProjectStates/.test(files.ui) && /internalProjectUnsubscribe\?\.\(\)/.test(files.ui), "Le registre doit écouter les états en direct et désabonner sa lecture à la déconnexion.");

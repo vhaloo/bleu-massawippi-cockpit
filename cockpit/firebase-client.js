@@ -540,6 +540,9 @@ export async function setMediaFinalChoice(mediaId, selected, profile) {
   const existing = await getDoc(reference);
   if (!existing.exists()) throw new Error("Ce média n’existe plus.");
   const before = existing.data();
+  if (selected && (before.publicationBlocked === true || before.archived === true)) {
+    throw new Error("Cette référence est conservée pour comparaison et ne peut pas devenir le média final.");
+  }
   const next = {
     selectedFinal: Boolean(selected),
     approvedAt: selected ? serverTimestamp() : null,

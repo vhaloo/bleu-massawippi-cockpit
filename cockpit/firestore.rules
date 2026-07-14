@@ -152,7 +152,7 @@ service cloud.firestore {
 
     function validMediaLink(data) {
       return data.keys().hasAll(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy'])
-        && data.keys().hasOnly(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy', 'selectedFinal', 'approvedAt', 'approvedBy', 'approvedByLabel'])
+        && data.keys().hasOnly(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy', 'selectedFinal', 'approvedAt', 'approvedBy', 'approvedByLabel', 'publicationBlocked', 'altText', 'rightsStatus'])
         && data.eventId is string && data.eventId.size() >= 3 && data.eventId.size() <= 80
         && data.label is string && data.label.size() > 0 && data.label.size() <= 180
         && data.url is string && data.url.size() > 8 && data.url.size() <= 2048
@@ -164,6 +164,9 @@ service cloud.firestore {
         && data.authorLabel is string && data.authorLabel.size() > 0 && data.authorLabel.size() <= 120
         && data.createdAt is timestamp && data.updatedAt is timestamp
         && (!('selectedFinal' in data) || data.selectedFinal is bool)
+        && (!('publicationBlocked' in data) || data.publicationBlocked is bool)
+        && (!('altText' in data) || (data.altText is string && data.altText.size() <= 1000))
+        && (!('rightsStatus' in data) || (data.rightsStatus is string && data.rightsStatus.size() <= 120))
         && (!('approvedBy' in data) || data.approvedBy is string)
         && (!('approvedByLabel' in data) || data.approvedByLabel is string)
         && data.updatedBy is string && data.updatedBy.size() > 0;
@@ -291,7 +294,12 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['archived', 'selectedFinal', 'approvedAt', 'approvedBy', 'approvedByLabel', 'updatedAt', 'updatedBy'])
         && validMediaLink(request.resource.data)
         && ((request.resource.data.archived == true && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['archived', 'updatedAt', 'updatedBy']))
-          || (isEditor() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['selectedFinal', 'approvedAt', 'approvedBy', 'approvedByLabel', 'updatedAt', 'updatedBy'])))
+          || (isEditor()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['selectedFinal', 'approvedAt', 'approvedBy', 'approvedByLabel', 'updatedAt', 'updatedBy'])
+            && request.resource.data.selectedFinal is bool
+            && (request.resource.data.selectedFinal == false
+              || (resource.data.archived == false
+                && (!('publicationBlocked' in resource.data) || resource.data.publicationBlocked == false)))))
         && request.resource.data.updatedBy == request.auth.uid;
       allow delete: if false;
     }

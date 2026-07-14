@@ -34,7 +34,7 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260713-internal-projects-v1";
+} from "./firebase-client.js?v=20260713-comments-priorities-v1";
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -205,15 +205,22 @@ style.textContent = `
   .cockpit-media-stage { display: inline-block; margin-top: 5px; padding: 2px 6px; border-radius: 999px; color: #0b6077; background: #dff3f3; font-size: .61rem; font-weight: 850; }
   .cockpit-media-rights-warning { display:block; margin:7px 8px 0; padding:6px 7px; border:1px solid #d9a441; border-radius:7px; color:#6b4300; background:#fff4d6; font-size:.63rem; font-weight:900; line-height:1.35; }
   .cockpit-media-final-badge { display:block; margin:8px 9px 6px; color:#155c4e; font-size:.66rem; font-weight:900; }
+  .cockpit-media-blocked { display:block; margin:7px 8px 0; padding:6px 7px; border:1px solid #d9b76b; border-radius:7px; color:#75521b; background:#fff4d7; font-size:.63rem; font-weight:900; line-height:1.35; }
   .cockpit-media-final-action { width:calc(100% - 16px); margin:0 8px 9px; padding:7px; border:1px solid #21866d; border-radius:8px; color:#155c4e; background:#e3f5ee; font-size:.66rem; font-weight:900; cursor:pointer; }
-  .cockpit-media-comment { display:grid; grid-template-columns:1fr auto; gap:6px; margin:0 8px 9px; }
+  .cockpit-media-final-action:disabled { cursor:not-allowed; color:#6f7476; background:#edf0f1; border-color:#c7ced0; opacity:1; }
+  .cockpit-media-comment { display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:6px; margin:0 8px 9px; }
   .cockpit-media-comment input { min-width:0; padding:7px; border:1px solid #c9dde0; border-radius:8px; color:#294d59; background:#fff; font-size:.66rem; }
   .cockpit-media-comment button { padding:7px 9px; border:1px solid #0b7895; border-radius:8px; color:#fff; background:#0b7895; font-size:.66rem; font-weight:900; cursor:pointer; }
+  .cockpit-media-comment button[data-dictate] { min-width:38px; color:#0b6077; background:#fff; }
+  .cockpit-media-comment [data-voice-status] { grid-column:1 / -1; margin:0; }
   .cockpit-media-card button[data-archive-media] { display:block; width:calc(100% - 16px); min-height:36px; margin:0 8px; padding:7px 9px; border:1px solid #d8b5b1; border-radius:8px; color:#8b4037; background:#fff6f4; font-size:.65rem; font-weight:850; cursor:pointer; }
   .cockpit-media-form { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(120px,.8fr) auto; gap: 6px; padding-top: 9px; border-top: 1px solid #d8e8ea; }
   .cockpit-media-form input, .cockpit-media-form select { min-width: 0; padding: 7px; border: 1px solid #d1e3e6; border-radius: 8px; color: #264a58; background: #fff; font: inherit; font-size: .7rem; }
-  .cockpit-media-form [name="media-note"] { grid-column: 1 / 3; }
-  .cockpit-media-form button { grid-column: 3; grid-row: 1 / 3; padding: 7px 10px; border: 0; border-radius: 8px; color: #fff; background: #0b7895; font-size: .7rem; font-weight: 850; cursor: pointer; }
+  .cockpit-media-form-note { display:grid; grid-column:1 / 3; grid-template-columns:minmax(0,1fr) auto; gap:6px; }
+  .cockpit-media-form-note [name="media-note"] { width:100%; }
+  .cockpit-media-form-note button[data-dictate] { min-width:38px; padding:7px; border:1px solid #0b7895; border-radius:8px; color:#0b6077; background:#fff; cursor:pointer; }
+  .cockpit-media-form-note [data-voice-status] { grid-column:1 / -1; margin:0; }
+  .cockpit-media-form > button[type="submit"] { grid-column: 3; grid-row: 1 / 3; padding: 7px 10px; border: 0; border-radius: 8px; color: #fff; background: #0b7895; font-size: .7rem; font-weight: 850; cursor: pointer; }
   .cockpit-media-tools { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; margin-top: 8px; }
   .cockpit-media-folder { display: inline-block; padding: 6px 9px; border: 1px solid #0b7895; border-radius: 999px; color: #0b6077; font-size: .68rem; font-weight: 850; text-decoration: none; }
   .cockpit-media-note { margin: 0; color: #6b858d; font-size: .65rem; }
@@ -268,6 +275,16 @@ style.textContent = `
   [data-theme="dark"] .opportunity-note-box > p { color:#e0d2ab; }
   [data-theme="dark"] .opportunity-note-box .cockpit-thread { border-color:#75633b; background:linear-gradient(180deg,#353124,#202a2e); }
   [data-theme="dark"] .opportunity-note-box .cockpit-comment-row { border-color:#75633b; background:#2a2d2c; }
+  .internal-project-note-box { margin-top:12px; padding:11px; border:2px solid #8acbc2; border-radius:12px; background:#f0faf8; }
+  .internal-project-note-box h5 { margin:0 0 3px; color:#164f4f; font-size:.78rem; }
+  .internal-project-note-box > p { margin:0 0 8px; color:#496d68; font-size:.67rem; line-height:1.4; }
+  .internal-project-note-box .cockpit-thread { margin-top:0; border-color:#a7d8d1; background:linear-gradient(180deg,#eaf8f5,#fff); }
+  .internal-project-note-box .cockpit-comment-row { border-color:#a7d8d1; background:#eff9f7; }
+  [data-theme="dark"] .internal-project-note-box { border-color:#5f9991; background:#193530; }
+  [data-theme="dark"] .internal-project-note-box h5 { color:#b8f1e8; }
+  [data-theme="dark"] .internal-project-note-box > p { color:#c3ddd8; }
+  [data-theme="dark"] .internal-project-note-box .cockpit-thread { border-color:#527f79; background:linear-gradient(180deg,#213e39,#202a2e); }
+  [data-theme="dark"] .internal-project-note-box .cockpit-comment-row { border-color:#527f79; background:#203833; }
   .cockpit-thread-resolved { order:-1; margin-bottom:2px; border:1px solid #c9dadd; border-radius:9px; background:#f4f7f7; }
   .cockpit-thread-resolved>summary { padding:7px 9px; color:#58717a; font-size:.67rem; font-weight:850; }
   .cockpit-thread-resolved-list { display:flex; flex-direction:column; gap:7px; padding:0 8px 8px; opacity:.82; }
@@ -286,6 +303,9 @@ style.textContent = `
   .section-feedback summary:after { content: ""; }
   .section-feedback[open] summary { margin-bottom: 8px; }
   .section-feedback textarea { width: 100%; min-height: 62px; padding: 8px; border: 1px solid #d1e3e6; border-radius: 9px; color: #264a58; background: #fff; font: inherit; font-size: .78rem; resize: vertical; }
+  .feedback-form .cockpit-comment-row { margin-top:8px; border:1px solid #c7e0e3; border-radius:11px; }
+  .feedback-form .cockpit-comment-row textarea { width:auto; }
+  #cockpit-feedback-panel .feedback-form .cockpit-comment-row textarea { width:auto; }
   .section-feedback .feedback-actions { display: flex; gap: 7px; align-items: center; margin-top: 7px; }
   .section-feedback select { padding: 7px; border: 1px solid #d1e3e6; border-radius: 8px; color: #315564; background: #fff; font-size: .74rem; }
   .section-feedback button { padding: 7px 10px; border: 0; border-radius: 8px; color: #fff; background: #0b7895; font-size: .74rem; font-weight: 800; cursor: pointer; }
@@ -323,6 +343,7 @@ style.textContent = `
   .cockpit-task-item b { display: block; color: #073a52; font-size: .78rem; }
   .cockpit-task-item p { margin: 4px 0 7px; color: #587680; font-size: .72rem; line-height: 1.38; white-space: pre-wrap; }
   .cockpit-task-item small { display: block; margin-bottom: 7px; color: #78919a; font-size: .66rem; }
+  .cockpit-task-priority { display:inline-flex; margin:0 0 5px; padding:3px 7px; border-radius:999px; color:#765116; background:#fff0c7; font-size:.62rem; font-weight:900; }
   .cockpit-task-actions { display: flex; gap: 6px; }
   .cockpit-task-actions button { padding: 5px 7px; border: 1px solid #cbe1e4; border-radius: 7px; color: #315564; background: #fff; font-size: .68rem; font-weight: 800; cursor: pointer; }
   .cockpit-task-actions button[data-complete-task] { border-color: #0b7895; color: #fff; background: #0b7895; }
@@ -400,14 +421,20 @@ style.textContent = `
     #cockpit-sidebar { top:0; width:100vw; padding:72px 14px 80px; border-left:0; }
     #cockpit-sidebar.open + #cockpit-sidebar-toggle { z-index:42; }
     .cockpit-media-form { grid-template-columns: 1fr; }
-    .cockpit-media-form [name="media-note"], .cockpit-media-form button { grid-column: 1; grid-row: auto; }
+    .cockpit-media-form-note, .cockpit-media-form > button[type="submit"] { grid-column: 1; grid-row: auto; }
+    .cockpit-media-form-note { grid-template-columns:46px minmax(0,1fr); }
+    .cockpit-media-form-note [name="media-note"] { grid-column:1 / -1; min-height:44px; }
+    .cockpit-media-form-note button[data-dictate] { grid-column:1; min-height:44px; }
     .cockpit-media-nav:not([hidden]) { display:flex; }
     .cockpit-media-card { flex-basis:min(310px,calc(100vw - 58px)); }
     .cockpit-media-preview { min-height:210px; }
     .cockpit-media-final-action { min-height:44px; font-size:.72rem; }
     .cockpit-media-info > summary { min-height:46px; font-size:.74rem; }
-    .cockpit-media-comment { grid-template-columns:1fr; }
+    .cockpit-media-comment { grid-template-columns:46px minmax(0,1fr); }
+    .cockpit-media-comment input { grid-column:1 / -1; }
     .cockpit-media-comment :is(input,button) { min-height:44px; font-size:.75rem; }
+    .cockpit-media-comment button[data-dictate] { grid-column:1; }
+    .cockpit-media-comment button[data-save-media-comment] { grid-column:2; }
     .cockpit-media-card button[data-archive-media] { min-height:44px; font-size:.72rem; }
     .cockpit-workflow { padding:11px; }
     .cockpit-workflow-gates { grid-template-columns:repeat(3,minmax(0,1fr)); }
@@ -747,13 +774,47 @@ function buildTaskWidget() {
   document.body.appendChild(button);
 }
 
+function stateTimestampMillis(value) {
+  if (value?.toMillis) return value.toMillis();
+  if (value instanceof Date) return value.valueOf();
+  const numeric = Number(value || 0);
+  return Number.isFinite(numeric) ? numeric : 0;
+}
+
 function taskWhen(task) {
   return task.createdAt?.toDate ? task.createdAt.toDate().toLocaleString("fr-CA") : "date en attente";
 }
 
+function taskPlanDate(task) {
+  if (task.targetType !== "schedule") return null;
+  const item = Array.isArray(globalThis.posts) ? globalThis.posts.find((post) => post.id === task.targetId) : null;
+  const match = String(item?.dateIso || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12);
+}
+
+function actionTaskPriority(task, now = new Date()) {
+  const date = taskPlanDate(task);
+  if (!date) return { bucket: 3, dateValue: Number.POSITIVE_INFINITY, label: "Consigne active sans échéance datée" };
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const distance = Math.round((target - today) / 86400000);
+  if (distance < 0) return { bucket: 0, dateValue: target.valueOf(), label: "Échéance passée — à traiter maintenant" };
+  if (distance === 0) return { bucket: 1, dateValue: target.valueOf(), label: "Prévu aujourd’hui" };
+  if (distance <= 2) return { bucket: 2, dateValue: target.valueOf(), label: distance === 1 ? "Prévu demain" : "Prévu dans les 48 h" };
+  return { bucket: 4, dateValue: target.valueOf(), label: "À préparer pour la date prévue" };
+}
+
 function renderActionTasks(tasks) {
   state.tasks = Array.isArray(tasks) ? tasks : [];
-  const pending = state.tasks.filter((task) => task.status === "pending");
+  const pending = state.tasks.filter((task) => task.status === "pending").sort((left, right) => {
+    const leftPriority = actionTaskPriority(left);
+    const rightPriority = actionTaskPriority(right);
+    return leftPriority.bucket - rightPriority.bucket
+      || leftPriority.dateValue - rightPriority.dateValue
+      || stateTimestampMillis(right.updatedAt || right.createdAt) - stateTimestampMillis(left.updatedAt || left.createdAt)
+      || String(left.title || "").localeCompare(String(right.title || ""), "fr");
+  });
   const count = String(pending.length);
   document.querySelectorAll("[data-task-count]").forEach((node) => { node.textContent = count; });
   const launch = document.querySelector("#cockpit-task-launch");
@@ -769,7 +830,9 @@ function renderActionTasks(tasks) {
   }
   list.innerHTML = pending.map((task) => {
     const isComment = String(task.id || "").startsWith("comment-");
-    return `<article class="cockpit-task-item${isComment ? " comment-task" : ""}" data-task-id="${esc(task.id)}">${isComment ? `<span class="cockpit-task-source">💬 Nouvelle consigne · ${esc(task.createdByLabel || "Direction")}</span>` : ""}<b>${esc(task.title || "Tâche à accomplir")}</b><small>${esc(task.targetLabel || task.targetId || "Cible non précisée")} · ${esc(taskWhen(task))}</small><p>${esc(task.message || "")}</p><div class="cockpit-task-actions"><button type="button" data-open-task="${esc(task.id)}" data-task-target-type="${esc(task.targetType || "schedule")}" data-task-target="${esc(task.targetId || "")}">Ouvrir</button><button type="button" data-complete-task="${esc(task.id)}">Marquer complétée</button></div></article>`;
+    const priority = actionTaskPriority(task);
+    const updatedAt = stateTimestampMillis(task.updatedAt || task.createdAt);
+    return `<article class="cockpit-task-item${isComment ? " comment-task" : ""}" data-task-id="${esc(task.id)}" data-task-target-type="${esc(task.targetType || "schedule")}" data-task-target="${esc(task.targetId || "")}" data-task-updated-at="${updatedAt}">${isComment ? `<span class="cockpit-task-source">💬 Nouvelle consigne · ${esc(task.createdByLabel || "Direction")}</span>` : ""}<b>${esc(task.title || "Tâche à accomplir")}</b><small>${esc(task.targetLabel || task.targetId || "Cible non précisée")} · ${esc(taskWhen(task))}</small><span class="cockpit-task-priority">Pourquoi maintenant · ${esc(priority.label)}</span><p>${esc(task.message || "")}</p><div class="cockpit-task-actions"><button type="button" data-open-task="${esc(task.id)}" data-task-target-type="${esc(task.targetType || "schedule")}" data-task-target="${esc(task.targetId || "")}">Ouvrir</button><button type="button" data-complete-task="${esc(task.id)}">Marquer complétée</button></div></article>`;
   }).join("");
 }
 
@@ -861,7 +924,7 @@ const feedbackSectionLabels = {
 };
 
 function feedbackFormMarkup(sectionId) {
-  return `<form class="feedback-form" data-feedback-form data-section-id="${esc(sectionId)}"><textarea data-feedback-message maxlength="5000" placeholder="Ajoutez un avis, une recommandation ou une idée de mise à jour. Cette case sert à préparer la prochaine mouture; elle ne modifie pas le texte immédiatement."></textarea><div class="feedback-actions"><select data-feedback-category aria-label="Type de rétroaction"><option value="recommandation">Recommandation</option><option value="avis">Avis</option><option value="a_verifier">À vérifier</option><option value="idee">Idée de mise à jour</option></select><button type="submit">Envoyer</button></div><p class="feedback-note">Votre note sera enregistrée dans le journal du cockpit pour suivi et arbitrage.</p></form>`;
+  return `<form class="feedback-form" data-feedback-form data-section-id="${esc(sectionId)}"><div class="cockpit-comment-row" data-voice-container><textarea data-feedback-message maxlength="5000" spellcheck="true" autocapitalize="sentences" inputmode="text" aria-label="Avis, recommandation ou idée de mise à jour" placeholder="Ajoutez un avis, une recommandation ou une idée de mise à jour. Cette case sert à préparer la prochaine mouture; elle ne modifie pas le texte immédiatement."></textarea><button type="button" data-dictate aria-pressed="false" aria-label="Dicter une recommandation" title="Dicter une recommandation">🎙️</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre recommandation.</div></div><div class="feedback-actions"><select data-feedback-category aria-label="Type de rétroaction"><option value="recommandation">Recommandation</option><option value="avis">Avis</option><option value="a_verifier">À vérifier</option><option value="idee">Idée de mise à jour</option></select><button type="submit">Envoyer</button></div><p class="feedback-note">Votre note sera enregistrée dans le journal du cockpit pour suivi et arbitrage.</p></form>`;
 }
 
 function submitFeedbackForm(form) {
@@ -890,6 +953,7 @@ function submitFeedbackForm(form) {
     })
     .then(() => {
       messageField.value = "";
+      delete messageField.dataset.dictated;
       toast("Rétroaction enregistrée pour la prochaine mouture.");
     })
     .catch((error) => toast(error.message, true))
@@ -970,6 +1034,18 @@ function parsePlanDate(value) {
   const month = frenchMonthNumbers[match[2]];
   if (typeof month !== "number") return null;
   return new Date(2026, month, Number(match[1]), 12, 0, 0, 0);
+}
+
+function setupFeedbackDictationEvents() {
+  if (document.body.dataset.feedbackDictationReady === "true") return;
+  document.body.dataset.feedbackDictationReady = "true";
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-feedback-form] button[data-dictate]");
+    if (!button) return;
+    event.preventDefault();
+    event.stopPropagation();
+    startDictation(button.closest("[data-feedback-form]")?.querySelector("[data-feedback-message]"));
+  });
 }
 
 function isPlanItemPast(item, now = new Date()) {
@@ -1532,6 +1608,35 @@ function internalProjectWhen(row) {
   return row?.updatedAt?.toDate ? row.updatedAt.toDate().toLocaleString("fr-CA", { dateStyle:"short", timeStyle:"short" }) : "état initial du registre";
 }
 
+function internalProjectCommentSectionId(projectId) {
+  return `internal-project-${projectId}`;
+}
+
+function renderInternalProjectNotes() {
+  document.querySelectorAll(".internal-project[data-internal-project-id]").forEach((card) => {
+    const sectionId = internalProjectCommentSectionId(card.dataset.internalProjectId);
+    let box = card.querySelector("[data-internal-project-note-box]");
+    if (!box) {
+      box = document.createElement("section");
+      box.className = "internal-project-note-box";
+      box.dataset.internalProjectNoteBox = "true";
+      box.innerHTML = `
+        <h5>💬 Commentaires et décisions sur ce projet</h5>
+        <p>Déposez ici une recommandation, une décision, une information à vérifier ou une prochaine action. Le fil est partagé, historisé et reste attaché à ce projet.</p>
+        <section class="cockpit-thread"><div class="cockpit-thread-heading"><h5>Fil de suivi</h5><span>Le message le plus récent apparaît en bas.</span></div><div data-comment-thread aria-live="polite"></div></section>
+        <div class="cockpit-comment-row">
+          <textarea data-internal-project-comment maxlength="5000" spellcheck="true" autocapitalize="sentences" inputmode="text" placeholder="Ajouter un commentaire ou une consigne sur ce projet…" aria-label="Commentaire partagé sur ce projet"></textarea>
+          <button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire de projet" title="Dicter un commentaire de projet">🎙️</button>
+          <button class="save" type="button" data-save-internal-project-comment>Enregistrer</button>
+          <div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div>
+        </div>`;
+      card.querySelector(".internal-project-body")?.appendChild(box);
+    }
+    box.dataset.commentSection = sectionId;
+    renderCommentThread(box, sectionId);
+  });
+}
+
 function renderInternalProjectStates() {
   const register = document.querySelector("[data-internal-project-register]");
   if (!register) return;
@@ -1551,6 +1656,7 @@ function renderInternalProjectStates() {
   });
   const count = register.querySelector("[data-internal-project-archive-count]");
   if (count) count.textContent = String(archived);
+  renderInternalProjectNotes();
 }
 
 function setupInternalProjectEvents() {
@@ -1567,21 +1673,75 @@ function setupInternalProjectEvents() {
       archiveToggle.firstChild.textContent = active ? "Masquer les archives " : "Voir les archives ";
       return;
     }
+    const card = event.target.closest(".internal-project[data-internal-project-id]");
+    const noteBox = event.target.closest("[data-internal-project-note-box]");
+    const sectionId = noteBox?.dataset.commentSection || (card ? internalProjectCommentSectionId(card.dataset.internalProjectId) : "");
+    const resolveCommentButton = event.target.closest("button[data-resolve-comment]");
+    if (card && noteBox && resolveCommentButton) {
+      resolveCommentButton.disabled = true;
+      resolveComment(resolveCommentButton.dataset.resolveComment, state.profile)
+        .then(async () => {
+          try { await completeActionTask(`comment-internal-project-${resolveCommentButton.dataset.resolveComment}`, state.profile); } catch {}
+          toast("Commentaire marqué comme traité et conservé dans l’historique.");
+        })
+        .catch((error) => toast(error.message, true))
+        .finally(() => { resolveCommentButton.disabled = false; });
+      return;
+    }
+    const editCommentButton = event.target.closest("button[data-edit-comment]");
+    if (card && noteBox && editCommentButton) {
+      const row = (state.commentsByEvent.get(sectionId) || []).find((item) => item.id === editCommentButton.dataset.editComment);
+      const next = prompt("Modifier votre commentaire :", row?.comment || "");
+      if (next !== null) updateOwnComment(editCommentButton.dataset.editComment, next, state.profile).then(() => toast("Commentaire modifié.")).catch((error) => toast(error.message, true));
+      return;
+    }
+    const archiveCommentButton = event.target.closest("button[data-archive-comment]");
+    if (card && noteBox && archiveCommentButton) {
+      if (!confirm("Archiver ce commentaire? Son historique sera conservé.")) return;
+      archiveOwnComment(archiveCommentButton.dataset.archiveComment, state.profile).then(() => toast("Commentaire archivé.")).catch((error) => toast(error.message, true));
+      return;
+    }
+    const dictateButton = event.target.closest("button[data-dictate]");
+    if (card && noteBox && dictateButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      startDictation(noteBox.querySelector("[data-internal-project-comment]"));
+      return;
+    }
+    const saveCommentButton = event.target.closest("button[data-save-internal-project-comment]");
+    if (card && noteBox && saveCommentButton) {
+      const textarea = noteBox.querySelector("[data-internal-project-comment]");
+      const text = textarea?.value.trim() || "";
+      if (!text) { toast("Écrivez d’abord un commentaire.", true); return; }
+      saveCommentButton.disabled = true;
+      addComment(sectionId, text, state.profile, null, textarea.dataset.dictated === "true")
+        .then(async (commentId) => {
+          const title = card.querySelector(":scope > summary strong")?.textContent?.trim() || card.dataset.internalProjectId;
+          await writeAuditLog(sectionId, textarea.dataset.dictated === "true" ? "commentaire de projet dicté" : "commentaire de projet ajouté", state.profile);
+          await recordActionTask(`comment-internal-project-${commentId}`, { status:"pending", title:`Commentaire de projet à traiter — ${title}`, targetType:"section", targetId:card.id, targetLabel:title, message:text });
+          textarea.value = "";
+          delete textarea.dataset.dictated;
+          toast("Commentaire de projet enregistré.");
+        })
+        .catch((error) => toast(error.message, true))
+        .finally(() => { saveCommentButton.disabled = false; });
+      return;
+    }
     const button = event.target.closest("button[data-internal-project-stage]");
     if (!button || !state.profile || !["director", "admin"].includes(state.profile.role)) return;
-    const card = button.closest(".internal-project[data-internal-project-id]");
-    if (!card) return;
+    const stageCard = button.closest(".internal-project[data-internal-project-id]");
+    if (!stageCard) return;
     const stage = button.dataset.internalProjectStage;
-    const title = card.querySelector(":scope > summary strong")?.textContent?.trim() || card.dataset.internalProjectId;
+    const title = stageCard.querySelector(":scope > summary strong")?.textContent?.trim() || stageCard.dataset.internalProjectId;
     button.disabled = true;
-    setInternalProjectStage(card.dataset.internalProjectId, stage, state.profile)
+    setInternalProjectStage(stageCard.dataset.internalProjectId, stage, state.profile)
       .then(async () => {
-        await writeAuditLog("internal-project:" + card.dataset.internalProjectId, "étape : " + stage, state.profile);
-        await recordActionTask("internal-project-" + card.dataset.internalProjectId, {
+        await writeAuditLog("internal-project:" + stageCard.dataset.internalProjectId, "étape : " + stage, state.profile);
+        await recordActionTask("internal-project-" + stageCard.dataset.internalProjectId, {
           status: stage === "completed" ? "done" : "pending",
           title: `${internalProjectStageLabels[stage] || "Suivi"} — ${title}`,
           targetType: "section",
-          targetId: card.id,
+          targetId: stageCard.id,
           targetLabel: title,
           message: stage === "blocked" ? "Une décision ou une ressource est requise. Ouvrir la fiche et traiter la prochaine action prioritaire." : "Ouvrir la fiche, vérifier la prochaine action et faire avancer le projet selon l’étape choisie."
         });
@@ -1844,13 +2004,16 @@ function renderMediaForCard(card) {
       : `<span><span class="cockpit-media-icon" aria-hidden="true">${mediaKindIcons[row.kind] || "🔗"}</span><span class="cockpit-media-open-label">Ouvrir ${row.kind === "image" ? "l’image" : "le média"}</span></span>`;
     const hasStructuredChoice = Object.prototype.hasOwnProperty.call(row, "selectedFinal");
     const isFinal = row.selectedFinal === true || (!hasStructuredChoice && latestDecision.startsWith(`[MÉDIA RETENU:${row.id}]`));
-    return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}" data-media-id="${esc(row.id)}">
+    const isBlocked = row.publicationBlocked === true;
+    const mediaUpdatedAt = stateTimestampMillis(row.updatedAt || row.createdAt);
+    return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}${isBlocked ? " is-blocked" : ""}" data-media-id="${esc(row.id)}" data-media-stage="${esc(row.stage || "reference")}" data-media-updated-at="${mediaUpdatedAt}" data-media-selected-final="${String(isFinal)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
       <details class="cockpit-media-info"><summary><span>Informations et actions</span><small class="cockpit-media-info-status ${isFinal ? "is-final" : ""}">${isFinal ? "✓ Retenu" : "Ouvrir"}</small></summary><div class="cockpit-media-info-body">
         ${row.rightsStatus === "unconfirmed" ? `<span class="cockpit-media-rights-warning">⚠ Droits à confirmer — référence interne seulement</span>` : ""}
+        ${isBlocked ? `<span class="cockpit-media-blocked">Référence conservée pour comparaison — ne pas choisir pour diffusion.</span>` : ""}
         <div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span><br><a class="cockpit-media-source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Ouvrir l’original dans OneDrive ↗</a></div>
         ${isFinal ? `<span class="cockpit-media-final-badge">✓ Média final retenu par la direction</span>` : ""}
-        ${["director","admin"].includes(state.profile?.role) ? `<button type="button" class="cockpit-media-final-action" data-select-final-media="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${isFinal}">${isFinal ? "Retirer ce choix final" : "Choisir ce média"}</button><div class="cockpit-media-comment"><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button></div>` : ""}
+        ${["director","admin"].includes(state.profile?.role) ? `<button type="button" class="cockpit-media-final-action" data-select-final-media="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${isFinal}"${isBlocked ? " disabled" : ""}>${isBlocked ? "Référence non diffusable" : isFinal ? "Retirer ce choix final" : "Choisir ce média"}</button><div class="cockpit-media-comment" data-voice-container><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire sur ce média" title="Dicter un commentaire sur ce média">🎙️</button><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div></div>` : ""}
         ${canEdit() ? `<button type="button" data-archive-media="${esc(row.id)}" aria-label="Archiver ce lien média" title="Archiver sans supprimer">Archiver ce lien</button>` : ""}
       </div></details>
     </article>`;
@@ -1922,7 +2085,7 @@ function mediaControlsMarkup(planItem) {
         <input type="url" name="media-url" maxlength="2048" required placeholder="Lien de consultation OneDrive / SharePoint" aria-label="Lien OneDrive ou SharePoint">
         <input type="text" name="media-label" maxlength="180" required placeholder="Nom du média" aria-label="Nom du média">
         <select name="media-kind" aria-label="Type de média"><option value="image">Image</option><option value="video">Vidéo</option><option value="pdf">PDF</option><option value="document">Document</option><option value="folder">Dossier</option><option value="other">Autre lien</option></select>
-        <input type="text" name="media-note" maxlength="1000" placeholder="Note facultative : source, droits, correction demandée…" aria-label="Note sur le média">
+        <div class="cockpit-media-form-note" data-voice-container><input type="text" name="media-note" maxlength="1000" placeholder="Note facultative : source, droits, correction demandée…" aria-label="Note sur le média"><button type="button" data-dictate aria-pressed="false" aria-label="Dicter une note sur le média" title="Dicter une note sur le média">🎙️</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter la note facultative.</div></div>
         <select name="media-stage" aria-label="Étape du média"><option value="source">Source</option><option value="draft" selected>En révision</option><option value="approved">Approuvé</option><option value="published">Publié</option><option value="reference">Référence</option></select>
         <button type="submit">Ajouter le lien</button>
       </form>
@@ -1946,6 +2109,7 @@ function editorialDecisionMarkup(planItem) {
 function renderEditorialDecision(card) {
   const row = state.decisions.get(card.dataset.itemId) || { decision: "undecided" };
   const decision = row.decision || "undecided";
+  card.dataset.editorialUpdatedAt = String(stateTimestampMillis(row.updatedAt));
   card.classList.toggle("editorial-chosen", decision === "chosen");
   card.classList.toggle("editorial-deferred", decision === "deferred");
   card.classList.toggle("editorial-rejected", decision === "rejected");
@@ -1964,6 +2128,8 @@ function renderEditorialDecision(card) {
 function renderWorkflow(card) {
   const row = state.workflows.get(card.dataset.itemId) || { stage: "proposal" };
   const stage = row.stage || "proposal";
+  card.dataset.workflowStage = stage;
+  card.dataset.workflowUpdatedAt = String(stateTimestampMillis(row.updatedAt));
   const contentDone = ["content_approved","media_review","final_approved","scheduled","published"].includes(stage);
   const mediaDone = ["final_approved","scheduled","published"].includes(stage);
   const publicationDone = ["scheduled","published"].includes(stage);
@@ -2198,15 +2364,19 @@ async function changeStatus(card, status) {
   }
 }
 
+function voiceContainer(textarea) {
+  return textarea?.closest("[data-voice-container], .cockpit-comment-row");
+}
+
 function setVoiceStatus(textarea, message, kind = "") {
-  const status = textarea?.closest(".cockpit-comment-row")?.querySelector("[data-voice-status]");
+  const status = voiceContainer(textarea)?.querySelector("[data-voice-status]");
   if (!status) return;
   status.textContent = message;
   status.className = "cockpit-voice-status" + (kind ? " " + kind : "");
 }
 
 function setVoiceButtonState(textarea, active) {
-  const button = textarea?.closest(".cockpit-comment-row")?.querySelector("[data-dictate]");
+  const button = voiceContainer(textarea)?.querySelector("[data-dictate]");
   if (!button) return;
   button.setAttribute("aria-pressed", String(active));
   button.textContent = active ? "⏹️" : "🎙️";
@@ -2222,7 +2392,7 @@ function voiceFallback(textarea, message) {
   textarea?.focus();
   setVoiceButtonState(textarea, false);
   setVoiceStatus(textarea, message, "error");
-  const row = textarea?.closest(".cockpit-comment-row");
+  const row = voiceContainer(textarea);
   if (!row) return;
   let help = row.querySelector("[data-voice-help]");
   if (!help) {
@@ -2283,6 +2453,7 @@ function scheduleRecognitionRestart(recognition, textarea) {
 
 async function requestMicrophoneAccess(textarea) {
   if (microphoneRequestPending) {
+    setVoiceButtonState(textarea, false);
     setVoiceStatus(textarea, "La demande d’accès au microphone est déjà en cours…", "live");
     return false;
   }
@@ -2524,7 +2695,8 @@ function enhanceCardEvents() {
     if (dictateButton) {
       event.preventDefault();
       event.stopPropagation();
-      startDictation(card.querySelector("[data-comment]"));
+      const dictatedField = dictateButton.closest("[data-voice-container]")?.querySelector("input, textarea") || card.querySelector("[data-comment]");
+      startDictation(dictatedField);
       return;
     }
     const archiveButton = event.target.closest("button[data-archive-media]");
@@ -2561,11 +2733,12 @@ function enhanceCardEvents() {
       const note = input?.value.trim() || "";
       if (!note) { toast("Écrivez d’abord votre commentaire sur ce média.", true); return; }
       const label = mediaCommentButton.dataset.mediaLabel || "Média OneDrive";
-      addComment(card.dataset.itemId, `🎨 Média « ${label} » : ${note}`, state.profile, null, false)
+      addComment(card.dataset.itemId, `🎨 Média « ${label} » : ${note}`, state.profile, null, input?.dataset.dictated === "true")
         .then(async (commentId) => {
           const planItem = getPlanItem(card);
           await recordActionTask(`media-comment-${commentId}`, { status:"pending", title:`Commentaire média — ${planItem?.title || card.dataset.itemId}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${label}`, message:note });
           input.value = "";
+          delete input.dataset.dictated;
           toast("Commentaire sur le média enregistré.");
         }).catch((error) => toast(error.message, true));
       return;
@@ -2698,6 +2871,7 @@ async function applyProfile(profile) {
   installBrandLogo();
   enhanceCards();
   enhanceSectionFeedback();
+  setupFeedbackDictationEvents();
   enhanceCalendarButtons();
   buildFeedbackWidget();
   setupOpportunityEvents();
@@ -2790,7 +2964,7 @@ function subscribeRemoteData() {
   state.commentsUnsubscribe = subscribeComments((rows) => {
     const grouped = new Map();
     rows.forEach((row) => { const id=String(row.sectionId||""); if(!grouped.has(id)) grouped.set(id,[]); grouped.get(id).push(row); });
-    state.commentsByEvent = grouped; renderAllCollaboration(); renderOpportunityNotes(); renderAllMedia(); notifyViewUpdate("comments");
+    state.commentsByEvent = grouped; renderAllCollaboration(); renderOpportunityNotes(); renderInternalProjectNotes(); renderAllMedia(); notifyViewUpdate("comments");
   }, (error) => toast("Le fil de commentaires n’est pas accessible : " + error.message, true));
   state.workflowUnsubscribe?.();
   state.workflowUnsubscribe = subscribeWorkflowStates((rows) => {

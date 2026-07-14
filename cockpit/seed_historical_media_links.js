@@ -31,15 +31,22 @@ for (const item of media) {
   const existing = await reference.get();
   const rightsUnconfirmed = /confirmer/i.test(item.license || "") || /ne pas publier/i.test(item.publicationStatus || "");
   const rightsLabel = rightsUnconfirmed ? "⚠ DROITS À CONFIRMER — référence interne; ne pas publier avant autorisation écrite." : item.publicationStatus;
+  const enforcedArchiveFields = item.archived === true ? {
+    stage: "reference",
+    archived: true,
+    publicationBlocked: true,
+    selectedFinal: false
+  } : {};
   const contentFields = {
     eventId: item.eventId, label: item.label, url: mediaUrl, kind: "image",
-    note: `${rightsLabel} Crédit : ${item.author}. Licence : ${item.license}. Période : ${item.period}. Source documentaire : ${item.source}`,
-    rightsStatus: rightsUnconfirmed ? "unconfirmed" : "documented"
+    note: `${item.note ? `${item.note} ` : ""}${rightsLabel} Crédit : ${item.author}. Licence : ${item.license}. Période : ${item.period}. Source documentaire : ${item.source}`,
+    rightsStatus: rightsUnconfirmed ? "unconfirmed" : "documented",
+    ...enforcedArchiveFields
   };
   if (!existing.exists) {
     batch.set(reference, {
-      ...contentFields, stage: "source", publicationBlocked: rightsUnconfirmed,
-      archived: false, authorUid: "system-seed", authorLabel: "Banque historique documentée",
+      ...contentFields, stage: item.stage || "source", publicationBlocked: rightsUnconfirmed || item.publicationBlocked === true,
+      archived: item.archived === true, authorUid: "system-seed", authorLabel: "Banque historique documentée",
       createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp(), updatedBy: "system-seed"
     }, { merge: true });
     created += 1;

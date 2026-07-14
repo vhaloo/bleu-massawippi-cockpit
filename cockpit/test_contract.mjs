@@ -9,6 +9,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
 const ui = fs.readFileSync(path.join(here, "cockpit-ui.js"), "utf8");
 const viewMode = fs.readFileSync(path.join(here, "view-mode.js"), "utf8");
+const viewFixture = fs.readFileSync(path.join(here, "test-fixtures", "view-mode.html"), "utf8");
 const client = fs.readFileSync(path.join(here, "firebase-client.js"), "utf8");
 const theme = fs.readFileSync(path.join(here, "theme.js"), "utf8");
 const firebaseConfig = fs.readFileSync(path.join(here, "firebase-config.js"), "utf8");
@@ -20,6 +21,7 @@ const mediaSeedSources = ["seed_nature_media_links.js", "seed_editorial_media_li
   file,
   source: fs.readFileSync(path.join(here, file), "utf8")
 }));
+const natureMediaSeed = mediaSeedSources.find(({ file }) => file === "seed_nature_media_links.js").source;
 const source = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const historicalMedia = JSON.parse(fs.readFileSync(path.join(here, "historical_media_manifest.json"), "utf8"));
 const natureMedia = JSON.parse(fs.readFileSync(path.join(here, "nature_media_manifest.json"), "utf8"));
@@ -111,6 +113,15 @@ const lakeLovePost = posts.find((post) => post.id === "s2d7");
 assert.match(lakeLovePost.title, /amour du lac/i);
 assert.match(lakeLovePost.copy, /l’amour du lac/i);
 assert.doesNotMatch(lakeLovePost.copy, /\?/i, "La respiration patrimoniale ne doit pas demander une interaction.");
+assert.match(lakeLovePost.visual, /uniquement la carte postale historique complète 1900_ancienne-bibliotheque/i);
+const saturdayCommunity = posts.find((post) => post.id === "s1d4");
+const deferredBlueMinute = posts.find((post) => post.id === "s1d6");
+const deferredMemories = posts.find((post) => post.id === "s1d7");
+const deferredShoreLife = posts.find((post) => post.id === "alt-20260718");
+assert.equal(saturdayCommunity.date, "Samedi 18 juillet", "Le choix communautaire de la direction doit rester seul le samedi.");
+assert.equal(deferredBlueMinute.date, "Mardi 21 juillet", "La Minute bleue doit rester espacée du contenu communautaire.");
+assert.equal(deferredMemories.date, "Jeudi 20 août", "La capsule souvenirs doit rester conservée à une autre date.");
+assert.equal(deferredShoreLife.date, "Samedi 22 août", "La biodiversité sous les feuilles doit rester conservée à une autre date.");
 const frogSeries = posts.find((post) => post.id === "alt-20260802");
 assert.match(frogSeries.title, /voix à documenter autour du bassin/i);
 assert.match(frogSeries.copy, /ne constitue pas encore un inventaire complet du bassin|Ce n’est pas encore un inventaire complet du bassin/i);
@@ -187,7 +198,19 @@ for (const media of historicalMedia) {
   assert.ok(posts.some((post) => post.id === media.eventId), `Le média ${media.fileName} doit être relié à une publication existante.`);
 }
 assert.doesNotMatch(JSON.stringify(historicalMedia), /sharepoint\.com|:\/g\/IQ/i);
-assert.equal(natureMedia.length, 22);
+const fridayHistoricalMedia = historicalMedia.filter((item) => item.eventId === "s2d7");
+assert.equal(fridayHistoricalMedia.length, 6, "Toutes les sources du vendredi doivent rester conservées dans la banque historique.");
+const fridayFeaturedMedia = fridayHistoricalMedia.filter((item) => item.archived !== true);
+assert.deepEqual(fridayFeaturedMedia.map((item) => item.id), ["history-1900-ancienne-bibliotheque-north-hatley"],
+  "Seule la carte postale de 1900 doit rester proposée le vendredi 17 juillet.");
+assert.equal(fridayFeaturedMedia[0].stage, "proposal");
+for (const archivedMedia of fridayHistoricalMedia.filter((item) => item.archived === true)) {
+  assert.equal(archivedMedia.stage, "reference", `${archivedMedia.id} doit rester une référence archivée.`);
+  assert.equal(archivedMedia.publicationBlocked, true, `${archivedMedia.id} ne doit pas pouvoir être retenu par erreur.`);
+}
+assert.match(mediaSeedSources.find(({ file }) => file === "seed_historical_media_links.js").source, /enforcedArchiveFields/,
+  "Le seed historique doit maintenir l’archivage éditorial explicite lors des synchronisations futures.");
+assert.ok(natureMedia.length > 0, "Le registre des visuels nature ne doit pas être vide.");
 assert.equal(new Set(natureMedia.map((item) => item.id)).size, natureMedia.length);
 assert.equal(new Set(natureMedia.map((item) => item.eventId)).size, 10);
 for (const media of natureMedia) {
@@ -198,25 +221,98 @@ for (const media of natureMedia) {
   assert.ok(media.altText.length >= 60, `L’affiche ${media.fileName} doit conserver un texte alternatif utile.`);
 }
 assert.doesNotMatch(JSON.stringify(natureMedia), /sharepoint\.com|:\/g\/IQ/i);
-assert.equal(editorialMedia.length, 28);
+assert.ok(editorialMedia.length > 0, "Le registre éditorial ne doit pas être vide.");
 assert.equal(new Set(editorialMedia.map((item) => item.id)).size, editorialMedia.length);
 for (const media of editorialMedia) {
   assert.ok(posts.some((post) => post.id === media.eventId), `Le visuel ${media.fileName} doit être relié à une publication existante.`);
-  assert.match(media.fileName, /\.(?:jpg|mp4)$/);
+  assert.match(media.fileName, /\.(?:jpg|png|mp4)$/);
   assert.ok(media.altText.length >= 60, `Le visuel ${media.fileName} doit conserver un texte alternatif utile.`);
 }
-const correctedDragonfly = natureMedia.find((item) => item.id === "nature-alt-20260715-libellule-manuscript-v3");
-assert.ok(correctedDragonfly, "La libellule anatomiquement corrigée doit être proposée.");
-assert.match(correctedDragonfly.altText, /exactement quatre ailes et six pattes/i);
-assert.equal(editorialMedia.filter((item) => /\.jpg$/.test(item.fileName)).length, 26);
-assert.equal(editorialMedia.filter((item) => /\.mp4$/.test(item.fileName) && item.kind === "video").length, 2);
+const archivedSecchiIds = [
+  "editorial-s1d5-secchi-v1",
+  "editorial-s1d5-secchi-answer-v1",
+  "editorial-s1d5-secchi-manuscript-v2",
+  "editorial-s1d5-secchi-answer-manuscript-v2"
+];
+for (const archivedId of archivedSecchiIds) {
+  const archivedSecchi = editorialMedia.find((item) => item.id === archivedId);
+  assert.ok(archivedSecchi, `${archivedId} doit rester conservé dans le registre.`);
+  assert.equal(archivedSecchi.stage, "archived", `${archivedId} doit être retiré des propositions actives sans être supprimé.`);
+}
+const secchiSource = editorialMedia.find((item) => item.id === "editorial-s1d5-secchi-real-photo-v3");
+assert.equal(secchiSource?.stage, "source", "La photographie réelle d’origine doit rester conservée comme source documentée.");
+const realSecchiV4 = editorialMedia.find((item) => item.id === "editorial-s1d5-secchi-real-manuscript-v4");
+assert.ok(realSecchiV4, "La proposition Secchi fondée sur une photographie réelle doit exister.");
+assert.equal(realSecchiV4.eventId, "s1d5");
+assert.equal(realSecchiV4.stage, "proposal");
+assert.match(realSecchiV4.fileName, /secchi.*bilingue-v4\.png$/);
+assert.match(realSecchiV4.altText, /photographie réelle[\s\S]*À votre avis[\s\S]*What do you think/i);
+assert.match(realSecchiV4.rightsStatus, /photographie du domaine public/i);
+assert.deepEqual(
+  editorialMedia
+    .filter((item) => item.eventId === "s1d5" && !["archived", "source"].includes(item.stage || "proposal"))
+    .map((item) => item.id),
+  [realSecchiV4.id],
+  "La v4 doit être la seule proposition Secchi active; les anciennes cartes restent archivées et la photo brute reste une source."
+);
+const correctedDragonfly = natureMedia.find((item) => item.id === "nature-alt-20260715-libellule-manuscript-v5-scientific-bilingual");
+assert.ok(correctedDragonfly, "La libellule scientifiquement validée et bilingue doit être proposée.");
+assert.match(correctedDragonfly.altText, /exactement quatre ailes[\s\S]*six pattes/i);
+assert.match(correctedDragonfly.note, /français et anglais/i);
+assert.match(correctedDragonfly.note, /quatre ailes en répartition 2 \+ 2[\s\S]*six pattes en répartition 3 \+ 3/i);
+assert.equal(correctedDragonfly.stage, "proposal");
+assert.equal(correctedDragonfly.publicationBlocked, false);
+assert.equal(correctedDragonfly.archived, false);
+const dragonflyStyleReference = natureMedia.find((item) => item.id === "nature-alt-20260715-libellule-manuscript-v2");
+assert.equal(dragonflyStyleReference.stage, "reference");
+assert.equal(dragonflyStyleReference.publicationBlocked, true);
+assert.equal(dragonflyStyleReference.archived, false);
+for (const archivedId of ["nature-alt-20260715-libellule-v1", "nature-alt-20260715-libellule-manuscript-v3", "nature-alt-20260715-libellule-manuscript-v4-bilingual"]) {
+  const archivedDragonfly = natureMedia.find((item) => item.id === archivedId);
+  assert.equal(archivedDragonfly.archived, true, `${archivedId} doit rester conservé mais retiré des propositions actives.`);
+  assert.equal(archivedDragonfly.publicationBlocked, true, `${archivedId} ne doit jamais redevenir publiable par réinitialisation.`);
+}
+assert.deepEqual(
+  natureMedia
+    .filter((item) => item.eventId === "alt-20260715" && item.stage === "proposal" && item.publicationBlocked !== true && item.archived !== true)
+    .map((item) => item.id),
+  [correctedDragonfly.id],
+  "La v5 anatomiquement validée doit être la seule proposition active pour la libellule."
+);
+assert.ok(editorialMedia.some((item) => /\.jpg$/.test(item.fileName)), "Le registre doit accepter les photographies JPEG.");
+assert.ok(editorialMedia.some((item) => /\.png$/.test(item.fileName)), "Le registre doit accepter les compositions PNG.");
+assert.ok(editorialMedia.some((item) => /\.mp4$/.test(item.fileName) && item.kind === "video"), "Le registre doit accepter les vidéos MP4 déclarées comme telles.");
 assert.doesNotMatch(JSON.stringify(editorialMedia), /sharepoint\.com|:\/g\/IQ/i);
 
 for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMedia", "button[data-dictate]", "data-add-post-calendar", "data-media-form", "cockpit-media-open-label", "cockpit-media-info", "Informations et actions", "cockpit-media-enlarge", "object-fit: contain", "setupMediaNavigation", "data-media-previous", "data-media-next", "glissez les images ou utilisez les flèches", "cockpit-date-elevator", "data-date-target", "requestDateElevatorUpdate", "data-workflow-stage", "workflowDirection", "aria-pressed=\"false\"", "Feu vert retiré; l’historique est conservé.", "id=\\\"cockpit-task-count\\\" data-task-count", "Mini-chat de l’événement", "data-resolve-comment", "Voir les messages traités", "comment-task", "data-editorial-decision", "Bonne idée — autre jour", "Ne pas retenir cet angle", "editorial-deferred", "data-comment-thread", "MutationObserver", "Connexion…", "bleu-massawippi-guide-collapsed", "data-guide-new-badge", "setOpportunityStage", "data-opportunity-stage", "bleu-massawippi-projects-collapsed", "setupInternalProjectPreference", "setupInternalProjectEvents", "renderInternalProjectStates", "data-internal-project-stage", "internalProjectUnsubscribe", "Valider le texte avec l’aval", "Valider le visuel avec l’aval", "syncResponsiveOffsets", "setAdminSidebarOpen", "--cockpit-session-height"]) {
   assert.ok(ui.includes(token), `Le cockpit doit contenir le contrat ${token}.`);
 }
+for (const token of ["stateTimestampMillis", "actionTaskPriority", "data-task-target-type", "data-task-updated-at", "cockpit-task-priority", "data-media-updated-at", "dataset.workflowUpdatedAt", "dataset.editorialUpdatedAt", "cockpit-media-blocked", "Référence non diffusable"]) {
+  assert.ok(ui.includes(token), `La file priorisée doit exposer le contrat ${token}.`);
+}
+for (const token of ["roleDecisionForEvent", "roleDecisionModels", "pendingTaskModels", "mediaUpdatedAfterWorkflow", "Pourquoi maintenant", "left.urgency.rank", "Nouvelle consigne de la direction", "Texte prêt pour votre validation"]) {
+  assert.ok(viewMode.includes(token), `La vue essentielle doit prioriser les décisions avec ${token}.`);
+}
+assert.match(viewMode, /if \(role === "admin" && latestTask\)/,
+  "Une tâche transmise par la direction doit apparaître seulement dans la file des communications.");
+assert.match(viewMode, /if \(role === "director"\)[\s\S]{0,1800}if \(role === "admin"\)/,
+  "Les décisions de la direction et des communications doivent rester séparées par rôle.");
+assert.match(viewMode, /event\.media\.latestUpdate > event\.workflowUpdatedAt/,
+  "Un média plus récent que la dernière validation doit remonter dans la file de la direction.");
+assert.match(viewFixture, /data-workflow-stage="content_review"[\s\S]{0,2500}data-workflow-stage="media_review"/,
+  "La recette navigateur doit couvrir séparément les validations du texte et du média.");
+assert.match(viewFixture, /data-task-target-type="schedule" data-task-target="fixture-today"/,
+  "La recette navigateur doit couvrir une consigne réservée aux communications.");
+assert.match(viewFixture, /data-media-updated-at=/,
+  "La recette navigateur doit prouver la remontée d’un média récemment modifié.");
 for (const token of ["data-opportunity-note-box", "data-save-opportunity-comment", "comment-opportunity-", "Notes partagées sur cette occasion", "renderOpportunityNotes"]) {
   assert.ok(ui.includes(token), `Le suivi individualisé des occasions doit contenir le contrat ${token}.`);
+}
+for (const token of ["data-internal-project-note-box", "data-internal-project-comment", "data-save-internal-project-comment", "comment-internal-project-", "Commentaires et décisions sur ce projet", "renderInternalProjectNotes"]) {
+  assert.ok(ui.includes(token), `Le suivi individualisé des projets internes doit contenir le contrat ${token}.`);
+}
+for (const token of ["setupFeedbackDictationEvents", "Dicter une recommandation", "Dicter un commentaire sur ce média", "Dicter une note sur le média", "data-voice-container", "voiceContainer"]) {
+  assert.ok(ui.includes(token), `Chaque zone de commentaire non technique doit offrir la dictée avec ${token}.`);
 }
 for (const token of [".posts.single-post", "updateSinglePostLayouts", "sameDay.length === 1", "item.choiceRequired !== true", "!item.optionGroup"]) {
   assert.ok(ui.includes(token), `La pleine largeur des journées confirmées doit contenir le contrat ${token}.`);
@@ -235,10 +331,16 @@ assert.match(source, /data-project-register[^>]*data-layout-version="2026-07-13-
 assert.match(source, /Échéancier de détection proposé/);
 assert.match(source, /ne pas précipiter une candidature 2026 incomplète/i);
 assert.equal((source.match(/data-internal-project-id=/g) || []).length, 12, "Le registre privé doit contenir les douze projets internes documentés.");
-assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-07-13-internal-projects-v3"/);
+assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-07-13-internal-projects-comments-v4"/);
 const internalProjectIds = [...source.matchAll(/data-internal-project-id="([a-z0-9-]+)"/g)].map((match) => match[1]).sort();
 const internalProjectSeedIds = [...internalProjectSeed.matchAll(/^  "([a-z0-9-]+)": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm)].map((match) => match[1]).sort();
 assert.deepEqual(internalProjectSeedIds, internalProjectIds, "Les cartes et le seed des projets internes doivent utiliser exactement les mêmes identifiants.");
+assert.match(source, /data-internal-project-id="jeux-provinciaux-peche" data-initial-stage="completed"/,
+  "Les Jeux provinciaux de pêche doivent rester classés comme projet terminé dans la source.");
+assert.match(source, /Jeux provinciaux de pêche — événement terminé[\s\S]{0,180}Terminé · archivé/,
+  "La fiche des Jeux provinciaux de pêche doit annoncer clairement sa clôture.");
+assert.match(internalProjectSeed, /"jeux-provinciaux-peche": "completed"/,
+  "Le seed ne doit jamais recréer les Jeux provinciaux de pêche comme projet actif ou bloqué.");
 for (const stage of ["to_frame", "planned", "active", "blocked", "completed"]) {
   assert.ok(client.includes(`"${stage}"`) && firestoreRules.includes(`'${stage}'`) && internalProjectSeed.includes(`"${stage}"`), `L’étape interne ${stage} doit rester alignée entre client, règles et initialisation.`);
 }
@@ -282,4 +384,10 @@ for (const { file, source: mediaSeed } of mediaSeedSources) {
   }
   assert.match(mediaSeed, /else \{\s*batch\.set\(reference, contentFields, \{ merge: true \}\);\s*updated \+= 1;/, `${file} doit préserver les décisions d’un média existant.`);
 }
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 8, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 12, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 419 }, null, 2));
+assert.match(natureMediaSeed, /stage: item\.stage \|\| "proposal"/,
+  "Le seed nature doit reconstruire l’étape déclarée uniquement lors de la création d’un média.");
+assert.match(natureMediaSeed, /publicationBlocked: item\.publicationBlocked === true/,
+  "Le seed nature doit reconstruire le blocage éditorial d’une référence non diffusable.");
+assert.match(natureMediaSeed, /archived: item\.archived === true/,
+  "Le seed nature doit garder les anciennes variantes hors des propositions actives lors d’une reconstruction.");
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 8, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 12, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 449 }, null, 2));

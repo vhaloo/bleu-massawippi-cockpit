@@ -295,18 +295,33 @@ Which of these functions would you like us to explore in a future post?
     title: "Une image, une époque, le même amour du lac",
     cta: "Regarder les détails",
     copy: bilingual(
-      `Cette image nous ramène à une autre époque du Massawippi. Le paysage et les habitudes ont changé, mais l’amour du lac continue de relier les générations.
+      `Datée de 1900, cette carte postale montre l’ancienne bibliothèque de North Hatley. Regardons-la sans montage ni comparaison : sa façade, son toit, ses fenêtres et la neige racontent à leur manière une époque du village.
 
-Prenons le temps d’en explorer les détails : la rive, les embarcations, les bâtiments et les façons d’habiter le lieu. Une photographie ancienne peut raconter beaucoup sans demander un seul mot.
+Les bâtiments et les habitudes changent, mais l’amour du lac et des lieux qui l’entourent se transmet. Cette image est un fragment de la mémoire locale qui nous relie encore aujourd’hui au Massawippi et à sa communauté.
+
+Crédit : Jean B. Le Baron — domaine public.
 
 #Patrimoine #BleuMassawippi #LacMassawippi #MémoireDuLac`,
-      `This image takes us back to another time at Massawippi. The landscape and daily habits have changed, but a shared love for the lake continues to connect generations.
+      `Dated 1900, this postcard shows North Hatley’s former library. Let us view it without a montage or comparison: its facade, roof, windows and snow each tell part of the village’s story.
 
-Let us take time to explore its details: the shoreline, boats, buildings and ways of living in this place. An old photograph can tell us a great deal without asking for a single word.
+Buildings and daily habits change, but love for the places surrounding Massawippi is passed on. This image is a fragment of local memory that still connects us to the lake and its community today.
+
+Credit: Jean B. Le Baron — public domain.
 
 #Heritage #BleuMassawippi #LakeMassawippi #LakeMemories`
     ),
-    visual: "Visuel « regarder ensemble » : photographie historique complète, créditée et non colorisée; ajouter au besoin un détail agrandi et la note manuscrite « Le même amour du lac », sans question ni élément qui masque l’image."
+    source: "Domaine public · 1900 · Jean B. Le Baron / Wikimedia Commons : https://commons.wikimedia.org/wiki/File:Old_North_Hatley_Library.png",
+    visual: "Utiliser uniquement la carte postale historique complète 1900_ancienne-bibliotheque-north-hatley.png, non colorisée et sans photo récente, maison actuelle ni montage avant/après. Préserver l’inscription d’origine; si une note manuscrite est ajoutée, la limiter à « Le même amour du lac » dans une marge qui ne masque aucun détail.",
+    fallback: "Publier la carte postale complète sans surimpression, avec son crédit dans la légende.",
+    task: "Mettre en valeur uniquement la carte postale de 1900, conserver son inscription et son crédit, puis vérifier l’aperçu mobile avant programmation.",
+    tasksValentin: [
+      "Utiliser uniquement la carte postale 1900_ancienne-bibliotheque-north-hatley.png; ne pas ajouter de maison ni de photographie récente.",
+      "Préserver l’image complète, son inscription d’origine et le crédit Jean B. Le Baron — domaine public; vérifier l’aperçu mobile.",
+      "Finaliser la légende FR / EN, soumettre le média unique à la validation, puis programmer seulement après le feu vert final."
+    ],
+    tasksAnnie: [
+      "Confirmer que la carte postale historique unique et sa présentation sobre conviennent avant la programmation."
+    ]
   },
   "alt-20260721": {
     title: "Le plongeon huard (Gavia immer), voix du lac",
