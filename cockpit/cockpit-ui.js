@@ -20,7 +20,8 @@ import {
   subscribeActionTasks,
   addMediaLink,
   archiveMediaLink,
-  setMediaFinalChoice,
+  setMediaDecision,
+  subscribeMediaDecisions,
   subscribeMediaLinks,
   subscribeComments,
   updateOwnComment,
@@ -34,11 +35,11 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260713-comments-priorities-v1";
+} from "./firebase-client.js?v=20260714-media-role-v2";
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
-const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
+const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], auditUnsubscribe: null, feedbackUnsubscribe: null, tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
 let activeRecognition = null;
 let activeTextarea = null;
 let recognitionRestart = false;
@@ -168,6 +169,9 @@ style.textContent = `
   .cockpit-media-empty { margin: 4px 0 9px; color: #67828d; font-size: .72rem; }
   .cockpit-media-card { position: relative; flex: 0 0 min(310px, 86vw); overflow: hidden; scroll-snap-align: start; border: 1px solid #d3e6e8; border-radius: 11px; background: #f7fbfb; }
   .cockpit-media-card.is-final { border:3px solid #21866d; box-shadow:0 0 0 3px rgba(33,134,109,.14); }
+  .cockpit-media-card.is-recommended:not(.is-final) { border:2px solid #0b7895; box-shadow:0 0 0 2px rgba(11,120,149,.1); }
+  .cockpit-media-card.is-direction-selected:not(.is-final) { border:2px solid #8f6a18; box-shadow:0 0 0 2px rgba(143,106,24,.1); }
+  .cockpit-media-card.is-divergent { border-color:#b26724; background:#fffaf1; }
   .cockpit-media-preview { position:relative; display: grid; width:100%; aspect-ratio:4 / 3; min-height:190px; place-items: center; overflow: hidden; color: #0b6077; background:#e5eff1; text-decoration: none; }
   .cockpit-media-preview:focus-visible { outline:3px solid #0b7895; outline-offset:-3px; }
   .cockpit-media-preview img { display: block; width: 100%; height: 100%; object-fit: contain; object-position:center; }
@@ -205,8 +209,15 @@ style.textContent = `
   .cockpit-media-stage { display: inline-block; margin-top: 5px; padding: 2px 6px; border-radius: 999px; color: #0b6077; background: #dff3f3; font-size: .61rem; font-weight: 850; }
   .cockpit-media-rights-warning { display:block; margin:7px 8px 0; padding:6px 7px; border:1px solid #d9a441; border-radius:7px; color:#6b4300; background:#fff4d6; font-size:.63rem; font-weight:900; line-height:1.35; }
   .cockpit-media-final-badge { display:block; margin:8px 9px 6px; color:#155c4e; font-size:.66rem; font-weight:900; }
+  .cockpit-media-role-badges { display:grid; gap:5px; margin:8px 9px; }
+  .cockpit-media-role-badge { display:block; padding:5px 7px; border-radius:7px; color:#315564; background:#eaf3f5; font-size:.64rem; font-weight:850; line-height:1.35; }
+  .cockpit-media-role-badge.communications { color:#075c73; background:#e1f4f7; }
+  .cockpit-media-role-badge.direction { color:#735815; background:#fff2cf; }
+  .cockpit-media-role-badge.agreement { color:#155c4e; background:#dff4ea; }
+  .cockpit-media-role-badge.divergence { color:#8a4815; background:#ffead8; }
   .cockpit-media-blocked { display:block; margin:7px 8px 0; padding:6px 7px; border:1px solid #d9b76b; border-radius:7px; color:#75521b; background:#fff4d7; font-size:.63rem; font-weight:900; line-height:1.35; }
   .cockpit-media-final-action { width:calc(100% - 16px); margin:0 8px 9px; padding:7px; border:1px solid #21866d; border-radius:8px; color:#155c4e; background:#e3f5ee; font-size:.66rem; font-weight:900; cursor:pointer; }
+  .cockpit-media-override-action { width:calc(100% - 16px); margin:0 8px 9px; padding:7px; border:1px solid #b67b2b; border-radius:8px; color:#714809; background:#fff5df; font-size:.66rem; font-weight:900; cursor:pointer; }
   .cockpit-media-final-action:disabled { cursor:not-allowed; color:#6f7476; background:#edf0f1; border-color:#c7ced0; opacity:1; }
   .cockpit-media-comment { display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:6px; margin:0 8px 9px; }
   .cockpit-media-comment input { min-width:0; padding:7px; border:1px solid #c9dde0; border-radius:8px; color:#294d59; background:#fff; font-size:.66rem; }
@@ -627,6 +638,7 @@ function buildLogin() {
       <label>Mot de passe<input id="cockpit-password" type="password" autocomplete="current-password" required></label>
       <button type="submit">Ouvrir la session</button>
       <button class="cockpit-login-reset" id="cockpit-reset-password" type="button">Réinitialiser le mot de passe</button>
+      <button class="cockpit-login-reset" id="cockpit-retry-content" type="button" hidden>Réessayer le chargement</button>
       <div class="cockpit-login-error" id="cockpit-login-error" role="alert"></div>
       <div class="cockpit-login-note" id="cockpit-login-note"></div>
     </form>`;
@@ -1940,11 +1952,66 @@ function setupOpportunityEvents() {
 
 const mediaStageLabels = {
   source: "Source",
+  proposal: "Proposition à examiner",
   draft: "En révision",
   approved: "Approuvé",
   published: "Publié",
   reference: "Référence"
 };
+
+const workflowTextApprovedStages = new Set(["content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"]);
+
+function mediaChoiceModel(eventId, row, latestLegacyDecision = "") {
+  const hasStructuredChoice = state.mediaDecisions.has(eventId);
+  const hasStructuredDecision = hasStructuredChoice;
+  const decision = state.mediaDecisions.get(eventId) || null;
+  const communicationsIds = decision?.communications?.status === "selected" && Array.isArray(decision.communications.mediaIds) ? decision.communications.mediaIds : [];
+  const directionIds = decision?.direction?.status === "selected" && Array.isArray(decision.direction.mediaIds) ? decision.direction.mediaIds : [];
+  const agreementIds = ["agreed", "overridden"].includes(decision?.agreement?.status) && Array.isArray(decision.agreement.mediaIds) ? decision.agreement.mediaIds : [];
+  const hasLegacyField = Object.prototype.hasOwnProperty.call(row, "selectedFinal");
+  const legacySelected = !hasStructuredChoice && (row.selectedFinal === true || (!hasLegacyField && latestLegacyDecision.startsWith(`[MÉDIA RETENU:${row.id}]`)));
+  return {
+    hasStructuredDecision,
+    decision,
+    communicationsSelected: hasStructuredDecision && communicationsIds.includes(row.id),
+    directionSelected: hasStructuredDecision && directionIds.includes(row.id),
+    agreementSelected: hasStructuredDecision && agreementIds.includes(row.id),
+    divergent: decision?.agreement?.status === "divergent",
+    legacySelected,
+    finalSelected: hasStructuredDecision ? agreementIds.includes(row.id) : legacySelected
+  };
+}
+
+function showAuthenticatedLoadError(message, retryAction = null) {
+  // Une panne Firestore ou un quota épuisé n'annule jamais une authentification
+  // Firebase valide. On conserve la session et on offre un réessai volontaire,
+  // sans boucle ni spinner infini.
+  const login = document.querySelector("#cockpit-login") || buildLogin();
+  document.body.classList.add("cockpit-locked", "cockpit-readonly");
+  login.removeAttribute("hidden");
+  const error = login.querySelector("#cockpit-login-error");
+  const note = login.querySelector("#cockpit-login-note");
+  const retry = login.querySelector("#cockpit-retry-content");
+  if (error) error.textContent = message || "Les données du cockpit sont temporairement indisponibles.";
+  if (note) note.textContent = "Votre session demeure connectée. Aucun changement n’a été perdu; réessayez lorsque le service répond.";
+  if (!retry) return;
+  retry.hidden = false;
+  retry.onclick = async () => {
+    retry.disabled = true;
+    retry.textContent = "Nouvel essai…";
+    if (error) error.textContent = "";
+    try {
+      if (typeof retryAction === "function") await retryAction();
+      else location.reload();
+    } catch (reason) {
+      if (error) error.textContent = reason?.message || "Le cockpit demeure temporairement indisponible.";
+      if (note) note.textContent = "Votre session est toujours conservée. Vous pourrez réessayer sans vous reconnecter.";
+    } finally {
+      retry.disabled = false;
+      retry.textContent = "Réessayer le chargement";
+    }
+  };
+}
 
 const mediaKindIcons = {
   image: "🖼️",
@@ -2002,18 +2069,35 @@ function renderMediaForCard(card) {
     const visual = preview
       ? `<img data-media-preview src="${esc(preview)}" alt="${esc(row.label || "Aperçu du média")}" loading="lazy" decoding="async" referrerpolicy="no-referrer"><span class="cockpit-media-enlarge" aria-hidden="true">Agrandir ↗</span>`
       : `<span><span class="cockpit-media-icon" aria-hidden="true">${mediaKindIcons[row.kind] || "🔗"}</span><span class="cockpit-media-open-label">Ouvrir ${row.kind === "image" ? "l’image" : "le média"}</span></span>`;
-    const hasStructuredChoice = Object.prototype.hasOwnProperty.call(row, "selectedFinal");
-    const isFinal = row.selectedFinal === true || (!hasStructuredChoice && latestDecision.startsWith(`[MÉDIA RETENU:${row.id}]`));
+    const choice = mediaChoiceModel(card.dataset.itemId, row, latestDecision);
+    const isFinal = choice.finalSelected;
     const isBlocked = row.publicationBlocked === true;
+    const workflowStage = state.workflows.get(card.dataset.itemId)?.stage || "proposal";
+    const textApproved = workflowTextApprovedStages.has(workflowStage);
+    const role = state.profile?.role;
+    const myChoiceSelected = role === "admin" ? choice.communicationsSelected : role === "director" ? choice.directionSelected : false;
+    const chooseLabel = role === "admin"
+      ? (myChoiceSelected ? "Retirer ma recommandation" : "Recommander ce visuel")
+      : (myChoiceSelected ? "Retirer mon approbation" : "Approuver ce visuel");
+    const choiceDisabled = isBlocked || (role === "director" && !textApproved);
+    const infoStatus = isFinal ? "✓ Accord" : choice.communicationsSelected ? "Recommandé" : choice.directionSelected ? "Choix direction" : choice.legacySelected ? "Hérité" : "Ouvrir";
+    const roleBadges = [
+      choice.communicationsSelected ? `<span class="cockpit-media-role-badge communications">✓ Recommandé par les communications</span>` : "",
+      choice.directionSelected ? `<span class="cockpit-media-role-badge direction">✓ Choisi par la direction générale</span>` : "",
+      choice.agreementSelected ? `<span class="cockpit-media-role-badge agreement">✓ Accord communications + direction</span>` : "",
+      choice.divergent && (choice.communicationsSelected || choice.directionSelected) ? `<span class="cockpit-media-role-badge divergence">Choix différents — harmonisation requise</span>` : "",
+      choice.legacySelected ? `<span class="cockpit-media-role-badge">Choix hérité à confirmer — acteur non attribué</span>` : ""
+    ].join("");
+    const canOverride = !isBlocked && textApproved && myChoiceSelected && !choice.agreementSelected && role === "director";
     const mediaUpdatedAt = stateTimestampMillis(row.updatedAt || row.createdAt);
-    return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}${isBlocked ? " is-blocked" : ""}" data-media-id="${esc(row.id)}" data-media-stage="${esc(row.stage || "reference")}" data-media-updated-at="${mediaUpdatedAt}" data-media-selected-final="${String(isFinal)}">
+    return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}${choice.communicationsSelected ? " is-recommended" : ""}${choice.directionSelected ? " is-direction-selected" : ""}${choice.divergent ? " is-divergent" : ""}${isBlocked ? " is-blocked" : ""}" data-media-id="${esc(row.id)}" data-media-stage="${esc(row.stage || "reference")}" data-media-updated-at="${mediaUpdatedAt}" data-media-selected-final="${String(isFinal)}" data-media-communications-selected="${String(choice.communicationsSelected)}" data-media-direction-selected="${String(choice.directionSelected)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
-      <details class="cockpit-media-info"><summary><span>Informations et actions</span><small class="cockpit-media-info-status ${isFinal ? "is-final" : ""}">${isFinal ? "✓ Retenu" : "Ouvrir"}</small></summary><div class="cockpit-media-info-body">
+      <details class="cockpit-media-info"><summary><span>Informations et actions</span><small class="cockpit-media-info-status ${isFinal ? "is-final" : ""}">${infoStatus}</small></summary><div class="cockpit-media-info-body">
         ${row.rightsStatus === "unconfirmed" ? `<span class="cockpit-media-rights-warning">⚠ Droits à confirmer — référence interne seulement</span>` : ""}
         ${isBlocked ? `<span class="cockpit-media-blocked">Référence conservée pour comparaison — ne pas choisir pour diffusion.</span>` : ""}
         <div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span><br><a class="cockpit-media-source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Ouvrir l’original dans OneDrive ↗</a></div>
-        ${isFinal ? `<span class="cockpit-media-final-badge">✓ Média final retenu par la direction</span>` : ""}
-        ${["director","admin"].includes(state.profile?.role) ? `<button type="button" class="cockpit-media-final-action" data-select-final-media="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${isFinal}"${isBlocked ? " disabled" : ""}>${isBlocked ? "Référence non diffusable" : isFinal ? "Retirer ce choix final" : "Choisir ce média"}</button><div class="cockpit-media-comment" data-voice-container><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire sur ce média" title="Dicter un commentaire sur ce média">🎙️</button><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div></div>` : ""}
+        ${roleBadges ? `<div class="cockpit-media-role-badges">${roleBadges}</div>` : ""}
+        ${["director","admin"].includes(role) ? `<button type="button" class="cockpit-media-final-action" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}"${choiceDisabled ? " disabled" : ""}>${isBlocked ? "Référence non diffusable" : role === "director" && !textApproved ? "Approuver d’abord le texte" : chooseLabel}</button>${canOverride ? `<button type="button" class="cockpit-media-override-action" data-media-override="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Retenir comme décision finale…</button>` : ""}<div class="cockpit-media-comment" data-voice-container><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire sur ce média" title="Dicter un commentaire sur ce média">🎙️</button><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div></div>` : ""}
         ${canEdit() ? `<button type="button" data-archive-media="${esc(row.id)}" aria-label="Archiver ce lien média" title="Archiver sans supprimer">Archiver ce lien</button>` : ""}
       </div></details>
     </article>`;
@@ -2098,7 +2182,7 @@ const workflowOrder = ["proposal", "content_review", "changes_requested", "conte
 function workflowRank(stage) { return workflowOrder.indexOf(stage || "proposal"); }
 
 function workflowMarkup(planItem) {
-  return `<section class="cockpit-workflow" data-workflow><h5>Les 3 feux verts</h5><p class="cockpit-workflow-intro">Le texte et le visuel sont validés par la direction, ou par les communications lorsque son aval a déjà été donné. Cliquez sur une case pour la cocher; cliquez de nouveau pour revenir en arrière. Chaque changement reste dans l’historique.</p><div class="cockpit-workflow-gates"><button type="button" class="cockpit-workflow-gate" data-gate="content" aria-pressed="false"><b>1 · Texte</b><span data-gate-label>À valider</span></button><button type="button" class="cockpit-workflow-gate" data-gate="media" aria-pressed="false"><b>2 · Visuel</b><span data-gate-label>Commence après le texte</span></button><button type="button" class="cockpit-workflow-gate" data-gate="publication" aria-pressed="false"><b>3 · Terminé</b><span data-gate-label>Publié ou programmé</span></button></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
+  return `<section class="cockpit-workflow" data-workflow><h5>Les 3 feux verts</h5><p class="cockpit-workflow-intro">Le texte est approuvé par la direction, puis chacun choisit le visuel dans la galerie. Cliquez de nouveau sur votre choix pour le retirer; chaque changement reste dans l’historique. L’option « Valider le visuel avec l’aval » demeure indisponible aux communications tant qu’une preuve d’aval structurée n’est pas jointe.</p><div class="cockpit-workflow-gates"><button type="button" class="cockpit-workflow-gate" data-gate="content" aria-pressed="false"><b>1 · Texte</b><span data-gate-label>À valider</span></button><button type="button" class="cockpit-workflow-gate" data-gate="media" aria-pressed="false"><b>2 · Visuel</b><span data-gate-label>Commence après le texte</span></button><button type="button" class="cockpit-workflow-gate" data-gate="publication" aria-pressed="false"><b>3 · Terminé</b><span data-gate-label>Publié ou programmé</span></button></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
 }
 
 function editorialDecisionMarkup(planItem) {
@@ -2128,10 +2212,17 @@ function renderEditorialDecision(card) {
 function renderWorkflow(card) {
   const row = state.workflows.get(card.dataset.itemId) || { stage: "proposal" };
   const stage = row.stage || "proposal";
+  const structuredMediaDecision = state.mediaDecisions.get(card.dataset.itemId) || null;
+  const structuredMediaAgreement = ["agreed", "overridden"].includes(structuredMediaDecision?.agreement?.status);
   card.dataset.workflowStage = stage;
   card.dataset.workflowUpdatedAt = String(stateTimestampMillis(row.updatedAt));
   const contentDone = ["content_approved","media_review","final_approved","scheduled","published"].includes(stage);
-  const mediaDone = ["final_approved","scheduled","published"].includes(stage);
+  // Dès qu'un résumé structuré existe, il surclasse selectedFinal et les
+  // marqueurs de commentaires hérités. L'étape visuelle n'est alors signée
+  // que par l'accord dérivé ou un override motivé.
+  const mediaDone = structuredMediaDecision
+    ? contentDone && structuredMediaAgreement
+    : ["final_approved","scheduled","published"].includes(stage);
   const publicationDone = ["scheduled","published"].includes(stage);
   const contentGate = card.querySelector('[data-gate="content"]');
   const mediaGate = card.querySelector('[data-gate="media"]');
@@ -2145,19 +2236,30 @@ function renderWorkflow(card) {
   const mediaLabel = mediaGate?.querySelector("[data-gate-label]");
   const publicationLabel = publicationGate?.querySelector("[data-gate-label]");
   if (contentLabel) contentLabel.textContent = contentDone ? "Approuvé" : (stage === "changes_requested" ? "Corrections demandées" : stage === "content_review" ? "Prêt pour validation" : "En préparation");
-  if (mediaLabel) mediaLabel.textContent = mediaDone ? "Approuvé" : (stage === "media_review" ? "Prêt pour validation" : contentDone ? "En production" : "Attend le texte");
+  if (mediaLabel) mediaLabel.textContent = mediaDone
+    ? (structuredMediaDecision?.agreement?.status === "overridden" ? "Validé avec aval" : "Accord des deux rôles")
+    : structuredMediaDecision?.agreement?.status === "divergent"
+      ? "Choix à harmoniser"
+      : (stage === "media_review" ? "Prêt pour validation" : contentDone ? "En production" : "Attend le texte");
   if (publicationLabel) publicationLabel.textContent = publicationDone ? "Publié ou programmé" : mediaDone ? "Prêt à publier" : "Attend les 2 validations";
-  const configureGate = (gate, done, canCheck, checkStage, uncheckStage, checkedName) => {
+  const configureGate = (gate, done, canCheck, checkStage, uncheckStage, checkedName, roleAllowed = true) => {
     if (!gate) return;
     gate.setAttribute("aria-pressed", String(done));
-    gate.disabled = !done && !canCheck;
-    gate.dataset.workflowStage = done ? uncheckStage : checkStage;
-    gate.dataset.workflowDirection = done ? "back" : "forward";
-    gate.title = done ? `Retirer le feu vert « ${checkedName} » et revenir à l’étape précédente` : canCheck ? `Donner le feu vert « ${checkedName} »` : "Terminez d’abord l’étape précédente";
+    gate.disabled = !roleAllowed || (!done && !canCheck);
+    if (roleAllowed) {
+      gate.dataset.workflowStage = done ? uncheckStage : checkStage;
+      gate.dataset.workflowDirection = done ? "back" : "forward";
+    } else {
+      delete gate.dataset.workflowStage;
+      delete gate.dataset.workflowDirection;
+    }
+    gate.title = !roleAllowed
+      ? checkedName === "Terminé" ? "Seules les communications confirment la programmation ou la publication" : "Choisissez ou retirez le média depuis la galerie"
+      : done ? `Retirer le feu vert « ${checkedName} » et revenir à l’étape précédente` : canCheck ? `Donner le feu vert « ${checkedName} »` : "Terminez d’abord l’étape précédente";
   };
-  configureGate(contentGate, contentDone, true, "content_approved", "content_review", "Texte");
-  configureGate(mediaGate, mediaDone, contentDone, "final_approved", "media_review", "Visuel");
-  configureGate(publicationGate, publicationDone, mediaDone, "published", "final_approved", "Terminé");
+  configureGate(contentGate, contentDone, true, "content_approved", "content_review", "Texte", !(state.profile?.role === "director" && ["scheduled", "published"].includes(stage)));
+  configureGate(mediaGate, mediaDone, false, "final_approved", "media_review", "Visuel", false);
+  configureGate(publicationGate, publicationDone, mediaDone, "published", "final_approved", "Terminé", state.profile?.role === "admin");
   card.classList.toggle("workflow-complete", publicationDone);
   const completeNote = card.querySelector("[data-workflow-complete]");
   if (completeNote) completeNote.hidden = !publicationDone;
@@ -2168,23 +2270,15 @@ function renderWorkflow(card) {
     if (["proposal","changes_requested"].includes(stage)) buttons.push(["content_review","Texte prêt — envoyer à la direction","primary"]);
     if (["proposal","content_review","changes_requested"].includes(stage)) buttons.push(["content_approved","✓ Valider le texte avec l’aval de la direction","primary"]);
     if (["content_approved"].includes(stage)) buttons.push(["media_review","Visuel prêt — envoyer à la direction","primary"]);
-    if (["content_approved","media_review"].includes(stage)) buttons.push(["final_approved","✓ Valider le visuel avec l’aval de la direction","primary"]);
     if (["final_approved","scheduled"].includes(stage)) buttons.push(["published","✓ Terminer — publié ou programmé","primary"]);
   }
   if (state.profile?.role === "director") {
     if (["content_review","proposal","changes_requested"].includes(stage)) buttons.push(["content_approved","✓ Approuver le texte et le concept","primary"]);
     if (stage === "content_review") buttons.push(["changes_requested","Correction demandée au texte","correction"]);
-    const eventMedia = (state.mediaByEvent.get(card.dataset.itemId) || []).filter((media) => media.archived !== true);
-    const selectedMedia = eventMedia.filter((media) => media.selectedFinal === true);
-    const legacyMediaDecision = (state.commentsByEvent.get(card.dataset.itemId) || []).filter((comment) => comment.deleted !== true && /^\[MÉDIA RETENU:/.test(comment.comment || "")).at(-1);
-    const legacyMediaId = legacyMediaDecision?.comment?.match(/^\[MÉDIA RETENU:([^\]]+)\]/)?.[1] || "";
-    const legacyMediaStillUnmigrated = eventMedia.some((media) => media.id === legacyMediaId && !Object.prototype.hasOwnProperty.call(media, "selectedFinal"));
-    const finalMediaCount = selectedMedia.length || (legacyMediaStillUnmigrated ? 1 : 0);
-    if (stage === "media_review" && finalMediaCount > 0) buttons.push(["final_approved",`✓ Approuver ${finalMediaCount > 1 ? finalMediaCount + " médias retenus" : "le média retenu"}`,"primary"]);
-    if (stage === "media_review" && finalMediaCount === 0) buttons.push(["","Choisir d’abord un média ci-dessus","disabled"]);
+    if (stage === "media_review" && !structuredMediaAgreement) buttons.push(["","Choisir et approuver un média ci-dessus","disabled"]);
     if (stage === "media_review") buttons.push(["changes_requested","Correction demandée au visuel","correction"]);
   }
-  const waiting = state.profile?.role === "director" && stage === "content_approved" ? "Le texte est approuvé. Les communications produisent maintenant le visuel." : state.profile?.role === "director" && stage === "final_approved" ? "Vos deux validations sont faites. Les communications peuvent publier." : publicationDone ? "Événement terminé; rien ne disparaît de la base de données." : `Étape actuelle : ${stage.replaceAll("_", " ")}`;
+  const waiting = state.profile?.role === "director" && stage === "content_approved" ? "Le texte est approuvé. Les communications produisent maintenant le visuel." : state.profile?.role === "director" && mediaDone ? "Le visuel est approuvé. Les communications peuvent programmer ou publier." : publicationDone ? "Événement terminé; rien ne disparaît de la base de données." : `Étape actuelle : ${stage.replaceAll("_", " ")}`;
   actions.innerHTML = buttons.map(([value,label,kind]) => `<button type="button" class="${kind}" ${value ? `data-workflow-stage="${value}"` : "disabled"}>${label}</button>`).join("") || `<span class="cockpit-media-note">${esc(waiting)}</span>`;
 }
 
@@ -2709,19 +2803,52 @@ function enhanceCardEvents() {
         .catch((error) => toast(error.message, true));
       return;
     }
-    const finalMediaButton = event.target.closest("button[data-select-final-media]");
-    if (finalMediaButton) {
+    const mediaDecisionButton = event.target.closest("button[data-media-decision]");
+    if (mediaDecisionButton) {
       event.preventDefault();
       event.stopPropagation();
-      const mediaId = finalMediaButton.dataset.selectFinalMedia;
-      const label = finalMediaButton.dataset.mediaLabel || "Média OneDrive";
-      const selected = finalMediaButton.getAttribute("aria-pressed") !== "true";
-      setMediaFinalChoice(mediaId, selected, state.profile)
+      const mediaId = mediaDecisionButton.dataset.mediaDecision;
+      const label = mediaDecisionButton.dataset.mediaLabel || "Média OneDrive";
+      const selected = mediaDecisionButton.getAttribute("aria-pressed") !== "true";
+      mediaDecisionButton.disabled = true;
+      setMediaDecision(card.dataset.itemId, mediaId, selected, state.profile)
         .then(async () => {
           const planItem = getPlanItem(card);
-          await recordActionTask(`media-choice-${mediaId}`, { status:selected ? "pending" : "done", title:`Média ${selected ? "retenu" : "retiré"} — ${planItem?.title || card.dataset.itemId}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${label}`, message:selected ? `La direction a retenu « ${label} » comme média final.` : `Le choix final de « ${label} » a été retiré; l’historique demeure conservé.` });
-          toast(selected ? "Média final retenu et historisé." : "Média retiré du choix final; l’historique est conservé.");
-        }).catch((error) => toast(error.message, true));
+          if (state.profile.role === "director") {
+            await recordActionTask(`media-choice-${card.dataset.itemId}`, {
+              status: selected ? "pending" : "done",
+              title: `${selected ? "Choix média de la direction" : "Choix média retiré"} — ${planItem?.title || card.dataset.itemId}`,
+              targetType: "schedule",
+              targetId: card.dataset.itemId,
+              targetLabel: `${planItem?.date || ""} · ${label}`,
+              message: selected ? `La direction a choisi « ${label} ». Vérifier l’accord des deux rôles puis programmer ou publier seulement après les feux verts.` : `La direction a retiré son choix de « ${label} »; l’historique demeure conservé.`
+            });
+          }
+          toast(selected
+            ? state.profile.role === "admin" ? "Visuel recommandé par les communications." : "Choix de la direction enregistré."
+            : "Votre choix a été retiré; l’historique est conservé.");
+        })
+        .catch((error) => toast(error.message, true))
+        .finally(() => { mediaDecisionButton.disabled = false; });
+      return;
+    }
+    const mediaOverrideButton = event.target.closest("button[data-media-override]");
+    if (mediaOverrideButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      const mediaId = mediaOverrideButton.dataset.mediaOverride;
+      const label = mediaOverrideButton.dataset.mediaLabel || "Média OneDrive";
+      const promptLabel = state.profile?.role === "director"
+        ? "Pourquoi retenir ce visuel comme décision finale?"
+        : "Quel aval de la direction autorise cette validation?";
+      const reason = prompt(promptLabel, "");
+      if (reason === null) return;
+      if (!reason.trim()) { toast("Ajoutez un motif clair afin de préserver la trace de décision.", true); return; }
+      mediaOverrideButton.disabled = true;
+      setMediaDecision(card.dataset.itemId, mediaId, true, state.profile, { override: true, reason })
+        .then(() => toast(state.profile.role === "director" ? "Décision finale de la direction enregistrée." : "Validation avec aval enregistrée sans usurper l’identité de la direction."))
+        .catch((error) => toast(error.message, true))
+        .finally(() => { mediaOverrideButton.disabled = false; });
       return;
     }
     const mediaCommentButton = event.target.closest("button[data-save-media-comment]");
@@ -2835,6 +2962,8 @@ async function applyProfile(profile) {
   document.body.classList.remove("cockpit-locked");
   document.body.classList.remove("cockpit-readonly");
   document.querySelector("#cockpit-login")?.setAttribute("hidden", "");
+  const retry = document.querySelector("#cockpit-retry-content");
+  if (retry) { retry.hidden = true; retry.onclick = null; }
   const session = buildSession();
   session.querySelector("#cockpit-session-label").innerHTML = "Connecté : <strong>" + esc(profile.displayLabel) + "</strong> · rôle " + esc(profile.role);
   dispatchEvent(new CustomEvent("cockpit:session-ready", { detail: { profile } }));
@@ -2887,6 +3016,7 @@ function applySignedOut(message = "") {
   state.user = null;
   state.rows = new Map();
   state.mediaByEvent = new Map();
+  state.mediaDecisions = new Map();
   state.commentsByEvent = new Map();
   state.workflows = new Map();
   state.opportunities = new Map();
@@ -2898,6 +3028,7 @@ function applySignedOut(message = "") {
   state.feedbackUnsubscribe?.();
   state.tasksUnsubscribe?.();
   state.mediaUnsubscribe?.();
+  state.mediaDecisionUnsubscribe?.();
   state.commentsUnsubscribe?.();
   state.workflowUnsubscribe?.();
   state.opportunityUnsubscribe?.();
@@ -2908,6 +3039,7 @@ function applySignedOut(message = "") {
   state.feedbackUnsubscribe = null;
   state.tasksUnsubscribe = null;
   state.mediaUnsubscribe = null;
+  state.mediaDecisionUnsubscribe = null;
   state.commentsUnsubscribe = null;
   state.workflowUnsubscribe = null;
   state.opportunityUnsubscribe = null;
@@ -2936,6 +3068,8 @@ function applySignedOut(message = "") {
     ? "Les droits et le nom affiché sont récupérés depuis Firebase après connexion."
     : "Firebase n’est pas encore raccordé. Renseignez firebase-config.js avec la configuration Web du projet.";
   if (message) login.querySelector("#cockpit-login-error").textContent = message;
+  const retry = login.querySelector("#cockpit-retry-content");
+  if (retry) { retry.hidden = true; retry.onclick = null; }
 }
 
 function subscribeRemoteData() {
@@ -2960,6 +3094,13 @@ function subscribeRemoteData() {
     renderAllCollaboration();
     notifyViewUpdate("media");
   }, (error) => toast("Les liens médias ne sont pas accessibles : " + error.message, true));
+  state.mediaDecisionUnsubscribe?.();
+  state.mediaDecisionUnsubscribe = subscribeMediaDecisions((rows) => {
+    state.mediaDecisions = new Map(rows.map((row) => [row.eventId || row.id, row]));
+    renderAllMedia();
+    renderAllCollaboration();
+    notifyViewUpdate("media-decisions");
+  }, (error) => toast("Les décisions média ne sont pas accessibles : " + error.message, true));
   state.commentsUnsubscribe?.();
   state.commentsUnsubscribe = subscribeComments((rows) => {
     const grouped = new Map();
@@ -3025,7 +3166,12 @@ function start() {
 
   observeAuth((user, profile, error) => {
     if (error) {
-      applySignedOut(error.message || "Le service de connexion est temporairement indisponible.");
+      if (user) {
+        state.user = user;
+        showAuthenticatedLoadError(error.message || "Le profil sécurisé est temporairement indisponible.");
+      } else {
+        applySignedOut(error.message || "Le service de connexion est temporairement indisponible.");
+      }
       return;
     }
     if (!user || !profile) {
@@ -3041,8 +3187,10 @@ function start() {
     applyProfile(profile)
       .then(() => subscribeRemoteData())
       .catch((reason) => {
-        logOut().catch(() => {});
-        applySignedOut(reason.message || "Le contenu sécurisé est indisponible.");
+        showAuthenticatedLoadError(reason.message || "Le contenu sécurisé est indisponible.", async () => {
+          await applyProfile(profile);
+          subscribeRemoteData();
+        });
       });
   });
 }

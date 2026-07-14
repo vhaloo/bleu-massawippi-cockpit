@@ -24,6 +24,7 @@ import {
   setDoc,
   updateDoc,
   writeBatch,
+  runTransaction,
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
@@ -373,6 +374,7 @@ export async function resolveComment(commentId, profile) {
 }
 
 const workflowStages = new Set(["proposal", "content_review", "changes_requested", "content_changes_requested", "content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"]);
+const contentApprovedWorkflowStages = new Set(["content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"]);
 
 export async function setWorkflowStage(eventId, stage, profile) {
   requireConfigured();
@@ -381,6 +383,15 @@ export async function setWorkflowStage(eventId, stage, profile) {
   const reference = doc(db, "workflowStates", eventId);
   const existing = await getDoc(reference);
   const before = existing.exists() ? existing.data() : {};
+  if ((["scheduled", "published"].includes(stage) || ["scheduled", "published"].includes(before.stage)) && profile.role !== "admin") {
+    throw new Error("Seules les communications peuvent terminer, rouvrir ou confirmer une publication programmée ou publiée.");
+  }
+  if (stage === "final_approved" && !(profile.role === "admin" && ["scheduled", "published"].includes(before.stage))) {
+    throw new Error("Choisissez et approuvez le média dans la galerie; la porte visuelle sera alors signée automatiquement.");
+  }
+  if (["scheduled", "published"].includes(stage) && !["final_approved", "scheduled", "published"].includes(before.stage)) {
+    throw new Error("Le texte et le média doivent être approuvés avant de terminer la publication.");
+  }
   await setDoc(reference, {
     eventId,
     stage,
@@ -489,7 +500,10 @@ export async function addMediaLink(eventId, payload, profile) {
   }
   if (!/^[a-z0-9-]{3,80}$/i.test(String(eventId || ""))) throw new Error("Événement média invalide.");
   const kinds = new Set(["image", "video", "pdf", "document", "folder", "other"]);
-  const stages = new Set(["source", "draft", "approved", "published", "reference"]);
+  // `proposal` décrit une proposition à examiner. Il ne constitue jamais une
+  // approbation et doit rester distinct de `approved` dans le modèle comme
+  // dans les règles Firestore.
+  const stages = new Set(["source", "proposal", "draft", "approved", "published", "reference"]);
   const kind = kinds.has(payload.kind) ? payload.kind : "other";
   const stage = stages.has(payload.stage) ? payload.stage : "reference";
   const now = serverTimestamp();
@@ -532,6 +546,259 @@ export async function archiveMediaLink(mediaId, profile) {
   }, profile);
 }
 
+const emptyDecisionSide = (actorRole) => ({
+  status: "none",
+  mediaIds: [],
+  actorUid: "",
+  actorLabel: "",
+  actorRole,
+  decidedAt: null
+});
+
+const emptyOverride = () => ({
+  active: false,
+  mediaIds: [],
+  reason: "",
+  actorUid: "",
+  actorLabel: "",
+  actorRole: "",
+  decidedAt: null
+});
+
+function normalizedDecisionSide(value, actorRole) {
+  if (!value || typeof value !== "object") return emptyDecisionSide(actorRole);
+  const mediaIds = Array.isArray(value.mediaIds)
+    ? [...new Set(value.mediaIds.map((item) => String(item || "")).filter((item) => /^[A-Za-z0-9_-]{3,160}$/.test(item)))].slice(0, 8)
+    : [];
+  const status = value.status === "selected" && mediaIds.length ? "selected" : value.status === "revoked" ? "revoked" : "none";
+  return {
+    status,
+    mediaIds: status === "selected" ? mediaIds : [],
+    actorUid: String(value.actorUid || ""),
+    actorLabel: String(value.actorLabel || "").slice(0, 120),
+    actorRole,
+    decidedAt: value.decidedAt || null
+  };
+}
+
+function normalizedOverride(value) {
+  if (!value || typeof value !== "object" || value.active !== true) return emptyOverride();
+  const mediaIds = Array.isArray(value.mediaIds)
+    ? [...new Set(value.mediaIds.map((item) => String(item || "")).filter((item) => /^[A-Za-z0-9_-]{3,160}$/.test(item)))].slice(0, 8)
+    : [];
+  if (!mediaIds.length) return emptyOverride();
+  return {
+    active: true,
+    mediaIds,
+    reason: String(value.reason || "").slice(0, 500),
+    actorUid: String(value.actorUid || ""),
+    actorLabel: String(value.actorLabel || "").slice(0, 120),
+    actorRole: value.actorRole === "director" ? "director" : "admin",
+    decidedAt: value.decidedAt || null
+  };
+}
+
+function sameOrderedMedia(left, right) {
+  return left.length === right.length && left.every((item, index) => item === right[index]);
+}
+
+// Fonction pure exportée afin que le contrat de décision puisse être testé
+// sans connexion Firebase. L'état dérivé ne remplace jamais les deux choix.
+export function deriveMediaAgreement(communications, direction, override, textApproved) {
+  const communicationsIds = communications?.status === "selected" && Array.isArray(communications.mediaIds) ? communications.mediaIds : [];
+  const directionIds = direction?.status === "selected" && Array.isArray(direction.mediaIds) ? direction.mediaIds : [];
+  const overrideIds = override?.active === true && Array.isArray(override.mediaIds) ? override.mediaIds : [];
+  if (textApproved && overrideIds.length && String(override.reason || "").trim()) {
+    return { status: "overridden", mediaIds: [...overrideIds], divergent: false };
+  }
+  if (communicationsIds.length && directionIds.length) {
+    if (textApproved && sameOrderedMedia(communicationsIds, directionIds)) {
+      return { status: "agreed", mediaIds: [...communicationsIds], divergent: false };
+    }
+    if (!sameOrderedMedia(communicationsIds, directionIds)) {
+      return { status: "divergent", mediaIds: [], divergent: true };
+    }
+  }
+  return { status: "pending", mediaIds: [], divergent: false };
+}
+
+function normalizeMediaDecision(value, eventId) {
+  const communications = normalizedDecisionSide(value?.communications, "admin");
+  const direction = normalizedDecisionSide(value?.direction, "director");
+  const override = normalizedOverride(value?.override);
+  const textApproved = contentApprovedWorkflowStages.has(String(value?.textGateStage || ""));
+  const agreement = deriveMediaAgreement(communications, direction, override, textApproved);
+  return {
+    eventId,
+    schemaVersion: 2,
+    communications,
+    direction,
+    override,
+    agreement: {
+      status: ["pending", "agreed", "divergent", "overridden"].includes(value?.agreement?.status) ? value.agreement.status : agreement.status,
+      mediaIds: Array.isArray(value?.agreement?.mediaIds) ? value.agreement.mediaIds.slice(0, 8) : agreement.mediaIds,
+      divergent: value?.agreement?.divergent === true
+    },
+    textGateStage: String(value?.textGateStage || "proposal"),
+    lastMutationId: String(value?.lastMutationId || ""),
+    updatedAt: value?.updatedAt || null,
+    updatedBy: String(value?.updatedBy || ""),
+    updatedByLabel: String(value?.updatedByLabel || "").slice(0, 120)
+  };
+}
+
+function mediaDecisionArchiveView(value) {
+  return {
+    communications: value.communications,
+    direction: value.direction,
+    override: value.override,
+    agreement: value.agreement,
+    textGateStage: value.textGateStage || "proposal",
+    lastMutationId: value.lastMutationId || ""
+  };
+}
+
+export async function setMediaDecision(eventId, mediaId, selected, profile, options = {}) {
+  requireConfigured();
+  if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas choisir ce média.");
+  if (!/^[a-z0-9-]{3,80}$/i.test(String(eventId || ""))) throw new Error("Événement média invalide.");
+  if (!/^[A-Za-z0-9_-]{3,160}$/.test(String(mediaId || ""))) throw new Error("Média invalide.");
+
+  const mediaReference = doc(db, "mediaLinks", mediaId);
+  const decisionReference = doc(db, "mediaDecisions", eventId);
+  const workflowReference = doc(db, "workflowStates", eventId);
+  const wantsOverride = options.override === true;
+  const overrideReason = String(options.reason || "").trim().slice(0, 500);
+  if (wantsOverride && profile.role !== "director") {
+    throw new Error("L’override des communications exige une preuve d’aval structurée et n’est pas offert dans cette version. La direction peut retenir explicitement son choix.");
+  }
+  const actorLabel = String(profile.displayLabel || "Utilisateur").slice(0, 120);
+  const sideName = profile.role === "admin" ? "communications" : "direction";
+  const mutationId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const archiveReference = doc(db, "changeArchive", `media-${mutationId}`.slice(0, 160));
+
+  return runTransaction(db, async (transaction) => {
+    const [mediaSnapshot, decisionSnapshot, workflowSnapshot] = await Promise.all([
+      transaction.get(mediaReference),
+      transaction.get(decisionReference),
+      transaction.get(workflowReference)
+    ]);
+    if (!mediaSnapshot.exists() || mediaSnapshot.data().eventId !== eventId) throw new Error("Ce média n’appartient pas à cet événement.");
+    const media = mediaSnapshot.data();
+    if (selected && (media.publicationBlocked === true || media.archived === true)) {
+      throw new Error("Cette référence est conservée pour comparaison et ne peut pas être choisie.");
+    }
+
+    const workflowBefore = workflowSnapshot.exists() ? workflowSnapshot.data() : { eventId, stage: "proposal" };
+    const workflowStage = String(workflowBefore.stage || "proposal");
+    const textApproved = contentApprovedWorkflowStages.has(workflowStage);
+    if (profile.role === "director" && selected && !textApproved) {
+      throw new Error("Le texte doit être approuvé avant que la direction puisse approuver le visuel.");
+    }
+    if (wantsOverride && (!selected || !textApproved || !overrideReason)) {
+      throw new Error("Un override exige le texte approuvé, un média choisi et un motif explicite.");
+    }
+
+    const before = normalizeMediaDecision(decisionSnapshot.exists() ? decisionSnapshot.data() : {}, eventId);
+    const sameExistingChoice = before[sideName].status === (selected ? "selected" : "revoked")
+      && (selected ? before[sideName].mediaIds.length === 1 && before[sideName].mediaIds[0] === mediaId : before[sideName].mediaIds.length === 0)
+      && !wantsOverride
+      && (profile.role === "admin" || before.override.active !== true);
+    if (sameExistingChoice) return before;
+
+    const now = serverTimestamp();
+    const next = {
+      ...before,
+      communications: { ...before.communications },
+      direction: { ...before.direction },
+      // Une action des communications ne peut jamais révoquer implicitement
+      // une décision motivée de la direction. Seule la direction peut la
+      // remplacer ou la retirer; les règles Firestore imposent la même limite.
+      override: profile.role === "admin"
+        ? { ...before.override, mediaIds: [...before.override.mediaIds] }
+        : emptyOverride(),
+      textGateStage: workflowStage
+    };
+    next[sideName] = {
+      status: selected ? "selected" : "revoked",
+      mediaIds: selected ? [mediaId] : [],
+      actorUid: profile.uid,
+      actorLabel,
+      actorRole: profile.role,
+      decidedAt: now
+    };
+    if (wantsOverride) {
+      next.override = {
+        active: true,
+        mediaIds: [mediaId],
+        reason: overrideReason,
+        actorUid: profile.uid,
+        actorLabel,
+        actorRole: profile.role,
+        decidedAt: now
+      };
+    }
+    const agreement = deriveMediaAgreement(next.communications, next.direction, next.override, textApproved);
+    next.agreement = agreement;
+    next.lastMutationId = mutationId;
+    next.updatedAt = now;
+    next.updatedBy = profile.uid;
+    next.updatedByLabel = actorLabel;
+
+    let nextWorkflowStage = workflowStage;
+    if (["agreed", "overridden"].includes(agreement.status) && !["final_approved", "scheduled", "published"].includes(workflowStage)) {
+      nextWorkflowStage = "final_approved";
+    } else if (!["agreed", "overridden"].includes(agreement.status) && workflowStage === "final_approved") {
+      nextWorkflowStage = "media_review";
+    } else if (!["agreed", "overridden"].includes(agreement.status) && ["scheduled", "published"].includes(workflowStage)) {
+      if (profile.role !== "admin") {
+        throw new Error("Après programmation ou publication, les communications doivent rouvrir le visuel afin de préserver l’historique public.");
+      }
+      nextWorkflowStage = "media_changes_requested";
+    }
+
+    transaction.set(decisionReference, next);
+    if (!workflowSnapshot.exists() || nextWorkflowStage !== workflowStage) {
+      transaction.set(workflowReference, {
+        eventId,
+        stage: nextWorkflowStage,
+        updatedAt: now,
+        updatedBy: profile.uid,
+        updatedByLabel: actorLabel
+      });
+    }
+    transaction.set(archiveReference, {
+      entityType: "mediaDecision",
+      entityId: eventId,
+      action: selected ? (wantsOverride ? "choix média confirmé par la direction" : `${sideName} : média choisi`) : `${sideName} : choix média retiré`,
+      before: mediaDecisionArchiveView(before),
+      after: mediaDecisionArchiveView(next),
+      actorUid: profile.uid,
+      actorLabel,
+      createdAt: now
+    });
+    return next;
+  });
+}
+
+export function subscribeMediaDecisions(callback, onError) {
+  requireConfigured();
+  // Fenêtre M0 bornée et transitoire : un seul listener de résumés, jamais un
+  // listener par carte. La projection par fenêtre de dates remplacera ce
+  // plafond après validation de parité.
+  const decisionsQuery = query(collection(db, "mediaDecisions"), orderBy("updatedAt", "desc"), limit(80));
+  return onSnapshot(
+    decisionsQuery,
+    (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
+    onError
+  );
+}
+
+// Compatibilité ascendante : les anciens clients peuvent encore écrire le
+// marqueur global. Les nouveaux lecteurs le montrent comme héritage non
+// attribué seulement lorsqu'aucune décision structurée n'existe.
 export async function setMediaFinalChoice(mediaId, selected, profile) {
   requireConfigured();
   if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas retenir le média final.");

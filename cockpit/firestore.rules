@@ -84,6 +84,147 @@ service cloud.firestore {
         && data.updatedByLabel is string && data.updatedByLabel.size() > 0 && data.updatedByLabel.size() <= 120;
     }
 
+    function workflowTextApproved(eventId) {
+      // La porte texte doit être franchie avant la décision média. Lire l'état
+      // existant casse le cycle getAfter décision <-> workflow et interdit de
+      // faire approuver texte et visuel prématurément dans le même lot.
+      return exists(/databases/$(database)/documents/workflowStates/$(eventId))
+        && get(/databases/$(database)/documents/workflowStates/$(eventId)).data.stage
+          in ['content_approved', 'media_in_progress', 'media_review', 'media_changes_requested', 'final_approved', 'scheduled', 'published'];
+    }
+
+    function validMediaDecisionSide(side, actorRole) {
+      return side is map
+        && side.keys().hasAll(['status', 'mediaIds', 'actorUid', 'actorLabel', 'actorRole', 'decidedAt'])
+        && side.keys().hasOnly(['status', 'mediaIds', 'actorUid', 'actorLabel', 'actorRole', 'decidedAt'])
+        && side.status in ['none', 'selected', 'revoked']
+        && side.mediaIds is list && side.mediaIds.size() <= 1
+        && ((side.status == 'selected' && side.mediaIds.size() == 1)
+          || (side.status != 'selected' && side.mediaIds.size() == 0))
+        && side.actorUid is string
+        && side.actorLabel is string && side.actorLabel.size() <= 120
+        && side.actorRole == actorRole
+        && ((side.status == 'none' && side.actorUid == '' && side.actorLabel == '' && side.decidedAt == null)
+          || (side.status != 'none' && side.actorUid.size() > 0 && side.actorLabel.size() > 0 && side.decidedAt is timestamp));
+    }
+
+    function validMediaOverride(value) {
+      return value is map
+        && value.keys().hasAll(['active', 'mediaIds', 'reason', 'actorUid', 'actorLabel', 'actorRole', 'decidedAt'])
+        && value.keys().hasOnly(['active', 'mediaIds', 'reason', 'actorUid', 'actorLabel', 'actorRole', 'decidedAt'])
+        && value.active is bool
+        && value.mediaIds is list && value.mediaIds.size() <= 1
+        && value.reason is string && value.reason.size() <= 500
+        && value.actorUid is string
+        && value.actorLabel is string && value.actorLabel.size() <= 120
+        && value.actorRole in ['', 'director']
+        && ((value.active == false
+            && value.mediaIds.size() == 0
+            && value.reason == ''
+            && value.actorUid == ''
+            && value.actorLabel == ''
+            && value.actorRole == ''
+            && value.decidedAt == null)
+          || (value.active == true
+            && value.mediaIds.size() == 1
+            && value.reason.size() > 0
+            && value.actorUid.size() > 0
+            && value.actorLabel.size() > 0
+            && value.actorRole == 'director'
+            && value.decidedAt is timestamp));
+    }
+
+    function validSelectedMedia(eventId, side) {
+      return side.status != 'selected'
+        || validSelectableMedia(eventId, side.mediaIds[0]);
+    }
+
+    function validSelectableMedia(eventId, mediaId) {
+      let path = /databases/$(database)/documents/mediaLinks/$(mediaId);
+      let media = getAfter(path).data;
+      return existsAfter(path)
+        && media.eventId == eventId
+        && media.archived == false
+        && (!('publicationBlocked' in media) || media.publicationBlocked == false);
+    }
+
+    function validMediaAgreement(data) {
+      return data.agreement is map
+        && data.agreement.keys().hasAll(['status', 'mediaIds', 'divergent'])
+        && data.agreement.keys().hasOnly(['status', 'mediaIds', 'divergent'])
+        && data.agreement.status in ['pending', 'agreed', 'divergent', 'overridden']
+        && data.agreement.mediaIds is list && data.agreement.mediaIds.size() <= 1
+        && data.agreement.divergent is bool
+        && ((data.agreement.status == 'agreed'
+            && data.override.active == false
+            && data.communications.status == 'selected'
+            && data.direction.status == 'selected'
+            && data.communications.mediaIds == data.direction.mediaIds
+            && data.agreement.mediaIds == data.communications.mediaIds
+            && data.agreement.divergent == false
+            && workflowTextApproved(data.eventId))
+          || (data.agreement.status == 'divergent'
+            && data.override.active == false
+            && data.communications.status == 'selected'
+            && data.direction.status == 'selected'
+            && data.communications.mediaIds != data.direction.mediaIds
+            && data.agreement.mediaIds.size() == 0
+            && data.agreement.divergent == true)
+          || (data.agreement.status == 'overridden'
+            && data.override.active == true
+            && data.direction.status == 'selected'
+            && data.override.mediaIds == data.direction.mediaIds
+            && data.agreement.mediaIds == data.override.mediaIds
+            && data.agreement.divergent == false
+            && workflowTextApproved(data.eventId))
+          || (data.agreement.status == 'pending'
+            && data.override.active == false
+            && data.agreement.mediaIds.size() == 0
+            && data.agreement.divergent == false
+            && !(data.communications.status == 'selected'
+              && data.direction.status == 'selected'
+              && data.communications.mediaIds != data.direction.mediaIds)
+            && !(data.communications.status == 'selected'
+              && data.direction.status == 'selected'
+              && data.communications.mediaIds == data.direction.mediaIds
+              && workflowTextApproved(data.eventId))));
+    }
+
+    function mediaWorkflowMatchesAgreement(data) {
+      return existsAfter(/databases/$(database)/documents/workflowStates/$(data.eventId))
+        && ((data.agreement.status in ['agreed', 'overridden']
+            && getAfter(/databases/$(database)/documents/workflowStates/$(data.eventId)).data.stage in ['final_approved', 'scheduled', 'published'])
+          || (!(data.agreement.status in ['agreed', 'overridden'])
+            && !(getAfter(/databases/$(database)/documents/workflowStates/$(data.eventId)).data.stage in ['final_approved', 'scheduled', 'published'])));
+    }
+
+    function validMediaDecisionEnvelope(data) {
+      return data.keys().hasAll(['eventId', 'schemaVersion', 'communications', 'direction', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+        && data.keys().hasOnly(['eventId', 'schemaVersion', 'communications', 'direction', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+        && data.eventId is string && data.eventId.size() >= 3 && data.eventId.size() <= 80
+        && data.schemaVersion == 2
+        && data.textGateStage in ['proposal', 'content_review', 'changes_requested', 'content_changes_requested', 'content_approved', 'media_in_progress', 'media_review', 'media_changes_requested', 'final_approved', 'scheduled', 'published']
+        && data.lastMutationId is string && data.lastMutationId.size() > 0 && data.lastMutationId.size() <= 160
+        && data.updatedAt is timestamp
+        && data.updatedBy == request.auth.uid
+        && data.updatedByLabel is string && data.updatedByLabel.size() > 0 && data.updatedByLabel.size() <= 120;
+    }
+
+    function validMediaDecision(data) {
+      return validMediaDecisionEnvelope(data)
+        && validMediaDecisionSide(data.communications, 'admin')
+        && validMediaDecisionSide(data.direction, 'director')
+        && validMediaOverride(data.override)
+        && validSelectedMedia(data.eventId, data.communications)
+        && validSelectedMedia(data.eventId, data.direction)
+        && validMediaAgreement(data);
+    }
+
+    function mediaAgreementAfter(eventId) {
+      return existsAfter(/databases/$(database)/documents/mediaDecisions/$(eventId))
+        && getAfter(/databases/$(database)/documents/mediaDecisions/$(eventId)).data.agreement.status in ['agreed', 'overridden'];
+    }
+
     function validOpportunityState(data) {
       return data.keys().hasAll(['opportunityId', 'stage', 'updatedAt', 'updatedBy', 'updatedByLabel'])
         && data.keys().hasOnly(['opportunityId', 'stage', 'updatedAt', 'updatedBy', 'updatedByLabel'])
@@ -157,7 +298,7 @@ service cloud.firestore {
         && data.label is string && data.label.size() > 0 && data.label.size() <= 180
         && data.url is string && data.url.size() > 8 && data.url.size() <= 2048
         && data.kind in ['image', 'video', 'pdf', 'document', 'folder', 'other']
-        && data.stage in ['source', 'draft', 'approved', 'published', 'reference']
+        && data.stage in ['source', 'proposal', 'draft', 'approved', 'published', 'reference']
         && data.note is string && data.note.size() <= 1000
         && data.archived is bool
         && data.authorUid is string && data.authorUid.size() > 0
@@ -223,7 +364,20 @@ service cloud.firestore {
 
     match /workflowStates/{eventId} {
       allow read: if activeUser();
-      allow create, update: if isEditor() && validWorkflow(request.resource.data) && request.resource.data.eventId == eventId;
+      allow create: if isEditor()
+        && validWorkflow(request.resource.data)
+        && request.resource.data.eventId == eventId
+        && (!(request.resource.data.stage in ['final_approved', 'scheduled', 'published']) || mediaAgreementAfter(eventId))
+        && (!(request.resource.data.stage in ['scheduled', 'published']) || isAdmin());
+      allow update: if isEditor()
+        && validWorkflow(request.resource.data)
+        && request.resource.data.eventId == eventId
+        && (isAdmin()
+          || (!(request.resource.data.stage in ['scheduled', 'published'])
+            && !(resource.data.stage in ['scheduled', 'published'])))
+        && (!(request.resource.data.stage in ['final_approved', 'scheduled', 'published'])
+          || resource.data.stage in ['final_approved', 'scheduled', 'published']
+          || mediaAgreementAfter(eventId));
       allow delete: if false;
     }
 
@@ -301,6 +455,49 @@ service cloud.firestore {
               || (resource.data.archived == false
                 && (!('publicationBlocked' in resource.data) || resource.data.publicationBlocked == false)))))
         && request.resource.data.updatedBy == request.auth.uid;
+      allow delete: if false;
+    }
+
+    match /mediaDecisions/{eventId} {
+      allow read: if activeUser();
+      allow create: if isEditor()
+        && validMediaDecision(request.resource.data)
+        && request.resource.data.eventId == eventId
+          && ((isAdmin()
+            && request.resource.data.direction.status == 'none'
+            && request.resource.data.communications.actorUid == request.auth.uid
+            && request.resource.data.override.active == false)
+          || (isDirector()
+            && request.resource.data.communications.status == 'none'
+            && request.resource.data.direction.actorUid == request.auth.uid
+            && workflowTextApproved(eventId)
+            && (request.resource.data.override.active == false
+              || (request.resource.data.override.actorUid == request.auth.uid
+                && request.resource.data.override.actorRole == 'director'))));
+      allow update: if isEditor()
+        && validMediaDecisionEnvelope(request.resource.data)
+        && request.resource.data.eventId == eventId
+          && ((isAdmin()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['communications', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+            && request.resource.data.direction == resource.data.direction
+            && request.resource.data.override == resource.data.override
+            && validMediaDecisionSide(request.resource.data.communications, 'admin')
+            && validSelectedMedia(eventId, request.resource.data.communications)
+            && validMediaAgreement(request.resource.data)
+            && request.resource.data.communications.actorUid == request.auth.uid
+            )
+          || (isDirector()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['direction', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+            && request.resource.data.communications == resource.data.communications
+            && validMediaDecisionSide(request.resource.data.direction, 'director')
+            && validMediaOverride(request.resource.data.override)
+            && validSelectedMedia(eventId, request.resource.data.direction)
+            && validMediaAgreement(request.resource.data)
+            && request.resource.data.direction.actorUid == request.auth.uid
+            && (request.resource.data.direction.status != 'selected' || workflowTextApproved(eventId))
+            && (request.resource.data.override.active == false
+              || (request.resource.data.override.actorUid == request.auth.uid
+                && request.resource.data.override.actorRole == 'director'))));
       allow delete: if false;
     }
 
