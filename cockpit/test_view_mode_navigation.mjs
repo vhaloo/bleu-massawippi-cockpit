@@ -153,6 +153,43 @@ window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: {
 await wait();
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Action réservée aux communications/);
 
+// Une action Firestore personnelle devient prioritaire, reste strictement
+// liée au rôle et transporte eventId + mediaId jusqu’au média exact.
+const actionSource = document.createElement("section");
+actionSource.id = "cockpit-action-item-source";
+actionSource.hidden = true;
+actionSource.dataset.hasMore = "true";
+actionSource.innerHTML = `<article data-action-item-id="media-direction-approval-alt" data-action-assignee-role="director" data-action-target-type="schedule" data-action-target="future-2" data-action-media="media-future-2" data-action-type="approve_text_then_media" data-action-priority="10" data-action-date="2026-07-16" data-action-updated-at="500"><b>Vérifier le visuel recommandé</b><p>Le texte demeure la première porte; le visuel vient ensuite.</p></article>`;
+document.body.appendChild(actionSource);
+window.dispatchEvent(new window.CustomEvent("cockpit:action-items-updated"));
+await wait();
+assert.match(document.querySelector(".vm-decisions").textContent, /Vérifier le visuel recommandé/);
+const mediaAction = document.querySelector('.vm-decisions [data-vm-target="future-2"][data-vm-media="media-future-2"]');
+assert.ok(mediaAction, "L’action personnelle doit transporter la cible média exacte.");
+mediaAction.click();
+await wait(250);
+assert.equal(document.querySelector('[data-item-id="future-2"] details.cockpit-media-info').hasAttribute("open"), true);
+window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "valentin", role: "admin" } } }));
+await wait();
+assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Vérifier le visuel recommandé/);
+window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "annie", role: "director" } } }));
+await wait();
+let remoteLoadRequests = 0;
+window.addEventListener("cockpit:load-more-action-items", () => { remoteLoadRequests += 1; });
+document.querySelector("[data-vm-load-more]").click();
+await wait(30);
+assert.equal(remoteLoadRequests, 1, "Charger plus doit demander une seule page distante.");
+const sequentialCard = document.querySelector('[data-item-id="future-2"]');
+sequentialCard.dataset.workflowStage = "content_approved";
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
+assert.match(document.querySelector(".vm-decisions").textContent, /Choisir et approuver le visuel recommandé/);
+sequentialCard.dataset.workflowStage = "final_approved";
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
+assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /visuel recommandé/);
+sequentialCard.dataset.workflowStage = "content_review";
+
 // Une cible passée et filtrée est reconstruite, puis son brief et ses médias
 // sont ouverts, focalisés et annoncés.
 document.querySelector("#search").value = "aucun résultat";

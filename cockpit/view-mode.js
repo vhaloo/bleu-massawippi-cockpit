@@ -561,6 +561,23 @@ function pendingTaskModels(role = runtime.identity.role) {
   })).filter((task) => task.id && task.targetId && (!task.assigneeRole || task.assigneeRole === role));
 }
 
+function personalActionItemModels(role = runtime.identity.role) {
+  const source = document.querySelector("#cockpit-action-item-source");
+  return [...(source?.querySelectorAll("[data-action-item-id]") || [])].map((item) => ({
+    id: item.dataset.actionItemId || "",
+    assigneeRole: normaliseRole(item.dataset.actionAssigneeRole || ""),
+    targetType: item.dataset.actionTargetType || "schedule",
+    targetId: item.dataset.actionTarget || "",
+    mediaId: item.dataset.actionMedia || "",
+    actionType: item.dataset.actionType || "",
+    title: item.querySelector(":scope > b")?.textContent?.trim() || "Décision à prendre",
+    message: item.querySelector(":scope > p")?.textContent?.trim() || "Action personnelle en attente.",
+    priorityKey: Number(item.dataset.actionPriority || 9999),
+    eventDateIso: item.dataset.actionDate || "9999-12-31",
+    updatedAt: dataMillis(item.dataset.actionUpdatedAt)
+  })).filter((item) => item.id && item.targetId && item.assigneeRole === role);
+}
+
 function roleDecisionForEvent(event, role, tasks = []) {
   const latestTask = [...tasks].sort((left, right) => right.updatedAt - left.updatedAt)[0] || null;
   const baseUpdatedAt = Math.max(event.workflowUpdatedAt, event.editorialUpdatedAt, event.media.latestUpdate, event.incomingMessage?.updatedAt || 0);
@@ -646,6 +663,8 @@ function urgencyFor(decision, now) {
 
 function roleDecisionModels(events, role, now) {
   const tasks = role === "admin" ? pendingTaskModels(role) : [];
+  const personalActions = personalActionItemModels(role);
+  const personalEventIds = new Set(personalActions.filter((item) => item.targetType === "schedule").map((item) => item.targetId));
   const tasksByEvent = new Map();
   tasks.filter((task) => task.targetType === "schedule").forEach((task) => {
     const rows = tasksByEvent.get(task.targetId) || [];
@@ -654,6 +673,7 @@ function roleDecisionModels(events, role, now) {
   });
 
   const eventDecisions = events
+    .filter((event) => !personalEventIds.has(event.id))
     .map((event) => roleDecisionForEvent(event, role, tasksByEvent.get(event.id) || []))
     .filter(Boolean);
   const sectionTasks = role === "admin" ? tasks.filter((task) => task.targetType === "section").map((task) => ({
@@ -670,7 +690,42 @@ function roleDecisionModels(events, role, now) {
     updatedAt: task.updatedAt
   })) : [];
 
-  return [...eventDecisions, ...sectionTasks].map((decision) => ({ ...decision, urgency: urgencyFor(decision, now) })).sort((left, right) =>
+  const actionDecisions = personalActions.map((item) => {
+    const event = item.targetType === "schedule" ? events.find((candidate) => candidate.id === item.targetId) : null;
+    if (item.actionType === "approve_text_then_media" && ["final_approved", "scheduled", "published"].includes(event?.stage)) return null;
+    const date = event?.date || inferDate(item.eventDateIso, now);
+    const waitingForMedia = item.actionType === "approve_text_then_media"
+      && ["content_approved", "media_in_progress", "media_review", "media_changes_requested"].includes(event?.stage);
+    return {
+      ...(event || {}),
+      id: `action-${item.id}`,
+      actionItemId: item.id,
+      targetType: item.targetType,
+      targetId: item.targetId,
+      mediaId: item.mediaId,
+      title: event?.title || item.title,
+      date,
+      dateLabel: event?.dateLabel || item.eventDateIso,
+      theme: event?.theme || "Décision personnelle",
+      action: waitingForMedia ? "Choisir et approuver le visuel recommandé" : item.title,
+      whyNow: waitingForMedia ? "Le texte est approuvé : la porte média est maintenant ouverte." : (item.message || "Action assignée à votre rôle"),
+      updatedAt: Math.max(event?.workflowUpdatedAt || 0, item.updatedAt),
+      priorityKey: Number.isFinite(item.priorityKey) ? item.priorityKey : 9999,
+      queueDateIso: item.eventDateIso,
+      queueSourceRank: 0
+    };
+  }).filter(Boolean);
+
+  return [...actionDecisions, ...eventDecisions, ...sectionTasks].map((decision) => ({
+    ...decision,
+    queueSourceRank: decision.queueSourceRank ?? 1,
+    urgency: urgencyFor(decision, now)
+  })).sort((left, right) =>
+    left.queueSourceRank - right.queueSourceRank
+    || (left.queueSourceRank === 0 ? (left.priorityKey - right.priorityKey
+      || String(left.queueDateIso).localeCompare(String(right.queueDateIso))
+      || String(left.actionItemId).localeCompare(String(right.actionItemId))) : 0)
+    ||
     left.urgency.rank - right.urgency.rank
     || left.urgency.dateValue - right.urgency.dateValue
     || String(left.id).localeCompare(String(right.id), "fr")
@@ -681,7 +736,8 @@ function roleDecisionModels(events, role, now) {
 
 function linkButton(event, label = "Ouvrir") {
   if (event.taskId) return `<button type="button" class="vm-open" data-vm-task="${escapeHtml(event.taskId)}">${escapeHtml(label)}<span aria-hidden="true">→</span></button>`;
-  return `<button type="button" class="vm-open" data-vm-target="${escapeHtml(event.id)}">${escapeHtml(label)}<span aria-hidden="true">→</span></button>`;
+  const targetId = event.targetId || event.id;
+  return `<button type="button" class="vm-open" data-vm-target="${escapeHtml(targetId)}" data-vm-entity-type="${escapeHtml(event.targetType || "schedule")}"${event.mediaId ? ` data-vm-media="${escapeHtml(event.mediaId)}"` : ""}>${escapeHtml(label)}<span aria-hidden="true">→</span></button>`;
 }
 
 function escapeHtml(value) {
@@ -793,8 +849,12 @@ function renderDashboard(now = new Date()) {
     ? today.map((event) => compactEvent(event, now)).join("")
     : empty("Aucune publication prévue aujourd’hui.");
   const remainingDecisions = Math.max(0, allDecisions.length - decisions.length);
-  const queueFooter = remainingDecisions
-    ? `<div class="vm-queue-footer"><p>${remainingDecisions} autre${remainingDecisions > 1 ? "s" : ""} décision${remainingDecisions > 1 ? "s" : ""} dans votre file.</p><button type="button" data-vm-load-more>Charger plus</button></div>`
+  const actionSource = document.querySelector("#cockpit-action-item-source");
+  const remoteMore = actionSource?.dataset.hasMore === "true";
+  const remoteLoading = actionSource?.dataset.loading === "true";
+  const remoteError = actionSource?.dataset.error || "";
+  const queueFooter = remainingDecisions || remoteMore || remoteError
+    ? `<div class="vm-queue-footer"><p>${remoteError ? "La suite distante est momentanément indisponible." : remoteMore ? "D’autres décisions personnelles peuvent être chargées." : `${remainingDecisions} autre${remainingDecisions > 1 ? "s" : ""} décision${remainingDecisions > 1 ? "s" : ""} dans votre file.`}</p><button type="button" data-vm-load-more${remoteLoading ? " disabled aria-busy=\"true\"" : ""}>${remoteError ? "Réessayer" : remoteLoading ? "Chargement…" : "Charger plus"}</button></div>`
     : decisions.length ? `<p class="vm-queue-end">Fin de la file · toutes vos décisions chargées.</p>` : "";
   const decisionsBody = decisions.length
     ? decisions.map((event) => compactEvent(event, now, { showReason: true })).join("") + queueFooter
@@ -808,7 +868,7 @@ function renderDashboard(now = new Date()) {
 
   grid.innerHTML = [
     panel("today", "Aujourd’hui", `${today.length} événement${today.length > 1 ? "s" : ""}`, todayBody, "vm-today"),
-    panel("decision", "Décisions qui m’attendent", `${allDecisions.length} pour vous`, decisionsBody, "vm-decisions"),
+    panel("decision", "Décisions qui m’attendent", `${allDecisions.length}${remoteMore ? "+" : ""} pour vous`, decisionsBody, "vm-decisions"),
     panel("week", "Les sept prochains jours", `${nextWeek.length} événement${nextWeek.length > 1 ? "s" : ""}`, weekBody, "vm-week"),
     panel("message", "Messages actifs", `${messages.length} récent${messages.length > 1 ? "s" : ""}`, messagesBody, "vm-messages")
   ].join("");
@@ -845,6 +905,10 @@ function loadMoreDecisions(control) {
   control.disabled = true;
   control.setAttribute("aria-busy", "true");
   control.textContent = "Chargement…";
+  const actionSource = document.querySelector("#cockpit-action-item-source");
+  if (actionSource?.dataset.hasMore === "true" || actionSource?.dataset.error) {
+    window.dispatchEvent(new CustomEvent("cockpit:load-more-action-items"));
+  }
   setTimeout(() => {
     try {
       runtime.queueVisibleCount += queuePageSize();
@@ -867,7 +931,7 @@ function scheduleRender() {
 
 function observeDataDom() {
   runtime.observer?.disconnect();
-  const targets = [document.querySelector("#posts"), document.querySelector("#cockpit-sidebar")].filter(Boolean);
+  const targets = [document.querySelector("#posts"), document.querySelector("#cockpit-sidebar"), document.querySelector("#cockpit-action-item-source")].filter(Boolean);
   if (!targets.length) return;
   runtime.observer = new MutationObserver(scheduleRender);
   targets.forEach((target) => runtime.observer.observe(target, {
@@ -910,7 +974,7 @@ function handleClick(event) {
   }
   const target = event.target.closest("[data-vm-target]");
   if (target) {
-    void runNavigation(target, { type: "schedule", id: target.dataset.vmTarget });
+    void runNavigation(target, { type: target.dataset.vmEntityType || "schedule", id: target.dataset.vmTarget, mediaId: target.dataset.vmMedia || "" });
     return;
   }
   const task = event.target.closest("[data-vm-task]");
@@ -943,6 +1007,7 @@ export function init(options = {}) {
 
   listen(document, "click", handleClick);
   listen(window, "cockpit:content-ready", () => update());
+  listen(window, "cockpit:action-items-updated", () => update());
   listen(window, "cockpit:session-ready", (event) => update(event.detail || {}));
   listen(window, "cockpit:session-ended", () => {
     runtime.identity = { uid: "", role: "" };

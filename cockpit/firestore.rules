@@ -291,6 +291,27 @@ service cloud.firestore {
         && data.updatedBy is string && data.updatedBy.size() > 0;
     }
 
+    function validActionItem(data) {
+      return data.keys().hasAll(['assigneeUid', 'assigneeRole', 'state', 'sourceType', 'sourceId', 'mediaId', 'eventDateIso', 'actionType', 'title', 'message', 'priorityKey', 'createdByUid', 'createdAt', 'updatedAt', 'updatedBy', 'lastMutationId', 'schemaVersion'])
+        && data.keys().hasOnly(['assigneeUid', 'assigneeRole', 'state', 'sourceType', 'sourceId', 'mediaId', 'eventDateIso', 'actionType', 'title', 'message', 'priorityKey', 'createdByUid', 'createdAt', 'updatedAt', 'updatedBy', 'lastMutationId', 'schemaVersion'])
+        && data.assigneeUid is string && data.assigneeUid.size() > 0 && data.assigneeUid.size() <= 128
+        && data.assigneeRole in ['director', 'admin']
+        && data.state in ['pending', 'done']
+        && data.sourceType in ['schedule', 'section', 'opportunity', 'internalProject']
+        && data.sourceId is string && data.sourceId.size() > 0 && data.sourceId.size() <= 160
+        && data.mediaId is string && data.mediaId.size() <= 180
+        && data.eventDateIso is string && data.eventDateIso.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && data.actionType is string && data.actionType.size() > 0 && data.actionType.size() <= 80
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 220
+        && data.message is string && data.message.size() <= 1500
+        && data.priorityKey is int && data.priorityKey >= 0 && data.priorityKey <= 9999
+        && data.createdByUid is string && data.createdByUid.size() > 0 && data.createdByUid.size() <= 128
+        && data.createdAt is timestamp && data.updatedAt is timestamp
+        && data.updatedBy is string && data.updatedBy.size() > 0 && data.updatedBy.size() <= 128
+        && data.lastMutationId is string && data.lastMutationId.size() > 0 && data.lastMutationId.size() <= 160
+        && data.schemaVersion == 1;
+    }
+
     function validMediaLink(data) {
       return data.keys().hasAll(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy'])
         && data.keys().hasOnly(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy', 'selectedFinal', 'approvedAt', 'approvedBy', 'approvedByLabel', 'publicationBlocked', 'altText', 'rightsStatus'])
@@ -434,6 +455,31 @@ service cloud.firestore {
           && validTask(request.resource.data)
           && request.resource.data.createdByUid == resource.data.createdByUid
           && request.resource.data.updatedBy == request.auth.uid);
+      allow delete: if false;
+    }
+
+    match /actionItems/{actionItemId} {
+      allow get: if activeUser()
+        && resource.data.assigneeUid == request.auth.uid
+        && resource.data.assigneeRole == userRole();
+      allow list: if activeUser()
+        && request.query.limit != null && request.query.limit <= 25
+        && resource.data.assigneeUid == request.auth.uid
+        && resource.data.assigneeRole == userRole();
+      allow create: if isEditor()
+        && validActionItem(request.resource.data)
+        && request.resource.data.state == 'pending'
+        && request.resource.data.createdByUid == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid
+        && exists(/databases/$(database)/documents/users/$(request.resource.data.assigneeUid))
+        && get(/databases/$(database)/documents/users/$(request.resource.data.assigneeUid)).data.active == true
+        && get(/databases/$(database)/documents/users/$(request.resource.data.assigneeUid)).data.role == request.resource.data.assigneeRole;
+      allow update: if isEditor()
+        && resource.data.assigneeUid == request.auth.uid
+        && resource.data.assigneeRole == userRole()
+        && validActionItem(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['state', 'updatedAt', 'updatedBy', 'lastMutationId'])
+        && request.resource.data.updatedBy == request.auth.uid;
       allow delete: if false;
     }
 

@@ -1,0 +1,17 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "actionItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "assigneeUid", "order": "ASCENDING" },
+        { "fieldPath": "assigneeRole", "order": "ASCENDING" },
+        { "fieldPath": "state", "order": "ASCENDING" },
+        { "fieldPath": "priorityKey", "order": "ASCENDING" },
+        { "fieldPath": "eventDateIso", "order": "ASCENDING" },
+        { "fieldPath": "__name__", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

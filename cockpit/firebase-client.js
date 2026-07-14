@@ -16,11 +16,15 @@ import {
   persistentMultipleTabManager,
   collection,
   query,
+  where,
   orderBy,
+  documentId,
   limit,
+  startAfter,
   onSnapshot,
   doc,
   getDoc,
+  getDocs,
   setDoc,
   updateDoc,
   writeBatch,
@@ -976,6 +980,121 @@ export function subscribeActionTasks(callback, onError) {
     (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
     onError
   );
+}
+
+/**
+ * File Firestore strictement personnelle et bornée.
+ *
+ * Un seul listener maintient la première fenêtre. Les pages suivantes sont
+ * lues une seule fois, avec un curseur startAfter; elles restent en mémoire
+ * et sont dédupliquées avec la fenêtre vivante. Le DOM historique demeure un
+ * repli indépendant si cette collection ou son index est indisponible.
+ */
+export function subscribePersonalActionItems(profile, callback, onError) {
+  requireConfigured();
+  if (!profile?.uid || !["director", "admin"].includes(profile.role)) {
+    throw new Error("Profil requis pour charger la file personnelle.");
+  }
+  const pageSize = profile.role === "director" ? 5 : 7;
+  const constraints = [
+    where("assigneeUid", "==", profile.uid),
+    where("assigneeRole", "==", profile.role),
+    where("state", "==", "pending"),
+    orderBy("priorityKey", "asc"),
+    orderBy("eventDateIso", "asc"),
+    orderBy(documentId(), "asc")
+  ];
+  let liveDocs = [];
+  let retainedPages = [];
+  let pageCursor = null;
+  let hasMore = true;
+  let loading = false;
+  let stopped = false;
+  let lastError = "";
+
+  const emit = (extra = {}) => {
+    const byId = new Map();
+    [...liveDocs, ...retainedPages.flat()].forEach((item) => byId.set(item.id, { id: item.id, ...item.data() }));
+    callback([...byId.values()], { pageSize, hasMore, loading, error: lastError, ...extra });
+  };
+
+  const firstPageQuery = query(collection(db, "actionItems"), ...constraints, limit(pageSize));
+  const unsubscribe = onSnapshot(firstPageQuery, (snapshot) => {
+    lastError = "";
+    liveDocs = snapshot.docs;
+    if (!retainedPages.length) pageCursor = liveDocs.at(-1) || null;
+    hasMore = snapshot.docs.length === pageSize;
+    emit({ source: snapshot.metadata.fromCache ? "cache" : "server" });
+  }, (error) => {
+    hasMore = false;
+    lastError = error?.message || "File personnelle indisponible.";
+    emit();
+    onError?.(error);
+  });
+
+  async function loadMore() {
+    if (stopped || loading || !hasMore || !pageCursor) return;
+    loading = true;
+    emit();
+    try {
+      const nextPage = await getDocs(query(
+        collection(db, "actionItems"),
+        ...constraints,
+        startAfter(pageCursor),
+        limit(pageSize)
+      ));
+      if (stopped) return;
+      retainedPages.push(nextPage.docs);
+      lastError = "";
+      pageCursor = nextPage.docs.at(-1) || pageCursor;
+      hasMore = nextPage.docs.length === pageSize;
+      emit({ source: nextPage.metadata.fromCache ? "cache" : "server" });
+    } catch (error) {
+      if (!stopped) {
+        lastError = error?.message || "Impossible de charger la suite.";
+        emit();
+        onError?.(error);
+      }
+    } finally {
+      loading = false;
+      if (!stopped) emit();
+    }
+  }
+
+  return {
+    loadMore,
+    setLocalState(actionItemId, nextState) {
+      if (nextState !== "done") return;
+      liveDocs = liveDocs.filter((item) => item.id !== actionItemId);
+      retainedPages = retainedPages.map((page) => page.filter((item) => item.id !== actionItemId));
+      emit();
+    },
+    unsubscribe() {
+      stopped = true;
+      unsubscribe();
+      liveDocs = [];
+      retainedPages = [];
+    }
+  };
+}
+
+export async function setPersonalActionItemState(actionItemId, state, profile) {
+  requireConfigured();
+  if (!profile?.uid || !["director", "admin"].includes(profile.role)) throw new Error("Profil requis pour mettre à jour cette décision.");
+  if (!/^[A-Za-z0-9_-]{3,180}$/.test(String(actionItemId || ""))) throw new Error("Décision personnelle invalide.");
+  const nextState = state === "done" ? "done" : "pending";
+  const mutationId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  // Pas de lecture préalable : les règles vérifient l’assignation et les
+  // champs immuables. Une validation média ne paie donc qu’une écriture utile.
+  await updateDoc(doc(db, "actionItems", actionItemId), {
+    state: nextState,
+    updatedAt: serverTimestamp(),
+    updatedBy: profile.uid,
+    lastMutationId: mutationId
+  });
+  if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("cockpit:action-item-state-saved", { detail: { id: actionItemId, state: nextState } }));
 }
 
 export async function updateCockpitFeedbackStatus(feedbackId, status, profile) {

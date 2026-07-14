@@ -18,6 +18,7 @@ import {
   upsertActionTask,
   completeActionTask,
   subscribeActionTasks,
+  setPersonalActionItemState,
   addMediaLink,
   archiveMediaLink,
   setMediaDecision,
@@ -36,6 +37,7 @@ import {
   setEditorialDecision,
   subscribeEditorialDecisions
 } from "./firebase-client.js?v=20260714-media-role-v2";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-m0-v2";
 
 const { configured } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -2812,9 +2814,19 @@ function enhanceCardEvents() {
       const selected = mediaDecisionButton.getAttribute("aria-pressed") !== "true";
       mediaDecisionButton.disabled = true;
       setMediaDecision(card.dataset.itemId, mediaId, selected, state.profile)
-        .then(async () => {
+        .then(async (decision) => {
           const planItem = getPlanItem(card);
           if (state.profile.role === "director") {
+            const actionItem = [...document.querySelectorAll("#cockpit-action-item-source [data-action-item-id]")]
+              .find((item) => item.dataset.actionTarget === card.dataset.itemId && (!item.dataset.actionMedia || item.dataset.actionMedia === mediaId));
+            if (actionItem) {
+              const resolved = selected && ["agreed", "overridden"].includes(decision?.agreement?.status);
+              try {
+                await setPersonalActionItemState(actionItem.dataset.actionItemId, resolved ? "done" : "pending", state.profile);
+              } catch (error) {
+                console.warn("La décision média est conservée, mais la file personnelle sera réconciliée au prochain cycle.", error);
+              }
+            }
             await recordActionTask(`media-choice-${card.dataset.itemId}`, {
               status: selected ? "pending" : "done",
               title: `${selected ? "Choix média de la direction" : "Choix média retiré"} — ${planItem?.title || card.dataset.itemId}`,
@@ -2846,7 +2858,17 @@ function enhanceCardEvents() {
       if (!reason.trim()) { toast("Ajoutez un motif clair afin de préserver la trace de décision.", true); return; }
       mediaOverrideButton.disabled = true;
       setMediaDecision(card.dataset.itemId, mediaId, true, state.profile, { override: true, reason })
-        .then(() => toast(state.profile.role === "director" ? "Décision finale de la direction enregistrée." : "Validation avec aval enregistrée sans usurper l’identité de la direction."))
+        .then(async (decision) => {
+          if (state.profile.role === "director" && ["agreed", "overridden"].includes(decision?.agreement?.status)) {
+            const actionItem = [...document.querySelectorAll("#cockpit-action-item-source [data-action-item-id]")]
+              .find((item) => item.dataset.actionTarget === card.dataset.itemId && (!item.dataset.actionMedia || item.dataset.actionMedia === mediaId));
+            if (actionItem) {
+              try { await setPersonalActionItemState(actionItem.dataset.actionItemId, "done", state.profile); }
+              catch (error) { console.warn("La décision finale est conservée; la file sera réconciliée au prochain cycle.", error); }
+            }
+          }
+          toast(state.profile.role === "director" ? "Décision finale de la direction enregistrée." : "Validation avec aval enregistrée sans usurper l’identité de la direction.");
+        })
         .catch((error) => toast(error.message, true))
         .finally(() => { mediaOverrideButton.disabled = false; });
       return;
@@ -2968,6 +2990,7 @@ async function applyProfile(profile) {
   session.querySelector("#cockpit-session-label").innerHTML = "Connecté : <strong>" + esc(profile.displayLabel) + "</strong> · rôle " + esc(profile.role);
   dispatchEvent(new CustomEvent("cockpit:session-ready", { detail: { profile } }));
   setupResponsiveOffsets();
+  setupPersonalActionItems(profile, configured);
   if (profile.role === "admin") {
     document.body.classList.add("cockpit-admin");
     buildAdminSidebar();
@@ -3027,6 +3050,7 @@ function applySignedOut(message = "") {
   state.auditUnsubscribe?.();
   state.feedbackUnsubscribe?.();
   state.tasksUnsubscribe?.();
+  clearPersonalActionItems();
   state.mediaUnsubscribe?.();
   state.mediaDecisionUnsubscribe?.();
   state.commentsUnsubscribe?.();
