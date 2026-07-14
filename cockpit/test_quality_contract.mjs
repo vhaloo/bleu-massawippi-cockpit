@@ -18,6 +18,7 @@ const files = {
   sw: read("cockpit/sw.js"),
   manifest: read("cockpit/manifest.webmanifest"),
   rules: read("cockpit/firestore.rules"),
+  indexes: read("cockpit/firestore.indexes.json"),
   adminSync: read("cockpit/admin_sync.js"),
   internalProjectSeed: read("cockpit/seed_internal_project_states.js"),
   editorialMediaManifest: read("cockpit/editorial_media_manifest.json"),
@@ -155,6 +156,7 @@ warning("PERF-002", "Module UI sous le seuil de vigilance de 120 Kio", uiBytes <
 warning("PERF-003", "Source privée initiale sous 180 Kio", sourceBytes < 180 * 1024, `${Math.round(sourceBytes / 1024)} Kio détectés.`);
 critical("PERF-004", "Requêtes collaboratives bornées", /limit\(\d+\)/.test(files.client), "Les historiques volumineux devront ensuite être paginés par fenêtre.");
 warning("PERF-005", "Chargement par fenêtre de dates détecté", /startAt|startAfter|where\([^\n]*(?:date|dateKey)|IntersectionObserver/i.test(files.client + files.ui), "Éviter de monter toutes les années du calendrier au démarrage.");
+critical("PERF-006", "Index contextuels versionnés", has(files.indexes, /"collectionGroup":\s*"comments"/) && has(files.indexes, /"fieldPath":\s*"sectionId"/) && has(files.indexes, /"collectionGroup":\s*"mediaLinks"/) && has(files.indexes, /"fieldPath":\s*"eventId"/), "Les commentaires et médias ouverts doivent utiliser leurs requêtes contextuelles bornées sans repli global.");
 critical("DATA-001", "Commentaires, tâches, médias et workflows sous écoute temps réel", ["subscribeComments", "subscribeActionTasks", "subscribeMediaLinks", "subscribeWorkflowStates"].every((token) => files.client.includes(token) && files.ui.includes(token)), "Chaque abonnement doit aussi être désabonné à la déconnexion.");
 critical("DATA-002", "Médias externes sans Firebase Storage", !/firebase-storage|uploadBytes|getDownloadURL/.test(files.client + files.ui), "OneDrive/SharePoint reste la source des médias volumineux.");
 critical("DATA-003", "Aperçu média visible et informations repliables", /cockpit-media-preview/.test(files.ui) && /<details class="cockpit-media-info"/.test(files.ui) && /Informations et actions/.test(files.ui), "Le volet externe peut replier l’ensemble; l’aperçu reste visible par défaut.");
