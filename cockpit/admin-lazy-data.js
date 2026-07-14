@@ -1,4 +1,4 @@
-import { subscribeAuditLogs, subscribeCockpitFeedback } from "./firebase-client.js?v=20260714-accurate-override-labels-v7";
+import { subscribeAuditLogs, subscribeCockpitFeedback } from "./firebase-client.js?v=20260714-atomic-mutations-v8";
 
 let auditUnsubscribe = null;
 let feedbackUnsubscribe = null;

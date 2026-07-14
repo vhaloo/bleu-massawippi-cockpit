@@ -35,12 +35,12 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-accurate-override-labels-v7";
-import { createEventContextController } from "./event-context-data.js?v=20260714-accurate-override-labels-v7";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-accurate-override-labels-v7";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-accurate-override-labels-v7";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-accurate-override-labels-v7";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-accurate-override-labels-v7";
+} from "./firebase-client.js?v=20260714-atomic-mutations-v8";
+import { createEventContextController } from "./event-context-data.js?v=20260714-atomic-mutations-v8";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-atomic-mutations-v8";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-atomic-mutations-v8";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-atomic-mutations-v8";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-atomic-mutations-v8";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";

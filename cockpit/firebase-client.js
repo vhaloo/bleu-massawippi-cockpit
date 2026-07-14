@@ -222,16 +222,6 @@ function changeArchiveEntry(entityType, entityId, action, before, after, profile
   };
 }
 
-async function appendChangeArchive(entityType, entityId, action, before, after, profile) {
-  if (!profile || !["director", "admin"].includes(profile.role)) return;
-  try {
-    await addDoc(collection(db, "changeArchive"), changeArchiveEntry(entityType, entityId, action, before, after, profile));
-    recordConfirmedWrites(1);
-  } catch (error) {
-    console.warn("Archive de changement non écrite", error);
-  }
-}
-
 async function getProfile(user) {
   if (!user) return null;
   const fallback = {
@@ -385,12 +375,20 @@ export async function updateScheduleItem(itemId, changes, profile) {
   if (!profile || !["director", "admin"].includes(profile.role)) {
     throw new Error("Ce compte n’a pas le droit de modifier le calendrier.");
   }
-  await updateDoc(doc(db, "scheduleItems", itemId), {
+  const reference = doc(db, "scheduleItems", itemId);
+  const existing = await getDoc(reference);
+  if (!existing.exists()) throw new Error("Cette publication n’existe plus.");
+  const before = existing.data();
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.update(reference, {
     ...changes,
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid
   });
-  recordConfirmedWrites(1);
+  batch.set(archiveReference, changeArchiveEntry("scheduleItem", itemId, "calendrier modifié", before, { ...before, ...changes }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
 }
 
 export async function upsertScheduleItem(itemId, payload, profile) {
@@ -408,14 +406,15 @@ export async function upsertScheduleItem(itemId, payload, profile) {
   const existing = await getDoc(reference);
   const before = existing.exists() ? existing.data() : {};
   const after = { ...before, ...payload, deleted: payload.status === "deleted" };
-  await setDoc(reference, {
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.set(reference, {
     ...payload,
     deleted: payload.status === "deleted",
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid
   }, { merge: true });
-  recordConfirmedWrites(1);
-  await appendChangeArchive("scheduleItem", itemId, "calendrier : " + payload.status, {
+  batch.set(archiveReference, changeArchiveEntry("scheduleItem", itemId, "calendrier : " + payload.status, {
     title: before.title || "",
     dateKey: before.dateKey || "",
     status: before.status || "pending",
@@ -427,7 +426,9 @@ export async function upsertScheduleItem(itemId, payload, profile) {
     status: after.status || "pending",
     deleted: after.deleted === true,
     selected: after.selected === true
-  }, profile);
+  }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
 }
 
 export async function setScheduleSelection(itemId, groupIds, selected, profile) {
@@ -440,18 +441,14 @@ export async function setScheduleSelection(itemId, groupIds, selected, profile) 
   if (!ids.includes(itemId)) throw new Error("Groupe de choix invalide.");
   const beforeDocs = await Promise.all(ids.map((id) => getDoc(doc(db, "scheduleItems", id))));
   const batch = writeBatch(db);
-  for (const id of ids) {
+  for (const [index, id] of ids.entries()) {
     batch.update(doc(db, "scheduleItems", id), {
       selected: Boolean(selected) && id === itemId,
       updatedAt: serverTimestamp(),
       updatedBy: profile.uid
     });
-  }
-  await batch.commit();
-  recordConfirmedWrites(ids.length);
-  await Promise.all(ids.map((id, index) => {
     const before = beforeDocs[index].exists() ? beforeDocs[index].data() : {};
-    return appendChangeArchive("scheduleItem", id, "choix éditorial : " + (selected && id === itemId ? "sélectionné" : "désélectionné"), {
+    batch.set(doc(collection(db, "changeArchive")), changeArchiveEntry("scheduleItem", id, "choix éditorial : " + (selected && id === itemId ? "sélectionné" : "désélectionné"), {
       title: before.title || "",
       dateKey: before.dateKey || "",
       status: before.status || "pending",
@@ -463,8 +460,10 @@ export async function setScheduleSelection(itemId, groupIds, selected, profile) 
       status: before.status || "pending",
       deleted: before.deleted === true,
       selected: Boolean(selected) && id === itemId
-    }, profile);
-  }));
+    }, profile));
+  }
+  await batch.commit();
+  recordConfirmedWrites(ids.length * 2);
 }
 
 export async function addComment(itemId, comment, profile, quickTag = null, dictated = false) {
@@ -593,15 +592,18 @@ export async function setWorkflowStage(eventId, stage, profile) {
   if (["scheduled", "published"].includes(stage) && !["final_approved", "scheduled", "published"].includes(before.stage)) {
     throw new Error("Le texte et le média doivent être approuvés avant de terminer la publication.");
   }
-  await setDoc(reference, {
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.set(reference, {
     eventId,
     stage,
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid,
     updatedByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120)
   }, { merge: true });
-  recordConfirmedWrites(1);
-  await appendChangeArchive("workflowState", eventId, "cycle : " + stage, { stage: before.stage || "proposal" }, { stage }, profile);
+  batch.set(archiveReference, changeArchiveEntry("workflowState", eventId, "cycle : " + stage, { stage: before.stage || "proposal" }, { stage }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
 }
 
 export function subscribeWorkflowStates(callback, onError) {
@@ -619,15 +621,18 @@ export async function setOpportunityStage(opportunityId, stage, profile) {
   const reference = doc(db, "opportunityStates", opportunityId);
   const existing = await getDoc(reference);
   const before = existing.exists() ? existing.data() : {};
-  await setDoc(reference, {
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.set(reference, {
     opportunityId,
     stage,
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid,
     updatedByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120)
   }, { merge: true });
-  recordConfirmedWrites(1);
-  await appendChangeArchive("opportunityState", opportunityId, "occasion : " + stage, { stage: before.stage || "watch" }, { stage }, profile);
+  batch.set(archiveReference, changeArchiveEntry("opportunityState", opportunityId, "occasion : " + stage, { stage: before.stage || "watch" }, { stage }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
 }
 
 export function subscribeOpportunityStates(callback, onError) {
@@ -645,15 +650,18 @@ export async function setInternalProjectStage(projectId, stage, profile) {
   const reference = doc(db, "internalProjectStates", projectId);
   const existing = await getDoc(reference);
   const before = existing.exists() ? existing.data() : {};
-  await setDoc(reference, {
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.set(reference, {
     projectId,
     stage,
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid,
     updatedByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120)
   }, { merge: true });
-  recordConfirmedWrites(1);
-  await appendChangeArchive("internalProjectState", projectId, "projet interne : " + stage, { stage: before.stage || "to_frame" }, { stage }, profile);
+  batch.set(archiveReference, changeArchiveEntry("internalProjectState", projectId, "projet interne : " + stage, { stage: before.stage || "to_frame" }, { stage }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
 }
 
 export function subscribeInternalProjectStates(callback, onError) {
@@ -671,15 +679,18 @@ export async function setEditorialDecision(eventId, decision, profile) {
   const reference = doc(db, "editorialDecisions", eventId);
   const existing = await getDoc(reference);
   const before = existing.exists() ? existing.data() : {};
-  await setDoc(reference, {
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.set(reference, {
     eventId,
     decision,
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid,
     updatedByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120)
   }, { merge: true });
-  recordConfirmedWrites(1);
-  await appendChangeArchive("editorialDecision", eventId, "arbitrage : " + decision, { decision: before.decision || "undecided" }, { decision }, profile);
+  batch.set(archiveReference, changeArchiveEntry("editorialDecision", eventId, "arbitrage : " + decision, { decision: before.decision || "undecided" }, { decision }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
 }
 
 export function subscribeEditorialDecisions(callback, onError) {
@@ -729,11 +740,15 @@ export async function addMediaLink(eventId, payload, profile) {
     updatedAt: now,
     updatedBy: profile.uid
   };
-  const reference = await addDoc(collection(db, "mediaLinks"), data);
-  recordConfirmedWrites(1);
-  await appendChangeArchive("mediaLink", reference.id, "lien média ajouté", {}, {
+  const reference = doc(collection(db, "mediaLinks"));
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.set(reference, data);
+  batch.set(archiveReference, changeArchiveEntry("mediaLink", reference.id, "lien média ajouté", {}, {
     eventId, label: data.label, url: data.url, kind, stage, note: data.note, archived: false
-  }, profile);
+  }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
   return reference.id;
 }
 
@@ -746,14 +761,17 @@ export async function archiveMediaLink(mediaId, profile) {
   const reference = doc(db, "mediaLinks", mediaId);
   const existing = await getDoc(reference);
   if (!existing.exists()) throw new Error("Ce média n’existe plus.");
-  await updateDoc(reference, { archived: true, updatedAt: serverTimestamp(), updatedBy: profile.uid });
-  recordConfirmedWrites(1);
   const before = existing.data();
-  await appendChangeArchive("mediaLink", mediaId, "lien média archivé", {
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.update(reference, { archived: true, updatedAt: serverTimestamp(), updatedBy: profile.uid });
+  batch.set(archiveReference, changeArchiveEntry("mediaLink", mediaId, "lien média archivé", {
     eventId: before.eventId || "", label: before.label || "", url: before.url || "", kind: before.kind || "other", stage: before.stage || "reference", note: before.note || "", archived: false
   }, {
     eventId: before.eventId || "", label: before.label || "", url: before.url || "", kind: before.kind || "other", stage: before.stage || "reference", note: before.note || "", archived: true
-  }, profile);
+  }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
 }
 
 const emptyDecisionSide = (actorRole) => ({
@@ -1094,7 +1112,9 @@ export async function addCockpitFeedback(sectionId, message, category, profile) 
   const text = String(message || "").trim();
   if (!text) return;
   const now = serverTimestamp();
-  const reference = await addDoc(collection(db, "cockpitFeedback"), {
+  const reference = doc(collection(db, "cockpitFeedback"));
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const payload = {
     sectionId: String(sectionId || "cockpit").slice(0, 120),
     message: text.slice(0, 5000),
     category: String(category || "recommandation").slice(0, 80),
@@ -1105,13 +1125,16 @@ export async function addCockpitFeedback(sectionId, message, category, profile) 
     createdAt: now,
     updatedAt: now,
     updatedBy: profile.uid
-  });
-  recordConfirmedWrites(1);
-  await appendChangeArchive("cockpitFeedback", reference.id, "rétroaction déposée", {}, {
+  };
+  const batch = writeBatch(db);
+  batch.set(reference, payload);
+  batch.set(archiveReference, changeArchiveEntry("cockpitFeedback", reference.id, "rétroaction déposée", {}, {
     sectionId,
     message: text,
     category: String(category || "recommandation")
-  }, profile);
+  }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
   return reference.id;
 }
 
@@ -1139,7 +1162,9 @@ export async function upsertActionTask(taskId, payload, profile) {
     targetId: String(payload.targetId || "").slice(0, 160),
     targetLabel: String(payload.targetLabel || "").slice(0, 220)
   };
-  await setDoc(reference, {
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.set(reference, {
     title: String(payload.title || "Tâche à traiter").slice(0, 220),
     message: String(payload.message || "").slice(0, 5000),
     targetType: payload.targetType === "section" ? "section" : "schedule",
@@ -1152,8 +1177,7 @@ export async function upsertActionTask(taskId, payload, profile) {
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid
   }, { merge: true });
-  recordConfirmedWrites(1);
-  await appendChangeArchive("task", taskId, "tâche : " + status, {
+  batch.set(archiveReference, changeArchiveEntry("task", taskId, "tâche : " + status, {
     title: before.title || "",
     message: before.message || "",
     status: before.status || "pending",
@@ -1167,7 +1191,9 @@ export async function upsertActionTask(taskId, payload, profile) {
     targetType: after.targetType || "schedule",
     targetId: after.targetId || "",
     targetLabel: after.targetLabel || ""
-  }, profile);
+  }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
 }
 
 export async function completeActionTask(taskId, profile) {
@@ -1178,13 +1204,14 @@ export async function completeActionTask(taskId, profile) {
   const existing = await getDoc(reference);
   if (!existing.exists()) throw new Error("Cette tâche n’existe plus.");
   if (profile.role !== "admin" && existing.data().createdByUid !== profile.uid) throw new Error("Seule l’administration ou l’auteur de la tâche peut la terminer.");
-  await updateDoc(reference, {
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.update(reference, {
     status: "done",
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid
   });
-  recordConfirmedWrites(1);
-  await appendChangeArchive("task", taskId, "tâche complétée manuellement", {
+  batch.set(archiveReference, changeArchiveEntry("task", taskId, "tâche complétée manuellement", {
     title: existing.data()?.title || "",
     message: existing.data()?.message || "",
     status: existing.data()?.status || "pending",
@@ -1198,7 +1225,9 @@ export async function completeActionTask(taskId, profile) {
     targetType: existing.data()?.targetType || "schedule",
     targetId: existing.data()?.targetId || "",
     targetLabel: existing.data()?.targetLabel || ""
-  }, profile);
+  }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
 }
 
 export function subscribeActionTasks(callback, onError) {
@@ -1478,6 +1507,7 @@ export async function setPersonalActionItemState(actionItemId, state, profile) {
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const reference = doc(db, "actionItems", actionItemId);
+  const archiveReference = doc(db, "changeArchive", `action-item-${mutationId}`.slice(0, 160));
   // Une lecture ciblée de ce seul document permet de reconstruire la clé de
   // file lors d'un retour done -> pending, même après rechargement du cockpit.
   // Aucune requête de collection ni aucun index composite n'est impliqué.
@@ -1495,8 +1525,13 @@ export async function setPersonalActionItemState(actionItemId, state, profile) {
       updatedBy: profile.uid,
       lastMutationId: mutationId
     });
+    transaction.set(archiveReference, changeArchiveEntry("actionItem", actionItemId, "décision personnelle : " + nextState, {
+      state: current.state || "pending"
+    }, {
+      state: nextState
+    }, profile));
   });
-  recordConfirmedWrites(1);
+  recordConfirmedWrites(2);
   if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("cockpit:action-item-state-saved", { detail: { id: actionItemId, state: nextState } }));
 }
 
@@ -1507,12 +1542,19 @@ export async function updateCockpitFeedbackStatus(feedbackId, status, profile) {
   }
   if (!/^[A-Za-z0-9_-]{3,160}$/.test(String(feedbackId || ""))) throw new Error("Rétroaction invalide.");
   if (!["open", "in_review", "done"].includes(status)) throw new Error("Statut de rétroaction invalide.");
-  await updateDoc(doc(db, "cockpitFeedback", feedbackId), {
+  const reference = doc(db, "cockpitFeedback", feedbackId);
+  const existing = await getDoc(reference);
+  if (!existing.exists()) throw new Error("Cette rétroaction n’existe plus.");
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.update(reference, {
     status,
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid
   });
-  recordConfirmedWrites(1);
+  batch.set(archiveReference, changeArchiveEntry("cockpitFeedback", feedbackId, "rétroaction : " + status, { status: existing.data().status || "open" }, { status }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
 }
 
 export function subscribeCockpitFeedback(callback, onError) {

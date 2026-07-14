@@ -2,8 +2,8 @@
 // Cela force l’activation du nouveau service worker et purge les modules
 // précédemment mis en cache, notamment firebase-client.js.
 const CACHE_PREFIX = "bleu-massawippi-cockpit-shell-";
-const RELEASE = "20260714-accurate-override-labels-v7";
-const CACHE = "bleu-massawippi-cockpit-shell-v45";
+const RELEASE = "20260714-atomic-mutations-v8";
+const CACHE = "bleu-massawippi-cockpit-shell-v46";
 const SHELL = [
   "./", "./index.html", `./firebase-config.js?v=${RELEASE}`, `./theme.js?v=${RELEASE}`,
   `./cockpit-ui.js?v=${RELEASE}`, `./firebase-client.js?v=${RELEASE}`, `./event-context-data.js?v=${RELEASE}`, `./action-items-ui.js?v=${RELEASE}`, `./client-health-ui.js?v=${RELEASE}`, `./admin-lazy-data.js?v=${RELEASE}`, `./media-choice-ui.js?v=${RELEASE}`, `./view-mode.js?v=${RELEASE}`, "./view-mode.css",

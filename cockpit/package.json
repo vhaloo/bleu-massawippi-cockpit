@@ -27,7 +27,7 @@
     "test:action-items": "node test_action_items_contract.mjs",
     "test:sync": "node test_admin_sync_incremental.mjs",
     "test:backup": "node test_backup_restore.mjs",
-    "test:backup:emulator": "npx firebase-tools@15.23.0 emulators:exec --only firestore --project cockpit-backup-test --config test-fixtures/firebase.emulator.json \"node test_backup_restore_emulator.mjs\"",
+    "test:backup:emulator": "npx firebase-tools@15.23.0 emulators:exec --only firestore --project cockpit-backup-test --config firebase.emulator.json \"node test_backup_restore_emulator.mjs\"",
     "test:media": "node test_media_role_workflow.mjs",
     "test:shell": "node test_shell_version_contract.mjs",
     "test:resilience": "node test_client_resilience_contract.mjs",
