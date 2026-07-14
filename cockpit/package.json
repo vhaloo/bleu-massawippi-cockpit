@@ -15,6 +15,7 @@
     "publish:rules": "node publish_firestore_rules.mjs",
     "provision-users": "node provision_users.js",
     "reconcile:m0-libellule": "node reconcile_m0_libellule_action.js",
+    "reconcile:libellule-v6": "node reconcile_libellule_v6_override.js",
     "test:contract": "node test_contract.mjs",
     "test:quality": "node test_quality_contract.mjs",
     "test:view-mode": "node test_view_mode_navigation.mjs",
@@ -25,7 +26,7 @@
     "test:resilience": "node test_client_resilience_contract.mjs",
     "test": "npm run check && npm run test:shell && npm run test:resilience && npm run test:sync && npm run test:media && npm run test:view-mode && npm run test:action-items && npm run test:contract && npm run test:quality",
     "refine": "node ../refine_calendar.js",
-    "check": "node --check admin_sync.js && node --check firebase-client.js && node --check cockpit-ui.js && node --check action-items-ui.js && node --check client-health-ui.js && node --check admin-lazy-data.js && node --check media-choice-ui.js && node --check view-mode.js && node --check theme.js && node --check alternatives.js && node --check editorial-overrides-jul14-26.js && node --check editorial-overrides-jul27-aug09.js && node --check editorial-copy-overrides.js && node --check plan-overrides.js && node --check seed_media_config.js && node --check seed_historical_media_links.js && node --check seed_nature_media_links.js && node --check seed_editorial_media_links.js && node --check seed_opportunity_states.js && node --check seed_internal_project_states.js && node --check reconcile_m0_libellule_action.js && node --check publish_firestore_rules.mjs"
+    "check": "node --check admin_sync.js && node --check firebase-client.js && node --check cockpit-ui.js && node --check event-context-data.js && node --check action-items-ui.js && node --check client-health-ui.js && node --check admin-lazy-data.js && node --check media-choice-ui.js && node --check view-mode.js && node --check theme.js && node --check alternatives.js && node --check editorial-overrides-jul14-26.js && node --check editorial-overrides-jul27-aug09.js && node --check editorial-copy-overrides.js && node --check plan-overrides.js && node --check seed_media_config.js && node --check seed_historical_media_links.js && node --check seed_nature_media_links.js && node --check seed_editorial_media_links.js && node --check seed_opportunity_states.js && node --check seed_internal_project_states.js && node --check reconcile_m0_libellule_action.js && node --check reconcile_libellule_v6_override.js && node --check publish_firestore_rules.mjs"
   },
   "dependencies": {
     "firebase-admin": "^14.1.0"

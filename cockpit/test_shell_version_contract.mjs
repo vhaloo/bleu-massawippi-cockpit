@@ -23,7 +23,7 @@ const mediaChoiceUi = fs.readFileSync(new URL("./media-choice-ui.js", import.met
 assert.match(cockpitUi, new RegExp(`action-items-ui\\.js\\?v=${release}`), "Le module actionItems doit partager la version du shell.");
 assert.match(index, /serviceWorker\.register\("\.\/sw\.js", \{ scope: "\.\/" \}\)/,
   "Le service worker doit conserver la portée locale exigée par GitHub Pages.");
-for (const resource of ["firebase-config.js", "theme.js", "cockpit-ui.js", "action-items-ui.js", "client-health-ui.js", "admin-lazy-data.js", "media-choice-ui.js", "view-mode.js"]) {
+for (const resource of ["firebase-config.js", "theme.js", "cockpit-ui.js", "event-context-data.js", "action-items-ui.js", "client-health-ui.js", "admin-lazy-data.js", "media-choice-ui.js", "view-mode.js"]) {
   assert.match(worker, new RegExp(resource.replace(".", "\\.")), `${resource} doit faire partie du shell hors ligne.`);
   assert.match(deploymentWorkflow, new RegExp(`cp cockpit/${resource.replace(".", "\\.")} public/`), `${resource} doit faire partie de l’artefact GitHub Pages.`);
 }

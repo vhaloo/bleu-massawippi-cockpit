@@ -5,6 +5,7 @@ const firebase = fs.readFileSync(new URL("./firebase-client.js", import.meta.url
 const ui = fs.readFileSync(new URL("./cockpit-ui.js", import.meta.url), "utf8");
 const healthUi = fs.readFileSync(new URL("./client-health-ui.js", import.meta.url), "utf8");
 const adminLazyUi = fs.readFileSync(new URL("./admin-lazy-data.js", import.meta.url), "utf8");
+const eventContext = fs.readFileSync(new URL("./event-context-data.js", import.meta.url), "utf8");
 
 for (const token of [
   "persistentLocalCache",
@@ -27,6 +28,15 @@ assert.match(firebase, /networkReady = disableNetwork\(db\)/,
   "Le mode secours doit couper Firestore au niveau du SDK, pas seulement masquer les boutons.");
 assert.match(firebase, /function requireWritable\(\)[\s\S]{0,220}mode secours est en lecture seule/,
   "Toutes les mutations doivent pouvoir être bloquées par le client en mode secours.");
+assert.match(firebase, /function changeArchiveEntry\([\s\S]{0,900}createdAt: serverTimestamp\(\)/,
+  "Les mutations atomiques doivent partager une archive de changement normalisée.");
+for (const name of ["addComment", "updateOwnComment", "archiveOwnComment", "resolveComment"]) {
+  const start = firebase.indexOf(`export async function ${name}`);
+  const end = firebase.indexOf("\nexport ", start + 10);
+  const body = firebase.slice(start, end < 0 ? undefined : end);
+  assert.match(body, /writeBatch\(db\)/, `${name} doit préparer la donnée et son archive dans un lot atomique.`);
+  assert.match(body, /await batch\.commit\(\)/, `${name} doit valider le lot atomique en une seule opération réseau.`);
+}
 assert.equal((firebase.match(/export async function /g) || []).length > 10, true);
 
 const writeFunctions = [
@@ -50,6 +60,19 @@ for (const listener of [
   assert.match(firebase, new RegExp(`trackedOnSnapshot\\(\\s*"${listener}"`),
     `Le listener ${listener} doit passer par le registre central.`);
 }
+
+for (const [collectionName, maximum] of [["scheduleItems",120],["comments",120],["workflowStates",100],["opportunityStates",50],["internalProjectStates",50],["editorialDecisions",100],["mediaDecisions",80],["mediaLinks",160]]) {
+  assert.match(firebase, new RegExp(`collection\\(db, "${collectionName}"\\)[\\s\\S]{0,180}limit\\(${maximum}\\)`),
+    `La fenêtre ${collectionName} doit rester bornée à ${maximum} documents.`);
+}
+assert.match(firebase, /export function subscribeCommentsForSection[\s\S]{0,500}where\("sectionId", "==", sectionId\)[\s\S]{0,220}limit\(60\)/,
+  "Un événement ouvert doit obtenir uniquement son mini-chat, avec une limite fixe.");
+assert.match(firebase, /export function subscribeMediaLinksForEvent[\s\S]{0,500}where\("eventId", "==", eventId\)[\s\S]{0,220}limit\(40\)/,
+  "Un événement ouvert doit obtenir uniquement ses médias, avec une limite fixe.");
+assert.match(eventContext, /function createEventContextController\([\s\S]{0,1200}subscribeCommentsForSection[\s\S]{0,1200}subscribeMediaLinksForEvent/,
+  "Le cockpit doit partager un seul contexte temps réel pour l’événement consulté.");
+assert.match(ui, /createEventContextController\([\s\S]{0,1300}eventContextController\.activate\(eventId\)/,
+  "Le module principal doit activer le contexte partagé seulement pour la carte consultée.");
 
 const healthStart = healthUi.indexOf("export function buildHealthWidget");
 const healthSource = healthUi.slice(healthStart);

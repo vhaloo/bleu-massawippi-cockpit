@@ -29,6 +29,7 @@ assert.equal(
 );
 assert.equal(sandbox.deriveMediaAgreement(selected("media-a", "admin"), selected("media-b", "director"), noOverride, true).status, "divergent");
 assert.equal(sandbox.deriveMediaAgreement(selected("media-a", "admin"), selected("media-b", "director"), { active: true, mediaIds: ["media-b"], reason: "Aval confirmé" }, true).status, "overridden");
+assert.equal(sandbox.deriveMediaAgreement(selected("media-a", "admin"), revoked("director"), { active: true, mediaIds: ["media-a"], reason: "Décision communications" }, true).status, "overridden", "Les communications doivent pouvoir finaliser un visuel sans fabriquer un choix de la direction.");
 
 assert.match(client, /const sideName = profile\.role === "admin" \? "communications" : "direction"/);
 assert.doesNotMatch(client, /profile\.role === "director" && selected && !textApproved/,
@@ -42,6 +43,8 @@ assert.match(client, /wantsOverride && !\["director", "admin"\]\.includes\(profi
 assert.match(client, /override: profile\.role === "admin"[\s\S]*?before\.override/,
   "Les communications doivent préserver un override de la direction.");
 assert.match(client, /stage === "final_approved" && !\(profile\.role === "admin" && \["scheduled", "published"\]\.includes\(before\.stage\)\)/);
+assert.match(client, /adminOverrideApprovesText[\s\S]{0,260}effectiveTextApproved/,
+  "Les communications doivent pouvoir valider en une transaction le texte et le visuel avec un motif explicite.");
 assert.match(client, /subscribeMediaDecisions[\s\S]*?limit\(80\)/);
 assert.doesNotMatch(client + ui, /alt-20260715|nature-alt-20260715-libellule/, "Le code générique ne doit pas fabriquer une approbation spéciale pour la libellule.");
 
@@ -66,6 +69,8 @@ assert.match(rules, /isAdmin\(\)[\s\S]*?affectedKeys\(\)\.hasOnly\(\['communicat
 assert.match(rules, /request\.resource\.data\.override == resource\.data\.override[\s\S]*request\.resource\.data\.override\.actorRole == 'admin'/,
   "Les communications peuvent appliquer un override motivé sans modifier le choix de la direction.");
 assert.match(rules, /isDirector\(\)[\s\S]*?affectedKeys\(\)\.hasOnly\(\['direction'/);
+assert.match(rules, /data\.override\.actorRole == 'admin'[\s\S]{0,220}data\.override\.mediaIds == data\.communications\.mediaIds/,
+  "Un override des communications doit s’appuyer sur son propre choix, jamais usurper celui de la direction.");
 assert.doesNotMatch(rules, /request\.resource\.data\.direction\.status != 'selected' \|\| workflowTextApproved/,
   "La règle doit accepter une préférence direction avant la porte texte.");
 assert.match(rules, /publicationBlocked[\s\S]*?== false/);

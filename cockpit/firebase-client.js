@@ -205,23 +205,27 @@ function requireWritable() {
   if (safeModeRequested) throw new Error("Le mode secours est en lecture seule. Revenez au mode normal pour enregistrer un changement.");
 }
 
-async function appendChangeArchive(entityType, entityId, action, before, after, profile) {
-  if (!profile || !["director", "admin"].includes(profile.role)) return;
+function changeArchiveEntry(entityType, entityId, action, before, after, profile) {
   const compact = (value) => {
     if (!value || typeof value !== "object") return {};
     return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined).map(([key, item]) => [key, typeof item === "string" ? item.slice(0, 5000) : item]));
   };
+  return {
+    entityType: String(entityType || "unknown").slice(0, 80),
+    entityId: String(entityId || "unknown").slice(0, 160),
+    action: String(action || "modification").slice(0, 160),
+    before: compact(before),
+    after: compact(after),
+    actorUid: profile?.uid || "",
+    actorLabel: String(profile?.displayLabel || "Utilisateur").slice(0, 120),
+    createdAt: serverTimestamp()
+  };
+}
+
+async function appendChangeArchive(entityType, entityId, action, before, after, profile) {
+  if (!profile || !["director", "admin"].includes(profile.role)) return;
   try {
-    await addDoc(collection(db, "changeArchive"), {
-      entityType: String(entityType || "unknown").slice(0, 80),
-      entityId: String(entityId || "unknown").slice(0, 160),
-      action: String(action || "modification").slice(0, 160),
-      before: compact(before),
-      after: compact(after),
-      actorUid: profile.uid,
-      actorLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
-      createdAt: serverTimestamp()
-    });
+    await addDoc(collection(db, "changeArchive"), changeArchiveEntry(entityType, entityId, action, before, after, profile));
     recordConfirmedWrites(1);
   } catch (error) {
     console.warn("Archive de changement non écrite", error);
@@ -361,9 +365,10 @@ export async function logOut() {
 
 export function subscribeScheduleItems(callback, onError) {
   requireConfigured();
+  const scheduleQuery = query(collection(db, "scheduleItems"), orderBy("dateIso", "asc"), limit(120));
   const unsubscribe = trackedOnSnapshot(
     "scheduleItems",
-    collection(db, "scheduleItems"),
+    scheduleQuery,
     (snapshot) => {
       const rows = snapshot.docs
         .map((item) => ({ id: item.id, ...item.data() }))
@@ -470,7 +475,10 @@ export async function addComment(itemId, comment, profile, quickTag = null, dict
   const text = String(comment || "").trim();
   if (!text) return;
   const now = serverTimestamp();
-  const reference = await addDoc(collection(db, "comments"), {
+  const reference = doc(collection(db, "comments"));
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.set(reference, {
     sectionId: itemId,
     comment: text.slice(0, 5000),
     quickTag,
@@ -486,20 +494,28 @@ export async function addComment(itemId, comment, profile, quickTag = null, dict
     updatedAt: now,
     updatedBy: profile.uid
   });
-  recordConfirmedWrites(1);
-  await appendChangeArchive("comment", reference.id, dictated ? "commentaire dicté" : "commentaire ajouté", {}, {
+  batch.set(archiveReference, changeArchiveEntry("comment", reference.id, dictated ? "commentaire dicté" : "commentaire ajouté", {}, {
     sectionId: itemId,
     comment: text,
     quickTag: quickTag || null,
     dictated: Boolean(dictated)
-  }, profile);
+  }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
   return reference.id;
 }
 
 export function subscribeComments(callback, onError) {
   requireConfigured();
-  const commentsQuery = query(collection(db, "comments"), orderBy("createdAt", "asc"), limit(500));
-  return trackedOnSnapshot("comments", commentsQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+  const commentsQuery = query(collection(db, "comments"), orderBy("updatedAt", "desc"), limit(120));
+  return trackedOnSnapshot("comments", commentsQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })).reverse()), onError);
+}
+
+export function subscribeCommentsForSection(sectionId, callback, onError) {
+  requireConfigured();
+  if (!/^[A-Za-z0-9_-]{3,160}$/.test(String(sectionId || ""))) throw new Error("Section de commentaires invalide.");
+  const commentsQuery = query(collection(db, "comments"), where("sectionId", "==", sectionId), orderBy("createdAt", "desc"), limit(60));
+  return trackedOnSnapshot(`comments:${sectionId}`, commentsQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })).reverse()), onError);
 }
 
 export async function updateOwnComment(commentId, text, profile) {
@@ -509,9 +525,12 @@ export async function updateOwnComment(commentId, text, profile) {
   if (!existing.exists() || existing.data().authorUid !== profile?.uid) throw new Error("Vous pouvez modifier uniquement votre propre commentaire.");
   const comment = String(text || "").trim().slice(0, 5000);
   if (!comment) throw new Error("Le commentaire ne peut pas être vide.");
-  await updateDoc(reference, { comment, updatedAt: serverTimestamp(), updatedBy: profile.uid });
-  recordConfirmedWrites(1);
-  await appendChangeArchive("comment", commentId, "commentaire modifié", { comment: existing.data().comment || "" }, { comment }, profile);
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.update(reference, { comment, updatedAt: serverTimestamp(), updatedBy: profile.uid });
+  batch.set(archiveReference, changeArchiveEntry("comment", commentId, "commentaire modifié", { comment: existing.data().comment || "" }, { comment }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
 }
 
 export async function archiveOwnComment(commentId, profile) {
@@ -519,9 +538,12 @@ export async function archiveOwnComment(commentId, profile) {
   const reference = doc(db, "comments", commentId);
   const existing = await getDoc(reference);
   if (!existing.exists() || existing.data().authorUid !== profile?.uid) throw new Error("Vous pouvez archiver uniquement votre propre commentaire.");
-  await updateDoc(reference, { deleted: true, updatedAt: serverTimestamp(), updatedBy: profile.uid });
-  recordConfirmedWrites(1);
-  await appendChangeArchive("comment", commentId, "commentaire archivé", { deleted: false, comment: existing.data().comment || "" }, { deleted: true, comment: existing.data().comment || "" }, profile);
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.update(reference, { deleted: true, updatedAt: serverTimestamp(), updatedBy: profile.uid });
+  batch.set(archiveReference, changeArchiveEntry("comment", commentId, "commentaire archivé", { deleted: false, comment: existing.data().comment || "" }, { deleted: true, comment: existing.data().comment || "" }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
 }
 
 export async function resolveComment(commentId, profile) {
@@ -531,7 +553,9 @@ export async function resolveComment(commentId, profile) {
   const existing = await getDoc(reference);
   if (!existing.exists()) throw new Error("Ce commentaire n’existe plus.");
   const before = existing.data();
-  await updateDoc(reference, {
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.update(reference, {
     resolved: true,
     resolvedAt: serverTimestamp(),
     resolvedBy: profile.uid,
@@ -539,14 +563,15 @@ export async function resolveComment(commentId, profile) {
     updatedAt: serverTimestamp(),
     updatedBy: profile.uid
   });
-  recordConfirmedWrites(1);
-  await appendChangeArchive("comment", commentId, "commentaire traité", {
+  batch.set(archiveReference, changeArchiveEntry("comment", commentId, "commentaire traité", {
     resolved: before.resolved === true,
     comment: before.comment || ""
   }, {
     resolved: true,
     comment: before.comment || ""
-  }, profile);
+  }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
 }
 
 const workflowStages = new Set(["proposal", "content_review", "changes_requested", "content_changes_requested", "content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"]);
@@ -581,7 +606,8 @@ export async function setWorkflowStage(eventId, stage, profile) {
 
 export function subscribeWorkflowStates(callback, onError) {
   requireConfigured();
-  return trackedOnSnapshot("workflowStates", collection(db, "workflowStates"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+  const statesQuery = query(collection(db, "workflowStates"), orderBy("updatedAt", "desc"), limit(100));
+  return trackedOnSnapshot("workflowStates", statesQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
 }
 
 const opportunityStages = new Set(["watch", "research", "active", "submitted", "completed"]);
@@ -606,7 +632,8 @@ export async function setOpportunityStage(opportunityId, stage, profile) {
 
 export function subscribeOpportunityStates(callback, onError) {
   requireConfigured();
-  return trackedOnSnapshot("opportunityStates", collection(db, "opportunityStates"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+  const statesQuery = query(collection(db, "opportunityStates"), orderBy("updatedAt", "desc"), limit(50));
+  return trackedOnSnapshot("opportunityStates", statesQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
 }
 
 const internalProjectStages = new Set(["to_frame", "planned", "active", "blocked", "completed"]);
@@ -631,7 +658,7 @@ export async function setInternalProjectStage(projectId, stage, profile) {
 
 export function subscribeInternalProjectStates(callback, onError) {
   requireConfigured();
-  const statesQuery = query(collection(db, "internalProjectStates"), limit(100));
+  const statesQuery = query(collection(db, "internalProjectStates"), orderBy("updatedAt", "desc"), limit(50));
   return trackedOnSnapshot("internalProjectStates", statesQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
 }
 
@@ -657,7 +684,8 @@ export async function setEditorialDecision(eventId, decision, profile) {
 
 export function subscribeEditorialDecisions(callback, onError) {
   requireConfigured();
-  return trackedOnSnapshot("editorialDecisions", collection(db, "editorialDecisions"), (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+  const decisionsQuery = query(collection(db, "editorialDecisions"), orderBy("updatedAt", "desc"), limit(100));
+  return trackedOnSnapshot("editorialDecisions", decisionsQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
 }
 
 function normalizeMediaUrl(value) {
@@ -877,8 +905,10 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
     const workflowBefore = workflowSnapshot.exists() ? workflowSnapshot.data() : { eventId, stage: "proposal" };
     const workflowStage = String(workflowBefore.stage || "proposal");
     const textApproved = contentApprovedWorkflowStages.has(workflowStage);
-    if (wantsOverride && (!selected || !textApproved || !overrideReason)) {
-      throw new Error("Un override exige le texte approuvé, un média choisi et un motif explicite.");
+    const adminOverrideApprovesText = wantsOverride && profile.role === "admin" && !textApproved;
+    const effectiveTextApproved = textApproved || adminOverrideApprovesText;
+    if (wantsOverride && (!selected || !effectiveTextApproved || !overrideReason)) {
+      throw new Error("Un override exige un média choisi, un motif explicite et, sauf pour les communications, le texte approuvé.");
     }
 
     const before = normalizeMediaDecision(decisionSnapshot.exists() ? decisionSnapshot.data() : {}, eventId);
@@ -899,7 +929,7 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
       override: profile.role === "admin" && !wantsOverride
         ? { ...before.override, mediaIds: [...before.override.mediaIds] }
         : emptyOverride(),
-      textGateStage: workflowStage
+      textGateStage: adminOverrideApprovesText ? "content_approved" : workflowStage
     };
     next[sideName] = {
       status: selected ? "selected" : "revoked",
@@ -920,7 +950,7 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
         decidedAt: now
       };
     }
-    const agreement = deriveMediaAgreement(next.communications, next.direction, next.override, textApproved);
+    const agreement = deriveMediaAgreement(next.communications, next.direction, next.override, effectiveTextApproved);
     next.agreement = agreement;
     next.lastMutationId = mutationId;
     next.updatedAt = now;
@@ -954,7 +984,7 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
     transaction.set(archiveReference, {
       entityType: "mediaDecision",
       entityId: eventId,
-      action: selected ? (wantsOverride ? "choix média confirmé par la direction" : `${sideName} : média choisi`) : `${sideName} : choix média retiré`,
+      action: selected ? (wantsOverride ? (profile.role === "admin" ? "validation forcée par les communications" : "choix média confirmé par la direction") : `${sideName} : média choisi`) : `${sideName} : choix média retiré`,
       before: mediaDecisionArchiveView(before),
       after: mediaDecisionArchiveView(next),
       actorUid: profile.uid,
@@ -1022,9 +1052,21 @@ export async function setMediaFinalChoice(mediaId, selected, profile) {
 
 export function subscribeMediaLinks(callback, onError) {
   requireConfigured();
-  const mediaQuery = query(collection(db, "mediaLinks"), orderBy("createdAt", "desc"), limit(500));
+  const mediaQuery = query(collection(db, "mediaLinks"), orderBy("updatedAt", "desc"), limit(160));
   return trackedOnSnapshot(
     "mediaLinks",
+    mediaQuery,
+    (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
+    onError
+  );
+}
+
+export function subscribeMediaLinksForEvent(eventId, callback, onError) {
+  requireConfigured();
+  if (!/^[A-Za-z0-9_-]{3,160}$/.test(String(eventId || ""))) throw new Error("Événement média invalide.");
+  const mediaQuery = query(collection(db, "mediaLinks"), where("eventId", "==", eventId), orderBy("createdAt", "desc"), limit(40));
+  return trackedOnSnapshot(
+    `mediaLinks:${eventId}`,
     mediaQuery,
     (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
     onError
