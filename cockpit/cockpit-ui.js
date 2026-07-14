@@ -35,12 +35,12 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-quota-safe-admin-override-v6";
-import { createEventContextController } from "./event-context-data.js?v=20260714-quota-safe-admin-override-v6";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-quota-safe-admin-override-v6";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-quota-safe-admin-override-v6";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-quota-safe-admin-override-v6";
-import { buildMediaChoiceModel, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-quota-safe-admin-override-v6";
+} from "./firebase-client.js?v=20260714-accurate-override-labels-v7";
+import { createEventContextController } from "./event-context-data.js?v=20260714-accurate-override-labels-v7";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-accurate-override-labels-v7";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-accurate-override-labels-v7";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-accurate-override-labels-v7";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-accurate-override-labels-v7";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -2060,12 +2060,15 @@ function renderMediaForCard(card) {
       ? (myChoiceSelected ? "Retirer mon choix" : "Choisir ce visuel")
       : (myChoiceSelected ? "Retirer mon choix" : textApproved ? "Approuver ce visuel" : "Choisir ce visuel");
     const choiceDisabled = isBlocked;
-    const infoStatus = isFinal ? "✓ Accord final" : choice.sameRoleChoice ? "✓ Même choix" : choice.communicationsSelected ? "Recommandé" : choice.directionSelected ? "Choix direction" : choice.legacySelected ? "Hérité" : "Ouvrir";
+    const agreementPresentation = mediaAgreementPresentation(choice);
+    const infoStatus = isFinal
+      ? agreementPresentation.info
+      : choice.sameRoleChoice ? "✓ Même choix" : choice.communicationsSelected ? "Recommandé" : choice.directionSelected ? "Choix direction" : choice.legacySelected ? "Hérité" : "Ouvrir";
     const { label: imageChoiceLabel, className: imageChoiceClass } = mediaImageChoicePresentation(choice, role, myChoiceSelected);
     const roleBadges = [
       choice.communicationsSelected ? `<span class="cockpit-media-role-badge communications">✓ Recommandé par les communications</span>` : "",
       choice.directionSelected ? `<span class="cockpit-media-role-badge direction">✓ Choisi par la direction générale · visuel prêt</span>` : "",
-      choice.agreementSelected ? `<span class="cockpit-media-role-badge agreement">✓ Accord communications + direction · décision finale</span>` : choice.sameRoleChoice ? `<span class="cockpit-media-role-badge agreement">✓ Même visuel choisi par les deux rôles</span>` : "",
+      choice.agreementSelected ? `<span class="cockpit-media-role-badge agreement">${agreementPresentation.badge}</span>` : choice.sameRoleChoice ? `<span class="cockpit-media-role-badge agreement">✓ Même visuel choisi par les deux rôles</span>` : "",
       choice.divergent && (choice.communicationsSelected || choice.directionSelected) ? `<span class="cockpit-media-role-badge divergence">Choix différents — harmonisation requise</span>` : "",
       choice.legacySelected ? `<span class="cockpit-media-role-badge">Choix hérité à confirmer — acteur non attribué</span>` : ""
     ].join("");
@@ -2220,7 +2223,7 @@ function renderWorkflow(card) {
   const publicationLabel = publicationGate?.querySelector("[data-gate-label]");
   if (contentLabel) contentLabel.textContent = contentDone ? "Approuvé" : (stage === "changes_requested" ? "Corrections demandées" : stage === "content_review" ? "Prêt pour validation" : "En préparation");
   if (mediaLabel) mediaLabel.textContent = mediaDone
-    ? (structuredMediaDecision?.agreement?.status === "overridden" ? "Validé avec aval" : structuredMediaAgreement ? "Accord des deux rôles" : "Choisi par la direction")
+    ? (structuredMediaDecision?.agreement?.status === "overridden" ? "Validé par override motivé" : structuredMediaAgreement ? "Accord des deux rôles" : "Choisi par la direction")
     : structuredMediaDecision?.agreement?.status === "divergent"
       ? "Choix à harmoniser"
       : (stage === "media_review" ? "Prêt pour validation" : "Choix en attente");

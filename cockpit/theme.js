@@ -30,7 +30,7 @@ const style = document.createElement("style");
 style.id = "cockpit-theme-style";
 style.textContent = `
   .cockpit-theme-toggle { position:fixed; top:98px; right:12px; z-index:2400; border:1px solid rgba(7,58,82,.25); border-radius:999px; padding:8px 12px; background:#fff; color:#073a52; box-shadow:0 5px 18px rgba(0,0,0,.15); font:700 .78rem/1 system-ui,sans-serif; cursor:pointer; }
-  .cockpit-theme-toggle.in-session { position:static; display:grid; width:40px; min-width:40px; height:40px; padding:0; place-items:center; box-shadow:none; font-size:0; }
+  #cockpit-session .cockpit-theme-toggle.in-session { position:static; display:grid; width:40px; min-width:40px; height:40px; padding:0; place-items:center; overflow:hidden; box-shadow:none; font-size:0; }
   .cockpit-theme-toggle.in-session:before { content:"☾"; font-size:1rem; }
   .cockpit-theme-toggle.in-session[aria-pressed="true"]:before { content:"☀"; }
   [data-theme="dark"] body {
