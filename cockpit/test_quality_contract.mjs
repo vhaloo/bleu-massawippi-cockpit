@@ -12,6 +12,7 @@ const files = {
   shell: read("cockpit/index.html"),
   source: read("index.html"),
   ui: read("cockpit/cockpit-ui.js"),
+  mediaChoice: read("cockpit/media-choice-ui.js"),
   client: read("cockpit/firebase-client.js"),
   theme: read("cockpit/theme.js"),
   sw: read("cockpit/sw.js"),
@@ -50,7 +51,7 @@ for (const source of scriptSources.filter((item) => item.startsWith("./"))) {
   critical("PUB-003", `Script référencé présent : ${source}`, exists(path.posix.join("cockpit", source.slice(2))), "Toute référence HTML locale doit résoudre vers un fichier suivi.");
 }
 
-const localImports = [...(files.ui + "\n" + files.client + "\n" + files.theme + "\n" + files.viewMode).matchAll(/(?:from\s+|import\s*)["'](\.\/[^"'?]+)(?:\?[^"']*)?["']/g)].map((match) => match[1]);
+const localImports = [...(files.ui + "\n" + files.mediaChoice + "\n" + files.client + "\n" + files.theme + "\n" + files.viewMode).matchAll(/(?:from\s+|import\s*)["'](\.\/[^"'?]+)(?:\?[^"']*)?["']/g)].map((match) => match[1]);
 for (const source of new Set(localImports)) {
   critical("PUB-004", `Module importé présent : ${source}`, exists(path.posix.join("cockpit", source.slice(2))), "Un import cassé provoque un écran vide après connexion.");
 }
@@ -157,7 +158,7 @@ critical("DATA-001", "Commentaires, tâches, médias et workflows sous écoute t
 critical("DATA-002", "Médias externes sans Firebase Storage", !/firebase-storage|uploadBytes|getDownloadURL/.test(files.client + files.ui), "OneDrive/SharePoint reste la source des médias volumineux.");
 critical("DATA-003", "Aperçu média visible et informations repliables", /cockpit-media-preview/.test(files.ui) && /<details class="cockpit-media-info"/.test(files.ui) && /Informations et actions/.test(files.ui), "Le volet externe peut replier l’ensemble; l’aperçu reste visible par défaut.");
 critical("DATA-004", "Feux verts et décisions sont réversibles", /Feu vert retiré|retiré du choix final|decision.*undecided/is.test(files.ui + files.client), "Chaque retour arrière doit créer une trace.");
-critical("DATA-005", "Un choix média structuré faux surclasse l’ancien marqueur", /hasOwnProperty\.call\(row,\s*["']selectedFinal["']\)/.test(files.ui) && /!hasStructuredChoice/.test(files.ui), "Une ancienne note ne doit pas empêcher de retirer le média final.");
+critical("DATA-005", "Un choix média structuré faux surclasse l’ancien marqueur", /(?:hasOwnProperty\.call\(row,\s*["']selectedFinal["']\)|["']selectedFinal["'] in row)/.test(files.mediaChoice) && /!hasStructuredChoice/.test(files.mediaChoice), "Une ancienne note ne doit pas empêcher de retirer le média final.");
 critical("DATA-006", "Choix média et archive enregistrés atomiquement", /setMediaFinalChoice[\s\S]{0,2200}writeBatch\(db\)[\s\S]{0,1000}batch\.commit\(\)/.test(files.client), "L’interface ne doit pas confirmer un choix si son historique échoue.");
 critical("DATA-010", "Références non diffusables impossibles à retenir", /publicationBlocked === true/.test(files.ui) && /Référence non diffusable/.test(files.ui) && /cockpit-media-final-action[\s\S]{0,800}disabled/.test(files.ui) && /selected && \(before\.publicationBlocked === true \|\| before\.archived === true\)/.test(files.client) && /publicationBlocked' in resource\.data/.test(files.rules), "Une référence de style anatomiquement invalide doit rester consultable sans pouvoir devenir le média final.");
 critical("DATA-011", "Métadonnées des médias initialisés acceptées par les règles", ["publicationBlocked", "altText", "rightsStatus"].every((field) => files.rules.includes(`'${field}'`)), "Une sélection ne doit pas échouer parce que le média contient ses métadonnées de sécurité et d’accessibilité.");
