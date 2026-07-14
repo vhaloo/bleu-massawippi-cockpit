@@ -131,6 +131,31 @@ assert.ok(document.querySelector('[data-vm-target="future-1"]').closest(".vm-eve
 assert.ok(decisionCards().some((card) => card.classList.contains("priority-current-week")), "Le reste de la semaine doit être orange, sans urgence pulsante.");
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Action réservée aux communications/);
 assert.ok(document.querySelector("[data-vm-load-more]"), "La suite de la file doit être disponible à la demande.");
+
+// L'en-tête éditorial complet agit comme le bouton « Voir et décider », sans
+// écriture distante. Le clavier et les contrôles internes restent sûrs.
+const headerCard = document.querySelector('[data-item-id="future-3"]');
+const clickableHeader = headerCard.querySelector(':scope > .post-head');
+const headerToggle = headerCard.querySelector('[data-vm-card-toggle]');
+assert.equal(clickableHeader.getAttribute('role'), 'button');
+assert.equal(clickableHeader.getAttribute('tabindex'), '0');
+assert.equal(clickableHeader.getAttribute('aria-expanded'), 'false');
+clickableHeader.click();
+assert.equal(headerCard.classList.contains('vm-expanded'), true);
+assert.equal(clickableHeader.getAttribute('aria-expanded'), 'true');
+assert.match(headerToggle.textContent, /Réduire/);
+clickableHeader.click();
+assert.equal(headerCard.classList.contains('vm-expanded'), false);
+const enterKey = new window.Event('keydown', { bubbles: true, cancelable: true });
+Object.defineProperty(enterKey, 'key', { value: 'Enter' });
+clickableHeader.dispatchEvent(enterKey);
+assert.equal(headerCard.classList.contains('vm-expanded'), true, 'Entrée doit ouvrir la publication.');
+const nestedControl = document.createElement('button');
+nestedControl.textContent = 'Contrôle interne';
+clickableHeader.appendChild(nestedControl);
+nestedControl.click();
+assert.equal(headerCard.classList.contains('vm-expanded'), true, 'Un contrôle interne ne doit pas replier la publication.');
+
 const firstOpenControl = document.querySelector(".vm-decisions [data-vm-target]");
 const firstOpenTarget = firstOpenControl.dataset.vmTarget;
 firstOpenControl.click();

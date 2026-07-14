@@ -1,4 +1,4 @@
-import { subscribeAuditLogs, subscribeCockpitFeedback } from "./firebase-client.js?v=20260714-clear-toggles-v4";
+import { subscribeAuditLogs, subscribeCockpitFeedback } from "./firebase-client.js?v=20260714-clickable-post-head-v5";
 
 let auditUnsubscribe = null;
 let feedbackUnsubscribe = null;
