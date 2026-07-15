@@ -984,7 +984,11 @@ function renderDashboard(now = new Date()) {
   });
   // File strictement personnelle : aucun élément « en attente de l’autre
   // rôle » n’est mélangé aux actions de la personne connectée.
-  const allDecisions = roleDecisionModels(events, runtime.identity.role, now);
+  const workflowSync = document.body.dataset.workflowSync || "server";
+  const cachedOfflineState = workflowSync === "cache"
+    && (document.body.classList.contains("cockpit-safe-mode") || globalThis.navigator?.onLine === false);
+  const decisionsAreCurrent = workflowSync === "server" || cachedOfflineState;
+  const allDecisions = decisionsAreCurrent ? roleDecisionModels(events, runtime.identity.role, now) : [];
   const pageSize = queuePageSize();
   if (runtime.queueRole !== runtime.identity.role) {
     runtime.queueRole = runtime.identity.role;
@@ -1005,9 +1009,14 @@ function renderDashboard(now = new Date()) {
   const queueFooter = remainingDecisions || remoteMore || remoteError
     ? `<div class="vm-queue-footer"><p>${remoteError ? "La suite distante est momentanément indisponible." : remoteMore ? "D’autres décisions personnelles peuvent être chargées." : `${remainingDecisions} autre${remainingDecisions > 1 ? "s" : ""} décision${remainingDecisions > 1 ? "s" : ""} dans votre file.`}</p><button type="button" data-vm-load-more${remoteLoading ? " disabled aria-busy=\"true\"" : ""}>${remoteError ? "Réessayer" : remoteLoading ? "Chargement…" : "Charger plus"}</button></div>`
     : decisions.length ? `<p class="vm-queue-end">Fin de la file · toutes vos décisions chargées.</p>` : "";
-  const decisionsBody = decisions.length
-    ? decisions.map((event) => compactEvent(event, now, { showReason: true })).join("") + queueFooter
-    : `<div class="vm-all-clear"><b>Tout est à jour.</b><span>Aucune décision n’est requise pour le moment.</span></div>`;
+  const offlineNotice = cachedOfflineState
+    ? `<p class="vm-queue-offline" role="status">Mode hors ligne · décisions provenant du dernier cache de cet appareil.</p>`
+    : "";
+  const decisionsBody = !decisionsAreCurrent
+    ? `<div class="vm-all-clear vm-syncing" role="status"><b>Synchronisation en cours…</b><span>Le cockpit confirme vos décisions avec le serveur avant de les afficher. Les éléments déjà terminés ne réapparaîtront pas depuis un ancien cache.</span></div>`
+    : decisions.length
+    ? offlineNotice + decisions.map((event) => compactEvent(event, now, { showReason: true })).join("") + queueFooter
+    : offlineNotice + `<div class="vm-all-clear"><b>Tout est à jour.</b><span>Aucune décision n’est requise pour le moment.</span></div>`;
   const weekBody = nextWeek.length
     ? nextWeek.map((event) => compactEvent(event, now, { showAction: false })).join("")
     : empty("Aucun événement au cours des sept prochains jours.");
@@ -1016,7 +1025,7 @@ function renderDashboard(now = new Date()) {
     : empty("Aucun message actif dans les événements visibles.");
 
   grid.innerHTML = [
-    panel("decision", "Décisions qui m’attendent", `${allDecisions.length}${remoteMore ? "+" : ""} pour vous`, decisionsBody, "vm-decisions"),
+    panel("decision", "Décisions qui m’attendent", decisionsAreCurrent ? `${allDecisions.length}${remoteMore ? "+" : ""} pour vous` : "Synchronisation", decisionsBody, "vm-decisions"),
     panel("today", "Aujourd’hui", `${today.length} événement${today.length > 1 ? "s" : ""}`, todayBody, "vm-today"),
     panel("week", "Les sept prochains jours", `${nextWeek.length} événement${nextWeek.length > 1 ? "s" : ""}`, weekBody, "vm-week"),
     panel("message", "Messages actifs", `${messages.length} récent${messages.length > 1 ? "s" : ""}`, messagesBody, "vm-messages")

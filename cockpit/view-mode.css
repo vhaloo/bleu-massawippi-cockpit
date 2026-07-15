@@ -345,6 +345,21 @@
 
 .vm-all-clear b { font-size: .94rem; }
 .vm-all-clear span { font-size: .74rem; }
+.vm-syncing {
+  color: #315b66;
+  border-color: #b9dbe0;
+  background: #eef8f9;
+}
+.vm-queue-offline {
+  margin: 4px 0 9px;
+  padding: 8px 10px;
+  border: 1px solid #e3c77d;
+  border-radius: 9px;
+  color: #705318;
+  background: #fff8df;
+  font-size: .7rem;
+  font-weight: 750;
+}
 
 /* Vue essentielle : les fonctions restent présentes, mais les explications et
    outils techniques ne concurrencent plus la décision principale. */
@@ -530,6 +545,8 @@ html[data-theme="dark"] .vm-event.priority-current-week {
 }
 html[data-theme="dark"] .vm-open { color: #b9edf2; border-color: #4faeb7; background: #173c47; }
 html[data-theme="dark"] .vm-all-clear { color: #b9f0d7; background: #214c3e; }
+html[data-theme="dark"] .vm-syncing { color: #d4edf0; border-color: #416d76; background: #183d47; }
+html[data-theme="dark"] .vm-queue-offline { color: #ffe6aa; border-color: #826a32; background: #44391f; }
 html[data-theme="dark"] .vm-why-now { color: #ffe7ad; background: #493c24; }
 html[data-theme="dark"] .vm-why-now b { color: #fff1c9; }
 html[data-theme="dark"] .vm-priority-overflow { color: #c5dade; }

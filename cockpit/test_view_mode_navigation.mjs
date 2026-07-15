@@ -183,6 +183,28 @@ assert.match(document.querySelector(".vm-queue-end").textContent, /toutes vos d�
   window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "valentin", role: "admin" } } }));
   await wait();
   assert.match(document.querySelector(".vm-decisions").textContent, /Action réservée aux communications/);
+  document.body.dataset.workflowSync = "pending";
+  window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+  await wait();
+  assert.match(document.querySelector(".vm-decisions").textContent, /Synchronisation en cours/,
+    "La vue mobile ne doit pas afficher le plan statique comme une décision actuelle avant le workflow serveur.");
+  assert.equal(document.querySelectorAll(".vm-decisions .vm-event").length, 0);
+  document.body.dataset.workflowSync = "server";
+  window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+  await wait();
+  assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Synchronisation en cours/);
+  assert.ok(document.querySelectorAll(".vm-decisions .vm-event").length > 0,
+    "Les décisions doivent réapparaître automatiquement dès la confirmation serveur.");
+  document.body.dataset.workflowSync = "cache";
+  document.body.classList.add("cockpit-safe-mode");
+  window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+  await wait();
+  assert.match(document.querySelector(".vm-decisions").textContent, /Mode hors ligne/,
+    "Le mode secours doit conserver la file du cache tout en signalant clairement sa fraîcheur.");
+  document.body.classList.remove("cockpit-safe-mode");
+  document.body.dataset.workflowSync = "server";
+  window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+  await wait();
   const completedAdminCard = document.querySelector('[data-item-id="future-2"]');
   completedAdminCard.dataset.workflowStage = "scheduled";
   completedAdminCard.dataset.workflowUpdatedAt = "300";
