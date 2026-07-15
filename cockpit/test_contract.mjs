@@ -8,6 +8,7 @@ import { BILINGUAL_POLICY_VERSION, FUTURE_EDITORIAL_IDS, TONE_VERSION } from "./
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
 const ui = fs.readFileSync(path.join(here, "cockpit-ui.js"), "utf8");
+const taskProgressUi = fs.readFileSync(path.join(here, "task-progress-ui.js"), "utf8");
 const viewMode = fs.readFileSync(path.join(here, "view-mode.js"), "utf8");
 const viewFixture = fs.readFileSync(path.join(here, "test-fixtures", "view-mode.html"), "utf8");
 const client = fs.readFileSync(path.join(here, "firebase-client.js"), "utf8");
@@ -328,7 +329,7 @@ for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMed
   assert.ok(ui.includes(token), `Le cockpit doit contenir le contrat ${token}.`);
 }
 for (const token of ["stateTimestampMillis", "actionTaskPriority", "data-task-target-type", "data-task-updated-at", "cockpit-task-priority", "data-media-updated-at", "dataset.workflowUpdatedAt", "dataset.editorialUpdatedAt", "cockpit-media-blocked", "Référence non diffusable"]) {
-  assert.ok(ui.includes(token), `La file priorisée doit exposer le contrat ${token}.`);
+  assert.ok(`${ui}\n${taskProgressUi}`.includes(token), `La file priorisée doit exposer le contrat ${token}.`);
 }
 for (const token of ["roleDecisionForEvent", "roleDecisionModels", "pendingTaskModels", "mediaUpdatedAfterWorkflow", "Pourquoi maintenant", "left.urgency.rank", "Nouvelle consigne de la direction", "Texte prêt pour votre validation"]) {
   assert.ok(viewMode.includes(token), `La vue essentielle doit prioriser les décisions avec ${token}.`);

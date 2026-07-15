@@ -33,6 +33,12 @@ style.textContent = `
   #cockpit-session .cockpit-theme-toggle.in-session { position:static; display:grid; width:40px; min-width:40px; height:40px; padding:0; place-items:center; overflow:hidden; box-shadow:none; font-size:0; }
   .cockpit-theme-toggle.in-session:before { content:"☾"; font-size:1rem; }
   .cockpit-theme-toggle.in-session[aria-pressed="true"]:before { content:"☀"; }
+  .cockpit-task-item.workflow-ready { border-color:#8ec8b5; background:#e3f5ee; box-shadow:0 0 0 2px rgba(33,134,109,.13); }
+  .cockpit-task-ready { display:inline-flex; margin-bottom:7px; padding:4px 8px; border-radius:999px; color:#155c4e; background:#ccebdc; font-size:.65rem; font-weight:900; }
+  .cockpit-task-progress { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; margin:7px 0; }
+  .cockpit-task-progress span { padding:5px 4px; border:1px solid #cbdcdf; border-radius:8px; color:#607b85; background:rgba(255,255,255,.66); font-size:.62rem; font-weight:800; text-align:center; }
+  .cockpit-task-progress span.done { color:#155c4e; border-color:#8ec8b5; background:#d8f0e5; }
+  .cockpit-task-item.workflow-ready .cockpit-task-actions button[data-complete-task] { color:#fff; border-color:#21866d; background:#21866d; }
   [data-theme="dark"] body {
     --ink:#eef7f8; --navy:#dff6fa; --blue:#72d9ed; --aqua:#61d9d2; --mist:#10252e;
     --paper:#12262f; --soft:#bfd1d7; --line:#496873; --gold:#f2c66d; --coral:#ff9b89;
@@ -145,6 +151,11 @@ style.textContent = `
   [data-theme="dark"] .cockpit-thread-resolved { background:#20373f !important; border-color:#58747d !important; }
   [data-theme="dark"] .cockpit-thread-resolved>summary { color:#d5e5e8 !important; }
   [data-theme="dark"] .cockpit-task-item.comment-task { color:#fff4e7 !important; background:#4a3027 !important; border-color:#e19a73 !important; }
+  [data-theme="dark"] .cockpit-task-item.workflow-ready { color:#dffff3 !important; background:#1e5144 !important; border-color:#76c8aa !important; box-shadow:0 0 0 2px rgba(118,200,170,.16); }
+  [data-theme="dark"] .cockpit-task-ready { color:#dffff3 !important; background:#276b57 !important; }
+  [data-theme="dark"] .cockpit-task-progress span { color:#c8dadd !important; background:#284750 !important; border-color:#62828c !important; }
+  [data-theme="dark"] .cockpit-task-progress span.done { color:#dffff3 !important; background:#27614f !important; border-color:#76c8aa !important; }
+  [data-theme="dark"] .cockpit-task-item.workflow-ready .cockpit-task-actions button[data-complete-task] { color:#071b15 !important; background:#79d6b6 !important; border-color:#79d6b6 !important; }
   [data-theme="dark"] .cockpit-task-source { color:#fff !important; background:#bd654b !important; }
   [data-theme="dark"] .cockpit-task-priority { color:#ffe8ad !important; background:#493c24 !important; border:1px solid #8b7344 !important; }
   [data-theme="dark"] .cockpit-media-blocked { color:#ffe9b8 !important; background:#483a20 !important; border-color:#9e7c3d !important; }

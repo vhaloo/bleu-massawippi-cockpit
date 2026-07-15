@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Recette locale — progression des tâches</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;padding:24px;color:#073a52;background:#edf6f7;font:16px system-ui,sans-serif}main{width:min(390px,100%);margin:auto;padding:18px;border-radius:18px;background:#f8fcfc}.cockpit-task-item{margin-top:12px;padding:10px;border:1px solid #d6e8ea;border-radius:11px;background:#fff}.cockpit-task-item b{display:block;font-size:.78rem}.cockpit-task-item p{margin:4px 0 7px;color:#587680;font-size:.72rem;line-height:1.38}.cockpit-task-item small{display:block;margin-bottom:7px;color:#78919a;font-size:.66rem}.cockpit-task-priority,.cockpit-task-estimate{display:inline-flex;margin:0 0 5px;padding:3px 7px;border-radius:999px;font-size:.62rem;font-weight:900}.cockpit-task-priority{color:#765116;background:#fff0c7}.cockpit-task-estimate{margin-left:5px;color:#315f67;background:#e2f0f1}.cockpit-task-actions{display:flex;gap:6px}.cockpit-task-actions button{padding:5px 7px;border:1px solid #cbe1e4;border-radius:7px;color:#315564;background:#fff;font-weight:800}html[data-theme="dark"] body{background:#0f232b}html[data-theme="dark"] main{background:#152c36}html[data-theme="dark"] .cockpit-task-item{color:#e7f5f7;background:#1c3944;border-color:#52727d}html[data-theme="dark"] .cockpit-task-item b{color:#e9f8fa}html[data-theme="dark"] .cockpit-task-item p,html[data-theme="dark"] .cockpit-task-item small{color:#bfd1d7}html[data-theme="dark"] .cockpit-task-priority{color:#ffe8ad;background:#493c24}html[data-theme="dark"] .cockpit-task-actions button{color:#eaf7f9;background:#203e49;border-color:#607e88}
+  </style>
+  <script>localStorage.setItem("bleu-massawippi-theme","dark")</script>
+</head>
+<body>
+  <main><h1 style="font-size:1rem">À accomplir — recette locale</h1><div id="cards"></div></main>
+  <script type="module" src="../theme.js?v=20260715-b13"></script>
+  <script type="module">
+    import { renderActionTaskCard } from "../task-progress-ui.js?v=20260715-b13";
+    const base={ priorityLabel:"Prévu demain",estimate:10,when:"à l’instant",updatedAt:1 };
+    const task={ id:"ready",targetType:"schedule",targetId:"event-1",title:"Choix média de la direction — Le disque blanc qui nous aide à lire le lac",targetLabel:"Jeudi 16 juillet · Disque de Secchi réel",message:"La direction a choisi le visuel. Vérifier l’accord des deux rôles puis programmer ou publier après les feux verts." };
+    document.querySelector("#cards").innerHTML=renderActionTaskCard({ ...base,task,workflow:{stage:"final_approved"} })+renderActionTaskCard({ ...base,task:{...task,id:"pending",title:"Publication encore à valider"},workflow:{stage:"content_review"} })+renderActionTaskCard({ ...base,task:{...task,id:"finished",title:"Publication programmée"},workflow:{stage:"published"} });
+  </script>
+</body>
+</html>

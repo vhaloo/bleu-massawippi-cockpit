@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import vm from "node:vm";
+import { buildTaskProgressPresentation, renderActionTaskCard } from "./task-progress-ui.js";
 
 const [client, cockpitUi, actionUi, view, rules, indexes, reconcile] = await Promise.all([
   readFile(new URL("./firebase-client.js", import.meta.url), "utf8"),
@@ -110,6 +111,30 @@ assert.match(subscription, /setLocalState\(actionItemId, nextState\)[\s\S]*retai
 assert.match(actionUi, /cockpit:action-item-state-saved[\s\S]*setLocalState/);
 assert.match(actionUi, /navigator\.setAppBadge\?\.\(1\)/, "Le badge PWA doit réutiliser la file déjà chargée sans nouvelle lecture.");
 assert.match(actionUi, /navigator\.clearAppBadge/);
+const mediaReady = buildTaskProgressPresentation(
+  { stage:"content_approved" },
+  { direction:{ status:"selected", mediaIds:["media-1"] }, agreement:{ status:"direction_only" } }
+);
+assert.equal(mediaReady.className, " workflow-ready");
+assert.match(mediaReady.badge, /✓ Texte et visuel validés/);
+assert.match(mediaReady.markup, /✓ Texte[\s\S]*✓ Visuel[\s\S]*>Terminé</);
+const published = buildTaskProgressPresentation({ stage:"published" });
+assert.equal(published.publication, true);
+assert.match(published.badge, /✓ Terminé/);
+const readyCard = renderActionTaskCard({
+  task:{ id:"media-ready", targetType:"schedule", targetId:"event-1", title:"Choix média", message:"Programmer après les feux verts." },
+  priorityLabel:"Prévu demain", estimate:10, when:"à l’instant", updatedAt:1,
+  workflow:{ stage:"final_approved" }, mediaDecision:null
+});
+assert.match(readyCard, /cockpit-task-item workflow-ready/);
+assert.match(readyCard, /aria-label="Avancement : texte approuvé; visuel approuvé; publication à terminer"/);
+const commentCard = renderActionTaskCard({ task:{ id:"comment-1", targetType:"schedule", targetId:"event-1", title:"Consigne" }, priorityLabel:"Maintenant", estimate:5, when:"maintenant", updatedAt:1, workflow:{ stage:"published" } });
+assert.doesNotMatch(commentCard, /workflow-ready|cockpit-task-progress/, "Une nouvelle consigne doit conserver son alerte même si le post est publié.");
+const profileApplication = cockpitUi.slice(cockpitUi.indexOf("async function applyProfile"), cockpitUi.indexOf("function applySignedOut"));
+assert.match(profileApplication, /if \(profile\.role === "admin"\) \{[\s\S]*buildAdminSidebar\(\)[\s\S]*buildTaskWidget\(\)[\s\S]*subscribeActionTasks\(renderActionTasks/,
+  "Le panneau À accomplir et sa souscription doivent rester réservés à Valentin (rôle admin).");
+assert.match(profileApplication, /\} else \{[\s\S]*document\.querySelector\("#cockpit-task-launch"\)\?\.remove\(\)/,
+  "La vue de la direction doit retirer le lanceur À accomplir.");
 assert.match(cockpitUi, /actionItem\?\.dataset\.actionItemId \|\| `media-direction-approval-\$\{card\.dataset\.itemId\}`/,
   "Le retrait d’un média doit retrouver l’action done par son identifiant déterministe et la remettre pending.");
 
