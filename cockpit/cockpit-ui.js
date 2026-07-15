@@ -35,12 +35,13 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-a12";
-import { createEventContextController } from "./event-context-data.js?v=20260714-a12";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-a12";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-a12";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-a12";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-a12";
+} from "./firebase-client.js?v=20260715-b13";
+import { createEventContextController } from "./event-context-data.js?v=20260715-b13";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260715-b13";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260715-b13";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260715-b13";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260715-b13";
+import { renderActionTaskCard } from "./task-progress-ui.js?v=20260715-b13";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -813,11 +814,10 @@ function renderActionTasks(tasks) {
     return;
   }
   list.innerHTML = pending.map((task) => {
-    const isComment = String(task.id || "").startsWith("comment-");
     const priority = actionTaskPriority(task);
     const updatedAt = stateTimestampMillis(task.updatedAt || task.createdAt);
     const estimate = actionTaskEstimate(task);
-    return `<article class="cockpit-task-item${isComment ? " comment-task" : ""}" data-task-id="${esc(task.id)}" data-task-target-type="${esc(task.targetType || "schedule")}" data-task-target="${esc(task.targetId || "")}" data-task-updated-at="${updatedAt}">${isComment ? `<span class="cockpit-task-source">💬 Nouvelle consigne · ${esc(task.createdByLabel || "Direction")}</span>` : ""}<b>${esc(task.title || "Tâche à accomplir")}</b><small>${esc(task.targetLabel || task.targetId || "Cible non précisée")} · ${esc(taskWhen(task))}</small><span class="cockpit-task-priority">Pourquoi maintenant · ${esc(priority.label)}</span><span class="cockpit-task-estimate" aria-label="Durée approximative ${estimate} minutes">≈ ${estimate} min</span><p>${esc(task.message || "")}</p><div class="cockpit-task-actions"><button type="button" data-open-task="${esc(task.id)}" data-task-target-type="${esc(task.targetType || "schedule")}" data-task-target="${esc(task.targetId || "")}">Ouvrir</button><button type="button" data-complete-task="${esc(task.id)}">Marquer complétée</button></div></article>`;
+    return renderActionTaskCard({ task, priorityLabel:priority.label, estimate, when:taskWhen(task), updatedAt, workflow:state.workflows.get(task.targetId), mediaDecision:state.mediaDecisions.get(task.targetId) });
   }).join("");
 }
 
@@ -2277,6 +2277,7 @@ function renderCommentThread(card, sectionId = card.dataset.itemId) {
 
 function renderAllCollaboration() {
   document.querySelectorAll(".post[data-item-id]").forEach((card) => { renderWorkflow(card); renderCommentThread(card); renderEditorialDecision(card); });
+  renderActionTasks(state.tasks);
 }
 
 function stopEventContext() {
