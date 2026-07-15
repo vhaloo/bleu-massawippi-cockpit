@@ -1,4 +1,4 @@
-import { subscribePersonalActionItems } from "./firebase-client.js?v=20260715-b16";
+import { subscribePersonalActionItems } from "./firebase-client.js?v=20260715-b17";
 
 let controller = null;
 let activeProfile = null;
