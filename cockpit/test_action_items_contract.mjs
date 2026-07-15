@@ -108,6 +108,8 @@ assert.match(stateMutation, /queueKey: actionItemQueueKey/);
 assert.doesNotMatch(stateMutation, /getDocs|onSnapshot|query\(/, "La bascule ne doit faire qu’une lecture ciblée, jamais relire la file.");
 assert.match(subscription, /setLocalState\(actionItemId, nextState\)[\s\S]*retainedPages = retainedPages\.map/);
 assert.match(actionUi, /cockpit:action-item-state-saved[\s\S]*setLocalState/);
+assert.match(actionUi, /navigator\.setAppBadge\?\.\(1\)/, "Le badge PWA doit réutiliser la file déjà chargée sans nouvelle lecture.");
+assert.match(actionUi, /navigator\.clearAppBadge/);
 assert.match(cockpitUi, /actionItem\?\.dataset\.actionItemId \|\| `media-direction-approval-\$\{card\.dataset\.itemId\}`/,
   "Le retrait d’un média doit retrouver l’action done par son identifiant déterministe et la remettre pending.");
 
@@ -116,6 +118,8 @@ assert.match(view, /data-vm-media=/);
 assert.match(view, /mediaId: target\.dataset\.vmMedia/);
 assert.match(view, /cockpit:load-more-action-items/);
 assert.match(view, /approve_text_then_media/);
+assert.match(view, /estimatedDecisionMinutes/);
+assert.match(view, /vm-time-estimate/);
 assert.match(view, /\["final_approved", "scheduled", "published"\]/);
 
 assert.match(rules, /match \/actionItems\/\{actionItemId\}/);

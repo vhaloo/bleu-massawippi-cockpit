@@ -1,4 +1,4 @@
-import { subscribeAuditLogs, subscribeCockpitFeedback } from "./firebase-client.js?v=20260714-context-hotfix-v10";
+import { subscribeAuditLogs, subscribeCockpitFeedback } from "./firebase-client.js?v=20260714-finalisation-v11";
 
 let auditUnsubscribe = null;
 let feedbackUnsubscribe = null;

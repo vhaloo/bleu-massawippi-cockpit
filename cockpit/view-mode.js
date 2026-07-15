@@ -765,6 +765,21 @@ function linkButton(event, label = "Ouvrir") {
   return `<button type="button" class="vm-open" data-vm-target="${escapeHtml(targetId)}" data-vm-entity-type="${escapeHtml(event.targetType || "schedule")}"${event.mediaId ? ` data-vm-media="${escapeHtml(event.mediaId)}"` : ""}>${escapeHtml(label)}<span aria-hidden="true">→</span></button>`;
 }
 
+function estimatedDecisionMinutes(event, role) {
+  const text = `${event.action || ""} ${event.whyNow || ""} ${event.title || ""}`.toLocaleLowerCase("fr");
+  if (event.targetType === "internal-project" || event.targetType === "opportunity" || event.targetType === "section") return role === "director" ? 10 : 25;
+  if (/choisir|approuver|valider|confirmer le visuel|confirmer le texte/.test(text)) return role === "director" ? 3 : 5;
+  if (/commentaire|consigne|arbitrer|signaler/.test(text)) return role === "director" ? 5 : 15;
+  if (/publier|programmer|terminer/.test(text)) return 10;
+  if (/réviser|corriger|produire|préparer|intégrer/.test(text)) return role === "director" ? 5 : 25;
+  return role === "director" ? 5 : 15;
+}
+
+function formatEstimatedMinutes(minutes) {
+  if (minutes < 60) return `≈ ${minutes} min`;
+  return `≈ ${String(Math.round(minutes / 15) / 4).replace(".", ",")} h`;
+}
+
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (character) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
@@ -783,8 +798,9 @@ function empty(message) {
 }
 
 function compactEvent(event, now, { showAction = true, showReason = false } = {}) {
+  const estimate = estimatedDecisionMinutes(event, runtime.identity.role);
   return `<article class="vm-event${event.urgency?.className ? ` priority-${event.urgency.className}` : ""}">
-    <div><span class="vm-event-date">${escapeHtml(relativeDateLabel(event.date, now))}</span><h3>${escapeHtml(event.title)}</h3><p>${escapeHtml(event.theme)}${showAction ? ` · ${escapeHtml(event.action)}` : ""}</p></div>
+    <div><span class="vm-event-date">${escapeHtml(relativeDateLabel(event.date, now))}</span><span class="vm-time-estimate" aria-label="Durée approximative ${estimate} minutes">${formatEstimatedMinutes(estimate)}</span><h3>${escapeHtml(event.title)}</h3><p>${escapeHtml(event.theme)}${showAction ? ` · ${escapeHtml(event.action)}` : ""}</p></div>
     ${showReason ? `<span class="vm-why-now"><b>Pourquoi maintenant</b>${escapeHtml(event.whyNow || "Action à traiter")}</span>` : ""}
     ${linkButton(event)}
   </article>`;

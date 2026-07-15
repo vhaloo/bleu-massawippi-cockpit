@@ -35,12 +35,12 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260714-context-hotfix-v10";
-import { createEventContextController } from "./event-context-data.js?v=20260714-context-hotfix-v10";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-context-hotfix-v10";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-context-hotfix-v10";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-context-hotfix-v10";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-context-hotfix-v10";
+} from "./firebase-client.js?v=20260714-finalisation-v11";
+import { createEventContextController } from "./event-context-data.js?v=20260714-finalisation-v11";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260714-finalisation-v11";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260714-finalisation-v11";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260714-finalisation-v11";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260714-finalisation-v11";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -297,6 +297,8 @@ style.textContent = `
   .internal-project-note-box > p { margin:0 0 8px; color:#496d68; font-size:.67rem; line-height:1.4; }
   .internal-project-note-box .cockpit-thread { margin-top:0; border-color:#a7d8d1; background:linear-gradient(180deg,#eaf8f5,#fff); }
   .internal-project-note-box .cockpit-comment-row { border-color:#a7d8d1; background:#eff9f7; }
+  .develop-next-cycle { display:inline-flex; min-height:42px; align-items:center; gap:7px; margin:9px 0 0; padding:8px 11px; border:1px solid #2a9692; border-radius:10px; color:#155953; background:#e7f6f3; font-size:.7rem; font-weight:900; cursor:pointer; }
+  .develop-next-cycle:hover,.develop-next-cycle:focus-visible { color:#fff; background:#207d79; }
   [data-theme="dark"] .internal-project-note-box { border-color:#5f9991; background:#193530; }
   [data-theme="dark"] .internal-project-note-box h5 { color:#b8f1e8; }
   [data-theme="dark"] .internal-project-note-box > p { color:#c3ddd8; }
@@ -361,6 +363,7 @@ style.textContent = `
   .cockpit-task-item p { margin: 4px 0 7px; color: #587680; font-size: .72rem; line-height: 1.38; white-space: pre-wrap; }
   .cockpit-task-item small { display: block; margin-bottom: 7px; color: #78919a; font-size: .66rem; }
   .cockpit-task-priority { display:inline-flex; margin:0 0 5px; padding:3px 7px; border-radius:999px; color:#765116; background:#fff0c7; font-size:.62rem; font-weight:900; }
+  .cockpit-task-estimate { display:inline-flex; margin:0 0 5px 5px; padding:3px 7px; border-radius:999px; color:#315f67; background:#e2f0f1; font-size:.62rem; font-weight:900; }
   .cockpit-task-actions { display: flex; gap: 6px; }
   .cockpit-task-actions button { padding: 5px 7px; border: 1px solid #cbe1e4; border-radius: 7px; color: #315564; background: #fff; font-size: .68rem; font-weight: 800; cursor: pointer; }
   .cockpit-task-actions button[data-complete-task] { border-color: #0b7895; color: #fff; background: #0b7895; }
@@ -696,7 +699,6 @@ function setAdminSidebarOpen(open) {
     sidebar.hidden = false;
     sidebar.removeAttribute("inert");
     sidebar.setAttribute("aria-hidden", "false");
-    // Force le point de départ hors écran avant d'animer l'ouverture.
     void sidebar.offsetWidth;
     sidebar.classList.add("open");
   } else {
@@ -777,6 +779,16 @@ function actionTaskPriority(task, now = new Date()) {
   return { bucket: 4, dateValue: target.valueOf(), label: "À préparer pour la date prévue" };
 }
 
+function actionTaskEstimate(task) {
+  const text = `${task?.title || ""} ${task?.message || ""}`.toLocaleLowerCase("fr");
+  if (task?.targetType === "section") return 25;
+  if (/approuver|valider|choisir|confirmer/.test(text)) return 5;
+  if (/commentaire|consigne|répondre/.test(text)) return 15;
+  if (/publier|programmer|terminer/.test(text)) return 10;
+  if (/réviser|corriger|produire|préparer|intégrer/.test(text)) return 25;
+  return 15;
+}
+
 function renderActionTasks(tasks) {
   state.tasks = Array.isArray(tasks) ? tasks : [];
   const pending = state.tasks.filter((task) => task.status === "pending").sort((left, right) => {
@@ -804,7 +816,8 @@ function renderActionTasks(tasks) {
     const isComment = String(task.id || "").startsWith("comment-");
     const priority = actionTaskPriority(task);
     const updatedAt = stateTimestampMillis(task.updatedAt || task.createdAt);
-    return `<article class="cockpit-task-item${isComment ? " comment-task" : ""}" data-task-id="${esc(task.id)}" data-task-target-type="${esc(task.targetType || "schedule")}" data-task-target="${esc(task.targetId || "")}" data-task-updated-at="${updatedAt}">${isComment ? `<span class="cockpit-task-source">💬 Nouvelle consigne · ${esc(task.createdByLabel || "Direction")}</span>` : ""}<b>${esc(task.title || "Tâche à accomplir")}</b><small>${esc(task.targetLabel || task.targetId || "Cible non précisée")} · ${esc(taskWhen(task))}</small><span class="cockpit-task-priority">Pourquoi maintenant · ${esc(priority.label)}</span><p>${esc(task.message || "")}</p><div class="cockpit-task-actions"><button type="button" data-open-task="${esc(task.id)}" data-task-target-type="${esc(task.targetType || "schedule")}" data-task-target="${esc(task.targetId || "")}">Ouvrir</button><button type="button" data-complete-task="${esc(task.id)}">Marquer complétée</button></div></article>`;
+    const estimate = actionTaskEstimate(task);
+    return `<article class="cockpit-task-item${isComment ? " comment-task" : ""}" data-task-id="${esc(task.id)}" data-task-target-type="${esc(task.targetType || "schedule")}" data-task-target="${esc(task.targetId || "")}" data-task-updated-at="${updatedAt}">${isComment ? `<span class="cockpit-task-source">💬 Nouvelle consigne · ${esc(task.createdByLabel || "Direction")}</span>` : ""}<b>${esc(task.title || "Tâche à accomplir")}</b><small>${esc(task.targetLabel || task.targetId || "Cible non précisée")} · ${esc(taskWhen(task))}</small><span class="cockpit-task-priority">Pourquoi maintenant · ${esc(priority.label)}</span><span class="cockpit-task-estimate" aria-label="Durée approximative ${estimate} minutes">≈ ${estimate} min</span><p>${esc(task.message || "")}</p><div class="cockpit-task-actions"><button type="button" data-open-task="${esc(task.id)}" data-task-target-type="${esc(task.targetType || "schedule")}" data-task-target="${esc(task.targetId || "")}">Ouvrir</button><button type="button" data-complete-task="${esc(task.id)}">Marquer complétée</button></div></article>`;
   }).join("");
 }
 
@@ -1601,7 +1614,8 @@ function renderInternalProjectNotes() {
           <button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire de projet" title="Dicter un commentaire de projet">🎙️</button>
           <button class="save" type="button" data-save-internal-project-comment>Enregistrer</button>
           <div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div>
-        </div>`;
+        </div>
+        <button type="button" class="develop-next-cycle" data-develop-next-cycle="internalProject">📌 À développer au prochain cycle</button>`;
       card.querySelector(".internal-project-body")?.appendChild(box);
     }
     box.dataset.commentSection = sectionId;
@@ -1648,6 +1662,16 @@ function setupInternalProjectEvents() {
     const card = event.target.closest(".internal-project[data-internal-project-id]");
     const noteBox = event.target.closest("[data-internal-project-note-box]");
     const sectionId = noteBox?.dataset.commentSection || (card ? internalProjectCommentSectionId(card.dataset.internalProjectId) : "");
+    const developButton = event.target.closest("button[data-develop-next-cycle]");
+    if (card && developButton && state.profile && ["director", "admin"].includes(state.profile.role)) {
+      const title = card.querySelector(":scope > summary strong")?.textContent?.trim() || card.dataset.internalProjectId;
+      developButton.disabled = true;
+      upsertActionTask(`develop-internal-${card.dataset.internalProjectId}`, { status:"pending", title:`À développer — ${title}`, targetType:"section", targetId:card.id, targetLabel:title, message:"Développer cette fiche au prochain cycle de travail : vérifier les sources, préciser les prochaines actions et préparer les éléments utiles à la décision." }, state.profile)
+        .then(() => toast("Sujet ajouté au prochain cycle de développement."))
+        .catch((error) => toast(error.message, true))
+        .finally(() => { developButton.disabled = false; });
+      return;
+    }
     const resolveCommentButton = event.target.closest("button[data-resolve-comment]");
     if (card && noteBox && resolveCommentButton) {
       resolveCommentButton.disabled = true;
@@ -1799,7 +1823,8 @@ function renderOpportunityNotes() {
           <button type="button" data-dictate aria-pressed="false" aria-label="Dicter une note" title="Dicter une note">🎙️</button>
           <button class="save" type="button" data-save-opportunity-comment>Enregistrer</button>
           <div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre note.</div>
-        </div>`;
+        </div>
+        <button type="button" class="develop-next-cycle" data-develop-next-cycle="opportunity">📌 À développer au prochain cycle</button>`;
       card.querySelector(".opportunity-body")?.appendChild(box);
     }
     box.dataset.commentSection = sectionId;
@@ -1845,6 +1870,16 @@ function setupOpportunityEvents() {
     const card = event.target.closest(".opportunity[data-opportunity-id]");
     const noteBox = event.target.closest("[data-opportunity-note-box]");
     const sectionId = noteBox?.dataset.commentSection || (card ? opportunityCommentSectionId(card.dataset.opportunityId) : "");
+    const developButton = event.target.closest("button[data-develop-next-cycle]");
+    if (card && developButton && state.profile && ["director", "admin"].includes(state.profile.role)) {
+      const title = card.querySelector(":scope > summary strong")?.textContent?.trim() || card.dataset.opportunityId;
+      developButton.disabled = true;
+      upsertActionTask(`develop-opportunity-${card.dataset.opportunityId}`, { status:"pending", title:`À développer — ${title}`, targetType:"section", targetId:card.id, targetLabel:title, message:"Développer cette occasion au prochain cycle : actualiser l’éligibilité, les sources, les documents requis et l’ordre des prochaines actions." }, state.profile)
+        .then(() => toast("Occasion ajoutée au prochain cycle de développement."))
+        .catch((error) => toast(error.message, true))
+        .finally(() => { developButton.disabled = false; });
+      return;
+    }
     const resolveCommentButton = event.target.closest("button[data-resolve-comment]");
     if (card && resolveCommentButton) {
       resolveCommentButton.disabled = true;
@@ -2555,8 +2590,6 @@ async function startDictation(textarea) {
   recognitionLanguageIndex = 0;
   recognitionRestartAttempts = 0;
   recognition.lang = recognitionLanguages[recognitionLanguageIndex];
-  // Une session courte, relancée proprement, est plus fiable que continuous=true
-  // sur Chrome, Edge et Safari, qui interrompent tous trois les longues sessions.
   recognition.continuous = false;
   recognition.interimResults = true;
   recognition.maxAlternatives = 1;
@@ -2774,8 +2807,6 @@ function enhanceCardEvents() {
             const actionItemId = actionItem?.dataset.actionItemId || `media-direction-approval-${card.dataset.itemId}`;
             const resolved = selected && ["agreed", "overridden"].includes(decision?.agreement?.status);
             try {
-              // Le fallback déterministe est indispensable au retour pending :
-              // une action done n'est volontairement plus présente dans la file.
               await setPersonalActionItemState(actionItemId, resolved ? "done" : "pending", state.profile);
             } catch (error) {
               console.warn("La décision média est conservée, mais la file personnelle sera réconciliée au prochain cycle.", error);

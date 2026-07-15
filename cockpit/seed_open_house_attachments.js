@@ -25,6 +25,12 @@ const attachments = [
   }
 ];
 
+const dryRun = process.argv.includes("--dry-run") || !process.argv.includes("--allow-legacy-storage");
+if (dryRun) {
+  console.log(JSON.stringify({ ready: true, dryRun: true, seed: "legacy-open-house-attachments", disabledByDefault: true, reason: "Les médias actifs sont hébergés sur SharePoint; Firebase Storage est conservé seulement pour restaurer un ancien flux explicite.", maximumWrites: 0, attachments: attachments.length }, null, 2));
+  process.exit(0);
+}
+
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) throw new Error("GOOGLE_APPLICATION_CREDENTIALS doit pointer vers un compte de service Firebase privé.");
 const app = initializeApp({ credential: applicationDefault(), projectId, storageBucket: process.env.FIREBASE_STORAGE_BUCKET || undefined });
 const db = getFirestore(app);

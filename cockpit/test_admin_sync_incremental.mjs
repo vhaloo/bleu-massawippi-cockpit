@@ -204,6 +204,43 @@ const baselineDate = new Date("2026-07-01T00:00:00.000Z");
 }
 
 {
+  const sharedTimestamp = new Date("2026-07-14T07:29:00.000Z");
+  const database = new FakeFirestore({
+    mediaLinks: Array.from({ length: 30 }, (_, index) => ({
+      id: `media-${String(index).padStart(2, "0")}`,
+      data: { updatedAt: sharedTimestamp, eventId: "s1d4" }
+    }))
+  });
+  const first = await readIncrementalCollections({
+    db: database,
+    FieldPath,
+    definitions,
+    checkpoint: null,
+    baselineDate,
+    upperBound,
+    overlapSeconds: 120,
+    pageSize: 10,
+    readCap: 25
+  });
+  assert.equal(first.complete, false);
+  assert.ok(first.rowsByCollection.mediaLinks.length > 0);
+  const firstIds = new Set(first.rowsByCollection.mediaLinks.map(({ id }) => id));
+  const second = await readIncrementalCollections({
+    db: database,
+    FieldPath,
+    definitions,
+    checkpoint: { collections: first.collectionCheckpoints },
+    baselineDate,
+    upperBound,
+    overlapSeconds: 120,
+    pageSize: 10,
+    readCap: 25
+  });
+  assert.ok(second.rowsByCollection.mediaLinks.every(({ id }) => !firstIds.has(id)), "La reprise ne doit pas relire la page déjà consommée.");
+  assert.ok(second.collectionCheckpoints.mediaLinks.cursor.id > first.collectionCheckpoints.mediaLinks.cursor.id, "Le curseur doit progresser entre deux passages bornés.");
+}
+
+{
   const redactions = [];
   const normalized = normalizeFirestoreValue({ title: "Visible", apiKey: "secret-value", nested: { refresh_token: "secret-two" } }, "doc", redactions);
   assert.equal(normalized.title, "Visible");

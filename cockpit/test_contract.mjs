@@ -37,6 +37,10 @@ for (const post of posts) {
   assert.ok(Array.isArray(post.tasksValentin) && post.tasksValentin.length > 0, `La publication ${post.id} doit conserver les responsabilités des communications.`);
   assert.ok(Array.isArray(post.tasksAnnie), `La publication ${post.id} doit définir explicitement les responsabilités de la direction, même lorsque la liste est vide.`);
   assert.ok(post.taskOwnersVersion, `La publication ${post.id} doit versionner sa répartition des responsabilités.`);
+  assert.equal(post.tasksValentinMinutes.length, post.tasksValentin.length, `La publication ${post.id} doit estimer chaque tâche des communications.`);
+  assert.equal(post.tasksAnnieMinutes.length, post.tasksAnnie.length, `La publication ${post.id} doit estimer chaque tâche de la direction.`);
+  assert.ok(post.tasksValentinMinutes.every((minutes) => Number.isInteger(minutes) && minutes > 0));
+  assert.ok(post.tasksAnnieMinutes.every((minutes) => Number.isInteger(minutes) && minutes > 0));
 }
 assert.deepEqual(
   Object.fromEntries(posts.filter((post) => post.archivedEditorial === true).map((post) => [post.id, post.dateIso])),
@@ -206,6 +210,12 @@ assert.match(source, /ownerBlock\("Valentin — Directeur des communications"[\s
   "Chaque publication doit afficher les deux colonnes dans l’ordre communications puis direction générale.");
 assert.match(source, /Aucune action requise de la direction générale à cette étape\./,
   "Une absence volontaire de tâche DG doit être expliquée explicitement.");
+assert.match(source, /data-work-role="admin"/);
+assert.match(source, /body:not\(\.cockpit-admin\)[\s\S]{0,180}work-estimate/, "La direction ne doit pas voir les estimations des communications.");
+assert.match(ui, /data-develop-next-cycle="internalProject"/);
+assert.match(ui, /data-develop-next-cycle="opportunity"/);
+assert.match(ui, /develop-internal-/);
+assert.match(ui, /develop-opportunity-/);
 assert.match(source, /Interaction utile, jamais répétitive/);
 assert.match(source, /Meta — engagement authentique/);
 assert.match(source, /<option value="8">Semaine 8<\/option>/);
@@ -407,12 +417,13 @@ assert.match(privateContentSeed, /\.\.\.contentFields,\s*updatedAt: FieldValue\.
 assert.match(seedContentFieldsMatch[1], /dateIso:/, "Chaque événement Firestore doit recevoir sa date ISO canonique.");
 assert.match(privateContentSeed, /else \{\s*batch\.set\(ref, \{\s*\.\.\.contentFields,\s*status: "pending",\s*deleted: false,\s*selected: post\.choiceRequired !== true,\s*updatedAt: FieldValue\.serverTimestamp\(\),\s*updatedBy: "system_seed"/, "Les valeurs d’état initiales doivent être réservées aux nouveaux événements.");
 for (const { file, source: mediaSeed } of mediaSeedSources) {
-  const contentFieldsMatch = mediaSeed.match(/const contentFields = \{([\s\S]*?)\r?\n  \};\r?\n  if \(!existing\.exists\)/);
+  const contentFieldsMatch = mediaSeed.match(/const contentFields = \{([\s\S]*?)\r?\n  \};/);
   assert.ok(contentFieldsMatch, `${file} doit isoler les métadonnées du média de son état collaboratif.`);
   for (const field of ["stage", "publicationBlocked", "archived", "authorUid", "authorLabel", "createdAt", "updatedAt", "updatedBy"]) {
     assert.doesNotMatch(contentFieldsMatch[1], new RegExp(`\\b${field}\\s*:`), `${file} ne doit pas réinitialiser ${field} sur un média existant.`);
   }
-  assert.match(mediaSeed, /else \{\s*batch\.set\(reference, contentFields, \{ merge: true \}\);\s*updated \+= 1;/, `${file} doit préserver les décisions d’un média existant.`);
+  assert.match(mediaSeed, /sameSeedFields\(existing\.data\(\),/, `${file} doit éviter toute écriture lorsque les métadonnées sont déjà identiques.`);
+  assert.match(mediaSeed, /created \+ updated > 0/, `${file} ne doit pas valider un lot vide.`);
 }
 assert.match(natureMediaSeed, /stage: item\.stage \|\| "proposal"/,
   "Le seed nature doit reconstruire l’étape déclarée uniquement lors de la création d’un média.");
