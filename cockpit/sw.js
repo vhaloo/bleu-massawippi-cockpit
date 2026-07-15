@@ -2,8 +2,8 @@
 // Cela force l’activation du nouveau service worker et purge les modules
 // précédemment mis en cache, notamment firebase-client.js.
 const CACHE_PREFIX = "bleu-massawippi-cockpit-shell-";
-const RELEASE = "20260715-b15";
-const CACHE = "bleu-massawippi-cockpit-shell-v53";
+const RELEASE = "20260715-b16";
+const CACHE = "bleu-massawippi-cockpit-shell-v54";
 const SHELL = [
   "./", "./index.html", `./firebase-config.js?v=${RELEASE}`, `./theme.js?v=${RELEASE}`, `./motion.js?v=${RELEASE}`,
   `./cockpit-ui.js?v=${RELEASE}`, `./firebase-client.js?v=${RELEASE}`, `./event-context-data.js?v=${RELEASE}`, `./action-items-ui.js?v=${RELEASE}`, `./client-health-ui.js?v=${RELEASE}`, `./admin-lazy-data.js?v=${RELEASE}`, `./admin-activity-summary.js?v=${RELEASE}`, `./media-choice-ui.js?v=${RELEASE}`, `./task-progress-ui.js?v=${RELEASE}`, `./view-mode.js?v=${RELEASE}`, "./view-mode.css",
@@ -15,13 +15,20 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE).map((key) => caches.delete(key)))).then(() => self.clients.claim()));
+  event.waitUntil(caches.keys()
+    .then((keys) => Promise.all(keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE).map((key) => caches.delete(key))))
+    .then(() => self.clients.claim())
+    .then(() => self.clients.matchAll({ type:"window", includeUncontrolled:true }))
+    .then((clients) => clients.forEach((client) => client.postMessage({ type:"cockpit-update-ready", release:RELEASE }))));
 });
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
-  event.respondWith(fetch(event.request).then((response) => {
-    if (response.ok && new URL(event.request.url).origin === self.location.origin) {
+  const requestUrl = new URL(event.request.url);
+  const sameOrigin = requestUrl.origin === self.location.origin;
+  const shellRequest = sameOrigin && (event.request.mode === "navigate" || ["script", "style", "worker"].includes(event.request.destination));
+  event.respondWith(fetch(event.request, shellRequest ? { cache:"no-store" } : undefined).then((response) => {
+    if (response.ok && sameOrigin) {
       const copy = response.clone();
       caches.open(CACHE).then((cache) => cache.put(event.request, copy));
     }

@@ -162,6 +162,14 @@ assert.match(cockpitUi, /const resolved = selected;/,
   "Le choix de la direction doit fermer sa décision personnelle sans attendre un second clic des communications.");
 assert.match(cockpitUi, /notifyViewUpdate\("task-completed"\)/,
   "Marquer complétée doit élaguer immédiatement les vues locales sans relecture supplémentaire.");
+assert.match(client, /includeMetadataChanges: true/,
+  "Le workflow persistant doit signaler le passage du cache au serveur même si les documents sont identiques.");
+assert.match(cockpitUi, /document\.body\.dataset\.workflowSync = meta\.fromCache \? "cache" : "server"/,
+  "La coque doit publier la fraîcheur du workflow pour les deux vues.");
+assert.match(cockpitUi, /task\.targetType !== "schedule" \|\| current/,
+  "À accomplir ne doit pas présenter une ancienne tâche de publication comme actuelle avant la confirmation serveur.");
+assert.match(view, /const decisionsAreCurrent = workflowSync === "server"/,
+  "Décisions qui m’attendent doit attendre la confirmation serveur au lieu de ressusciter le plan statique mobile.");
 
 assert.match(rules, /match \/actionItems\/\{actionItemId\}/);
 assert.match(rules, /resource\.data\.assigneeUid == request\.auth\.uid[\s\S]*resource\.data\.assigneeRole == userRole\(\)/);

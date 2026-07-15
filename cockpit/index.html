@@ -18,13 +18,53 @@
   <main id="cockpit-content" tabindex="-1"></main>
   <div id="cockpit-announcer" class="cockpit-visually-hidden" aria-live="polite" aria-atomic="true"></div>
   <noscript>Ce cockpit nécessite JavaScript pour ouvrir une session sécurisée.</noscript>
-  <script src="./firebase-config.js?v=20260715-b15"></script>
+  <script src="./firebase-config.js?v=20260715-b16"></script>
   <script>
-    if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch((error) => console.warn("Service worker indisponible", error)));
+    (() => {
+      const release = "20260715-b16";
+      const reloadKey = `cockpit-shell-reload-${release}`;
+      const showUpdate = () => {
+        if (document.querySelector("#cockpit-update-ready")) return;
+        const notice = document.createElement("aside");
+        notice.id = "cockpit-update-ready";
+        notice.setAttribute("role", "status");
+        notice.innerHTML = `<span>Une version plus récente du cockpit est prête.</span><button type="button">Actualiser maintenant</button>`;
+        Object.assign(notice.style, { position:"fixed", left:"50%", bottom:"16px", transform:"translateX(-50%)", zIndex:"220", display:"flex", alignItems:"center", gap:"10px", width:"min(92vw,520px)", padding:"11px 14px", border:"1px solid #77b8c5", borderRadius:"14px", color:"#f7ffff", background:"#123f50", boxShadow:"0 12px 32px rgba(0,0,0,.28)", font:"600 .82rem/1.35 system-ui,sans-serif" });
+        const button = notice.querySelector("button");
+        Object.assign(button.style, { minHeight:"40px", padding:"7px 11px", border:"1px solid #b9e1e7", borderRadius:"9px", color:"#073a52", background:"#fff", font:"inherit", fontWeight:"800", cursor:"pointer" });
+        button.addEventListener("click", () => { sessionStorage.setItem(reloadKey, release); location.reload(); });
+        document.body.appendChild(notice);
+      };
+      if (!("serviceWorker" in navigator)) return;
+      let controllerChanged = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (controllerChanged) return;
+        controllerChanged = true;
+        const sessionIsOpen = Boolean(document.querySelector("#cockpit-session"));
+        if (!sessionIsOpen && sessionStorage.getItem(reloadKey) !== release) {
+          sessionStorage.setItem(reloadKey, release);
+          location.reload();
+          return;
+        }
+        showUpdate();
+      });
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        if (event.data?.type === "cockpit-update-ready" && event.data.release !== release) showUpdate();
+      });
+      window.addEventListener("load", async () => {
+        try {
+          const registration = await navigator.serviceWorker.register("./sw.js", { scope: "./", updateViaCache: "none" });
+          await registration.update();
+          if (registration.waiting && navigator.serviceWorker.controller) showUpdate();
+        } catch (error) {
+          console.warn("Service worker indisponible", error);
+        }
+      });
+    })();
   </script>
-  <script type="module" src="./theme.js?v=20260715-b15"></script>
-  <script type="module" src="./motion.js?v=20260715-b15"></script>
-  <script type="module" src="./cockpit-ui.js?v=20260715-b15"></script>
-  <script type="module" src="./view-mode.js?v=20260715-b15"></script>
+  <script type="module" src="./theme.js?v=20260715-b16"></script>
+  <script type="module" src="./motion.js?v=20260715-b16"></script>
+  <script type="module" src="./cockpit-ui.js?v=20260715-b16"></script>
+  <script type="module" src="./view-mode.js?v=20260715-b16"></script>
 </body>
 </html>

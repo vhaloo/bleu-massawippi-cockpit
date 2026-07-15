@@ -35,13 +35,13 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260715-b15";
-import { createEventContextController } from "./event-context-data.js?v=20260715-b15";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260715-b15";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260715-b15";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260715-b15";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260715-b15";
-import { actionTaskShouldRemain, renderActionTaskCard } from "./task-progress-ui.js?v=20260715-b15";
+} from "./firebase-client.js?v=20260715-b16";
+import { createEventContextController } from "./event-context-data.js?v=20260715-b16";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260715-b16";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260715-b16";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260715-b16";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260715-b16";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260715-b16";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -760,43 +760,14 @@ function taskWhen(task) {
   return task.createdAt?.toDate ? task.createdAt.toDate().toLocaleString("fr-CA") : "date en attente";
 }
 
-function taskPlanDate(task) {
-  if (task.targetType !== "schedule") return null;
-  const item = Array.isArray(globalThis.posts) ? globalThis.posts.find((post) => post.id === task.targetId) : null;
-  const match = String(item?.dateIso || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return null;
-  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12);
-}
-
-function actionTaskPriority(task, now = new Date()) {
-  const date = taskPlanDate(task);
-  if (!date) return { bucket: 3, dateValue: Number.POSITIVE_INFINITY, label: "Consigne active sans échéance datée" };
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const distance = Math.round((target - today) / 86400000);
-  if (distance < 0) return { bucket: 0, dateValue: target.valueOf(), label: "Échéance passée — à traiter maintenant" };
-  if (distance === 0) return { bucket: 1, dateValue: target.valueOf(), label: "Prévu aujourd’hui" };
-  if (distance <= 2) return { bucket: 2, dateValue: target.valueOf(), label: distance === 1 ? "Prévu demain" : "Prévu dans les 48 h" };
-  return { bucket: 4, dateValue: target.valueOf(), label: "À préparer pour la date prévue" };
-}
-
-function actionTaskEstimate(task) {
-  const text = `${task?.title || ""} ${task?.message || ""}`.toLocaleLowerCase("fr");
-  if (task?.targetType === "section") return 25;
-  if (/approuver|valider|choisir|confirmer/.test(text)) return 5;
-  if (/commentaire|consigne|répondre/.test(text)) return 15;
-  if (/publier|programmer|terminer/.test(text)) return 10;
-  if (/réviser|corriger|produire|préparer|intégrer/.test(text)) return 25;
-  return 15;
-}
-
 function renderActionTasks(tasks) {
   state.tasks = Array.isArray(tasks) ? tasks : [];
+  const current = workflowSyncIsUsable(document.body.dataset.workflowSync, { safeMode, offline:globalThis.navigator?.onLine === false });
   const pending = state.tasks.filter((task) => actionTaskShouldRemain(
     task,
     state.workflows.get(task.targetId),
     state.commentsByEvent.get(task.targetId) || []
-  )).sort((left, right) => {
+  ) && (task.targetType !== "schedule" || current)).sort((left, right) => {
     const leftPriority = actionTaskPriority(left);
     const rightPriority = actionTaskPriority(right);
     return leftPriority.bucket - rightPriority.bucket
@@ -814,7 +785,7 @@ function renderActionTasks(tasks) {
   const list = document.querySelector("#cockpit-task-list");
   if (!list) return;
   if (!pending.length) {
-    list.innerHTML = "<p class=\"cockpit-task-empty\">Aucune tâche en attente. Les décisions acceptées et les éléments marqués comme complétés disparaissent de cette liste.</p>";
+    list.innerHTML = actionTaskEmptyMarkup(current);
     return;
   }
   list.innerHTML = pending.map((task) => {
@@ -2973,6 +2944,7 @@ function clearPrivateContent() {
 
 async function applyProfile(profile) {
   state.profile = profile;
+  document.body.dataset.workflowSync = "pending";
   await waitForClientReady();
   const loginNote = document.querySelector("#cockpit-login-note");
   if (loginNote) loginNote.textContent = "Identifiants vérifiés. Chargement du cockpit…";
@@ -3088,6 +3060,13 @@ function applySignedOut(message = "") {
   if (retry) { retry.hidden = true; retry.onclick = null; }
 }
 
+function syncWorkflow(rows, meta) {
+  state.workflows = new Map(rows.map((row) => [row.eventId || row.id, row]));
+  document.body.dataset.workflowSync = meta.fromCache ? "cache" : "server";
+  renderAllCollaboration();
+  notifyViewUpdate(meta.fromCache ? "workflow-cache" : "workflow-server");
+}
+
 function subscribeRemoteData() {
   if (!configured || !state.profile) return;
   state.scheduleUnsubscribe?.();
@@ -3106,11 +3085,7 @@ function subscribeRemoteData() {
       notifyViewUpdate("media-decisions-cache");
     }, (error) => console.warn("Décisions média absentes du cache", error));
     state.workflowUnsubscribe?.();
-    state.workflowUnsubscribe = subscribeWorkflowStates((rows) => {
-      state.workflows = new Map(rows.map((row) => [row.eventId || row.id, row]));
-      renderAllCollaboration();
-      notifyViewUpdate("workflow-cache");
-    }, (error) => console.warn("Workflows absents du cache", error));
+    state.workflowUnsubscribe = subscribeWorkflowStates(syncWorkflow, (error) => console.warn("Workflows absents du cache", error));
     state.decisionUnsubscribe?.();
     state.decisionUnsubscribe = subscribeEditorialDecisions((rows) => {
       state.decisions = new Map(rows.map((row) => [row.eventId || row.id, row]));
@@ -3147,9 +3122,7 @@ function subscribeRemoteData() {
     state.commentsByEvent = grouped; renderAllCollaboration(); renderOpportunityNotes(); renderInternalProjectNotes(); renderAllMedia(); notifyViewUpdate("comments");
   }, (error) => toast("Le fil de commentaires n’est pas accessible : " + error.message, true));
   state.workflowUnsubscribe?.();
-  state.workflowUnsubscribe = subscribeWorkflowStates((rows) => {
-    state.workflows = new Map(rows.map((row) => [row.eventId || row.id, row])); renderAllCollaboration(); notifyViewUpdate("workflow");
-  }, (error) => toast("Le cycle de validation n’est pas accessible : " + error.message, true));
+  state.workflowUnsubscribe = subscribeWorkflowStates(syncWorkflow, (error) => toast("Le cycle de validation n’est pas accessible : " + error.message, true));
   state.opportunityUnsubscribe?.();
   state.opportunityUnsubscribe = subscribeOpportunityStates((rows) => {
     state.opportunities = new Map(rows.map((row) => [row.opportunityId || row.id, row]));

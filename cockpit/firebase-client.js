@@ -105,7 +105,7 @@ function recordConfirmedWrites(count = 1) {
   emitDiagnostics();
 }
 
-function trackedOnSnapshot(name, reference, onNext, onError) {
+function trackedOnSnapshot(name, reference, onNext, onError, { includeMetadataChanges = false } = {}) {
   const listenerId = `${String(name || "listener").slice(0, 80)}#${++listenerSequence}`;
   activeListenerNames.set(listenerId, String(name || "listener").slice(0, 80));
   diagnostics.activeListeners = activeListenerNames.size;
@@ -113,6 +113,7 @@ function trackedOnSnapshot(name, reference, onNext, onError) {
   let closed = false;
   const unsubscribe = onSnapshot(
     reference,
+    { includeMetadataChanges },
     (snapshot) => {
       const size = Number.isFinite(snapshot?.size) ? snapshot.size : snapshot?.exists?.() ? 1 : 0;
       diagnostics.deliveredDocuments += size;
@@ -609,7 +610,10 @@ export async function setWorkflowStage(eventId, stage, profile) {
 export function subscribeWorkflowStates(callback, onError) {
   requireConfigured();
   const statesQuery = query(collection(db, "workflowStates"), orderBy("updatedAt", "desc"), limit(100));
-  return trackedOnSnapshot("workflowStates", statesQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+  return trackedOnSnapshot("workflowStates", statesQuery, (snapshot) => callback(
+    snapshot.docs.map((item) => ({ id: item.id, ...item.data() })),
+    { fromCache: snapshot.metadata.fromCache, hasPendingWrites: snapshot.metadata.hasPendingWrites }
+  ), onError, { includeMetadataChanges: true });
 }
 
 const opportunityStages = new Set(["watch", "research", "active", "submitted", "completed"]);

@@ -21,8 +21,11 @@ const healthUi = fs.readFileSync(new URL("./client-health-ui.js", import.meta.ur
 const adminLazyUi = fs.readFileSync(new URL("./admin-lazy-data.js", import.meta.url), "utf8");
 const mediaChoiceUi = fs.readFileSync(new URL("./media-choice-ui.js", import.meta.url), "utf8");
 assert.match(cockpitUi, new RegExp(`action-items-ui\\.js\\?v=${release}`), "Le module actionItems doit partager la version du shell.");
-assert.match(index, /serviceWorker\.register\("\.\/sw\.js", \{ scope: "\.\/" \}\)/,
+assert.match(index, /serviceWorker\.register\("\.\/sw\.js", \{ scope: "\.\/", updateViaCache: "none" \}\)/,
   "Le service worker doit conserver la portée locale exigée par GitHub Pages.");
+assert.match(index, /registration\.update\(\)/, "Chaque ouverture doit vérifier la coque sans attendre le cache HTTP de GitHub Pages.");
+assert.match(index, /controllerchange/, "La PWA doit détecter l’activation d’une nouvelle coque.");
+assert.match(index, /Actualiser maintenant/, "Une session active doit proposer une actualisation explicite plutôt que perdre une saisie.");
 for (const resource of ["firebase-config.js", "theme.js", "motion.js", "cockpit-ui.js", "event-context-data.js", "action-items-ui.js", "client-health-ui.js", "admin-lazy-data.js", "media-choice-ui.js", "task-progress-ui.js", "view-mode.js"]) {
   assert.match(worker, new RegExp(resource.replace(".", "\\.")), `${resource} doit faire partie du shell hors ligne.`);
   assert.match(deploymentWorkflow, new RegExp(`cp cockpit/${resource.replace(".", "\\.")} public/`), `${resource} doit faire partie de l’artefact GitHub Pages.`);
@@ -36,6 +39,8 @@ assert.ok(worker.includes("`./firebase-client.js?v=${RELEASE}`") || new RegExp(`
   "Le shell doit précharger le même singleton Firebase que les modules UI.");
 assert.match(worker, /key\.startsWith\(CACHE_PREFIX\) && key !== CACHE/, "La purge doit rester limitée aux anciens caches du cockpit.");
 assert.match(worker, /event\.request\.method !== "GET"/, "Le cache ne doit jamais intercepter les écritures.");
+assert.match(worker, /shellRequest \? \{ cache:"no-store" \} : undefined/, "Les navigations et modules doivent contourner le cache HTTP périmé quand le réseau répond.");
+assert.match(worker, /postMessage\(\{ type:"cockpit-update-ready", release:RELEASE \}\)/, "Le nouveau worker doit prévenir les fenêtres déjà ouvertes.");
 
 const testScript = packageFile.scripts?.test || "";
 for (const script of ["test:shell", "test:motion-install", "test:resilience", "test:sync", "test:media", "test:view-mode", "test:action-items", "test:contract", "test:quality"]) {
