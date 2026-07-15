@@ -92,6 +92,8 @@ jobs:
           cp cockpit/sw.js public/
           cp cockpit/icon.svg public/
           cp cockpit/icons.svg public/
+          mkdir -p public/project-documents
+          cp cockpit/project-documents/*.pdf public/project-documents/
           cp SOURCES_ET_GARDES_FOUS.md public/
       - name: Préparer l’artefact Pages
         uses: actions/upload-pages-artifact@v3

@@ -334,8 +334,8 @@ for (const token of ["stateTimestampMillis", "actionTaskPriority", "data-task-ta
 for (const token of ["roleDecisionForEvent", "roleDecisionModels", "pendingTaskModels", "mediaUpdatedAfterWorkflow", "Pourquoi maintenant", "left.urgency.rank", "Nouvelle consigne de la direction", "Texte prêt pour votre validation"]) {
   assert.ok(viewMode.includes(token), `La vue essentielle doit prioriser les décisions avec ${token}.`);
 }
-assert.match(viewMode, /if \(role === "admin" && latestTask\)/,
-  "Une tâche transmise par la direction doit apparaître seulement dans la file des communications.");
+assert.match(viewMode, /if \(role === "admin" && latestTask && \(!event\.complete \|\| hasPostClosureTask\)\)/,
+  "Une tâche récente transmise par la direction doit apparaître seulement dans la file des communications, sans ressusciter une publication terminée.");
 assert.match(viewMode, /if \(role === "director"\)[\s\S]{0,1800}if \(role === "admin"\)/,
   "Les décisions de la direction et des communications doivent rester séparées par rôle.");
 assert.match(viewMode, /event\.media\.latestUpdate > event\.workflowUpdatedAt/,
@@ -371,8 +371,8 @@ assert.equal((source.match(/data-opportunity-id=/g) || []).length, 8);
 assert.match(source, /data-project-register[^>]*data-layout-version="2026-07-13-opportunities-notes-v3"/);
 assert.match(source, /Échéancier de détection proposé/);
 assert.match(source, /ne pas précipiter une candidature 2026 incomplète/i);
-assert.equal((source.match(/data-internal-project-id=/g) || []).length, 12, "Le registre privé doit contenir les douze projets internes documentés.");
-assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-07-13-internal-projects-comments-v4"/);
+assert.equal((source.match(/data-internal-project-id=/g) || []).length, 13, "Le registre privé doit contenir les treize projets internes documentés.");
+assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-07-15-massawippi-en-partage-v1"/);
 const internalProjectIds = [...source.matchAll(/data-internal-project-id="([a-z0-9-]+)"/g)].map((match) => match[1]).sort();
 const internalProjectSeedIds = [...internalProjectSeed.matchAll(/^  "([a-z0-9-]+)": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm)].map((match) => match[1]).sort();
 assert.deepEqual(internalProjectSeedIds, internalProjectIds, "Les cartes et le seed des projets internes doivent utiliser exactement les mêmes identifiants.");
@@ -385,14 +385,14 @@ assert.match(internalProjectSeed, /"jeux-provinciaux-peche": "completed"/,
 for (const stage of ["to_frame", "planned", "active", "blocked", "completed"]) {
   assert.ok(client.includes(`"${stage}"`) && firestoreRules.includes(`'${stage}'`) && internalProjectSeed.includes(`"${stage}"`), `L’étape interne ${stage} doit rester alignée entre client, règles et initialisation.`);
 }
-assert.equal((internalProjectSeed.match(/^  "[a-z0-9-]+": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm) || []).length, 12, "Le seed initial doit couvrir les douze projets internes documentés.");
-assert.equal(internalProjectDocuments.documents.length, 12, "Chaque projet interne doit avoir un dossier de proposition assaini.");
-assert.equal(new Set(internalProjectDocuments.documents.map((item) => item.id)).size, 12, "Chaque dossier partageable doit viser un projet distinct.");
+assert.equal((internalProjectSeed.match(/^  "[a-z0-9-]+": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm) || []).length, 13, "Le seed initial doit couvrir les treize projets internes documentés.");
+assert.equal(internalProjectDocuments.documents.length, 13, "Chaque projet interne doit avoir un dossier de proposition assaini.");
+assert.equal(new Set(internalProjectDocuments.documents.map((item) => item.id)).size, 13, "Chaque dossier partageable doit viser un projet distinct.");
 assert.equal(internalProjectDocuments.redaction, "Valentin Wittwe, directeur des communications, Bleu Massawippi");
 for (const document of internalProjectDocuments.documents) {
   assert.ok(internalProjectIds.includes(document.id), `Le dossier ${document.id} doit correspondre à une fiche du cockpit.`);
   assert.match(document.file, /^Proposition_assainie_.+\.pdf$/);
-  assert.match(document.url, /^https:\/\/bleumassawippi\.sharepoint\.com\/:b:\/g\//);
+  assert.match(document.url, /^(?:https:\/\/bleumassawippi\.sharepoint\.com\/:b:\/g\/|\.\/project-documents\/)/);
   assert.ok(ui.includes(document.url), `Le dossier ${document.id} doit être raccordé à son bouton dans l’interface.`);
 }
 assert.match(ui, /decorateInternalProjectDocuments/);
@@ -432,4 +432,4 @@ assert.match(natureMediaSeed, /publicationBlocked: item\.publicationBlocked === 
   "Le seed nature doit reconstruire le blocage éditorial d’une référence non diffusable.");
 assert.match(natureMediaSeed, /archived: item\.archived === true/,
   "Le seed nature doit garder les anciennes variantes hors des propositions actives lors d’une reconstruction.");
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 8, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 12, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 449 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 8, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 13, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 454 }, null, 2));

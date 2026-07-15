@@ -35,13 +35,13 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260715-b13";
-import { createEventContextController } from "./event-context-data.js?v=20260715-b13";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260715-b13";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260715-b13";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260715-b13";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260715-b13";
-import { renderActionTaskCard } from "./task-progress-ui.js?v=20260715-b13";
+} from "./firebase-client.js?v=20260715-b14";
+import { createEventContextController } from "./event-context-data.js?v=20260715-b14";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260715-b14";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260715-b14";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260715-b14";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260715-b14";
+import { renderActionTaskCard } from "./task-progress-ui.js?v=20260715-b14";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -888,8 +888,16 @@ function enhanceTaskEvents() {
     const completeButton = event.target.closest("[data-complete-task]");
     if (!completeButton || !state.profile || !["director", "admin"].includes(state.profile.role)) return;
     completeButton.disabled = true;
-    completeActionTask(completeButton.dataset.completeTask, state.profile)
-      .then(() => toast("Tâche marquée comme complétée."))
+    const taskId = completeButton.dataset.completeTask;
+    completeActionTask(taskId, state.profile)
+      .then(() => {
+        // Le listener confirmera ensuite l'état distant. Cette mise à jour
+        // locale retire immédiatement la tâche des deux vues sans relecture.
+        state.tasks = state.tasks.map((task) => task.id === taskId ? { ...task, status: "done" } : task);
+        renderActionTasks(state.tasks);
+        notifyViewUpdate("task-completed");
+        toast("Tâche marquée comme complétée.");
+      })
       .catch((error) => toast(error.message, true))
       .finally(() => { completeButton.disabled = false; });
   });
@@ -1525,6 +1533,7 @@ const internalProjectStageLabels = {
 
 const internalProjectDocuments = {
   "lamproie-du-nord": "https://bleumassawippi.sharepoint.com/:b:/g/IQCTFvLyX6jASbAvhxiNBV24AecNyeSIKocEE4rugzpUwMg",
+  "application-carte-vivante-lac": "./project-documents/Proposition_assainie_application-carte-vivante-lac_v1.pdf",
   "parc-lobadanaki": "https://bleumassawippi.sharepoint.com/:b:/g/IQDoNKmVAwRiS6zoxpdBGKG9AcPqhdAixzzaNF-UciMEU48",
   "bilan-sante-lac": "https://bleumassawippi.sharepoint.com/:b:/g/IQAPfrI-SyafSJp2pIEkUvklAXkVc-8K91CfggeQG9-nlgM",
   "jeux-provinciaux-peche": "https://bleumassawippi.sharepoint.com/:b:/g/IQCAYpT7T1UfT7yHeonaWBSQAaRfSBVh-5lf3oyWyZyxB2Y",
@@ -2806,7 +2815,10 @@ function enhanceCardEvents() {
             const actionItem = [...document.querySelectorAll("#cockpit-action-item-source [data-action-item-id]")]
               .find((item) => item.dataset.actionTarget === card.dataset.itemId && (!item.dataset.actionMedia || item.dataset.actionMedia === mediaId));
             const actionItemId = actionItem?.dataset.actionItemId || `media-direction-approval-${card.dataset.itemId}`;
-            const resolved = selected && ["agreed", "overridden"].includes(decision?.agreement?.status);
+            // Le choix de la direction clôt sa propre décision. L'accord des
+            // deux rôles reste visible séparément, mais ne garde jamais une
+            // tâche déjà accomplie dans la file personnelle de la direction.
+            const resolved = selected;
             try {
               await setPersonalActionItemState(actionItemId, resolved ? "done" : "pending", state.profile);
             } catch (error) {
