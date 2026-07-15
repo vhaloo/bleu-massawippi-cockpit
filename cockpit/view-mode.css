@@ -296,6 +296,24 @@
   letter-spacing: .025em;
 }
 
+.vm-time-estimate {
+  display: inline-flex;
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  color: #315f67;
+  background: #e1eff0;
+  font-size: .61rem;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.priority-urgent .vm-time-estimate { color: #843a35; background: #f8d9d5; }
+.priority-current-week .vm-time-estimate { color: #765116; background: #f9e4b3; }
+[data-theme="dark"] .vm-time-estimate { color: #d8f4f2; background: #31535a; }
+[data-theme="dark"] .priority-urgent .vm-time-estimate { color: #ffe2dd; background: #753f3d; }
+[data-theme="dark"] .priority-current-week .vm-time-estimate { color: #ffe7ae; background: #6b5327; }
+
 .vm-open {
   display: inline-flex;
   min-height: 44px;

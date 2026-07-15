@@ -380,6 +380,12 @@ export async function readIncrementalCollections({
   const states = definitions.map((definition) => {
     const previous = checkpoint?.collections?.[definition.name] || null;
     const cursorDate = dateValue(previous?.cursor?.timestamp);
+    const resumeCursor = previous?.exhausted === false
+      && previous?.cursor?.kind === "document"
+      && cursorDate
+      && typeof previous.cursor.id === "string"
+      ? { timestamp: cursorDate, id: previous.cursor.id }
+      : null;
     const lowerBound = cursorDate
       ? new Date(Math.max(baselineDate.valueOf(), cursorDate.valueOf() - overlapSeconds * 1000))
       : baselineDate;
@@ -387,7 +393,9 @@ export async function readIncrementalCollections({
       ...definition,
       previous,
       lowerBound,
-      continuation: null,
+      // Une collecte interrompue par le plafond doit reprendre après le dernier
+      // document lu. Le chevauchement ne recommence qu'une fois la borne atteinte.
+      continuation: resumeCursor,
       lastReturned: null,
       queried: false,
       exhausted: false,

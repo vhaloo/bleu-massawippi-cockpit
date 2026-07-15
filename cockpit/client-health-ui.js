@@ -5,7 +5,7 @@ import {
   setPersistentCachePreference,
   requestSafeMode,
   forgetThisDevice
-} from "./firebase-client.js?v=20260714-context-hotfix-v10";
+} from "./firebase-client.js?v=20260714-finalisation-v11";
 
 let unsubscribeDiagnostics = null;
 

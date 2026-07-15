@@ -4,8 +4,8 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { applicationDefault, initializeApp } from "firebase-admin/app";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
+import { dryRunSummary, isDryRun, sameSeedFields } from "./seed_utils.js";
 
-if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) throw new Error("GOOGLE_APPLICATION_CREDENTIALS doit pointer vers un compte de service Firebase privé.");
 const here = path.dirname(fileURLToPath(import.meta.url));
 const manifest = JSON.parse(fs.readFileSync(path.join(here, "editorial_media_manifest.json"), "utf8"));
 const eventFilter = process.argv.slice(2).find((arg) => arg.startsWith("--event="))?.slice("--event=".length).trim() || "";
@@ -14,11 +14,20 @@ if (!selectedManifest.length) throw new Error(`Aucun média éditorial trouvé p
 const linksPath = path.join(here, "secrets", "editorial-media-links.json");
 if (!fs.existsSync(linksPath)) throw new Error("Le registre local secrets/editorial-media-links.json est requis et ne doit jamais être publié.");
 const links = JSON.parse(fs.readFileSync(linksPath, "utf8"));
+for (const item of selectedManifest) {
+  if (!/^https:\/\/bleumassawippi\.sharepoint\.com\/:(?:i|v):\/g\//.test(links[item.fileName] || "")) throw new Error(`Lien SharePoint privé manquant pour ${item.fileName}.`);
+}
+if (isDryRun()) {
+  console.log(JSON.stringify(dryRunSummary("editorial-media", selectedManifest, { eventFilter: eventFilter || null, events: new Set(selectedManifest.map((item) => item.eventId)).size }), null, 2));
+  process.exit(0);
+}
+if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) throw new Error("GOOGLE_APPLICATION_CREDENTIALS doit pointer vers un compte de service Firebase privé.");
 const app = initializeApp({ credential: applicationDefault(), projectId: process.env.GOOGLE_CLOUD_PROJECT || undefined });
 const db = getFirestore(app);
 const batch = db.batch();
 let created = 0;
 let updated = 0;
+let unchanged = 0;
 
 for (const item of selectedManifest) {
   const url = links[item.fileName];
@@ -30,17 +39,23 @@ for (const item of selectedManifest) {
     note: item.note || `Visuel original, format 4:5 (1080 × 1350). ${item.altText} Vérifier une dernière fois le texte et les faits avant diffusion.`,
     altText: item.altText, rightsStatus: item.rightsStatus || "original"
   };
+  const safetyFields = {
+    ...(item.publicationBlocked === true ? { publicationBlocked: true } : {}),
+    ...(item.archived === true ? { archived: true, selectedFinal: false } : {})
+  };
   if (!existing.exists) {
     batch.set(reference, {
-      ...contentFields, stage: item.stage || "proposal", publicationBlocked: false, archived: false,
+      ...contentFields, stage: item.stage || "proposal", publicationBlocked: item.publicationBlocked === true, archived: item.archived === true,
       authorUid: "system-seed", authorLabel: "Série éditoriale originale",
       createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp(), updatedBy: "system-seed"
     }, { merge: true });
     created += 1;
-  } else {
-    batch.set(reference, contentFields, { merge: true });
+  } else if (!sameSeedFields(existing.data(), { ...contentFields, ...safetyFields })) {
+    batch.set(reference, { ...contentFields, ...safetyFields, updatedAt: FieldValue.serverTimestamp(), updatedBy: "system-seed" }, { merge: true });
     updated += 1;
+  } else {
+    unchanged += 1;
   }
 }
-await batch.commit();
-console.log(JSON.stringify({ seeded: true, eventFilter: eventFilter || null, media: selectedManifest.length, created, updated, events: new Set(selectedManifest.map((item) => item.eventId)).size }, null, 2));
+if (created + updated > 0) await batch.commit();
+console.log(JSON.stringify({ seeded: true, eventFilter: eventFilter || null, media: selectedManifest.length, created, updated, unchanged, writes: created + updated, events: new Set(selectedManifest.map((item) => item.eventId)).size }, null, 2));

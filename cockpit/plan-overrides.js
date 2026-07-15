@@ -15,6 +15,16 @@ const PLAN_MONTHS = new Map([
   ["décembre", 12], ["decembre", 12]
 ]);
 
+function estimateTaskMinutes(task, role) {
+  const text = String(task || "").toLocaleLowerCase("fr");
+  if (/approuver|valider|choisir|signaler|prendre connaissance/.test(text)) return role === "director" ? 3 : 5;
+  if (/confirmer|vérifier|lire|arbitrer/.test(text)) return role === "director" ? 5 : 10;
+  if (/contacter|rendez-vous|partenaire|consentement|autorisation/.test(text)) return 15;
+  if (/publier|programmer|répondre aux premiers commentaires/.test(text)) return 10;
+  if (/produire|rédiger|construire|finaliser|synthétiser|documenter|préparer/.test(text)) return 30;
+  return role === "director" ? 5 : 15;
+}
+
 export function planDateIsoFromLabel(value, year = PLAN_YEAR) {
   const match = String(value || "").toLocaleLowerCase("fr-CA").match(/(\d{1,2})(?:er)?\s+([a-zéûô]+)/i);
   const month = match ? PLAN_MONTHS.get(match[2]) : null;
@@ -313,6 +323,13 @@ export function applyPlanOverridesToPosts(posts) {
     const dateIso = planDateIsoFromLabel(post.date) || ARCHIVED_DATE_ISO.get(post.id);
     if (dateIso) post.dateIso = dateIso;
     else delete post.dateIso;
+    const communicationsTasks = Array.isArray(post.tasksValentin) ? post.tasksValentin : [post.task].filter(Boolean);
+    const directionTasks = Array.isArray(post.tasksAnnie) ? post.tasksAnnie : [];
+    post.tasksValentinMinutes = communicationsTasks.map((task) => estimateTaskMinutes(task, "admin"));
+    post.tasksAnnieMinutes = directionTasks.map((task) => estimateTaskMinutes(task, "director"));
+    post.estimatedMinutesValentin = post.tasksValentinMinutes.reduce((sum, value) => sum + value, 0);
+    post.estimatedMinutesAnnie = post.tasksAnnieMinutes.reduce((sum, value) => sum + value, 0);
+    post.timeEstimateVersion = "task-time-v1-2026-07-14";
   });
   return finalPosts.sort((left, right) => {
     const leftKey = left.dateIso || "9999-12-31";

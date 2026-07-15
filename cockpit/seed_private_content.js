@@ -52,18 +52,16 @@ const app = initializeApp({
 });
 const db = getFirestore(app);
 const batch = db.batch();
-const versionRef = db.collection("privateContentVersions").doc();
-batch.set(versionRef, {
-  ...privateContent,
-  contentHash,
-  source: "index.html",
-  createdAt: FieldValue.serverTimestamp()
-});
-batch.set(db.collection("privateContent").doc("plan"), {
-  ...privateContent,
-  contentHash,
-  updatedAt: FieldValue.serverTimestamp()
-});
+const planRef = db.collection("privateContent").doc("plan");
+const existingPlan = await planRef.get();
+const contentChanged = !existingPlan.exists || existingPlan.data()?.contentHash !== contentHash;
+const versionRef = contentChanged ? db.collection("privateContentVersions").doc() : null;
+let writeOperations = 0;
+if (contentChanged) {
+  batch.set(versionRef, { ...privateContent, contentHash, source: "index.html", createdAt: FieldValue.serverTimestamp() });
+  batch.set(planRef, { ...privateContent, contentHash, updatedAt: FieldValue.serverTimestamp() });
+  writeOperations += 2;
+}
 
 let createdStates = 0;
 let updatedStates = 0;
@@ -110,6 +108,7 @@ for (const post of contentOnly ? [] : posts) {
         updatedBy: "system_seed"
       }, { merge: true });
       updatedStates += 1;
+      writeOperations += 2;
     } else {
       unchangedStates += 1;
     }
@@ -123,8 +122,9 @@ for (const post of contentOnly ? [] : posts) {
       updatedBy: "system_seed"
     }, { merge: true });
     createdStates += 1;
+    writeOperations += 1;
   }
 }
 
-await batch.commit();
-console.log(JSON.stringify({ seeded: true, contentOnly, posts: posts.length, mainPosts: mainPosts.length, createdStates, updatedStates, unchangedStates, privateContentBytes: size, contentHash, versionId: versionRef.id }, null, 2));
+if (writeOperations > 0) await batch.commit();
+console.log(JSON.stringify({ seeded: true, contentOnly, contentChanged, posts: posts.length, mainPosts: mainPosts.length, createdStates, updatedStates, unchangedStates, writes: writeOperations, privateContentBytes: size, contentHash, versionId: versionRef?.id || null }, null, 2));
