@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b4457">
+  <title>Actualiser le cockpit</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; color: #173d49; background: linear-gradient(145deg,#eaf7f7,#d7ecef); }
+    main { width: min(100%,520px); padding: 30px 26px; border: 1px solid #a9d2d8; border-radius: 22px; text-align: center; background: rgba(255,255,255,.94); box-shadow: 0 18px 50px rgba(11,68,87,.16); }
+    img { width: 74px; height: 74px; margin-bottom: 12px; }
+    h1 { margin: 0 0 10px; font-size: clamp(1.45rem,6vw,2rem); color: #0b4457; }
+    p { margin: 8px 0; line-height: 1.55; }
+    .spinner { width: 34px; height: 34px; margin: 22px auto 8px; border: 4px solid #c6e1e5; border-top-color: #168496; border-radius: 50%; animation: turn .8s linear infinite; }
+    button { min-height: 46px; margin-top: 18px; padding: 10px 18px; border: 0; border-radius: 12px; color: white; background: #0b6476; font: inherit; font-weight: 800; cursor: pointer; }
+    [hidden] { display: none !important; }
+    @keyframes turn { to { transform: rotate(1turn); } }
+    @media (prefers-reduced-motion: reduce) { .spinner { animation: none; border-top-color: #c6e1e5; box-shadow: inset 0 0 0 4px #168496; } }
+    @media (prefers-color-scheme: dark) {
+      body { color: #e6f5f6; background: linear-gradient(145deg,#071d25,#0c3441); }
+      main { border-color: #356b76; background: rgba(15,48,58,.96); box-shadow: 0 18px 50px rgba(0,0,0,.28); }
+      h1 { color: #d4f1f3; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <img src="./icon.svg" alt="Bleu Massawippi">
+    <h1>Actualisation du cockpit</h1>
+    <p id="status" role="status" aria-live="polite">L’ancienne coque locale est remplacée sans toucher à votre session ni aux données du cockpit.</p>
+    <div class="spinner" aria-hidden="true"></div>
+    <button id="retry" type="button" hidden>Réessayer</button>
+  </main>
+  <script>
+    (() => {
+      const status = document.querySelector("#status");
+      const retry = document.querySelector("#retry");
+      const cachePrefix = "bleu-massawippi-cockpit-shell-";
+      const baseUrl = new URL("./", location.href);
+
+      async function refreshCockpit() {
+        retry.hidden = true;
+        if (!navigator.onLine) throw new Error("Aucune connexion réseau. Reconnectez l’appareil, puis réessayez.");
+        status.textContent = "Suppression sécurisée de l’ancienne coque…";
+        if ("serviceWorker" in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          const localRegistrations = registrations.filter((registration) => registration.scope.startsWith(baseUrl.href));
+          await Promise.all(localRegistrations.map((registration) => registration.unregister()));
+        }
+        if ("caches" in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.filter((key) => key.startsWith(cachePrefix)).map((key) => caches.delete(key)));
+        }
+        status.textContent = "Version actuelle récupérée. Réouverture du cockpit…";
+        const destination = new URL("./", location.href);
+        destination.searchParams.set("fresh", String(Date.now()));
+        destination.hash = "";
+        location.replace(destination.href);
+      }
+
+      retry.addEventListener("click", refreshCockpit);
+      refreshCockpit().catch((error) => {
+        status.textContent = error?.message || "L’actualisation n’a pas abouti. Réessayez lorsque la connexion est stable.";
+        retry.hidden = false;
+      });
+    })();
+  </script>
+</body>
+</html>

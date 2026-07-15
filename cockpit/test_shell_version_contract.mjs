@@ -3,6 +3,7 @@ import fs from "node:fs";
 
 const index = fs.readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const worker = fs.readFileSync(new URL("./sw.js", import.meta.url), "utf8");
+const refresher = fs.readFileSync(new URL("./actualiser.html", import.meta.url), "utf8");
 const packageFile = JSON.parse(fs.readFileSync(new URL("./package.json", import.meta.url), "utf8"));
 const deploymentWorkflow = fs.readFileSync(new URL("../.github/workflows/deploy-pages.yml", import.meta.url), "utf8");
 
@@ -26,6 +27,12 @@ assert.match(index, /serviceWorker\.register\("\.\/sw\.js", \{ scope: "\.\/", up
 assert.match(index, /registration\.update\(\)/, "Chaque ouverture doit vérifier la coque sans attendre le cache HTTP de GitHub Pages.");
 assert.match(index, /controllerchange/, "La PWA doit détecter l’activation d’une nouvelle coque.");
 assert.match(index, /Actualiser maintenant/, "Une session active doit proposer une actualisation explicite plutôt que perdre une saisie.");
+assert.match(deploymentWorkflow, /cp cockpit\/actualiser\.html public\//, "La remise à neuf PWA doit faire partie de l’artefact Pages.");
+assert.match(cockpitUi, /href="\.\/actualiser\.html" data-refresh-cockpit/, "Le pied de page doit conserver un accès humain à la remise à neuf.");
+assert.match(refresher, /bleu-massawippi-cockpit-shell-/, "La remise à neuf doit limiter la purge aux caches du cockpit.");
+assert.match(refresher, /registration\.scope\.startsWith\(baseUrl\.href\)/, "La remise à neuf ne doit désinscrire que les workers de cette application.");
+assert.match(refresher, /destination\.searchParams\.set\("fresh"/, "La réouverture doit contourner le cache HTTP avec une URL unique.");
+assert.doesNotMatch(refresher, /indexedDB\.(deleteDatabase|databases)|localStorage\.clear|sessionStorage\.clear/, "La remise à neuf ne doit effacer ni session, ni préférences, ni cache Firestore.");
 for (const resource of ["firebase-config.js", "theme.js", "motion.js", "cockpit-ui.js", "event-context-data.js", "action-items-ui.js", "client-health-ui.js", "admin-lazy-data.js", "media-choice-ui.js", "task-progress-ui.js", "view-mode.js"]) {
   assert.match(worker, new RegExp(resource.replace(".", "\\.")), `${resource} doit faire partie du shell hors ligne.`);
   assert.match(deploymentWorkflow, new RegExp(`cp cockpit/${resource.replace(".", "\\.")} public/`), `${resource} doit faire partie de l’artefact GitHub Pages.`);

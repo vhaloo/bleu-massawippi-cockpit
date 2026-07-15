@@ -35,13 +35,13 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260715-b16";
-import { createEventContextController } from "./event-context-data.js?v=20260715-b16";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260715-b16";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260715-b16";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260715-b16";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260715-b16";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260715-b16";
+} from "./firebase-client.js?v=20260715-b17";
+import { createEventContextController } from "./event-context-data.js?v=20260715-b17";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260715-b17";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260715-b17";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260715-b17";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260715-b17";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260715-b17";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -376,7 +376,9 @@ style.textContent = `
   #cockpit-sidebar .cockpit-log b { display: block; color: #073a52; }
   #cockpit-sidebar-toggle { position: fixed; right: 15px; bottom: 15px; z-index: 31; display: none; min-height: 42px; padding: 0 13px; border: 1px solid #073a52; border-radius: 999px; color: #fff; background: #073a52; font-weight: 850; cursor: pointer; }
   body.cockpit-admin #cockpit-sidebar-toggle { display: block; }
-  #cockpit-credit { margin-top: 12px; color: #587680; font-size: .78rem; }
+  #cockpit-credit { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:7px 14px; margin-top:12px; color:#587680; font-size:.78rem; }
+  #cockpit-credit a { display:inline-flex; min-height:40px; align-items:center; padding:6px 10px; border:1px solid #b8d5d9; border-radius:9px; color:#0b6476; background:#f2fbfb; font-weight:850; text-decoration:none; }
+  #cockpit-credit a:hover,#cockpit-credit a:focus-visible { border-color:#168496; background:#e2f4f5; }
   @media (max-width: 700px) {
     body { padding-bottom: 68px; }
     #cockpit-session { display:grid; min-height:52px; grid-template-columns:minmax(0,1fr) auto auto; gap:6px; padding:6px 10px; font-size:.72rem; line-height:1.25; }
@@ -1380,7 +1382,7 @@ function addFooterCredit() {
   if (credit) return;
   credit = document.createElement("div");
   credit.id = "cockpit-credit";
-  credit.textContent = "Conçu, programmé et designé par Valentin Wittwe — Directeur des Communications © Bleu Massawippi";
+  credit.innerHTML = `<span>Conçu, programmé et designé par Valentin Wittwe — Directeur des Communications © Bleu Massawippi</span><a href="./actualiser.html" data-refresh-cockpit>Actualiser l’application</a>`;
   document.querySelector("footer")?.appendChild(credit);
 }
 
