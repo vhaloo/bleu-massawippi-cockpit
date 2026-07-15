@@ -9,6 +9,7 @@
 
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
+const MESSAGE_SEEN_PREFIX = "bleu-massawippi-message-seen-v1";
 const VALID_MODES = new Set(["essential", "complete"]);
 const QUEUE_PAGE_SIZE = Object.freeze({ director: 5, admin: 7 });
 const NAVIGATION_ATTEMPTS = 5;
@@ -480,6 +481,36 @@ function dataMillis(value) {
   return Number.isFinite(numeric) ? numeric : 0;
 }
 
+function messageSeenStorageKey(identity = runtime.identity) {
+  const owner = identity.uid ? `uid:${identity.uid}` : identity.role ? `role:${identity.role}` : "device";
+  return `${MESSAGE_SEEN_PREFIX}:${owner}`;
+}
+
+function seenMessageVersions() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(messageSeenStorageKey()) || "{}");
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch { return {}; }
+}
+
+function messageWasSeen(commentId, version) {
+  if (!commentId) return false;
+  const seen = seenMessageVersions();
+  return Object.prototype.hasOwnProperty.call(seen, commentId) && dataMillis(seen[commentId]) >= dataMillis(version);
+}
+
+function markMessageSeen(commentId, version) {
+  if (!commentId) return;
+  try {
+    const seen = seenMessageVersions();
+    seen[commentId] = Math.max(dataMillis(seen[commentId]), dataMillis(version));
+    const compact = Object.fromEntries(Object.entries(seen)
+      .sort((left, right) => dataMillis(right[1]) - dataMillis(left[1]))
+      .slice(0, 250));
+    localStorage.setItem(messageSeenStorageKey(), JSON.stringify(compact));
+  } catch { /* La lecture reste fonctionnelle si le stockage local est bloqué. */ }
+}
+
 function inferredWorkflowStage(card) {
   if (card.dataset.workflowStage) return card.dataset.workflowStage;
   if (gateIsDone(card, "publication")) return "published";
@@ -497,10 +528,11 @@ function inferredWorkflowStage(card) {
 function incomingMessageFor(card) {
   return [...card.querySelectorAll('[data-comment-thread] .cockpit-message.other:not(.handled)')]
     .map((message) => ({
+      id: message.dataset.commentId || "",
       text: message.querySelector("p")?.textContent?.trim() || "",
-      updatedAt: dataMillis(message.dataset.createdAt)
+      updatedAt: dataMillis(message.dataset.updatedAt || message.dataset.createdAt)
     }))
-    .filter((message) => message.text)
+    .filter((message) => message.id && message.text && !messageWasSeen(message.id, message.updatedAt))
     .sort((left, right) => right.updatedAt - left.updatedAt)[0] || null;
 }
 
@@ -591,14 +623,13 @@ function personalActionItemModels(role = runtime.identity.role) {
 function roleDecisionForEvent(event, role, tasks = []) {
   const latestTask = [...tasks].sort((left, right) => right.updatedAt - left.updatedAt)[0] || null;
   const baseUpdatedAt = Math.max(event.workflowUpdatedAt, event.editorialUpdatedAt, event.media.latestUpdate, event.incomingMessage?.updatedAt || 0);
-  const hasPostClosureTask = event.complete && latestTask && latestTask.updatedAt > event.workflowUpdatedAt;
   const mediaUpdatedAfterWorkflow = event.media.latestUpdate > event.workflowUpdatedAt;
 
   // Les tâches Firestore sont créées par la direction et destinées aux
   // communications. Elles ne sont jamais montrées à la direction comme si
-  // elles lui appartenaient. Une consigne créée après la clôture reste visible;
-  // une ancienne tâche ne peut pas ressusciter un événement déjà terminé.
-  if (role === "admin" && latestTask && (!event.complete || hasPostClosureTask)) {
+  // elles lui appartenaient. Une publication terminée reste archivée mais ne
+  // peut plus être ressuscitée par une ancienne tâche technique.
+  if (role === "admin" && latestTask && !event.complete) {
     return {
       ...event,
       action: latestTask.title,
@@ -715,7 +746,11 @@ function urgencyFor(decision, now) {
 function roleDecisionModels(events, role, now) {
   const tasks = role === "admin" ? pendingTaskModels(role) : [];
   const personalActions = personalActionItemModels(role);
-  const personalEventIds = new Set(personalActions.filter((item) => item.targetType === "schedule").map((item) => item.targetId));
+  const personalEventIds = new Set(personalActions.filter((item) => {
+    if (item.targetType !== "schedule") return false;
+    const event = events.find((candidate) => candidate.id === item.targetId);
+    return event && !event.complete;
+  }).map((item) => item.targetId));
   const tasksByEvent = new Map();
   tasks.filter((task) => task.targetType === "schedule").forEach((task) => {
     const rows = tasksByEvent.get(task.targetId) || [];
@@ -743,6 +778,7 @@ function roleDecisionModels(events, role, now) {
 
   const actionDecisions = personalActions.map((item) => {
     const event = item.targetType === "schedule" ? events.find((candidate) => candidate.id === item.targetId) : null;
+    if (event?.complete) return null;
     const directionMediaDone = event?.media?.directionSelected === true;
     if (["approve_text_then_media", "media_direction_approval"].includes(item.actionType)
       && (directionMediaDone || ["final_approved", "scheduled", "published"].includes(event?.stage))) return null;
@@ -795,7 +831,9 @@ function roleDecisionModels(events, role, now) {
 function linkButton(event, label = "Ouvrir") {
   if (event.taskId) return `<button type="button" class="vm-open" data-vm-task="${escapeHtml(event.taskId)}">${escapeHtml(label)}<span aria-hidden="true">→</span></button>`;
   const targetId = event.targetId || event.id;
-  return `<button type="button" class="vm-open" data-vm-target="${escapeHtml(targetId)}" data-vm-entity-type="${escapeHtml(event.targetType || "schedule")}"${event.mediaId ? ` data-vm-media="${escapeHtml(event.mediaId)}"` : ""}>${escapeHtml(label)}<span aria-hidden="true">→</span></button>`;
+  const messageId = event.messageId || event.incomingMessage?.id || "";
+  const messageVersion = event.messageVersion || event.incomingMessage?.updatedAt || 0;
+  return `<button type="button" class="vm-open" data-vm-target="${escapeHtml(targetId)}" data-vm-entity-type="${escapeHtml(event.targetType || "schedule")}"${event.mediaId ? ` data-vm-media="${escapeHtml(event.mediaId)}"` : ""}${messageId ? ` data-vm-message-id="${escapeHtml(messageId)}" data-vm-message-version="${dataMillis(messageVersion)}"` : ""}>${escapeHtml(label)}<span aria-hidden="true">→</span></button>`;
 }
 
 function estimatedDecisionMinutes(event, role) {
@@ -913,7 +951,7 @@ function enhanceCardSummaries() {
 
 function messageModels() {
   const events = new Map(eventModels().map((model) => [model.id, model]));
-  return [...document.querySelectorAll(".post[data-item-id] [data-comment-thread] .cockpit-message:not(.handled)")]
+  return [...document.querySelectorAll(".post[data-item-id] [data-comment-thread] .cockpit-message.other:not(.handled)")]
     .map((message, index) => {
       const card = message.closest(".post[data-item-id]");
       const event = card ? events.get(card.dataset.itemId) : null;
@@ -923,9 +961,10 @@ function messageModels() {
         author: message.querySelector("header b")?.textContent?.replace(/^💬\s*/, "")?.trim() || "Message",
         when: message.querySelector("header span")?.textContent?.trim() || "",
         text: message.querySelector("p")?.textContent?.trim() || "",
-        createdAt: Number(message.dataset.createdAt || 0)
+        createdAt: Number(message.dataset.createdAt || 0),
+        updatedAt: dataMillis(message.dataset.updatedAt || message.dataset.createdAt)
       };
-    }).filter((message) => message.event && message.text)
+    }).filter((message) => message.event && message.text && !messageWasSeen(message.id, message.updatedAt))
     .sort((left, right) => right.createdAt - left.createdAt)
     .slice(0, 5);
 }
@@ -973,7 +1012,7 @@ function renderDashboard(now = new Date()) {
     ? nextWeek.map((event) => compactEvent(event, now, { showAction: false })).join("")
     : empty("Aucun événement au cours des sept prochains jours.");
   const messagesBody = messages.length
-    ? messages.map((message) => `<article class="vm-message"><div><span>${escapeHtml(message.author)}${message.when ? ` · ${escapeHtml(message.when)}` : ""}</span><h3>${escapeHtml(message.event.title)}</h3><p>${escapeHtml(message.text)}</p></div>${linkButton(message.event, "Répondre")}</article>`).join("")
+    ? messages.map((message) => `<article class="vm-message"><div><span>${escapeHtml(message.author)}${message.when ? ` · ${escapeHtml(message.when)}` : ""}</span><h3>${escapeHtml(message.event.title)}</h3><p>${escapeHtml(message.text)}</p></div>${linkButton({ ...message.event, messageId: message.id, messageVersion: message.updatedAt }, "Répondre")}</article>`).join("")
     : empty("Aucun message actif dans les événements visibles.");
 
   grid.innerHTML = [
@@ -1000,7 +1039,11 @@ async function runNavigation(control, target) {
   control.disabled = true;
   control.textContent = "Ouverture…";
   try {
-    await navigateToEntity(target);
+    const opened = await navigateToEntity(target);
+    if (opened && control.dataset.vmMessageId) {
+      markMessageSeen(control.dataset.vmMessageId, control.dataset.vmMessageVersion);
+      scheduleRender();
+    }
   } finally {
     control.disabled = false;
     control.removeAttribute("aria-busy");
