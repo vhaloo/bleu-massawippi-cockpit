@@ -10,6 +10,7 @@ const lazy = fs.readFileSync(path.join(root, "admin-lazy-data.js"), "utf8");
 const summary = fs.readFileSync(path.join(root, "admin-activity-summary.js"), "utf8");
 const firebase = fs.readFileSync(path.join(root, "firebase-client.js"), "utf8");
 const health = fs.readFileSync(path.join(root, "client-health-ui.js"), "utf8");
+const deploy = fs.readFileSync(path.join(root, "..", ".github", "workflows", "deploy-pages.yml"), "utf8");
 
 const activityPosition = ui.indexOf('id=\\"cockpit-director-activity\\"');
 const taskPosition = ui.indexOf('id=\\"cockpit-task-heading\\"');
@@ -22,6 +23,7 @@ assert.doesNotMatch(firebase, /userActivityDaily|EXPLICIT_LOGIN_MARKER_KEY|recor
 assert.match(summary, /Une consultation sans action n’est volontairement pas mesurée/, "La limite de mesure doit être explicite dans la vue admin.");
 assert.match(health, /profile\?\.role !== "admin"/, "Santé Firebase doit refuser tout rôle autre qu’admin.");
 assert.match(ui, /if \(profile\.role === "admin"\) \{[\s\S]{0,500}buildHealthWidget\(profile\)/, "Santé Firebase doit être créée exclusivement dans la branche admin.");
+assert.match(deploy, /cp cockpit\/admin-activity-summary\.js public\//, "Le module du résumé admin doit être inclus dans l’artefact GitHub Pages.");
 
 const { window } = parseHTML('<!doctype html><html><body><section id="cockpit-director-activity"></section></body></html>');
 globalThis.window = window;
