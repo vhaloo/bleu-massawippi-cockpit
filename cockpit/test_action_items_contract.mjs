@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import vm from "node:vm";
-import { buildTaskProgressPresentation, renderActionTaskCard } from "./task-progress-ui.js";
+import { actionTaskShouldRemain, buildTaskProgressPresentation, renderActionTaskCard } from "./task-progress-ui.js";
 
 const [client, cockpitUi, actionUi, view, rules, indexes, reconcile] = await Promise.all([
   readFile(new URL("./firebase-client.js", import.meta.url), "utf8"),
@@ -130,6 +130,14 @@ assert.match(readyCard, /cockpit-task-item workflow-ready/);
 assert.match(readyCard, /aria-label="Avancement : texte approuvé; visuel approuvé; publication à terminer"/);
 const commentCard = renderActionTaskCard({ task:{ id:"comment-1", targetType:"schedule", targetId:"event-1", title:"Consigne" }, priorityLabel:"Maintenant", estimate:5, when:"maintenant", updatedAt:1, workflow:{ stage:"published" } });
 assert.doesNotMatch(commentCard, /workflow-ready|cockpit-task-progress/, "Une nouvelle consigne doit conserver son alerte même si le post est publié.");
+assert.equal(actionTaskShouldRemain({ id:"workflow-event-1", status:"pending", targetType:"schedule" }, { stage:"published" }), false,
+  "Une ancienne tâche de cycle ne doit pas survivre à une publication terminée.");
+assert.equal(actionTaskShouldRemain({ id:"comment-comment-1", status:"pending", targetType:"schedule" }, { stage:"published" }, [{ id:"comment-1", resolved:false }]), true,
+  "Une nouvelle consigne explicite reste active tant qu'elle n'est pas traitée.");
+assert.equal(actionTaskShouldRemain({ id:"comment-comment-1", status:"pending", targetType:"schedule" }, { stage:"published" }, [{ id:"comment-1", resolved:true }]), false,
+  "Une consigne traitée disparaît de la file sans supprimer son historique.");
+assert.equal(actionTaskShouldRemain({ id:"section-task", status:"pending", targetType:"section" }, { stage:"published" }), true,
+  "La fin d'une publication ne doit jamais masquer une tâche de section indépendante.");
 const profileApplication = cockpitUi.slice(cockpitUi.indexOf("async function applyProfile"), cockpitUi.indexOf("function applySignedOut"));
 assert.match(profileApplication, /if \(profile\.role === "admin"\) \{[\s\S]*buildAdminSidebar\(\)[\s\S]*buildTaskWidget\(\)[\s\S]*subscribeActionTasks\(renderActionTasks/,
   "Le panneau À accomplir et sa souscription doivent rester réservés à Valentin (rôle admin).");

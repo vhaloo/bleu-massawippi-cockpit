@@ -186,10 +186,10 @@ assert.match(document.querySelector(".vm-queue-end").textContent, /toutes vos d�
   const completedAdminCard = document.querySelector('[data-item-id="future-2"]');
   completedAdminCard.dataset.workflowStage = "scheduled";
   completedAdminCard.dataset.workflowUpdatedAt = "300";
-  document.querySelector('[data-task-id="admin-task"]').remove();
+  document.querySelector('[data-task-id="admin-task"]').dataset.taskUpdatedAt = "400";
   await wait();
   assert.equal(document.querySelector('.vm-decisions [data-vm-target="future-2"]'), null,
-    "Une tâche complétée ne doit pas survivre dans Décisions qui m’attendent lorsque l’événement est terminé.");
+    "Même une ancienne tâche techniquement plus récente ne doit pas ressusciter un événement terminé.");
   completedAdminCard.dataset.workflowStage = "content_review";
   completedAdminCard.dataset.workflowUpdatedAt = "100";
   window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "annie", role: "director" } } }));
@@ -207,6 +207,14 @@ document.body.appendChild(actionSource);
 window.dispatchEvent(new window.CustomEvent("cockpit:action-items-updated"));
 await wait();
 assert.match(document.querySelector(".vm-decisions").textContent, /Vérifier le visuel recommandé/);
+completedAdminCard.dataset.workflowStage = "published";
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
+assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Vérifier le visuel recommandé/,
+  "Une action personnelle encore pending dans Firestore doit être élaguée dès que la publication est terminée.");
+completedAdminCard.dataset.workflowStage = "content_review";
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
 const mediaAction = document.querySelector('.vm-decisions [data-vm-target="future-2"][data-vm-media="media-future-2"]');
 assert.ok(mediaAction, "L’action personnelle doit transporter la cible média exacte.");
 mediaAction.click();
@@ -238,6 +246,40 @@ window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
 await wait();
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /visuel recommandé/);
 sequentialCard.dataset.workflowStage = "content_review";
+
+// Le compteur Messages représente uniquement les messages entrants non lus.
+// L'ouverture réussie les marque localement comme vus, sans écriture Firebase;
+// une modification plus récente du même commentaire le rend de nouveau visible.
+const messageHost = document.createElement("div");
+messageHost.dataset.commentThread = "";
+messageHost.innerHTML = `<article class="cockpit-message other" data-comment-id="comment-visible" data-created-at="600" data-updated-at="600"><header><b>💬 Communications</b><span>maintenant</span></header><p>Message à lire.</p></article><article class="cockpit-message mine" data-comment-id="comment-mine" data-created-at="601" data-updated-at="601"><header><b>💬 Annie</b><span>maintenant</span></header><p>Mon propre message.</p></article>`;
+document.querySelector('[data-item-id="future-3"] .cockpit-controls').appendChild(messageHost);
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
+assert.equal(document.querySelector("[data-vm-message-count]").textContent, "1", "Le badge doit ignorer le message de la personne connectée.");
+const messageOpen = document.querySelector('.vm-messages [data-vm-message-id="comment-visible"]');
+assert.ok(messageOpen, "Le message entrant doit fournir un bouton de lecture traçable.");
+messageOpen.click();
+await wait(250);
+assert.equal(document.querySelector("[data-vm-message-count]").hidden, true, "Le badge doit disparaître immédiatement après une ouverture réussie.");
+assert.match(document.querySelector(".vm-messages").textContent, /Aucun message actif/);
+const updatedMessage = document.createElement("article");
+updatedMessage.className = "cockpit-message other";
+updatedMessage.dataset.commentId = "comment-visible";
+updatedMessage.dataset.createdAt = "600";
+updatedMessage.dataset.updatedAt = "700";
+updatedMessage.innerHTML = "<header><b>💬 Communications</b><span>modifié</span></header><p>Message modifié à relire.</p>";
+const refreshedThread = document.createElement("div");
+refreshedThread.dataset.commentThread = "";
+refreshedThread.appendChild(updatedMessage);
+document.querySelector('[data-item-id="future-3"] .cockpit-controls').appendChild(refreshedThread);
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
+assert.equal(document.querySelector("[data-vm-message-count]").textContent, "1", "Une version modifiée après lecture doit redevenir visible.");
+updatedMessage.classList.add("handled");
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
+assert.equal(document.querySelector("[data-vm-message-count]").hidden, true, "Un message traité ne doit jamais rester dans le badge actif.");
 
 // Une cible passée et filtrée est reconstruite, puis son brief et ses médias
 // sont ouverts, focalisés et annoncés.

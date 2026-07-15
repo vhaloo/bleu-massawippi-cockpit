@@ -35,13 +35,13 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260715-b14";
-import { createEventContextController } from "./event-context-data.js?v=20260715-b14";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260715-b14";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260715-b14";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260715-b14";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260715-b14";
-import { renderActionTaskCard } from "./task-progress-ui.js?v=20260715-b14";
+} from "./firebase-client.js?v=20260715-b15";
+import { createEventContextController } from "./event-context-data.js?v=20260715-b15";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260715-b15";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260715-b15";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260715-b15";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260715-b15";
+import { actionTaskShouldRemain, renderActionTaskCard } from "./task-progress-ui.js?v=20260715-b15";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -792,7 +792,11 @@ function actionTaskEstimate(task) {
 
 function renderActionTasks(tasks) {
   state.tasks = Array.isArray(tasks) ? tasks : [];
-  const pending = state.tasks.filter((task) => task.status === "pending").sort((left, right) => {
+  const pending = state.tasks.filter((task) => actionTaskShouldRemain(
+    task,
+    state.workflows.get(task.targetId),
+    state.commentsByEvent.get(task.targetId) || []
+  )).sort((left, right) => {
     const leftPriority = actionTaskPriority(left);
     const rightPriority = actionTaskPriority(right);
     return leftPriority.bucket - rightPriority.bucket
@@ -2275,7 +2279,8 @@ function renderCommentThread(card, sectionId = card.dataset.itemId) {
     const edited = row.updatedAt?.toMillis && row.createdAt?.toMillis && row.updatedAt.toMillis() > row.createdAt.toMillis() + 1000;
     const handledLabel = handled && row.resolvedByLabel ? ` · traité par ${esc(row.resolvedByLabel)}` : "";
     const createdAt = row.createdAt?.toMillis ? row.createdAt.toMillis() : row.createdAt instanceof Date ? row.createdAt.valueOf() : 0;
-    return `<article class="cockpit-message ${mine ? "mine" : "other"}${handled ? " handled" : ""}" data-comment-id="${esc(row.id)}" data-created-at="${Number.isFinite(createdAt) ? createdAt : 0}"><header><b>💬 ${esc(row.authorLabel || "Utilisateur")}${mine ? " · vous" : ""}</b><span>${esc(when)}${edited ? " · modifié" : ""}${handledLabel}</span></header><p>${esc(row.comment || "")}</p><div class="cockpit-message-actions">${handled ? "" : `<button type="button" data-resolve-comment="${esc(row.id)}">✓ Marquer traité</button>`}${mine && !handled ? `<button type="button" data-edit-comment="${esc(row.id)}">Modifier</button><button type="button" data-archive-comment="${esc(row.id)}">Archiver</button>` : ""}</div></article>`;
+    const updatedAt = row.updatedAt?.toMillis ? row.updatedAt.toMillis() : row.updatedAt instanceof Date ? row.updatedAt.valueOf() : createdAt;
+    return `<article class="cockpit-message ${mine ? "mine" : "other"}${handled ? " handled" : ""}" data-comment-id="${esc(row.id)}" data-created-at="${Number.isFinite(createdAt) ? createdAt : 0}" data-updated-at="${Number.isFinite(updatedAt) ? updatedAt : 0}"><header><b>💬 ${esc(row.authorLabel || "Utilisateur")}${mine ? " · vous" : ""}</b><span>${esc(when)}${edited ? " · modifié" : ""}${handledLabel}</span></header><p>${esc(row.comment || "")}</p><div class="cockpit-message-actions">${handled ? "" : `<button type="button" data-resolve-comment="${esc(row.id)}">✓ Marquer traité</button>`}${mine && !handled ? `<button type="button" data-edit-comment="${esc(row.id)}">Modifier</button><button type="button" data-archive-comment="${esc(row.id)}">Archiver</button>` : ""}</div></article>`;
   };
   const active = rows.filter((row) => row.resolved !== true);
   const handled = rows.filter((row) => row.resolved === true);
@@ -2815,9 +2820,6 @@ function enhanceCardEvents() {
             const actionItem = [...document.querySelectorAll("#cockpit-action-item-source [data-action-item-id]")]
               .find((item) => item.dataset.actionTarget === card.dataset.itemId && (!item.dataset.actionMedia || item.dataset.actionMedia === mediaId));
             const actionItemId = actionItem?.dataset.actionItemId || `media-direction-approval-${card.dataset.itemId}`;
-            // Le choix de la direction clôt sa propre décision. L'accord des
-            // deux rôles reste visible séparément, mais ne garde jamais une
-            // tâche déjà accomplie dans la file personnelle de la direction.
             const resolved = selected;
             try {
               await setPersonalActionItemState(actionItemId, resolved ? "done" : "pending", state.profile);

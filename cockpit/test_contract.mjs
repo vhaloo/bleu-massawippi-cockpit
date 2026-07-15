@@ -334,8 +334,8 @@ for (const token of ["stateTimestampMillis", "actionTaskPriority", "data-task-ta
 for (const token of ["roleDecisionForEvent", "roleDecisionModels", "pendingTaskModels", "mediaUpdatedAfterWorkflow", "Pourquoi maintenant", "left.urgency.rank", "Nouvelle consigne de la direction", "Texte prêt pour votre validation"]) {
   assert.ok(viewMode.includes(token), `La vue essentielle doit prioriser les décisions avec ${token}.`);
 }
-assert.match(viewMode, /if \(role === "admin" && latestTask && \(!event\.complete \|\| hasPostClosureTask\)\)/,
-  "Une tâche récente transmise par la direction doit apparaître seulement dans la file des communications, sans ressusciter une publication terminée.");
+assert.match(viewMode, /if \(role === "admin" && latestTask && !event\.complete\)/,
+  "Une tâche transmise par la direction doit apparaître seulement dans la file des communications et ne jamais ressusciter une publication terminée.");
 assert.match(viewMode, /if \(role === "director"\)[\s\S]{0,1800}if \(role === "admin"\)/,
   "Les décisions de la direction et des communications doivent rester séparées par rôle.");
 assert.match(viewMode, /event\.media\.latestUpdate > event\.workflowUpdatedAt/,

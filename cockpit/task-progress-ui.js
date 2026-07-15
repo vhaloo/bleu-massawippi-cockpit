@@ -24,6 +24,28 @@ export function buildTaskProgressPresentation(workflow = {}, mediaDecision = nul
   };
 }
 
+/**
+ * Une tâche peut rester dans Firestore pour préserver l'historique sans devoir
+ * rester dans la file active. La décision est dérivée des données déjà en
+ * mémoire : aucune lecture ni écriture supplémentaire n'est nécessaire.
+ */
+export function actionTaskShouldRemain(task = {}, workflow = {}, comments = []) {
+  if (task.status !== "pending") return false;
+  if (task.targetType !== "schedule") return true;
+
+  const publicationFinished = publicationStages.has(workflow?.stage || "");
+  const taskId = String(task.id || "");
+  if (!taskId.startsWith("comment-")) return !publicationFinished;
+
+  const commentId = taskId.slice("comment-".length);
+  const comment = Array.isArray(comments) ? comments.find((row) => String(row?.id || "") === commentId) : null;
+  if (comment) return comment.deleted !== true && comment.resolved !== true;
+
+  // Si le commentaire n'est plus dans la fenêtre bornée, une publication déjà
+  // terminée ne doit pas conserver une alerte fantôme.
+  return !publicationFinished;
+}
+
 export function renderActionTaskCard({ task, priorityLabel, estimate, when, updatedAt, workflow, mediaDecision }) {
   const isComment = String(task.id || "").startsWith("comment-");
   const progress = !isComment && task.targetType === "schedule" ? buildTaskProgressPresentation(workflow, mediaDecision) : { className:"", badge:"", markup:"" };
