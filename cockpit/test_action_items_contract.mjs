@@ -146,6 +146,14 @@ assert.match(view, /approve_text_then_media/);
 assert.match(view, /estimatedDecisionMinutes/);
 assert.match(view, /vm-time-estimate/);
 assert.match(view, /\["final_approved", "scheduled", "published"\]/);
+assert.match(view, /event\.media\.directionSelected\) return null/,
+  "Une validation média de la direction doit élaguer sa propre décision sans nouvelle lecture.");
+assert.match(view, /event\.media\.communicationsSelected && !event\.media\.directionSelected/,
+  "Après recommandation des communications, la file doit transférer la prochaine action à la direction.");
+assert.match(cockpitUi, /const resolved = selected;/,
+  "Le choix de la direction doit fermer sa décision personnelle sans attendre un second clic des communications.");
+assert.match(cockpitUi, /notifyViewUpdate\("task-completed"\)/,
+  "Marquer complétée doit élaguer immédiatement les vues locales sans relecture supplémentaire.");
 
 assert.match(rules, /match \/actionItems\/\{actionItemId\}/);
 assert.match(rules, /resource\.data\.assigneeUid == request\.auth\.uid[\s\S]*resource\.data\.assigneeRole == userRole\(\)/);

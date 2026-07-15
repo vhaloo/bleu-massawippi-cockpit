@@ -9,8 +9,9 @@ import { dryRunSummary, isDryRun, sameSeedFields } from "./seed_utils.js";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const manifest = JSON.parse(fs.readFileSync(path.join(here, "editorial_media_manifest.json"), "utf8"));
 const eventFilter = process.argv.slice(2).find((arg) => arg.startsWith("--event="))?.slice("--event=".length).trim() || "";
-const selectedManifest = eventFilter ? manifest.filter((item) => item.eventId === eventFilter) : manifest;
-if (!selectedManifest.length) throw new Error(`Aucun média éditorial trouvé pour l’événement ${eventFilter || "demandé"}.`);
+const mediaFilter = process.argv.slice(2).find((arg) => arg.startsWith("--media="))?.slice("--media=".length).trim() || "";
+const selectedManifest = manifest.filter((item) => (!eventFilter || item.eventId === eventFilter) && (!mediaFilter || item.id === mediaFilter));
+if (!selectedManifest.length) throw new Error(`Aucun média éditorial trouvé pour le filtre demandé (${eventFilter || "tous les événements"}${mediaFilter ? `, ${mediaFilter}` : ""}).`);
 const linksPath = path.join(here, "secrets", "editorial-media-links.json");
 if (!fs.existsSync(linksPath)) throw new Error("Le registre local secrets/editorial-media-links.json est requis et ne doit jamais être publié.");
 const links = JSON.parse(fs.readFileSync(linksPath, "utf8"));
@@ -18,7 +19,7 @@ for (const item of selectedManifest) {
   if (!/^https:\/\/bleumassawippi\.sharepoint\.com\/:(?:i|v):\/g\//.test(links[item.fileName] || "")) throw new Error(`Lien SharePoint privé manquant pour ${item.fileName}.`);
 }
 if (isDryRun()) {
-  console.log(JSON.stringify(dryRunSummary("editorial-media", selectedManifest, { eventFilter: eventFilter || null, events: new Set(selectedManifest.map((item) => item.eventId)).size }), null, 2));
+  console.log(JSON.stringify(dryRunSummary("editorial-media", selectedManifest, { eventFilter: eventFilter || null, mediaFilter: mediaFilter || null, events: new Set(selectedManifest.map((item) => item.eventId)).size }), null, 2));
   process.exit(0);
 }
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) throw new Error("GOOGLE_APPLICATION_CREDENTIALS doit pointer vers un compte de service Firebase privé.");
@@ -58,4 +59,4 @@ for (const item of selectedManifest) {
   }
 }
 if (created + updated > 0) await batch.commit();
-console.log(JSON.stringify({ seeded: true, eventFilter: eventFilter || null, media: selectedManifest.length, created, updated, unchanged, writes: created + updated, events: new Set(selectedManifest.map((item) => item.eventId)).size }, null, 2));
+console.log(JSON.stringify({ seeded: true, eventFilter: eventFilter || null, mediaFilter: mediaFilter || null, media: selectedManifest.length, created, updated, unchanged, writes: created + updated, events: new Set(selectedManifest.map((item) => item.eventId)).size }, null, 2));

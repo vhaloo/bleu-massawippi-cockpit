@@ -180,10 +180,19 @@ assert.equal(decisionCards().length, 6, "La page locale suivante doit compléter
 assert.match(document.querySelector(".vm-queue-end").textContent, /toutes vos décisions chargées/i);
 
 // Un rôle communications ne reçoit que sa propre tâche matérialisée.
-window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "valentin", role: "admin" } } }));
-await wait();
-assert.match(document.querySelector(".vm-decisions").textContent, /Action réservée aux communications/);
-window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "annie", role: "director" } } }));
+  window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "valentin", role: "admin" } } }));
+  await wait();
+  assert.match(document.querySelector(".vm-decisions").textContent, /Action réservée aux communications/);
+  const completedAdminCard = document.querySelector('[data-item-id="future-2"]');
+  completedAdminCard.dataset.workflowStage = "scheduled";
+  completedAdminCard.dataset.workflowUpdatedAt = "300";
+  document.querySelector('[data-task-id="admin-task"]').remove();
+  await wait();
+  assert.equal(document.querySelector('.vm-decisions [data-vm-target="future-2"]'), null,
+    "Une tâche complétée ne doit pas survivre dans Décisions qui m’attendent lorsque l’événement est terminé.");
+  completedAdminCard.dataset.workflowStage = "content_review";
+  completedAdminCard.dataset.workflowUpdatedAt = "100";
+  window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "annie", role: "director" } } }));
 await wait();
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Action réservée aux communications/);
 
@@ -214,11 +223,17 @@ document.querySelector("[data-vm-load-more]").click();
 await wait(30);
 assert.equal(remoteLoadRequests, 1, "Charger plus doit demander une seule page distante.");
 const sequentialCard = document.querySelector('[data-item-id="future-2"]');
-sequentialCard.dataset.workflowStage = "content_approved";
-window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
-await wait();
-assert.match(document.querySelector(".vm-decisions").textContent, /Choisir et approuver le visuel recommandé/);
-sequentialCard.dataset.workflowStage = "final_approved";
+  sequentialCard.dataset.workflowStage = "content_approved";
+  window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+  await wait();
+  assert.match(document.querySelector(".vm-decisions").textContent, /Choisir et approuver le visuel recommandé/);
+  sequentialCard.querySelector(".cockpit-media-card").dataset.mediaDirectionSelected = "true";
+  window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+  await wait();
+  assert.equal(document.querySelector('.vm-decisions [data-vm-target="future-2"]'), null,
+    "Le choix média de la direction doit retirer immédiatement sa propre décision.");
+  sequentialCard.querySelector(".cockpit-media-card").dataset.mediaDirectionSelected = "false";
+  sequentialCard.dataset.workflowStage = "final_approved";
 window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
 await wait();
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /visuel recommandé/);

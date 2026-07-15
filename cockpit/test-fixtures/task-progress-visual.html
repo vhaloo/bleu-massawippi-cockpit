@@ -11,9 +11,9 @@
 </head>
 <body>
   <main><h1 style="font-size:1rem">À accomplir — recette locale</h1><div id="cards"></div></main>
-  <script type="module" src="../theme.js?v=20260715-b13"></script>
+  <script type="module" src="../theme.js?v=20260715-b14"></script>
   <script type="module">
-    import { renderActionTaskCard } from "../task-progress-ui.js?v=20260715-b13";
+    import { renderActionTaskCard } from "../task-progress-ui.js?v=20260715-b14";
     const base={ priorityLabel:"Prévu demain",estimate:10,when:"à l’instant",updatedAt:1 };
     const task={ id:"ready",targetType:"schedule",targetId:"event-1",title:"Choix média de la direction — Le disque blanc qui nous aide à lire le lac",targetLabel:"Jeudi 16 juillet · Disque de Secchi réel",message:"La direction a choisi le visuel. Vérifier l’accord des deux rôles puis programmer ou publier après les feux verts." };
     document.querySelector("#cards").innerHTML=renderActionTaskCard({ ...base,task,workflow:{stage:"final_approved"} })+renderActionTaskCard({ ...base,task:{...task,id:"pending",title:"Publication encore à valider"},workflow:{stage:"content_review"} })+renderActionTaskCard({ ...base,task:{...task,id:"finished",title:"Publication programmée"},workflow:{stage:"published"} });

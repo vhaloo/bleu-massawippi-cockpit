@@ -512,6 +512,8 @@ function mediaStateFor(card) {
   return {
     count: proposals.length,
     selectedCount: proposals.filter((media) => media.classList.contains("is-final") || media.dataset.mediaSelectedFinal === "true").length,
+    communicationsSelected: proposals.some((media) => media.dataset.mediaCommunicationsSelected === "true"),
+    directionSelected: proposals.some((media) => media.dataset.mediaDirectionSelected === "true"),
     latestUpdate: proposals.reduce((latest, media) => Math.max(latest, dataMillis(media.dataset.mediaUpdatedAt)), 0)
   };
 }
@@ -528,7 +530,9 @@ function eventModels(now = new Date()) {
     const currentGate = card.querySelector("[data-gate].current");
     const currentGateName = currentGate?.querySelector("b")?.textContent?.replace(/^\d+\s*·\s*/, "")?.trim() || "";
     const currentGateLabel = currentGate?.querySelector("[data-gate-label]")?.textContent?.trim() || "";
-    const complete = Boolean(card.querySelector('[data-gate="publication"][aria-pressed="true"], [data-gate="publication"].done'));
+    const stage = inferredWorkflowStage(card);
+    const complete = ["scheduled", "published"].includes(stage)
+      || Boolean(card.querySelector('[data-gate="publication"][aria-pressed="true"], [data-gate="publication"].done'));
     const undecided = Boolean(card.querySelector('[data-editorial-controls] [data-editorial-decision="undecided"].active'));
     const setAside = card.classList.contains("editorial-deferred") || card.classList.contains("editorial-rejected") || card.classList.contains("is-deleted");
     const media = mediaStateFor(card);
@@ -537,7 +541,7 @@ function eventModels(now = new Date()) {
       id, card, item, title, date, dateLabel, complete,
       action: action?.textContent?.trim() || (complete ? "Terminé" : currentGateName ? `${currentGateName} — ${currentGateLabel}` : "Ouvrir l’événement"),
       undecided, setAside, incomingMessage, media,
-      stage: inferredWorkflowStage(card),
+      stage,
       workflowUpdatedAt: dataMillis(card.dataset.workflowUpdatedAt),
       editorialUpdatedAt: dataMillis(card.dataset.editorialUpdatedAt),
       theme: item.t || card.dataset.t || "Publication"
@@ -587,11 +591,14 @@ function personalActionItemModels(role = runtime.identity.role) {
 function roleDecisionForEvent(event, role, tasks = []) {
   const latestTask = [...tasks].sort((left, right) => right.updatedAt - left.updatedAt)[0] || null;
   const baseUpdatedAt = Math.max(event.workflowUpdatedAt, event.editorialUpdatedAt, event.media.latestUpdate, event.incomingMessage?.updatedAt || 0);
+  const hasPostClosureTask = event.complete && latestTask && latestTask.updatedAt > event.workflowUpdatedAt;
+  const mediaUpdatedAfterWorkflow = event.media.latestUpdate > event.workflowUpdatedAt;
 
   // Les tâches Firestore sont créées par la direction et destinées aux
   // communications. Elles ne sont jamais montrées à la direction comme si
-  // elles lui appartenaient.
-  if (role === "admin" && latestTask) {
+  // elles lui appartenaient. Une consigne créée après la clôture reste visible;
+  // une ancienne tâche ne peut pas ressusciter un événement déjà terminé.
+  if (role === "admin" && latestTask && (!event.complete || hasPostClosureTask)) {
     return {
       ...event,
       action: latestTask.title,
@@ -621,12 +628,14 @@ function roleDecisionForEvent(event, role, tasks = []) {
       };
     }
 
-    const mediaUpdatedAfterWorkflow = event.media.count > 0 && event.media.latestUpdate > event.workflowUpdatedAt;
-    const contentAlreadyApproved = ["content_approved", "media_review", "final_approved", "scheduled"].includes(event.stage);
-    if (event.stage === "media_review" || (contentAlreadyApproved && mediaUpdatedAfterWorkflow)) {
+    const contentAlreadyApproved = ["content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled"].includes(event.stage);
+    // Dès que la direction a fait son choix, son travail disparaît de sa file,
+    // même si les communications doivent encore produire, harmoniser ou publier.
+    if (contentAlreadyApproved && event.media.directionSelected) return null;
+    if (contentAlreadyApproved && event.media.count > 0) {
       return {
         ...event,
-        action: event.media.selectedCount > 0 ? "Approuver le média retenu" : "Choisir le média final et l’approuver",
+        action: event.media.communicationsSelected ? "Confirmer le visuel recommandé" : "Choisir le visuel final et l’approuver",
         whyNow: mediaUpdatedAfterWorkflow ? "Un média vient d’être ajouté ou mis à jour" : "Média prêt pour votre validation",
         updatedAt: Math.max(baseUpdatedAt, event.media.latestUpdate)
       };
@@ -644,10 +653,27 @@ function roleDecisionForEvent(event, role, tasks = []) {
   }
 
   if (role === "admin") {
+    const textApproved = ["content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved"].includes(event.stage);
+    if (textApproved && event.media.directionSelected) {
+      return {
+        ...event,
+        action: "Publier ou programmer la publication",
+        whyNow: "Le texte et le visuel sont validés par la direction",
+        updatedAt: baseUpdatedAt
+      };
+    }
+    if (textApproved && event.media.communicationsSelected && !event.media.directionSelected) {
+      // Les communications ont remis leur recommandation : la prochaine
+      // décision appartient maintenant à la direction.
+      return null;
+    }
     const adminActions = {
       proposal: ["Finaliser le texte et le soumettre à la direction", "Brouillon à préparer par les communications"],
       changes_requested: ["Appliquer les corrections demandées", "Retour de la direction à intégrer"],
-      content_approved: ["Produire ou finaliser le média, puis l’envoyer", "Texte approuvé : le média devient prioritaire"],
+      content_approved: [event.media.count ? "Choisir ou finaliser le média, puis le soumettre" : "Produire ou finaliser le média, puis l’envoyer", "Texte approuvé : le média devient prioritaire"],
+      media_in_progress: ["Finaliser le média et le soumettre à la direction", "Production média en cours"],
+      media_review: ["Recommander le visuel prêt à valider", "Le média peut maintenant être soumis à la direction"],
+      media_changes_requested: ["Corriger le média selon la consigne reçue", "Retour média de la direction à intégrer"],
       final_approved: ["Publier ou programmer la publication", "Texte et média approuvés : feu vert de diffusion"]
     };
     const action = adminActions[event.stage];
@@ -717,10 +743,17 @@ function roleDecisionModels(events, role, now) {
 
   const actionDecisions = personalActions.map((item) => {
     const event = item.targetType === "schedule" ? events.find((candidate) => candidate.id === item.targetId) : null;
-    if (item.actionType === "approve_text_then_media" && ["final_approved", "scheduled", "published"].includes(event?.stage)) return null;
+    const directionMediaDone = event?.media?.directionSelected === true;
+    if (["approve_text_then_media", "media_direction_approval"].includes(item.actionType)
+      && (directionMediaDone || ["final_approved", "scheduled", "published"].includes(event?.stage))) return null;
     const date = event?.date || inferDate(item.eventDateIso, now);
     const waitingForMedia = item.actionType === "approve_text_then_media"
+      && event?.media?.count > 0
       && ["content_approved", "media_in_progress", "media_review", "media_changes_requested"].includes(event?.stage);
+    if (item.actionType === "approve_text_then_media"
+      && event
+      && ["content_approved", "media_in_progress", "media_review", "media_changes_requested"].includes(event.stage)
+      && event.media.count === 0) return null;
     return {
       ...(event || {}),
       id: `action-${item.id}`,
@@ -1013,7 +1046,7 @@ function observeDataDom() {
   runtime.observer = new MutationObserver(scheduleRender);
   targets.forEach((target) => runtime.observer.observe(target, {
     childList: true, subtree: true, attributes: true,
-    attributeFilter: ["class", "aria-pressed", "hidden", "data-status", "data-workflow-stage", "data-workflow-updated-at", "data-editorial-updated-at", "data-media-updated-at", "data-media-selected-final", "data-task-updated-at"]
+    attributeFilter: ["class", "aria-pressed", "hidden", "data-status", "data-workflow-stage", "data-workflow-updated-at", "data-editorial-updated-at", "data-media-updated-at", "data-media-selected-final", "data-media-communications-selected", "data-media-direction-selected", "data-task-updated-at"]
   }));
 }
 

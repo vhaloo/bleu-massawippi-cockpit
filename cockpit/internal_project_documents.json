@@ -1,9 +1,10 @@
 {
-  "version": "2026-07-13",
+  "version": "2026-07-15",
   "scope": "Propositions assainies partageables; aucun document maître interne n'est exposé.",
   "redaction": "Valentin Wittwe, directeur des communications, Bleu Massawippi",
   "documents": [
     {"id":"lamproie-du-nord","file":"Proposition_assainie_lamproie-du-nord_v1.pdf","url":"https://bleumassawippi.sharepoint.com/:b:/g/IQCTFvLyX6jASbAvhxiNBV24AecNyeSIKocEE4rugzpUwMg"},
+    {"id":"application-carte-vivante-lac","file":"Proposition_assainie_application-carte-vivante-lac_v1.pdf","url":"./project-documents/Proposition_assainie_application-carte-vivante-lac_v1.pdf"},
     {"id":"parc-lobadanaki","file":"Proposition_assainie_parc-lobadanaki_v1.pdf","url":"https://bleumassawippi.sharepoint.com/:b:/g/IQDoNKmVAwRiS6zoxpdBGKG9AcPqhdAixzzaNF-UciMEU48"},
     {"id":"bilan-sante-lac","file":"Proposition_assainie_bilan-sante-lac_v1.pdf","url":"https://bleumassawippi.sharepoint.com/:b:/g/IQAPfrI-SyafSJp2pIEkUvklAXkVc-8K91CfggeQG9-nlgM"},
     {"id":"jeux-provinciaux-peche","file":"Proposition_assainie_jeux-provinciaux-peche_v1.pdf","url":"https://bleumassawippi.sharepoint.com/:b:/g/IQCAYpT7T1UfT7yHeonaWBSQAaRfSBVh-5lf3oyWyZyxB2Y"},
