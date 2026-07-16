@@ -84,7 +84,7 @@ const final = [
     source: "Banque vidéo de l’association — droits documentés",
     task: "Choisir une captation réelle du Massawippi, sans filtre qui modifie la couleur de l’eau ni image générée.",
     copy: bilingual(
-      "Juste un instant pour regarder ce que nous avons la chance de protéger : le lac, ses rives, les habitats qu’il abrite et les souvenirs qui nous y rattachent.\n\n#InstantBleu #BleuMassawippi #LacMassawippi #Estrie",
+      "Prendre un instant pour regarder ce que nous avons la chance de protéger : le lac, ses rives, les habitats qu’il abrite et les souvenirs qui nous y rattachent.\n\n#InstantBleu #BleuMassawippi #LacMassawippi #Estrie",
       "Take a moment to appreciate what we are fortunate to protect: the lake, its shorelines, the habitats it supports and the memories that connect us to this place.\n\n#BlueMoment #BleuMassawippi #LakeMassawippi #EasternTownships"
     )
   },

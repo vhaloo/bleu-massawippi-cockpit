@@ -15,6 +15,7 @@ for (const file of [
   "seed_historical_media_links.js",
   "seed_nature_media_links.js",
   "seed_internal_project_states.js",
+  "seed_content_notices.js",
   "seed_opportunity_states.js",
   "seed_media_config.js",
   "seed_private_content.js",
@@ -34,4 +35,10 @@ for (const file of ["seed_editorial_media_links.js", "seed_historical_media_link
 assert.match(read("seed_private_content.js"), /contentChanged/);
 assert.match(read("seed_private_content.js"), /if \(writeOperations > 0\) await batch\.commit\(\)/);
 assert.match(read("seed_open_house_attachments.js"), /disabledByDefault: true/);
+assert.match(read("seed_content_notices.js"), /if \(existing\.exists\)[\s\S]*preserved \+= 1/);
+assert.match(read("seed_content_notices.js"), /Une version vue ne doit jamais être rouverte/);
+const contentNotices = JSON.parse(read("content_notices.json"));
+assert.equal(contentNotices.schemaVersion, 1);
+assert.equal(contentNotices.notices.length, 3);
+assert.ok(contentNotices.notices.every((item) => item.audienceRole === "director" && item.assigneeEmail === "dg@bleumassawippi.com"));
 console.log("Contrat d’idempotence des synchronisations : OK");

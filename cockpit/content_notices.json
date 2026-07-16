@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "notices": [
+    {
+      "id": "strategic-partnership-plan-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "section",
+      "sourceId": "document-plan-partenariat-2026-2027",
+      "publishedOn": "2026-07-16",
+      "priorityKey": 40,
+      "title": "Nouveau — Plan de partenariat",
+      "message": "Un nouveau document de référence est disponible dans le contexte stratégique. Vous pouvez simplement y jeter un coup d’œil."
+    },
+    {
+      "id": "internal-fund-environmental-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "fonds-environnemental-partenarial",
+      "publishedOn": "2026-07-16",
+      "priorityKey": 41,
+      "title": "Nouveau — Fonds environnemental partenarial",
+      "message": "Le projet inspiré du modèle de Saint-Ferdinand a été développé. Vous pouvez simplement découvrir la proposition."
+    },
+    {
+      "id": "internal-interlake-collaboration-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "colloque-reseautage-associations",
+      "publishedOn": "2026-07-16",
+      "priorityKey": 42,
+      "title": "Nouveau — Collaborations entre organismes de lacs",
+      "message": "Une proposition de rencontres et de collaboration interlacs est maintenant structurée. Vous pouvez y jeter un coup d’œil."
+    }
+  ]
+}

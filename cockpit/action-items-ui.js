@@ -1,8 +1,9 @@
-import { subscribePersonalActionItems } from "./firebase-client.js?v=20260715-b17";
+import { setPersonalActionItemState, subscribePersonalActionItems } from "./firebase-client.js?v=20260716-b18";
 
 let controller = null;
 let activeProfile = null;
 let eventsReady = false;
+const seenWrites = new Set();
 
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[character]);
 const millis = (value) => value?.toMillis?.() || value?.toDate?.()?.valueOf?.() || Number(value || 0) || 0;
@@ -51,6 +52,24 @@ function bindEvents() {
   });
   window.addEventListener("cockpit:action-item-state-saved", (event) => {
     controller?.setLocalState?.(event.detail?.id || "", event.detail?.state || "pending");
+  });
+  window.addEventListener("cockpit:content-notice-seen", async (event) => {
+    const actionItemId = String(event.detail?.actionItemId || "");
+    if (!activeProfile?.uid || activeProfile.role !== "director" || !/^[A-Za-z0-9_-]{3,180}$/.test(actionItemId) || seenWrites.has(actionItemId)) return;
+    const item = [...(sourceNode().querySelectorAll("[data-action-item-id]") || [])]
+      .find((candidate) => candidate.dataset.actionItemId === actionItemId);
+    if (!item || item.dataset.actionType !== "content_notice" || item.dataset.actionAssigneeRole !== "director") return;
+    seenWrites.add(actionItemId);
+    try {
+      await setPersonalActionItemState(actionItemId, "done", activeProfile);
+      const announcer = document.querySelector("#cockpit-announcer");
+      if (announcer) announcer.textContent = "Nouveauté consultée. Elle est retirée de votre file personnelle.";
+    } catch (error) {
+      console.warn("La nouveauté reste dans la file : son état vu n’a pas pu être confirmé.", error);
+      window.dispatchEvent(new CustomEvent("cockpit:content-notice-error", { detail: { actionItemId } }));
+    } finally {
+      seenWrites.delete(actionItemId);
+    }
   });
 }
 

@@ -41,6 +41,8 @@ Object.assign(globalThis, {
   requestAnimationFrame: (callback) => setTimeout(callback, 0),
   matchMedia: () => ({ matches: false, addEventListener() {}, removeEventListener() {} })
 });
+Object.defineProperty(window, "innerWidth", { configurable: true, value: 1366 });
+Object.defineProperty(window, "innerHeight", { configurable: true, value: 900 });
 window.localStorage = localStorage;
 window.matchMedia = globalThis.matchMedia;
 Object.defineProperty(window.HTMLSelectElement.prototype, "value", {
@@ -112,7 +114,7 @@ document.querySelector("#past-toggle").addEventListener("click", () => { showPas
 renderCalendar();
 
 const viewMode = await import(`./view-mode.js?navigation-test=${Date.now()}`);
-viewMode.init({ profile: { uid: "annie", role: "director" }, now: new Date("2026-07-14T12:00:00-04:00") });
+viewMode.init({ profile: { uid: "annie", role: "director" }, now: new Date("2026-07-14T12:00:00-04:00"), contentNoticeDwellMs: 20, decisionDockMinWidth: 1180 });
 await wait();
 
 const decisionCards = () => [...document.querySelectorAll(".vm-decisions .vm-event")];
@@ -224,11 +226,40 @@ const actionSource = document.createElement("section");
 actionSource.id = "cockpit-action-item-source";
 actionSource.hidden = true;
 actionSource.dataset.hasMore = "true";
-actionSource.innerHTML = `<article data-action-item-id="media-direction-approval-alt" data-action-assignee-role="director" data-action-target-type="schedule" data-action-target="future-2" data-action-media="media-future-2" data-action-type="approve_text_then_media" data-action-priority="10" data-action-date="2026-07-16" data-action-updated-at="500"><b>Vérifier le visuel recommandé</b><p>Le texte demeure la première porte; le visuel vient ensuite.</p></article>`;
+actionSource.innerHTML = `<article data-action-item-id="media-direction-approval-alt" data-action-assignee-role="director" data-action-target-type="schedule" data-action-target="future-2" data-action-media="media-future-2" data-action-type="approve_text_then_media" data-action-priority="10" data-action-date="2026-07-16" data-action-updated-at="500"><b>Vérifier le visuel recommandé</b><p>Le texte demeure la première porte; le visuel vient ensuite.</p></article>
+<article data-action-item-id="content-notice-project-one-v1" data-action-assignee-role="director" data-action-target-type="internalProject" data-action-target="project-one" data-action-type="content_notice" data-action-priority="40" data-action-date="2026-07-14" data-action-updated-at="510"><b>Nouveau — Projet test</b><p>Vous pouvez simplement y jeter un coup d’œil.</p></article>`;
 document.body.appendChild(actionSource);
 window.dispatchEvent(new window.CustomEvent("cockpit:action-items-updated"));
 await wait();
 assert.match(document.querySelector(".vm-decisions").textContent, /Vérifier le visuel recommandé/);
+const noticeControl = document.querySelector('.vm-decisions [data-vm-action-item-id="content-notice-project-one-v1"]');
+assert.ok(noticeControl, "Une nouveauté non quotidienne doit rejoindre la file personnelle de la direction.");
+const noticeCard = noticeControl.closest(".vm-event");
+assert.ok(noticeCard.classList.contains("priority-notice"));
+assert.match(noticeCard.textContent, /★ Nouveauté/);
+assert.equal(noticeCard.querySelector(".vm-time-estimate"), null, "Une simple nouveauté ne doit afficher aucune estimation de temps.");
+const projectTarget = document.querySelector('[data-internal-project-id="project-one"]');
+projectTarget.getBoundingClientRect = () => ({ top: 180, bottom: 500, left: 160, right: 900, width: 740, height: 320 });
+let seenNotice = null;
+window.addEventListener("cockpit:content-notice-seen", (event) => { seenNotice = event.detail; }, { once: true });
+noticeControl.click();
+await wait(120);
+assert.equal(projectTarget.hasAttribute("open"), true, "La nouveauté doit ouvrir précisément le projet ciblé.");
+assert.equal(seenNotice?.actionItemId, "content-notice-project-one-v1", "La lecture ne doit être confirmée qu’après une visibilité réelle et bornée.");
+
+// La file flottante réutilise exactement les décisions déjà chargées. Elle
+// apparaît seulement pour la direction sur ordinateur, puis revient à sa place.
+const decisionPanel = document.querySelector("#vm-panel-decision");
+decisionPanel.getBoundingClientRect = () => ({ top: -420, bottom: 80, left: 0, right: 700, width: 700, height: 500 });
+window.dispatchEvent(new window.Event("scroll"));
+const dock = document.querySelector("#vm-decision-dock");
+assert.ok(dock.classList.contains("is-visible"), "La file doit suivre la direction après le défilement sur ordinateur.");
+assert.match(dock.textContent, /Nouveau — Projet test/);
+dock.querySelector("[data-vm-dock-toggle]").click();
+assert.ok(dock.classList.contains("is-collapsed"), "Le widget doit rester réductible.");
+document.querySelector("#vm-panel-decision").getBoundingClientRect = () => ({ top: 140, bottom: 640, left: 0, right: 700, width: 700, height: 500 });
+window.dispatchEvent(new window.Event("scroll"));
+assert.equal(dock.classList.contains("is-visible"), false, "La file flottante doit se réintégrer au tableau au retour vers le haut.");
 completedAdminCard.dataset.workflowStage = "published";
 window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
 await wait();

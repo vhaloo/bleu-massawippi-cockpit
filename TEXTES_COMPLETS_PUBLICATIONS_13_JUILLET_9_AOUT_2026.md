@@ -292,7 +292,7 @@ Which of these functions would you like us to explore in a future post?
 ### Légende prête à programmer
 
 ```text
-FR — Juste un instant pour regarder ce que nous avons la chance de protéger : le lac, ses rives, les habitats qu’il abrite et les souvenirs qui nous y rattachent.
+FR — Prendre un instant pour regarder ce que nous avons la chance de protéger : le lac, ses rives, les habitats qu’il abrite et les souvenirs qui nous y rattachent.
 
 #InstantBleu #BleuMassawippi #LacMassawippi #Estrie
 

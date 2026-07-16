@@ -128,7 +128,7 @@ Observation shows what is visible today. Measurement provides a precise referenc
     title: "Juste un instant",
     cta: "Prendre un instant",
     copy: bilingual(
-      `Juste un instant pour regarder ce que nous avons la chance de protéger : le lac, ses rives, les habitats qu’il abrite et les souvenirs qui nous y rattachent.
+      `Prendre un instant pour regarder ce que nous avons la chance de protéger : le lac, ses rives, les habitats qu’il abrite et les souvenirs qui nous y rattachent.
 
 #InstantBleu #BleuMassawippi #LacMassawippi #Estrie`,
       `Take a moment to appreciate what we are fortunate to protect: the lake, its shorelines, the habitats it supports and the memories that connect us to this place.

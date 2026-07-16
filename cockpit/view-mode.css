@@ -51,6 +51,80 @@
 
 .cockpit-view-essential .vm-dashboard { display: block; }
 
+.vm-decision-dock {
+  position: fixed;
+  top: calc(var(--cockpit-session-height, 54px) + var(--cockpit-nav-height, 46px) + 14px);
+  left: 12px;
+  z-index: 112;
+  width: min(318px, 29vw);
+  max-height: calc(100vh - var(--cockpit-session-height, 54px) - var(--cockpit-nav-height, 46px) - 28px);
+  overflow: hidden;
+  border: 1px solid #d2b66f;
+  border-radius: 17px;
+  opacity: 0;
+  color: #173f4e;
+  background: rgba(255, 253, 247, .98);
+  box-shadow: 0 16px 38px rgba(7, 58, 82, .23);
+  pointer-events: none;
+  transform: translateX(calc(-100% - 22px));
+  transition: opacity .22s ease, transform .3s cubic-bezier(.2,.75,.2,1), width .22s ease;
+  backdrop-filter: blur(12px);
+}
+
+.vm-decision-dock.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.vm-decision-dock > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 13px;
+  color: #704815;
+  background: linear-gradient(135deg, #fff5dc, #fffbef);
+}
+
+.vm-decision-dock > header > div { display: grid; min-width: 0; gap: 1px; }
+.vm-decision-dock > header small { color: #8b661e; font-size: .59rem; font-weight: 850; letter-spacing: .05em; text-transform: uppercase; }
+.vm-decision-dock > header b { overflow: hidden; color: #4f3915; font-size: .84rem; text-overflow: ellipsis; white-space: nowrap; }
+.vm-decision-dock > header span { color: #836a3a; font-size: .63rem; font-weight: 750; }
+.vm-decision-dock > header button {
+  flex: 0 0 42px;
+  width: 42px;
+  min-height: 42px;
+  border: 1px solid #ba8e33;
+  border-radius: 11px;
+  color: #694612;
+  background: #fff;
+  font: 950 1.3rem/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.vm-decision-dock-body {
+  max-height: min(61vh, 570px);
+  overflow: auto;
+  padding: 4px 12px 7px;
+  overscroll-behavior: contain;
+}
+
+.vm-decision-dock > footer { padding: 8px 12px 11px; border-top: 1px solid #eadcb9; }
+.vm-decision-dock > footer button {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #0b7895;
+  border-radius: 10px;
+  color: #0b6077;
+  background: #fff;
+  font: 850 .68rem/1.2 system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.vm-decision-dock.is-collapsed { width: min(250px, 24vw); }
+.vm-decision-dock.is-collapsed :is(.vm-decision-dock-body, footer) { display: none; }
+
 .vm-dashboard-head {
   display: flex;
   align-items: flex-end;
@@ -201,6 +275,22 @@
   border-radius: 10px;
   background: linear-gradient(100deg, #fff4df 0%, #fffaf0 62%, rgba(255, 255, 255, 0) 100%);
   box-shadow: inset 4px 0 #d88926;
+}
+
+.vm-event.priority-notice {
+  margin: 4px -6px;
+  padding-inline: 8px;
+  border-radius: 10px;
+  background: linear-gradient(100deg, #eef8ff 0%, #f8fcff 66%, rgba(255, 255, 255, 0) 100%);
+  box-shadow: inset 4px 0 #4b94b8;
+}
+
+.vm-new-badge {
+  display: inline-flex;
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: #165e7c;
+  background: #dceffa;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -493,6 +583,20 @@
   animation: vm-focus 1.15s ease;
 }
 
+.vm-new-content-focus {
+  scroll-margin-top: calc(var(--cockpit-session-height, 54px) + var(--cockpit-nav-height, 46px) + 18px);
+  outline: 4px solid #d7a62e;
+  outline-offset: 6px;
+  animation: vm-new-content-arrival 1.8s ease-in-out;
+}
+
+@keyframes vm-new-content-arrival {
+  0%, 100% { transform: translateX(0); box-shadow: 0 0 0 0 rgba(215, 166, 46, 0); }
+  18% { transform: translateX(3px); box-shadow: 0 0 0 11px rgba(215, 166, 46, .18); }
+  34% { transform: translateX(-2px); }
+  52% { transform: translateX(1px); box-shadow: 0 0 0 6px rgba(42, 182, 187, .12); }
+}
+
 /* Révélation visuelle temporaire d'une carte explicitement ouverte depuis la
    file. Aucun statut métier n'est retiré et aucune donnée n'est modifiée. */
 .post.vm-navigation-reveal {
@@ -543,6 +647,20 @@ html[data-theme="dark"] .vm-event.priority-current-week {
   background: linear-gradient(100deg, #514026 0%, #3b392f 64%, rgba(24, 59, 70, 0) 100%);
   box-shadow: inset 4px 0 #e3a13f;
 }
+html[data-theme="dark"] .vm-event.priority-notice {
+  color: #e7f7ff;
+  background: linear-gradient(100deg, #223f51 0%, #213a45 66%, rgba(24, 59, 70, 0) 100%);
+  box-shadow: inset 4px 0 #77c4e4;
+}
+html[data-theme="dark"] .vm-new-badge { color: #dcf5ff; background: #315d70; }
+html[data-theme="dark"] .vm-decision-dock { color: #eaf5f7; border-color: #8f763a; background: rgba(24, 52, 62, .98); }
+html[data-theme="dark"] .vm-decision-dock > header { color: #ffe5a5; background: linear-gradient(135deg, #4a3d26, #3c382c); }
+html[data-theme="dark"] .vm-decision-dock > header small,
+html[data-theme="dark"] .vm-decision-dock > header span { color: #ead6a6; }
+html[data-theme="dark"] .vm-decision-dock > header b { color: #fff3d4; }
+html[data-theme="dark"] .vm-decision-dock > header button { color: #fff0c5; border-color: #b79954; background: #29454d; }
+html[data-theme="dark"] .vm-decision-dock > footer { border-top-color: #506a70; }
+html[data-theme="dark"] .vm-decision-dock > footer button { color: #d9f4f6; border-color: #64c3cc; background: #173c47; }
 html[data-theme="dark"] .vm-open { color: #b9edf2; border-color: #4faeb7; background: #173c47; }
 html[data-theme="dark"] .vm-all-clear { color: #b9f0d7; background: #214c3e; }
 html[data-theme="dark"] .vm-syncing { color: #d4edf0; border-color: #416d76; background: #183d47; }
@@ -600,6 +718,10 @@ html[data-theme="dark"] .vm-navigation-status b { color: #fff0eb; }
   .vm-card-summary button { width: 100%; }
 }
 
+@media (max-width: 1179px) {
+  .vm-decision-dock { display: none !important; }
+}
+
 html[data-theme="dark"] .cockpit-view-essential .vm-card-summary {
   border-top-color: #355965;
   background: #173842;
@@ -618,7 +740,8 @@ html[data-theme="dark"] .vm-card-progress span.done { color: #b9f0d7; background
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .post.vm-focus, .vm-target-focus { animation: none; }
+  .post.vm-focus, .vm-target-focus, .vm-new-content-focus { animation: none; }
+  .vm-decision-dock { transition: none; }
   html:focus-within { scroll-behavior: auto; }
 }
 
