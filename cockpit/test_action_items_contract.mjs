@@ -3,14 +3,15 @@ import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 import { actionTaskShouldRemain, buildTaskProgressPresentation, renderActionTaskCard } from "./task-progress-ui.js";
 
-const [client, cockpitUi, actionUi, view, rules, indexes, reconcile] = await Promise.all([
+const [client, cockpitUi, actionUi, view, rules, indexes, reconcile, contentNoticeSeed] = await Promise.all([
   readFile(new URL("./firebase-client.js", import.meta.url), "utf8"),
   readFile(new URL("./cockpit-ui.js", import.meta.url), "utf8"),
   readFile(new URL("./action-items-ui.js", import.meta.url), "utf8"),
   readFile(new URL("./view-mode.js", import.meta.url), "utf8"),
   readFile(new URL("./firestore.rules", import.meta.url), "utf8"),
   readFile(new URL("./firestore.indexes.json", import.meta.url), "utf8"),
-  readFile(new URL("./reconcile_m0_libellule_action.js", import.meta.url), "utf8")
+  readFile(new URL("./reconcile_m0_libellule_action.js", import.meta.url), "utf8"),
+  readFile(new URL("./seed_content_notices.js", import.meta.url), "utf8")
 ]);
 
 const subscription = client.slice(client.indexOf("export function subscribePersonalActionItems"), client.indexOf("export async function updateCockpitFeedbackStatus"));
@@ -111,6 +112,10 @@ assert.match(subscription, /setLocalState\(actionItemId, nextState\)[\s\S]*retai
 assert.match(actionUi, /cockpit:action-item-state-saved[\s\S]*setLocalState/);
 assert.match(actionUi, /navigator\.setAppBadge\?\.\(1\)/, "Le badge PWA doit réutiliser la file déjà chargée sans nouvelle lecture.");
 assert.match(actionUi, /navigator\.clearAppBadge/);
+assert.match(actionUi, /cockpit:content-notice-seen[\s\S]*setPersonalActionItemState\(actionItemId, "done", activeProfile\)/,
+  "Une nouveauté réellement consultée doit utiliser la mutation personnelle ciblée existante.");
+assert.match(actionUi, /item\.dataset\.actionType !== "content_notice"/,
+  "Le client doit refuser de fermer un autre type de décision par l’événement de lecture.");
 const mediaReady = buildTaskProgressPresentation(
   { stage:"content_approved" },
   { direction:{ status:"selected", mediaIds:["media-1"] }, agreement:{ status:"direction_only" } }
@@ -170,6 +175,15 @@ assert.match(cockpitUi, /task\.targetType !== "schedule" \|\| current/,
   "À accomplir ne doit pas présenter une ancienne tâche de publication comme actuelle avant la confirmation serveur.");
 assert.match(view, /const decisionsAreCurrent = workflowSync === "server"/,
   "Décisions qui m’attendent doit attendre la confirmation serveur au lieu de ressusciter le plan statique mobile.");
+assert.match(view, /decision\.actionType === "content_notice"/);
+assert.match(view, /isMeaningfullyVisible/);
+assert.match(view, /cockpit:content-notice-seen/);
+assert.match(view, /vm-decision-dock/);
+assert.match(view, /decisionDockMinWidth/);
+assert.match(contentNoticeSeed, /if \(existing\.exists\)[\s\S]*preserved \+= 1/,
+  "Le semis versionné doit préserver une nouveauté déjà vue et ne jamais la rouvrir.");
+assert.match(contentNoticeSeed, /actionType: "content_notice"/);
+assert.match(contentNoticeSeed, /maximumReads/);
 
 assert.match(rules, /match \/actionItems\/\{actionItemId\}/);
 assert.match(rules, /resource\.data\.assigneeUid == request\.auth\.uid[\s\S]*resource\.data\.assigneeRole == userRole\(\)/);
@@ -201,5 +215,14 @@ assert.match(reconcile, /state: \["agreed", "overridden"\]\.includes\(agreement\
 assert.match(reconcile, /transaction\.set\(refs\.workflow, workflowAfter\)/);
 assert.match(reconcile, /action\.queueKey = actionItemQueueKey\(action, ACTION_ID\)/);
 assert.match(reconcile, /aq1\|\$\{value\.assigneeUid\.length\}/, "Le script Admin doit produire la même clé aq1 longueur-préfixée que le client et les règles.");
+
+assert.match(cockpitUi, /mediaCommentButton\.closest\("\.cockpit-media-card"\)/,
+  "Le commentaire média doit cibler la carte du visuel actionné, même dans un carrousel.");
+assert.match(cockpitUi, /mediaCard\?\.querySelector\("input\[data-media-comment\]"\)/,
+  "Le champ média ne doit pas dépendre de CSS.escape ni d’une recherche ambiguë dans tout l’événement.");
+assert.doesNotMatch(cockpitUi, /CSS\.escape\(mediaId\)/,
+  "L’enregistrement d’un commentaire média doit rester compatible sans dépendance CSS.escape.");
+assert.match(cockpitUi, /Le commentaire média est enregistré; la tâche de suivi sera réconciliée au prochain cycle\./,
+  "Un commentaire déjà enregistré ne doit pas être resoumis si la seule tâche de suivi échoue.");
 
 console.log("✓ Contrat actionItems : queueKey sans composite, plage personnelle, pagination, règles et réconciliation M0.");

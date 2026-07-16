@@ -35,13 +35,13 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260715-b17";
-import { createEventContextController } from "./event-context-data.js?v=20260715-b17";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260715-b17";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260715-b17";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260715-b17";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260715-b17";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260715-b17";
+} from "./firebase-client.js?v=20260716-b18";
+import { createEventContextController } from "./event-context-data.js?v=20260716-b18";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260716-b18";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260716-b18";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260716-b18";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260716-b18";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260716-b18";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -2851,18 +2851,34 @@ function enhanceCardEvents() {
       event.preventDefault();
       event.stopPropagation();
       const mediaId = mediaCommentButton.dataset.saveMediaComment;
-      const input = card.querySelector(`input[data-media-comment="${CSS.escape(mediaId)}"]`);
-      const note = input?.value.trim() || "";
+      const mediaCard = mediaCommentButton.closest(".cockpit-media-card");
+      const input = mediaCard?.querySelector("input[data-media-comment]");
+      if (!input || input.dataset.mediaComment !== mediaId) {
+        toast("Le champ de commentaire de ce média est introuvable. Rechargez le cockpit puis réessayez.", true);
+        return;
+      }
+      const note = input.value.trim();
       if (!note) { toast("Écrivez d’abord votre commentaire sur ce média.", true); return; }
       const label = mediaCommentButton.dataset.mediaLabel || "Média OneDrive";
-      addComment(card.dataset.itemId, `🎨 Média « ${label} » : ${note}`, state.profile, null, input?.dataset.dictated === "true")
-        .then(async (commentId) => {
-          const planItem = getPlanItem(card);
-          await recordActionTask(`media-comment-${commentId}`, { status:"pending", title:`Commentaire média — ${planItem?.title || card.dataset.itemId}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${label}`, message:note });
+      mediaCommentButton.disabled = true;
+      (async () => {
+        try {
+          const commentId = await addComment(card.dataset.itemId, `🎨 Média « ${label} » : ${note}`, state.profile, null, input.dataset.dictated === "true");
           input.value = "";
           delete input.dataset.dictated;
           toast("Commentaire sur le média enregistré.");
-        }).catch((error) => toast(error.message, true));
+          const planItem = getPlanItem(card);
+          try {
+            await recordActionTask(`media-comment-${commentId}`, { status:"pending", title:`Commentaire média — ${planItem?.title || card.dataset.itemId}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${label}`, message:note });
+          } catch (taskError) {
+            console.warn("Le commentaire média est enregistré; la tâche de suivi sera réconciliée au prochain cycle.", taskError);
+          }
+        } catch (error) {
+          toast(error.message, true);
+        } finally {
+          mediaCommentButton.disabled = false;
+        }
+      })();
       return;
     }
     const statusButton = event.target.closest("button[data-status]");

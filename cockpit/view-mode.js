@@ -10,10 +10,13 @@
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
 const MESSAGE_SEEN_PREFIX = "bleu-massawippi-message-seen-v1";
+const DECISION_DOCK_PREFIX = "bleu-massawippi-decision-dock-v1";
 const VALID_MODES = new Set(["essential", "complete"]);
 const QUEUE_PAGE_SIZE = Object.freeze({ director: 5, admin: 7 });
 const NAVIGATION_ATTEMPTS = 5;
 const NAVIGATION_DELAY_MS = 60;
+const CONTENT_NOTICE_DWELL_MS = 2200;
+const DECISION_DOCK_MIN_WIDTH = 1180;
 const MONTHS = new Map([
   ["janvier", 0], ["février", 1], ["fevrier", 1], ["mars", 2],
   ["avril", 3], ["mai", 4], ["juin", 5], ["juillet", 6],
@@ -34,7 +37,10 @@ const runtime = {
   focusTimer: 0,
   navigationToken: 0,
   queueRole: "",
-  queueVisibleCount: 0
+  queueVisibleCount: 0,
+  contentNoticeTimer: 0,
+  contentNoticeTarget: null,
+  decisionDockCollapsed: false
 };
 
 const icon = (name) => {
@@ -96,6 +102,21 @@ function writePreference(mode) {
   } catch { /* le mode actif reste utilisable pour la session */ }
 }
 
+function decisionDockStorageKey(identity = runtime.identity) {
+  const owner = identity.uid ? `uid:${identity.uid}` : identity.role ? `role:${identity.role}` : "device";
+  return `${DECISION_DOCK_PREFIX}:${owner}`;
+}
+
+function readDecisionDockPreference(identity = runtime.identity) {
+  try { return localStorage.getItem(decisionDockStorageKey(identity)) === "collapsed"; }
+  catch { return false; }
+}
+
+function writeDecisionDockPreference(collapsed) {
+  try { localStorage.setItem(decisionDockStorageKey(), collapsed ? "collapsed" : "expanded"); }
+  catch { /* préférence limitée à la session */ }
+}
+
 function defaultMode(identity) {
   if (identity.role === "director") return "essential";
   return "complete";
@@ -153,6 +174,56 @@ function ensureDashboard() {
   return dashboard;
 }
 
+function ensureDecisionDock() {
+  let dock = document.querySelector("#vm-decision-dock");
+  if (dock) return dock;
+  dock = document.createElement("aside");
+  dock.id = "vm-decision-dock";
+  dock.className = "vm-decision-dock";
+  dock.setAttribute("aria-label", "Décisions qui m’attendent");
+  dock.setAttribute("aria-hidden", "true");
+  dock.innerHTML = `
+    <header><div><small>Votre file personnelle</small><b>Décisions qui m’attendent</b><span data-vm-dock-count></span></div><button type="button" data-vm-dock-toggle aria-expanded="true" aria-label="Réduire la file">−</button></header>
+    <div class="vm-decision-dock-body" data-vm-dock-body></div>
+    <footer><button type="button" data-vm-dock-return>↑ Retour au tableau</button></footer>`;
+  document.body.appendChild(dock);
+  return dock;
+}
+
+function syncDecisionDockVisibility() {
+  const dock = document.querySelector("#vm-decision-dock");
+  if (!dock) return;
+  const panel = document.querySelector("#vm-panel-decision");
+  const minWidth = Number(runtime.options.decisionDockMinWidth || DECISION_DOCK_MIN_WIDTH);
+  const threshold = Number(runtime.options.decisionDockThreshold || 104);
+  const visible = runtime.identity.role === "director"
+    && runtime.mode === "essential"
+    && globalThis.innerWidth >= minWidth
+    && Boolean(panel)
+    && panel.getBoundingClientRect().bottom <= threshold;
+  dock.classList.toggle("is-visible", visible);
+  dock.setAttribute("aria-hidden", String(!visible));
+}
+
+function renderDecisionDock(countLabel, body) {
+  const dock = ensureDecisionDock();
+  dock.classList.toggle("is-collapsed", runtime.decisionDockCollapsed);
+  const toggle = dock.querySelector("[data-vm-dock-toggle]");
+  if (toggle) {
+    toggle.textContent = runtime.decisionDockCollapsed ? "+" : "−";
+    toggle.setAttribute("aria-expanded", String(!runtime.decisionDockCollapsed));
+    toggle.setAttribute("aria-label", runtime.decisionDockCollapsed ? "Déployer la file" : "Réduire la file");
+  }
+  const count = dock.querySelector("[data-vm-dock-count]");
+  if (count) count.textContent = countLabel;
+  const host = dock.querySelector("[data-vm-dock-body]");
+  if (host && host.dataset.signature !== body) {
+    host.dataset.signature = body;
+    host.innerHTML = body;
+  }
+  syncDecisionDockVisibility();
+}
+
 function ensureEssentialNav() {
   const wrap = document.querySelector(".nav .wrap");
   if (!wrap) return null;
@@ -205,6 +276,7 @@ function applyMode(mode, { persist = false } = {}) {
     const announcer = document.querySelector("#cockpit-announcer");
     if (announcer) announcer.textContent = `${modeLabel(runtime.mode)} activée.`;
   }
+  syncDecisionDockVisibility();
 }
 
 function stripAccents(value) {
@@ -716,6 +788,9 @@ function roleDecisionForEvent(event, role, tasks = []) {
 }
 
 function urgencyFor(decision, now) {
+  // Une nouveauté reste bien visible, sans passer devant une validation de
+  // publication réellement urgente dans les prochaines 48 heures.
+  if (decision.actionType === "content_notice") return { rank: 1, dateValue: 0, className: "notice" };
   if (!decision.date) return { rank: 3, dateValue: Number.POSITIVE_INFINITY, className: "undated" };
   const publicationTarget = new Date(
     decision.date.getFullYear(),
@@ -797,10 +872,11 @@ function roleDecisionModels(events, role, now) {
       targetType: item.targetType,
       targetId: item.targetId,
       mediaId: item.mediaId,
+      actionType: item.actionType,
       title: event?.title || item.title,
       date,
       dateLabel: event?.dateLabel || item.eventDateIso,
-      theme: event?.theme || "Décision personnelle",
+      theme: event?.theme || (item.actionType === "content_notice" ? "Nouveauté dans le cockpit" : "Décision personnelle"),
       action: waitingForMedia ? "Choisir et approuver le visuel recommandé" : item.title,
       whyNow: waitingForMedia ? "Le texte est approuvé : la porte média est maintenant ouverte." : (item.message || "Action assignée à votre rôle"),
       updatedAt: Math.max(event?.workflowUpdatedAt || 0, item.updatedAt),
@@ -833,7 +909,10 @@ function linkButton(event, label = "Ouvrir") {
   const targetId = event.targetId || event.id;
   const messageId = event.messageId || event.incomingMessage?.id || "";
   const messageVersion = event.messageVersion || event.incomingMessage?.updatedAt || 0;
-  return `<button type="button" class="vm-open" data-vm-target="${escapeHtml(targetId)}" data-vm-entity-type="${escapeHtml(event.targetType || "schedule")}"${event.mediaId ? ` data-vm-media="${escapeHtml(event.mediaId)}"` : ""}${messageId ? ` data-vm-message-id="${escapeHtml(messageId)}" data-vm-message-version="${dataMillis(messageVersion)}"` : ""}>${escapeHtml(label)}<span aria-hidden="true">→</span></button>`;
+  const notice = event.actionType === "content_notice" && event.actionItemId
+    ? ` data-vm-action-item-id="${escapeHtml(event.actionItemId)}" data-vm-action-type="content_notice"`
+    : "";
+  return `<button type="button" class="vm-open" data-vm-target="${escapeHtml(targetId)}" data-vm-entity-type="${escapeHtml(event.targetType || "schedule")}"${event.mediaId ? ` data-vm-media="${escapeHtml(event.mediaId)}"` : ""}${messageId ? ` data-vm-message-id="${escapeHtml(messageId)}" data-vm-message-version="${dataMillis(messageVersion)}"` : ""}${notice}>${escapeHtml(event.actionType === "content_notice" ? "Voir la nouveauté" : label)}<span aria-hidden="true">→</span></button>`;
 }
 
 function estimatedDecisionMinutes(event, role) {
@@ -869,10 +948,11 @@ function empty(message) {
 }
 
 function compactEvent(event, now, { showAction = true, showReason = false } = {}) {
+  const isNotice = event.actionType === "content_notice";
   const estimate = estimatedDecisionMinutes(event, runtime.identity.role);
   return `<article class="vm-event${event.urgency?.className ? ` priority-${event.urgency.className}` : ""}">
-    <div><span class="vm-event-date">${escapeHtml(relativeDateLabel(event.date, now))}</span><span class="vm-time-estimate" aria-label="Durée approximative ${estimate} minutes">${formatEstimatedMinutes(estimate)}</span><h3>${escapeHtml(event.title)}</h3><p>${escapeHtml(event.theme)}${showAction ? ` · ${escapeHtml(event.action)}` : ""}</p></div>
-    ${showReason ? `<span class="vm-why-now"><b>Pourquoi maintenant</b>${escapeHtml(event.whyNow || "Action à traiter")}</span>` : ""}
+    <div>${isNotice ? `<span class="vm-event-date vm-new-badge">★ Nouveauté</span>` : `<span class="vm-event-date">${escapeHtml(relativeDateLabel(event.date, now))}</span><span class="vm-time-estimate" aria-label="Durée approximative ${estimate} minutes">${formatEstimatedMinutes(estimate)}</span>`}<h3>${escapeHtml(event.title)}</h3><p>${escapeHtml(event.theme)}${showAction ? ` · ${escapeHtml(event.action)}` : ""}</p></div>
+    ${showReason ? `<span class="vm-why-now"><b>${isNotice ? "À découvrir" : "Pourquoi maintenant"}</b>${escapeHtml(event.whyNow || "Action à traiter")}</span>` : ""}
     ${linkButton(event)}
   </article>`;
 }
@@ -1030,6 +1110,7 @@ function renderDashboard(now = new Date()) {
     panel("week", "Les sept prochains jours", `${nextWeek.length} événement${nextWeek.length > 1 ? "s" : ""}`, weekBody, "vm-week"),
     panel("message", "Messages actifs", `${messages.length} récent${messages.length > 1 ? "s" : ""}`, messagesBody, "vm-messages")
   ].join("");
+  renderDecisionDock(decisionsAreCurrent ? `${allDecisions.length}${remoteMore ? "+" : ""} pour vous` : "Synchronisation", decisionsBody);
 
   enhanceCardSummaries();
   const messageBadge = ensureEssentialNav()?.querySelector("[data-vm-message-count]");
@@ -1038,6 +1119,40 @@ function renderDashboard(now = new Date()) {
     messageBadge.hidden = messages.length === 0;
     messageBadge.setAttribute("aria-label", `${messages.length} message${messages.length > 1 ? "s" : ""} actif${messages.length > 1 ? "s" : ""}`);
   }
+}
+
+function clearContentNoticeDwell() {
+  clearTimeout(runtime.contentNoticeTimer);
+  runtime.contentNoticeTimer = 0;
+  runtime.contentNoticeTarget?.classList.remove("vm-new-content-focus");
+  runtime.contentNoticeTarget = null;
+}
+
+function isMeaningfullyVisible(target) {
+  if (!target || document.visibilityState === "hidden") return false;
+  const rect = target.getBoundingClientRect();
+  const viewportHeight = globalThis.innerHeight || document.documentElement.clientHeight || 0;
+  const viewportWidth = globalThis.innerWidth || document.documentElement.clientWidth || 0;
+  if (rect.height <= 0 || rect.width <= 0 || viewportHeight <= 0 || viewportWidth <= 0) return false;
+  const visibleHeight = Math.max(0, Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0));
+  const visibleWidth = Math.max(0, Math.min(rect.right, viewportWidth) - Math.max(rect.left, 0));
+  return visibleHeight >= Math.min(120, rect.height * .35) && visibleWidth >= Math.min(160, rect.width * .35);
+}
+
+function scheduleContentNoticeSeen({ type, id, actionItemId }) {
+  clearContentNoticeDwell();
+  const target = findEntityTarget(type, id);
+  if (!target || runtime.identity.role !== "director" || !actionItemId) return;
+  runtime.contentNoticeTarget = target;
+  target.classList.add("vm-new-content-focus");
+  const dwell = Number.isFinite(Number(runtime.options.contentNoticeDwellMs))
+    ? Math.max(0, Number(runtime.options.contentNoticeDwellMs))
+    : CONTENT_NOTICE_DWELL_MS;
+  runtime.contentNoticeTimer = setTimeout(() => {
+    const viewed = runtime.contentNoticeTarget === target && isMeaningfullyVisible(target);
+    clearContentNoticeDwell();
+    if (viewed) window.dispatchEvent(new CustomEvent("cockpit:content-notice-seen", { detail: { actionItemId, sourceType: type, sourceId: id } }));
+  }, dwell);
 }
 
 async function runNavigation(control, target) {
@@ -1052,6 +1167,9 @@ async function runNavigation(control, target) {
     if (opened && control.dataset.vmMessageId) {
       markMessageSeen(control.dataset.vmMessageId, control.dataset.vmMessageVersion);
       scheduleRender();
+    }
+    if (opened && control.dataset.vmActionType === "content_notice") {
+      scheduleContentNoticeSeen({ type: target.type, id: target.id, actionItemId: control.dataset.vmActionItemId });
     }
   } finally {
     control.disabled = false;
@@ -1109,6 +1227,7 @@ function refreshIdentity(detail = null) {
   if (changed) {
     runtime.queueRole = "";
     runtime.queueVisibleCount = 0;
+    runtime.decisionDockCollapsed = readDecisionDockPreference(next);
   }
   if (changed && !runtime.explicitMode) {
     applyMode(readPreference(next) || defaultMode(next));
@@ -1121,6 +1240,20 @@ function handleClick(event) {
     runtime.explicitMode = true;
     applyMode(modeButton.dataset.viewMode, { persist: true });
     if (runtime.mode === "essential") renderDashboard();
+    return;
+  }
+  const dockToggle = event.target.closest("[data-vm-dock-toggle]");
+  if (dockToggle) {
+    runtime.decisionDockCollapsed = !runtime.decisionDockCollapsed;
+    writeDecisionDockPreference(runtime.decisionDockCollapsed);
+    renderDashboard();
+    return;
+  }
+  const dockReturn = event.target.closest("[data-vm-dock-return]");
+  if (dockReturn) {
+    const panel = document.querySelector("#vm-panel-decision");
+    panel?.scrollIntoView?.({ behavior: globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? "auto" : "smooth", block: "start" });
+    try { panel?.focus?.({ preventScroll: true }); } catch { panel?.focus?.(); }
     return;
   }
   const cardHeader = event.target.closest("[data-vm-header-toggle]");
@@ -1177,6 +1310,7 @@ export function init(options = {}) {
   runtime.initialized = true;
   ensureStylesheet();
   runtime.identity = detectIdentity(options.profile || options);
+  runtime.decisionDockCollapsed = readDecisionDockPreference(runtime.identity);
   const requested = VALID_MODES.has(options.mode) ? options.mode : "";
   runtime.mode = requested || readPreference(runtime.identity) || defaultMode(runtime.identity);
   runtime.explicitMode = Boolean(requested);
@@ -1192,12 +1326,16 @@ export function init(options = {}) {
     runtime.queueRole = "";
     runtime.queueVisibleCount = 0;
     runtime.navigationToken += 1;
+    clearContentNoticeDwell();
     document.querySelector("#cockpit-view-mode-toggle")?.remove();
     document.querySelector("#cockpit-essential-dashboard")?.remove();
+    document.querySelector("#vm-decision-dock")?.remove();
     document.querySelectorAll("[data-vm-nav]").forEach((node) => node.remove());
   });
   listen(window, "cockpit:data-updated", () => update());
   listen(window, "pageshow", () => update());
+  listen(window, "scroll", syncDecisionDockVisibility, { passive: true });
+  listen(window, "resize", syncDecisionDockVisibility, { passive: true });
 
   update();
 }
@@ -1219,10 +1357,12 @@ export function update(options = {}) {
 export function destroy() {
   clearTimeout(runtime.renderTimer);
   clearTimeout(runtime.focusTimer);
+  clearContentNoticeDwell();
   runtime.observer?.disconnect();
   runtime.listeners.splice(0).forEach((remove) => remove());
   document.querySelector("#cockpit-view-mode-toggle")?.remove();
   document.querySelector("#cockpit-essential-dashboard")?.remove();
+  document.querySelector("#vm-decision-dock")?.remove();
   document.querySelectorAll("[data-vm-nav]").forEach((node) => node.remove());
   document.querySelectorAll(".vm-card-summary").forEach((node) => node.remove());
   document.querySelector(`link[data-module="${MODULE_ID}"]`)?.remove();

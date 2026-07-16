@@ -131,6 +131,8 @@ const deferredShoreLife = posts.find((post) => post.id === "alt-20260718");
 assert.equal(saturdayCommunity.date, "Samedi 18 juillet", "Le choix communautaire de la direction doit rester seul le samedi.");
 assert.equal(deferredBlueMinute.date, "Mardi 21 juillet", "L’Instant bleu doit rester espacé du contenu communautaire.");
 assert.equal(deferredBlueMinute.title, "Juste un instant");
+assert.match(deferredBlueMinute.copy, /Prendre un instant pour regarder ce que nous avons la chance de protéger/);
+assert.doesNotMatch(deferredBlueMinute.copy, /Juste un instant pour regarder/);
 assert.match(deferredBlueMinute.copy, /#InstantBleu/);
 assert.doesNotMatch(`${deferredBlueMinute.title}\n${deferredBlueMinute.visual}\n${deferredBlueMinute.copy}`, /Juste une minute|Une minute bleue|#MinuteBleue/i);
 assert.doesNotMatch(saturdayCommunity.copy, /Nous avons envie de découvrir ce qui fait vivre votre lien/i);
