@@ -393,10 +393,15 @@ assert.match(poetryProject, /Direction générale — environ 1 h 15 au total/);
 assert.match(poetryProject, /Communications — environ 8 à 12 h au total/);
 assert.match(poetryProject, /affiche-poesie-au-bord-du-lac-concept-v1\.webp/);
 assert.match(poetryProject, /affiche-poesie-au-bord-du-lac-concept-v1\.png/);
+assert.match(poetryProject, /data-initial-stage="to_frame" open/,
+  "La fiche poésie doit être ouverte à sa première présentation afin de rendre l’affiche immédiatement visible.");
+assert.match(poetryProject, /IDÉE À CADRER/);
+assert.match(poetryProject, /href="#poesie-du-lac-fiche-operationnelle"/);
+assert.ok(poetryProject.indexOf("internal-project-poster") < poetryProject.indexOf("internal-project-capacity"),
+  "L’affiche doit précéder le développement de la fiche afin d’être visible dès l’ouverture du projet.");
 for (const asset of [
   "cockpit/assets/projects/poesie-du-lac/affiche-poesie-au-bord-du-lac-concept-v1.webp",
-  "cockpit/assets/projects/poesie-du-lac/affiche-poesie-au-bord-du-lac-concept-v1.png",
-  "Projets internes/Poésie au bord du lac/DOSSIER_OPERATIONNEL_POESIE_AU_BORD_DU_LAC_V2.md"
+  "cockpit/assets/projects/poesie-du-lac/affiche-poesie-au-bord-du-lac-concept-v1.png"
 ]) assert.ok(fs.existsSync(path.join(root, asset)), `Le livrable poésie doit exister : ${asset}`);
 assert.ok(fs.statSync(path.join(root, "cockpit/assets/projects/poesie-du-lac/affiche-poesie-au-bord-du-lac-concept-v1.webp")).size < 150_000,
   "L’aperçu WebP du projet poésie doit rester léger sur mobile.");
