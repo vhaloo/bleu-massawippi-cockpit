@@ -405,6 +405,9 @@ for (const asset of [
 ]) assert.ok(fs.existsSync(path.join(root, asset)), `Le livrable poésie doit exister : ${asset}`);
 assert.ok(fs.statSync(path.join(root, "cockpit/assets/projects/poesie-du-lac/affiche-poesie-au-bord-du-lac-concept-v1.webp")).size < 150_000,
   "L’aperçu WebP du projet poésie doit rester léger sur mobile.");
+const pagesWorkflow = fs.readFileSync(path.join(root, ".github/workflows/deploy-pages.yml"), "utf8");
+assert.match(pagesWorkflow, /cp -R cockpit\/assets public\/assets/,
+  "GitHub Pages doit publier les visuels des projets internes.");
 for (const stage of ["to_frame", "planned", "active", "blocked", "completed"]) {
   assert.ok(client.includes(`"${stage}"`) && firestoreRules.includes(`'${stage}'`) && internalProjectSeed.includes(`"${stage}"`), `L’étape interne ${stage} doit rester alignée entre client, règles et initialisation.`);
 }
