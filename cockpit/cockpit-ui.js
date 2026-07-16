@@ -1520,7 +1520,8 @@ const internalProjectDocuments = {
   "moules-zebrees-continuite": "https://bleumassawippi.sharepoint.com/:b:/g/IQBXwzZegi8BSY5DuP3rDttyAWsDf-gFyjhakqJlog2d3N4",
   "concours-dessin-jeunesse": "https://bleumassawippi.sharepoint.com/:b:/g/IQDsIFjEf4YETIVG-18XQcJ1AV-jafuAp-KN29rbC1UceDc",
   "poesie-du-lac": "https://bleumassawippi.sharepoint.com/:b:/g/IQCyOfzcvrESQoKnMtA767ptAX07rnuuy0bafL63zPN5Vh4",
-  "colloque-reseautage-associations": "https://bleumassawippi.sharepoint.com/:b:/g/IQBqaPls21nuQ5vV4x-pA_teAfYEFtCCDw4a06980Hh4mRY",
+  "fonds-environnemental-partenarial": "https://bleumassawippi.sharepoint.com/:b:/g/IQCwoXOdfzAlR4BnifeACG_nARNJ6BS_1-i03fDgVFKr3Ts",
+  "colloque-reseautage-associations": "https://bleumassawippi.sharepoint.com/:b:/g/IQDGFMjv3vqAS7ktHZ7FGOTbARBUv1Jtba2bRKI0ipemg60",
   "concours-universitaire-bourse": "https://bleumassawippi.sharepoint.com/:b:/g/IQAD0jc2nS2CRIQh3EbkQYQrAanhl2vno8sqQ0U06PkDjgc"
 };
 

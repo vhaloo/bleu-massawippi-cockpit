@@ -1,5 +1,5 @@
 {
-  "version": "2026-07-15",
+  "version": "2026-07-16",
   "scope": "Propositions assainies partageables; aucun document maître interne n'est exposé.",
   "redaction": "Valentin Wittwe, directeur des communications, Bleu Massawippi",
   "documents": [
@@ -14,7 +14,8 @@
     {"id":"moules-zebrees-continuite","file":"Proposition_assainie_moules-zebrees-continuite_v1.pdf","url":"https://bleumassawippi.sharepoint.com/:b:/g/IQBXwzZegi8BSY5DuP3rDttyAWsDf-gFyjhakqJlog2d3N4"},
     {"id":"concours-dessin-jeunesse","file":"Proposition_assainie_concours-dessin-jeunesse_v1.pdf","url":"https://bleumassawippi.sharepoint.com/:b:/g/IQDsIFjEf4YETIVG-18XQcJ1AV-jafuAp-KN29rbC1UceDc"},
     {"id":"poesie-du-lac","file":"Proposition_assainie_poesie-du-lac_v1.pdf","url":"https://bleumassawippi.sharepoint.com/:b:/g/IQCyOfzcvrESQoKnMtA767ptAX07rnuuy0bafL63zPN5Vh4"},
-    {"id":"colloque-reseautage-associations","file":"Proposition_assainie_colloque-reseautage-associations_v1.pdf","url":"https://bleumassawippi.sharepoint.com/:b:/g/IQBqaPls21nuQ5vV4x-pA_teAfYEFtCCDw4a06980Hh4mRY"},
+    {"id":"fonds-environnemental-partenarial","file":"Proposition_assainie_fonds-environnemental-partenarial_v1.pdf","url":"https://bleumassawippi.sharepoint.com/:b:/g/IQCwoXOdfzAlR4BnifeACG_nARNJ6BS_1-i03fDgVFKr3Ts"},
+    {"id":"colloque-reseautage-associations","file":"Proposition_assainie_colloque-reseautage-associations_v2.pdf","url":"https://bleumassawippi.sharepoint.com/:b:/g/IQDGFMjv3vqAS7ktHZ7FGOTbARBUv1Jtba2bRKI0ipemg60"},
     {"id":"concours-universitaire-bourse","file":"Proposition_assainie_concours-universitaire-bourse_v1.pdf","url":"https://bleumassawippi.sharepoint.com/:b:/g/IQAD0jc2nS2CRIQh3EbkQYQrAanhl2vno8sqQ0U06PkDjgc"}
   ]
 }

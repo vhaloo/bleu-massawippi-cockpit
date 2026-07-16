@@ -15,6 +15,7 @@ const defaults = {
   "moules-zebrees-continuite": "blocked",
   "concours-dessin-jeunesse": "to_frame",
   "poesie-du-lac": "to_frame",
+  "fonds-environnemental-partenarial": "to_frame",
   "colloque-reseautage-associations": "to_frame",
   "concours-universitaire-bourse": "to_frame"
 };
