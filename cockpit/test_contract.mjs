@@ -371,8 +371,13 @@ assert.equal((source.match(/data-opportunity-id=/g) || []).length, 8);
 assert.match(source, /data-project-register[^>]*data-layout-version="2026-07-13-opportunities-notes-v3"/);
 assert.match(source, /Échéancier de détection proposé/);
 assert.match(source, /ne pas précipiter une candidature 2026 incomplète/i);
-assert.equal((source.match(/data-internal-project-id=/g) || []).length, 13, "Le registre privé doit contenir les treize projets internes documentés.");
-assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-07-16-poesie-du-lac-v2"/);
+assert.match(source, /data-id="document-plan-partenariat-2026-2027"/);
+assert.match(source, /Plan de partenariat de Bleu Massawippi/);
+assert.match(source, /IQBEpphVNmkmRai8MXNpQKldATppGkCRq0xdZBV28w5LXas/);
+assert.match(source, /Ouvrir le document/);
+assert.match(source, /Télécharger le PDF/);
+assert.equal((source.match(/data-internal-project-id=/g) || []).length, 14, "Le registre privé doit contenir les quatorze projets internes documentés.");
+assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-07-16-fonds-interlacs-v3"/);
 const internalProjectIds = [...source.matchAll(/data-internal-project-id="([a-z0-9-]+)"/g)].map((match) => match[1]).sort();
 const internalProjectSeedIds = [...internalProjectSeed.matchAll(/^  "([a-z0-9-]+)": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm)].map((match) => match[1]).sort();
 assert.deepEqual(internalProjectSeedIds, internalProjectIds, "Les cartes et le seed des projets internes doivent utiliser exactement les mêmes identifiants.");
@@ -382,6 +387,20 @@ assert.match(source, /Jeux provinciaux de pêche — événement terminé[\s\S]{
   "La fiche des Jeux provinciaux de pêche doit annoncer clairement sa clôture.");
 assert.match(internalProjectSeed, /"jeux-provinciaux-peche": "completed"/,
   "Le seed ne doit jamais recréer les Jeux provinciaux de pêche comme projet actif ou bloqué.");
+const fundProject = source.match(/<details class="internal-project" id="internal-project-fonds-environnemental"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
+assert.match(fundProject, /fonds-environnemental-partenarial/);
+assert.match(fundProject, /Environnement en actions/);
+assert.match(fundProject, /Scénario A · Fonds affecté à l’OBNL/);
+assert.match(fundProject, /Scénario B · Fonds municipal/);
+assert.match(fundProject, /Scénario C · Initiative conjointe/);
+assert.match(fundProject, /Direction générale — environ 1 h 30 avant décision/);
+assert.match(fundProject, /Communications — environ 5 à 7 h avant recommandation/);
+const interlakeProject = source.match(/<details class="internal-project" id="internal-project-colloque-reseautage"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
+assert.match(interlakeProject, /Colloques et collaboration interlacs/);
+assert.match(interlakeProject, /D’un lac à l’autre/);
+assert.match(interlakeProject, /Table québécoise d’expertise sur les lacs/);
+assert.match(interlakeProject, /Direction générale — environ 2 à 3 h pour le cadrage/);
+assert.match(interlakeProject, /Communications — environ 12 à 18 h pour un pilote/);
 const poetryProject = source.match(/<details class="internal-project" id="internal-project-poesie-du-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
 assert.match(poetryProject, /Valentin Wittwe, directeur des communications de Bleu Massawippi/,
   "La fiche poésie doit expliciter l’actif relationnel demandé par les communications.");
@@ -411,15 +430,23 @@ assert.match(pagesWorkflow, /cp -R cockpit\/assets public\/assets/,
 for (const stage of ["to_frame", "planned", "active", "blocked", "completed"]) {
   assert.ok(client.includes(`"${stage}"`) && firestoreRules.includes(`'${stage}'`) && internalProjectSeed.includes(`"${stage}"`), `L’étape interne ${stage} doit rester alignée entre client, règles et initialisation.`);
 }
-assert.equal((internalProjectSeed.match(/^  "[a-z0-9-]+": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm) || []).length, 13, "Le seed initial doit couvrir les treize projets internes documentés.");
-assert.equal(internalProjectDocuments.documents.length, 13, "Chaque projet interne doit avoir un dossier de proposition assaini.");
-assert.equal(new Set(internalProjectDocuments.documents.map((item) => item.id)).size, 13, "Chaque dossier partageable doit viser un projet distinct.");
+assert.equal((internalProjectSeed.match(/^  "[a-z0-9-]+": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm) || []).length, 14, "Le seed initial doit couvrir les quatorze projets internes documentés.");
+assert.equal(internalProjectDocuments.documents.length, 14, "Chaque projet interne doit avoir un dossier de proposition assaini.");
+assert.equal(new Set(internalProjectDocuments.documents.map((item) => item.id)).size, 14, "Chaque dossier partageable doit viser un projet distinct.");
 assert.equal(internalProjectDocuments.redaction, "Valentin Wittwe, directeur des communications, Bleu Massawippi");
 for (const document of internalProjectDocuments.documents) {
   assert.ok(internalProjectIds.includes(document.id), `Le dossier ${document.id} doit correspondre à une fiche du cockpit.`);
   assert.match(document.file, /^Proposition_assainie_.+\.pdf$/);
   assert.match(document.url, /^(?:https:\/\/bleumassawippi\.sharepoint\.com\/:b:\/g\/|\.\/project-documents\/)/);
   assert.ok(ui.includes(document.url), `Le dossier ${document.id} doit être raccordé à son bouton dans l’interface.`);
+}
+for (const asset of [
+  "cockpit/project-documents/Proposition_assainie_fonds-environnemental-partenarial_v1.pdf",
+  "cockpit/project-documents/Proposition_assainie_colloque-reseautage-associations_v2.pdf"
+]) {
+  const fullPath = path.join(root, asset);
+  assert.ok(fs.existsSync(fullPath), `Le nouveau dossier PDF doit exister : ${asset}`);
+  assert.ok(fs.statSync(fullPath).size > 10_000, `Le nouveau dossier PDF doit contenir une proposition substantielle : ${asset}`);
 }
 assert.match(ui, /decorateInternalProjectDocuments/);
 assert.match(ui, /Ouvrir le dossier de proposition assaini/);
@@ -458,4 +485,4 @@ assert.match(natureMediaSeed, /publicationBlocked: item\.publicationBlocked === 
   "Le seed nature doit reconstruire le blocage éditorial d’une référence non diffusable.");
 assert.match(natureMediaSeed, /archived: item\.archived === true/,
   "Le seed nature doit garder les anciennes variantes hors des propositions actives lors d’une reconstruction.");
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 8, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 13, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 466 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 8, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 14, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 484 }, null, 2));
