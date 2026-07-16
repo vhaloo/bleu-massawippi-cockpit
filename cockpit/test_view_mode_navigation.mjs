@@ -176,7 +176,7 @@ assert.equal(document.querySelector(`.vm-decisions [data-vm-target="${firstVisib
 
 document.querySelector("[data-vm-load-more]").click();
 await wait(30);
-assert.equal(decisionCards().length, 6, "La page locale suivante doit compléter la file restante.");
+assert.equal(decisionCards().length, 7, "La page locale suivante doit afficher toute la file restante sans en perdre une.");
 assert.match(document.querySelector(".vm-queue-end").textContent, /toutes vos décisions chargées/i);
 
 // Un rôle communications ne reçoit que sa propre tâche matérialisée.

@@ -372,7 +372,7 @@ assert.match(source, /data-project-register[^>]*data-layout-version="2026-07-13-
 assert.match(source, /Échéancier de détection proposé/);
 assert.match(source, /ne pas précipiter une candidature 2026 incomplète/i);
 assert.equal((source.match(/data-internal-project-id=/g) || []).length, 13, "Le registre privé doit contenir les treize projets internes documentés.");
-assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-07-15-massawippi-en-partage-v1"/);
+assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-07-16-poesie-du-lac-v2"/);
 const internalProjectIds = [...source.matchAll(/data-internal-project-id="([a-z0-9-]+)"/g)].map((match) => match[1]).sort();
 const internalProjectSeedIds = [...internalProjectSeed.matchAll(/^  "([a-z0-9-]+)": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm)].map((match) => match[1]).sort();
 assert.deepEqual(internalProjectSeedIds, internalProjectIds, "Les cartes et le seed des projets internes doivent utiliser exactement les mêmes identifiants.");
@@ -382,6 +382,29 @@ assert.match(source, /Jeux provinciaux de pêche — événement terminé[\s\S]{
   "La fiche des Jeux provinciaux de pêche doit annoncer clairement sa clôture.");
 assert.match(internalProjectSeed, /"jeux-provinciaux-peche": "completed"/,
   "Le seed ne doit jamais recréer les Jeux provinciaux de pêche comme projet actif ou bloqué.");
+const poetryProject = source.match(/<details class="internal-project" id="internal-project-poesie-du-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
+assert.match(poetryProject, /Valentin Wittwe, directeur des communications de Bleu Massawippi/,
+  "La fiche poésie doit expliciter l’actif relationnel demandé par les communications.");
+assert.match(poetryProject, /réseau d’acteurs, de poètes, de slameurs et d’interprètes/,
+  "Le réseau professionnel mobilisable doit être décrit sans réduire le projet à un appel public.");
+assert.match(poetryProject, /75 à 105 minutes/);
+assert.match(poetryProject, /6 à 10 artistes/);
+assert.match(poetryProject, /Direction générale — environ 1 h 15 au total/);
+assert.match(poetryProject, /Communications — environ 8 à 12 h au total/);
+assert.match(poetryProject, /affiche-poesie-au-bord-du-lac-concept-v1\.webp/);
+assert.match(poetryProject, /affiche-poesie-au-bord-du-lac-concept-v1\.png/);
+assert.match(poetryProject, /data-initial-stage="to_frame" open/,
+  "La fiche poésie doit être ouverte à sa première présentation afin de rendre l’affiche immédiatement visible.");
+assert.match(poetryProject, /IDÉE À CADRER/);
+assert.match(poetryProject, /href="#poesie-du-lac-fiche-operationnelle"/);
+assert.ok(poetryProject.indexOf("internal-project-poster") < poetryProject.indexOf("internal-project-capacity"),
+  "L’affiche doit précéder le développement de la fiche afin d’être visible dès l’ouverture du projet.");
+for (const asset of [
+  "cockpit/assets/projects/poesie-du-lac/affiche-poesie-au-bord-du-lac-concept-v1.webp",
+  "cockpit/assets/projects/poesie-du-lac/affiche-poesie-au-bord-du-lac-concept-v1.png"
+]) assert.ok(fs.existsSync(path.join(root, asset)), `Le livrable poésie doit exister : ${asset}`);
+assert.ok(fs.statSync(path.join(root, "cockpit/assets/projects/poesie-du-lac/affiche-poesie-au-bord-du-lac-concept-v1.webp")).size < 150_000,
+  "L’aperçu WebP du projet poésie doit rester léger sur mobile.");
 for (const stage of ["to_frame", "planned", "active", "blocked", "completed"]) {
   assert.ok(client.includes(`"${stage}"`) && firestoreRules.includes(`'${stage}'`) && internalProjectSeed.includes(`"${stage}"`), `L’étape interne ${stage} doit rester alignée entre client, règles et initialisation.`);
 }
@@ -432,4 +455,4 @@ assert.match(natureMediaSeed, /publicationBlocked: item\.publicationBlocked === 
   "Le seed nature doit reconstruire le blocage éditorial d’une référence non diffusable.");
 assert.match(natureMediaSeed, /archived: item\.archived === true/,
   "Le seed nature doit garder les anciennes variantes hors des propositions actives lors d’une reconstruction.");
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 8, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 13, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 454 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 8, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 13, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 466 }, null, 2));
