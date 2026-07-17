@@ -28,6 +28,7 @@ assert.match(index, /registration\.update\(\)/, "Chaque ouverture doit vérifier
 assert.match(index, /controllerchange/, "La PWA doit détecter l’activation d’une nouvelle coque.");
 assert.match(index, /Actualiser maintenant/, "Une session active doit proposer une actualisation explicite plutôt que perdre une saisie.");
 assert.match(deploymentWorkflow, /cp cockpit\/actualiser\.html public\//, "La remise à neuf PWA doit faire partie de l’artefact Pages.");
+assert.match(deploymentWorkflow, /cp -R cockpit\/media-previews public\/media-previews/, "Les aperçus média légers doivent faire partie de l’artefact Pages.");
 assert.match(cockpitUi, /href="\.\/actualiser\.html" data-refresh-cockpit/, "Le pied de page doit conserver un accès humain à la remise à neuf.");
 assert.match(refresher, /bleu-massawippi-cockpit-shell-/, "La remise à neuf doit limiter la purge aux caches du cockpit.");
 assert.match(refresher, /registration\.scope\.startsWith\(baseUrl\.href\)/, "La remise à neuf ne doit désinscrire que les workers de cette application.");
