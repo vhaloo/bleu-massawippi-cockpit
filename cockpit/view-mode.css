@@ -912,8 +912,17 @@ html[data-theme="dark"] .vm-navigation-status b { color: #fff0eb; }
 }
 
 @media (max-width: 430px) {
-  .vm-decision-dock-tab.is-inline { min-width: 58px; padding-inline: 6px; }
+  .vm-decision-dock-tab.is-inline {
+    min-width: 48px;
+    min-height: 44px;
+    gap: 2px;
+    padding-inline: 4px;
+    border-color: rgba(184, 139, 57, .72);
+    box-shadow: inset 0 1px rgba(255,255,255,.72), 0 2px 6px rgba(7,58,82,.12);
+  }
   .vm-decision-dock-tab.is-inline [data-vm-dock-tab-short] { display: none; }
+  .vm-decision-dock-tab.is-inline .vm-decision-dock-tab-handle { width: 17px; height: 17px; flex-basis: 17px; }
+  .vm-decision-dock-tab.is-inline [data-vm-dock-tab-count] { min-width: 18px; height: 18px; padding: 0 3px; font-size: .56rem; }
 }
 
 html[data-theme="dark"] .cockpit-view-essential .vm-card-summary {

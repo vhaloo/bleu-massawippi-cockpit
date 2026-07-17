@@ -30,6 +30,12 @@ assert.match(index, /Actualiser maintenant/, "Une session active doit proposer u
 assert.match(deploymentWorkflow, /cp cockpit\/actualiser\.html public\//, "La remise à neuf PWA doit faire partie de l’artefact Pages.");
 assert.match(deploymentWorkflow, /cp -R cockpit\/media-previews public\/media-previews/, "Les aperçus média légers doivent faire partie de l’artefact Pages.");
 assert.match(cockpitUi, /href="\.\/actualiser\.html" data-refresh-cockpit/, "Le pied de page doit conserver un accès humain à la remise à neuf.");
+assert.match(cockpitUi, /function safeMediaPreviewUrl\(value\)/,
+  "Les aperçus optimisés doivent passer par une liste d’autorisation dédiée.");
+assert.match(cockpitUi, /p\.hostname\.toLowerCase\(\) === "vhaloo\.github\.io"/,
+  "Les aperçus publics doivent rester limités à l’hôte GitHub Pages du cockpit.");
+assert.match(cockpitUi, /p\.pathname\.startsWith\("\/bleu-massawippi-cockpit\/media-previews\/"\)/,
+  "La liste d’autorisation ne doit accepter que le répertoire public des aperçus légers.");
 assert.match(refresher, /bleu-massawippi-cockpit-shell-/, "La remise à neuf doit limiter la purge aux caches du cockpit.");
 assert.match(refresher, /registration\.scope\.startsWith\(baseUrl\.href\)/, "La remise à neuf ne doit désinscrire que les workers de cette application.");
 assert.match(refresher, /destination\.searchParams\.set\("fresh"/, "La réouverture doit contourner le cache HTTP avec une URL unique.");
