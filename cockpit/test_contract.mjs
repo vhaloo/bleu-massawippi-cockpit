@@ -32,6 +32,7 @@ const postsJson = source.match(/var posts=(\[[\s\S]*?\]);\s*var meta=/)?.[1];
 assert.ok(postsJson, "Le tableau des publications source doit rester lisible.");
 const posts = applyPlanOverridesToPosts(JSON.parse(postsJson));
 const activePosts = posts.filter((post) => post.archivedEditorial !== true);
+const activeMedia = [...historicalMedia, ...natureMedia, ...editorialMedia].filter((media) => media.archived !== true && media.publicationBlocked !== true && media.stage !== "archived" && media.stage !== "reference");
 assert.ok(activePosts.every((post) => /^2026-\d{2}-\d{2}$/.test(post.dateIso || "")), "Chaque publication active doit avoir une date ISO canonique.");
 assert.ok(posts.every((post) => /^2026-\d{2}-\d{2}$/.test(post.dateIso || "")), "Chaque document planifié ou archivé envoyé à Firestore doit conserver une date ISO canonique.");
 for (const post of posts) {
@@ -48,6 +49,9 @@ assert.deepEqual(
   { s2d3: "2026-07-22", s2d6: "2026-07-26", s3d1b: "2026-07-27" },
   "Les archives éditoriales doivent conserver leur date d’origine pour rester modifiables sous les règles Firestore."
 );
+for (const post of activePosts.filter((post) => post.dateIso >= "2026-07-22")) {
+  assert.ok(activeMedia.some((media) => media.eventId === post.id), `La publication future ${post.id} doit avoir au moins une proposition média explicite.`);
+}
 assert.deepEqual(
   activePosts.map((post) => post.dateIso),
   [...activePosts].map((post) => post.dateIso).sort(),
@@ -73,8 +77,14 @@ assert.equal(moved.w, 5);
 assert.equal(volunteer.date, "Mardi 11 août");
 assert.equal(volunteer.w, 5);
 assert.equal(volunteer.coordinationLevel, "high");
+assert.equal(volunteer.requiresHumanConsent, true);
+assert.equal(volunteer.requiresContactOwnership, true);
+assert.equal(volunteer.coordinationDecisionMinutesAnnie, 15);
 assert.ok(volunteer.tasksValentin.length >= 5);
 assert.ok(volunteer.tasksAnnie.length >= 4);
+assert.ok(volunteer.tasksAnnie.some((task) => /premier contact/i.test(task)));
+assert.ok(volunteer.tasksAnnie.some((task) => /coordonn/i.test(task)));
+assert.ok(volunteer.tasksAnnie.some((task) => /consentement/i.test(task)));
 assert.equal(firstTuesday.choiceRequired, false, "La proposition retenue du mardi est verrouillée et ne demande plus d’arbitrage.");
 assert.equal(firstTuesday.optionGroup, null, "Une proposition verrouillée ne doit plus appartenir à un groupe de choix actif.");
 assert.equal(posts.filter((post) => !post.isAlternative).length, 28);
@@ -245,11 +255,11 @@ assert.match(mediaSeedSources.find(({ file }) => file === "seed_historical_media
   "Le seed historique doit maintenir l’archivage éditorial explicite lors des synchronisations futures.");
 assert.ok(natureMedia.length > 0, "Le registre des visuels nature ne doit pas être vide.");
 assert.equal(new Set(natureMedia.map((item) => item.id)).size, natureMedia.length);
-assert.equal(new Set(natureMedia.map((item) => item.eventId)).size, 10);
+assert.equal(new Set(natureMedia.map((item) => item.eventId)).size, 11);
 for (const media of natureMedia) {
   const relatedPost = posts.find((post) => post.id === media.eventId);
   assert.ok(relatedPost, `L’affiche ${media.fileName} doit être reliée à une publication existante.`);
-  assert.ok(relatedPost.t === "Nature" || media.eventId === "lexique-20260830-tributaire", `L’affiche ${media.fileName} doit servir une publication nature ou la capsule lexique documentée.`);
+  assert.ok(relatedPost.t === "Nature" || ["lexique-20260830-tributaire", "alt-20260723"].includes(media.eventId), `L’affiche ${media.fileName} doit servir une publication nature, une capsule de rive ou la capsule lexique documentée.`);
   assert.match(media.fileName, /\.(?:jpg|png)$/);
   assert.ok(media.altText.length >= 60, `L’affiche ${media.fileName} doit conserver un texte alternatif utile.`);
 }
@@ -348,7 +358,7 @@ for (const token of ["roleDecisionForEvent", "roleDecisionModels", "pendingTaskM
 }
 assert.match(viewMode, /if \(role === "admin" && latestTask && !event\.complete\)/,
   "Une tâche transmise par la direction doit apparaître seulement dans la file des communications et ne jamais ressusciter une publication terminée.");
-assert.match(viewMode, /if \(role === "director"\)[\s\S]{0,1800}if \(role === "admin"\)/,
+assert.match(viewMode, /if \(role === "director"\)[\s\S]{0,3200}if \(role === "admin"\)/,
   "Les décisions de la direction et des communications doivent rester séparées par rôle.");
 assert.match(viewMode, /event\.media\.latestUpdate > event\.workflowUpdatedAt/,
   "Un média plus récent que la dernière validation doit remonter dans la file de la direction.");

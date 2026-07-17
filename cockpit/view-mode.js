@@ -1037,6 +1037,16 @@ function roleDecisionForEvent(event, role, tasks = []) {
   if (event.complete || event.setAside) return null;
 
   if (role === "director") {
+    if (event.item?.requiresContactOwnership === true && ["proposal", "content_review", "changes_requested"].includes(event.stage)) {
+      return {
+        ...event,
+        action: event.stage === "content_review"
+          ? "Attribuer le premier contact et la coordination, puis valider le texte"
+          : "Organiser le portrait : choisir les personnes et attribuer le premier contact",
+        whyNow: event.item.coordinationLabel || "Une vraie personne, son accord et un responsable de coordination sont requis avant d’avancer.",
+        updatedAt: baseUpdatedAt
+      };
+    }
     if (event.stage === "content_review") {
       return {
         ...event,
@@ -1231,6 +1241,8 @@ function linkButton(event, label = "Ouvrir") {
 }
 
 function estimatedDecisionMinutes(event, role) {
+  const assignedEstimate = role === "director" ? Number(event.item?.coordinationDecisionMinutesAnnie) : 0;
+  if (Number.isInteger(assignedEstimate) && assignedEstimate > 0) return assignedEstimate;
   const text = `${event.action || ""} ${event.whyNow || ""} ${event.title || ""}`.toLocaleLowerCase("fr");
   if (event.targetType === "internal-project" || event.targetType === "opportunity" || event.targetType === "section") return role === "director" ? 10 : 25;
   if (/choisir|approuver|valider|confirmer le visuel|confirmer le texte/.test(text)) return role === "director" ? 3 : 5;

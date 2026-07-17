@@ -105,12 +105,47 @@ const VOLUNTEER_INTERVIEW_POST = {
   ],
   tasksAnnie: [
     "Confirmer la liste actuelle des membres du conseil d’administration, leur titre public et l’ordre de présentation.",
-    "Faire l’introduction institutionnelle, transmettre la question et confirmer la disponibilité de chaque personne.",
+    "Désigner clairement qui prend le premier contact avec chaque personne — direction générale ou communications — puis confirmer la personne responsable de coordonner les réponses, les portraits et les relances.",
+    "Faire ou autoriser l’introduction institutionnelle, transmettre la question et confirmer la disponibilité de chaque personne.",
     "Valider que chaque citation respecte bien la pensée de son auteur et que les informations institutionnelles sont exactes.",
     "Décider si la première publication présente tout le conseil ou si la série commence par deux ou trois portraits, puis se poursuit."
   ],
-  taskOwnersVersion: "event-task-owners-2026-07-13-board-portrait-v3"
+  taskOwnersVersion: "event-task-owners-2026-07-17-board-portrait-v4"
 };
+
+const HUMAN_INTERVIEW_COORDINATION_LABEL = "Préparation requise · personne réelle, premier contact, coordination et consentement";
+const HUMAN_INTERVIEW_DIRECTION_TASKS = [
+  "Décider qui prend le premier contact avec chaque personne — direction générale ou communications.",
+  "Confirmer qui coordonne les réponses, les disponibilités, le portrait et les relances jusqu’à la validation.",
+  "Valider l’identité publique, le rôle, la citation et le consentement de chaque personne avant diffusion."
+];
+
+function isHumanInterviewPost(post) {
+  const text = [post?.title, post?.format, post?.role, post?.task, post?.coordinationLabel]
+    .filter(Boolean)
+    .join(" ")
+    .toLocaleLowerCase("fr");
+  if (/\b(?:entrevue|interview)\b/.test(text)) return true;
+  return /\bportrait\b/.test(text) && /\b(?:bénévol|membre|conseil|personne|équipe|témoignage|citation)\b/.test(text);
+}
+
+function ensureHumanInterviewCoordination(post) {
+  if (!isHumanInterviewPost(post)) return;
+  post.requiresHumanConsent = true;
+  post.requiresContactOwnership = true;
+  post.coordinationLevel = "high";
+  post.coordinationLabel ||= HUMAN_INTERVIEW_COORDINATION_LABEL;
+  post.coordinationDecisionMinutesAnnie = Math.max(Number(post.coordinationDecisionMinutesAnnie) || 0, 15);
+  const directionTasks = Array.isArray(post.tasksAnnie) ? post.tasksAnnie : [];
+  HUMAN_INTERVIEW_DIRECTION_TASKS.forEach((task) => {
+    const marker = task.includes("premier contact") ? /premier contact/i
+      : task.includes("coordonne") ? /coordonn/i
+      : /consentement/i;
+    if (!directionTasks.some((current) => marker.test(String(current)))) directionTasks.push(task);
+  });
+  post.tasksAnnie = directionTasks;
+  post.taskOwnersVersion = "event-task-owners-2026-07-17-human-interview-v1";
+}
 
 const TRIBUTARY_LEXICON_POST = {
   id: "lexique-20260830-tributaire",
@@ -320,6 +355,7 @@ export function applyPlanOverridesToPosts(posts) {
     if (post) Object.assign(post, { choiceRequired: false, optionGroup: null, optionLabel: null });
   });
   finalPosts.forEach((post) => {
+    ensureHumanInterviewCoordination(post);
     const dateIso = planDateIsoFromLabel(post.date) || ARCHIVED_DATE_ISO.get(post.id);
     if (dateIso) post.dateIso = dateIso;
     else delete post.dateIso;

@@ -87,7 +87,10 @@ globalThis.posts = [
     date: frenchDate(15 + index),
     t: index === 1 ? "Nature" : "Communauté",
     w: index < 4 ? 1 : 2,
-    hiddenCard: index === 1
+    hiddenCard: index === 1,
+    requiresContactOwnership: index === 0,
+    coordinationLabel: index === 0 ? "Préparation requise · personne réelle, premier contact, coordination et consentement" : "",
+    coordinationDecisionMinutesAnnie: index === 0 ? 15 : 0
   }))
 ];
 
@@ -146,6 +149,9 @@ assert.equal(essentialNav[0].dataset.vmNav, "decision", "Le raccourci Décisions
 assert.equal(essentialNav[1].dataset.vmNav, "today", "Le raccourci Aujourd'hui doit être le deuxième.");
 assert.equal(decisionCards().length, 5, "La file initiale DG doit rester bornée à cinq décisions.");
 assert.ok([...document.querySelectorAll(".vm-decisions .vm-time-estimate")].every((node) => /min|h/.test(node.textContent)), "Chaque décision visible doit annoncer une durée approximative.");
+const interviewDecision = document.querySelector('[data-vm-target="future-1"]').closest(".vm-event");
+assert.match(interviewDecision.textContent, /Attribuer le premier contact et la coordination/);
+assert.match(interviewDecision.querySelector(".vm-time-estimate").textContent, /15 min/);
 assert.ok(document.querySelector('[data-vm-target="future-1"]').closest(".vm-event").classList.contains("priority-urgent"), "Le 15 juillet à 7 h 30 doit être urgent à moins de 48 h.");
 assert.ok(decisionCards().some((card) => card.classList.contains("priority-current-week")), "Le reste de la semaine doit être orange, sans urgence pulsante.");
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Action réservée aux communications/);
