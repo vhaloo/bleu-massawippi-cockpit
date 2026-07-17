@@ -431,14 +431,14 @@ Next time you travel along the lake, which of these roles will you notice first?
     title: "Cet automne, découvrons les jardins de pluie",
     cta: "Manifester votre intérêt",
     copy: bilingual(
-      `Après une averse, l’eau se met en route vers les fossés, les ruisseaux et parfois jusqu’au lac. Sur son chemin, elle peut aussi entraîner de la terre et d’autres matières.
+      `Après une averse, l’eau se met en route vers les fossés, les ruisseaux et parfois jusqu’au lac. Sur son chemin, elle peut emporter de la terre, des débris végétaux, des fertilisants et d’autres polluants présents au sol.
 
 Un jardin de pluie lui offre un endroit où ralentir et pénétrer doucement dans le sol. Cet automne, Bleu Massawippi prépare un atelier pour découvrir le principe, voir des exemples et poser vos questions. La date sera annoncée dès qu’elle sera confirmée.
 
 Vous aimeriez recevoir les détails? Écrivez-nous en message privé et nous vous tiendrons au courant.
 
 #JardinsDePluie #BleuMassawippi #BassinVersant #LacMassawippi`,
-      `After a downpour, runoff flows toward ditches and streams—and sometimes all the way to the lake. Along the way, it can carry soil and other material.
+      `After a downpour, runoff flows toward ditches and streams—and sometimes all the way to the lake. Along the way, it can pick up soil, plant debris, fertilizers and other pollutants found on the ground.
 
 A rain garden gives that water a place to slow down and gently soak into the ground. This fall, Bleu Massawippi is preparing a workshop to explore the idea, see examples and answer questions. The date will be shared as soon as it is confirmed.
 
@@ -477,7 +477,7 @@ Would you be interested? Tell us in the comments or send us a private message.
 
 Pour les embarcations à propulsion mécanique ou électrique, la limite officielle est de 10 km/h à 100 mètres ou moins de la rive du lac Massawippi. Respecter cette zone, garder une distance confortable et rester attentif à son sillage aide à protéger les rives et à laisser de l’espace aux autres usages.
 
-Merci de ralentir près du bord : c’est une attention simple qui rend le lac plus agréable pour tout le monde.
+Merci de ralentir près du bord : c’est une attention simple qui réduit notre impact sur un écosystème fragile et rend le lac plus agréable pour tout le monde.
 
 Source officielle — Transports Canada : ${MASSAWIPPI_SPEED_LIMIT_FR_URL}
 
@@ -486,13 +486,13 @@ Source officielle — Transports Canada : ${MASSAWIPPI_SPEED_LIMIT_FR_URL}
 
 For power-driven and electrically propelled vessels, the official limit is 10 km/h within 100 metres of the shore of Lake Massawippi. Respecting this zone, leaving comfortable space and staying aware of your wake helps protect shorelines and leaves room for other lake users.
 
-Thank you for slowing down near shore. It is a simple courtesy that makes the lake more enjoyable for everyone.
+Thank you for slowing down near shore. It is a simple courtesy that reduces our impact on a fragile ecosystem and makes the lake more enjoyable for everyone.
 
 Official source — Transport Canada: ${MASSAWIPPI_SPEED_LIMIT_EN_URL}
 
 #ResponsibleBoating #BleuMassawippi #LakeMassawippi #SharedEnjoyment`
     ),
-    visual: "Photo réelle et paisible montrant une embarcation ralentie loin des autres usages. Intégrer avec sobriété « 10 km/h · à 100 m ou moins de la rive » et un petit crédit « Source : Transports Canada », sans transformer le visuel en panneau répressif."
+    visual: "Planche scolaire vintage très simple : une rive, une embarcation, la limite de 100 m et le repère 10 km/h. Retirer les explications périphériques et ajouter seulement l’accroche manuscrite chaleureuse « Mon lac, j’en prends soin · I care for my lake »."
   },
   "alt-20260725": {
     title: "Partager le lac, c’est aussi se laisser de l’espace",

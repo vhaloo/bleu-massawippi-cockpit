@@ -45,7 +45,8 @@ for (const item of manifest) {
     kind: "image",
     note: item.note || `Illustration originale, format 4:5. ${item.altText} Vérifier une dernière fois la justesse naturaliste et le texte avant diffusion.`,
     altText: item.altText,
-    rightsStatus: item.rightsStatus || "original"
+    rightsStatus: item.rightsStatus || "original",
+    ...(item.previewUrl ? { previewUrl: item.previewUrl } : {})
   };
   if (!existing.exists) {
     batch.set(reference, {
