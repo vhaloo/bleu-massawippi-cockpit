@@ -261,7 +261,11 @@ for (const media of editorialMedia) {
   assert.match(media.fileName, /\.(?:jpg|png|mp4)$/);
   assert.ok(media.altText.length >= 60, `Le visuel ${media.fileName} doit conserver un texte alternatif utile.`);
 }
-for (const mediaId of ["editorial-s1d4-mon-massawippi-fridge-v5", "editorial-alt-20260719-engraving-crop-upscale-v3"]) {
+for (const mediaId of [
+  "editorial-s1d4-mon-massawippi-fridge-v5",
+  "editorial-alt-20260719-engraving-crop-upscale-v3",
+  "editorial-s2d5-vitesse-rive-planche-simple-v4"
+]) {
   const media = editorialMedia.find((item) => item.id === mediaId);
   assert.match(media?.previewUrl || "", /^https:\/\/vhaloo\.github\.io\/bleu-massawippi-cockpit\/media-previews\/.+\.webp$/);
   const previewPath = new URL(media.previewUrl).pathname.replace(/^\/bleu-massawippi-cockpit\//, "");
