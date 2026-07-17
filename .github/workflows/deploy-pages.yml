@@ -94,6 +94,7 @@ jobs:
           cp cockpit/icon.svg public/
           cp cockpit/icons.svg public/
           cp -R cockpit/assets public/assets
+          cp -R cockpit/media-previews public/media-previews
           mkdir -p public/project-documents
           cp cockpit/project-documents/*.pdf public/project-documents/
           cp SOURCES_ET_GARDES_FOUS.md public/
