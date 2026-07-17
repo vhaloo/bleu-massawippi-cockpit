@@ -35,13 +35,13 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260717-b28";
-import { createEventContextController } from "./event-context-data.js?v=20260717-b28";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260717-b28";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260717-b28";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260717-b28";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260717-b28";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260717-b28";
+} from "./firebase-client.js?v=20260717-b29";
+import { createEventContextController } from "./event-context-data.js?v=20260717-b29";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260717-b29";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260717-b29";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260717-b29";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260717-b29";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260717-b29";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -66,9 +66,7 @@ const monthlySnapshotCollapsedKey = "bleu-massawippi-monthly-snapshot-collapsed"
 let dateElevatorFrame = 0;
 let dateElevatorScrollBound = false;
 
-function notifyViewUpdate(reason = "data") {
-  dispatchEvent(new CustomEvent("cockpit:data-updated", { detail: { reason } }));
-}
+function notifyViewUpdate(reason="data"){dispatchEvent(new CustomEvent("cockpit:data-updated",{detail:{reason}}))}
 
 const ripple=target=>target&&dispatchEvent(new CustomEvent("cockpit:soft-ripple",{detail:{target}}));
 
