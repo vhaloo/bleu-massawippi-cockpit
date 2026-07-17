@@ -17,6 +17,11 @@ const NAVIGATION_ATTEMPTS = 5;
 const NAVIGATION_DELAY_MS = 60;
 const CONTENT_NOTICE_DWELL_MS = 2200;
 const DECISION_DOCK_MIN_WIDTH = 1180;
+const DECISION_DOCK_PANEL_MIN_WIDTH = 200;
+const DECISION_DOCK_PANEL_MAX_WIDTH = 318;
+const DECISION_DOCK_EDGE = 12;
+const DECISION_DOCK_GAP = 18;
+const DECISION_DOCK_INLINE_MAX_WIDTH = 700;
 const MONTHS = new Map([
   ["janvier", 0], ["février", 1], ["fevrier", 1], ["mars", 2],
   ["avril", 3], ["mai", 4], ["juin", 5], ["juillet", 6],
@@ -40,7 +45,9 @@ const runtime = {
   queueVisibleCount: 0,
   contentNoticeTimer: 0,
   contentNoticeTarget: null,
-  decisionDockCollapsed: false
+  decisionDockCollapsed: false,
+  decisionDockForcedOpen: false,
+  decisionDockHasItems: false
 };
 
 const icon = (name) => {
@@ -117,6 +124,21 @@ function writeDecisionDockPreference(collapsed) {
   catch { /* préférence limitée à la session */ }
 }
 
+function decisionDockLabels(role = runtime.identity.role) {
+  if (role === "admin") {
+    return {
+      eyebrow: "Communications",
+      title: "À accomplir maintenant",
+      tab: "Mes tâches"
+    };
+  }
+  return {
+    eyebrow: "Direction générale",
+    title: "Décisions qui m’attendent",
+    tab: "Mes décisions"
+  };
+}
+
 function defaultMode(identity) {
   if (identity.role === "director") return "essential";
   return "complete";
@@ -176,46 +198,146 @@ function ensureDashboard() {
 
 function ensureDecisionDock() {
   let dock = document.querySelector("#vm-decision-dock");
-  if (dock) return dock;
-  dock = document.createElement("aside");
-  dock.id = "vm-decision-dock";
-  dock.className = "vm-decision-dock";
-  dock.setAttribute("aria-label", "Décisions qui m’attendent");
-  dock.setAttribute("aria-hidden", "true");
-  dock.innerHTML = `
-    <header><div><small>Votre file personnelle</small><b>Décisions qui m’attendent</b><span data-vm-dock-count></span></div><button type="button" data-vm-dock-toggle aria-expanded="true" aria-label="Réduire la file">−</button></header>
-    <div class="vm-decision-dock-body" data-vm-dock-body></div>
-    <footer><button type="button" data-vm-dock-return>↑ Retour au tableau</button></footer>`;
-  document.body.appendChild(dock);
+  if (!dock) {
+    dock = document.createElement("aside");
+    dock.id = "vm-decision-dock";
+    dock.className = "vm-decision-dock";
+    dock.setAttribute("aria-hidden", "true");
+    dock.innerHTML = `
+      <header><div><small data-vm-dock-eyebrow></small><b data-vm-dock-title></b><span data-vm-dock-count></span></div><button type="button" data-vm-dock-toggle aria-controls="vm-decision-dock-body" aria-expanded="true" aria-label="Masquer le panneau vers sa languette">−</button></header>
+      <div id="vm-decision-dock-body" class="vm-decision-dock-body" data-vm-dock-body></div>
+      <footer><button type="button" data-vm-dock-return>↑ Retour au tableau</button></footer>`;
+    document.body.appendChild(dock);
+  }
+  let tab = document.querySelector("#vm-decision-dock-tab");
+  if (!tab) {
+    tab = document.createElement("button");
+    tab.type = "button";
+    tab.id = "vm-decision-dock-tab";
+    tab.className = "vm-decision-dock-tab";
+    tab.dataset.vmDockTab = "";
+    tab.setAttribute("aria-controls", "vm-decision-dock");
+    tab.setAttribute("aria-expanded", "false");
+    tab.setAttribute("aria-hidden", "true");
+    tab.tabIndex = -1;
+    tab.innerHTML = `<span class="vm-decision-dock-tab-handle" aria-hidden="true">›</span><span data-vm-dock-tab-label></span><span data-vm-dock-tab-short aria-hidden="true">À faire</span><strong data-vm-dock-tab-count></strong>`;
+    document.body.appendChild(tab);
+  }
   return dock;
+}
+
+function decisionDockAvailableWidth() {
+  const explicit = Number(runtime.options.decisionDockAvailableWidth);
+  if (Number.isFinite(explicit)) return Math.max(0, explicit);
+
+  const viewportWidth = Number(document.documentElement?.clientWidth || globalThis.innerWidth || 0);
+  const selectors = [
+    "#cockpit-essential-dashboard",
+    "#cockpit-content .hero.wrap",
+    "#cockpit-content > .wrap",
+    "#cockpit-content .section.wrap"
+  ];
+  let left = 0;
+  for (const selector of selectors) {
+    const candidate = document.querySelector(selector);
+    const rect = candidate?.getBoundingClientRect?.();
+    if (rect && rect.width > 0 && rect.left > 0) {
+      left = rect.left;
+      break;
+    }
+  }
+  if (!left && viewportWidth) {
+    const contentWidth = Math.min(1280, Math.max(0, viewportWidth - 32));
+    left = Math.max(0, (viewportWidth - contentWidth) / 2);
+  }
+  return Math.max(0, left - DECISION_DOCK_EDGE - DECISION_DOCK_GAP);
+}
+
+function decisionDockAnchorPassed(panel, threshold) {
+  const rect = panel?.getBoundingClientRect?.();
+  if (rect?.height > 0) return rect.bottom <= threshold;
+  return Number(globalThis.scrollY || 0) >= threshold;
+}
+
+function placeDecisionDockTab(tab, viewportWidth) {
+  const navWrap = document.querySelector(".nav .wrap");
+  const inline = viewportWidth <= DECISION_DOCK_INLINE_MAX_WIDTH && Boolean(navWrap);
+  const target = inline ? navWrap : document.body;
+  if (tab.parentElement !== target) {
+    if (inline) navWrap.prepend(tab);
+    else document.body.appendChild(tab);
+  }
+  tab.classList.toggle("is-inline", inline);
 }
 
 function syncDecisionDockVisibility() {
   const dock = document.querySelector("#vm-decision-dock");
-  if (!dock) return;
+  const tab = document.querySelector("#vm-decision-dock-tab");
+  if (!dock || !tab) return;
   const panel = document.querySelector("#vm-panel-decision");
   const minWidth = Number(runtime.options.decisionDockMinWidth || DECISION_DOCK_MIN_WIDTH);
+  const panelMinWidth = Number(runtime.options.decisionDockPanelMinWidth || DECISION_DOCK_PANEL_MIN_WIDTH);
+  const panelMaxWidth = Number(runtime.options.decisionDockPanelMaxWidth || DECISION_DOCK_PANEL_MAX_WIDTH);
   const threshold = Number(runtime.options.decisionDockThreshold || 104);
-  const visible = runtime.identity.role === "director"
-    && runtime.mode === "essential"
-    && globalThis.innerWidth >= minWidth
+  const viewportWidth = Number(document.documentElement?.clientWidth || globalThis.innerWidth || 0);
+  placeDecisionDockTab(tab, viewportWidth);
+  const availableWidth = decisionDockAvailableWidth();
+  const hasRoom = viewportWidth >= minWidth && availableWidth >= panelMinWidth;
+  const eligible = ["director", "admin"].includes(runtime.identity.role)
+    && runtime.decisionDockHasItems
     && Boolean(panel)
-    && panel.getBoundingClientRect().bottom <= threshold;
+    && decisionDockAnchorPassed(panel, threshold);
+  const visible = eligible
+    && !runtime.decisionDockCollapsed
+    && (hasRoom || runtime.decisionDockForcedOpen);
+  const tabVisible = eligible && !visible;
+  const width = hasRoom
+    ? Math.max(panelMinWidth, Math.min(panelMaxWidth, Math.floor(availableWidth)))
+    : Math.min(panelMaxWidth, Math.max(260, viewportWidth - 58));
+
+  dock.style.setProperty("--vm-decision-dock-width", `${width}px`);
   dock.classList.toggle("is-visible", visible);
+  dock.classList.toggle("is-overlay", visible && !hasRoom);
   dock.setAttribute("aria-hidden", String(!visible));
+  dock.inert = !visible;
+
+  tab.classList.toggle("is-visible", tabVisible);
+  tab.setAttribute("aria-hidden", String(!tabVisible));
+  tab.setAttribute("aria-expanded", String(visible));
+  tab.tabIndex = tabVisible ? 0 : -1;
 }
 
-function renderDecisionDock(countLabel, body) {
+function renderDecisionDock(countLabel, body, { hasItems = true } = {}) {
   const dock = ensureDecisionDock();
-  dock.classList.toggle("is-collapsed", runtime.decisionDockCollapsed);
+  const tab = document.querySelector("#vm-decision-dock-tab");
+  const labels = decisionDockLabels();
+  runtime.decisionDockHasItems = Boolean(hasItems);
+  dock.setAttribute("aria-label", labels.title);
+  const eyebrow = dock.querySelector("[data-vm-dock-eyebrow]");
+  if (eyebrow) eyebrow.textContent = labels.eyebrow;
+  const title = dock.querySelector("[data-vm-dock-title]");
+  if (title) title.textContent = labels.title;
   const toggle = dock.querySelector("[data-vm-dock-toggle]");
   if (toggle) {
-    toggle.textContent = runtime.decisionDockCollapsed ? "+" : "−";
-    toggle.setAttribute("aria-expanded", String(!runtime.decisionDockCollapsed));
-    toggle.setAttribute("aria-label", runtime.decisionDockCollapsed ? "Déployer la file" : "Réduire la file");
+    toggle.textContent = "−";
+    toggle.setAttribute("aria-expanded", "true");
+    toggle.setAttribute("aria-label", "Masquer le panneau vers sa languette");
   }
   const count = dock.querySelector("[data-vm-dock-count]");
   if (count) count.textContent = countLabel;
+  if (tab) {
+    const tabLabel = tab.querySelector("[data-vm-dock-tab-label]");
+    if (tabLabel) tabLabel.textContent = labels.tab;
+    const tabCount = tab.querySelector("[data-vm-dock-tab-count]");
+    const compactCount = String(countLabel || "").match(/\d+\+?/)?.[0] || "";
+    if (tabCount) {
+      tabCount.textContent = compactCount;
+      tabCount.hidden = !compactCount;
+    }
+    const tabAccessibleLabel = `Ouvrir ${labels.tab.toLowerCase()}${compactCount ? `, ${compactCount} élément${compactCount === "1" ? "" : "s"}` : ""}`;
+    tab.setAttribute("aria-label", tabAccessibleLabel);
+    tab.title = tabAccessibleLabel;
+  }
   const host = dock.querySelector("[data-vm-dock-body]");
   if (host && host.dataset.signature !== body) {
     host.dataset.signature = body;
@@ -1110,7 +1232,11 @@ function renderDashboard(now = new Date()) {
     panel("week", "Les sept prochains jours", `${nextWeek.length} événement${nextWeek.length > 1 ? "s" : ""}`, weekBody, "vm-week"),
     panel("message", "Messages actifs", `${messages.length} récent${messages.length > 1 ? "s" : ""}`, messagesBody, "vm-messages")
   ].join("");
-  renderDecisionDock(decisionsAreCurrent ? `${allDecisions.length}${remoteMore ? "+" : ""} pour vous` : "Synchronisation", decisionsBody);
+  renderDecisionDock(
+    decisionsAreCurrent ? `${allDecisions.length}${remoteMore ? "+" : ""} pour vous` : "Synchronisation",
+    decisionsBody,
+    { hasItems: !decisionsAreCurrent || allDecisions.length > 0 || remoteMore || Boolean(remoteError) }
+  );
 
   enhanceCardSummaries();
   const messageBadge = ensureEssentialNav()?.querySelector("[data-vm-message-count]");
@@ -1228,6 +1354,7 @@ function refreshIdentity(detail = null) {
     runtime.queueRole = "";
     runtime.queueVisibleCount = 0;
     runtime.decisionDockCollapsed = readDecisionDockPreference(next);
+    runtime.decisionDockForcedOpen = false;
   }
   if (changed && !runtime.explicitMode) {
     applyMode(readPreference(next) || defaultMode(next));
@@ -1244,9 +1371,22 @@ function handleClick(event) {
   }
   const dockToggle = event.target.closest("[data-vm-dock-toggle]");
   if (dockToggle) {
-    runtime.decisionDockCollapsed = !runtime.decisionDockCollapsed;
-    writeDecisionDockPreference(runtime.decisionDockCollapsed);
-    renderDashboard();
+    runtime.decisionDockCollapsed = true;
+    runtime.decisionDockForcedOpen = false;
+    writeDecisionDockPreference(true);
+    syncDecisionDockVisibility();
+    const tab = document.querySelector("#vm-decision-dock-tab");
+    try { tab?.focus?.({ preventScroll: true }); } catch { tab?.focus?.(); }
+    return;
+  }
+  const dockTab = event.target.closest("[data-vm-dock-tab]");
+  if (dockTab) {
+    runtime.decisionDockCollapsed = false;
+    runtime.decisionDockForcedOpen = true;
+    writeDecisionDockPreference(false);
+    syncDecisionDockVisibility();
+    const close = document.querySelector("[data-vm-dock-toggle]");
+    try { close?.focus?.({ preventScroll: true }); } catch { close?.focus?.(); }
     return;
   }
   const dockReturn = event.target.closest("[data-vm-dock-return]");
@@ -1311,6 +1451,7 @@ export function init(options = {}) {
   ensureStylesheet();
   runtime.identity = detectIdentity(options.profile || options);
   runtime.decisionDockCollapsed = readDecisionDockPreference(runtime.identity);
+  runtime.decisionDockForcedOpen = false;
   const requested = VALID_MODES.has(options.mode) ? options.mode : "";
   runtime.mode = requested || readPreference(runtime.identity) || defaultMode(runtime.identity);
   runtime.explicitMode = Boolean(requested);
@@ -1330,12 +1471,16 @@ export function init(options = {}) {
     document.querySelector("#cockpit-view-mode-toggle")?.remove();
     document.querySelector("#cockpit-essential-dashboard")?.remove();
     document.querySelector("#vm-decision-dock")?.remove();
+    document.querySelector("#vm-decision-dock-tab")?.remove();
     document.querySelectorAll("[data-vm-nav]").forEach((node) => node.remove());
   });
   listen(window, "cockpit:data-updated", () => update());
   listen(window, "pageshow", () => update());
   listen(window, "scroll", syncDecisionDockVisibility, { passive: true });
-  listen(window, "resize", syncDecisionDockVisibility, { passive: true });
+  listen(window, "resize", () => {
+    runtime.decisionDockForcedOpen = false;
+    syncDecisionDockVisibility();
+  }, { passive: true });
 
   update();
 }
@@ -1363,6 +1508,7 @@ export function destroy() {
   document.querySelector("#cockpit-view-mode-toggle")?.remove();
   document.querySelector("#cockpit-essential-dashboard")?.remove();
   document.querySelector("#vm-decision-dock")?.remove();
+  document.querySelector("#vm-decision-dock-tab")?.remove();
   document.querySelectorAll("[data-vm-nav]").forEach((node) => node.remove());
   document.querySelectorAll(".vm-card-summary").forEach((node) => node.remove());
   document.querySelector(`link[data-module="${MODULE_ID}"]`)?.remove();
@@ -1375,6 +1521,8 @@ export function destroy() {
   runtime.navigationToken += 1;
   runtime.queueRole = "";
   runtime.queueVisibleCount = 0;
+  runtime.decisionDockForcedOpen = false;
+  runtime.decisionDockHasItems = false;
 }
 
 // Autonome lorsque chargé directement; init() reste exporté pour les tests et

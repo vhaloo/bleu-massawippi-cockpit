@@ -41,7 +41,12 @@ Object.assign(globalThis, {
   requestAnimationFrame: (callback) => setTimeout(callback, 0),
   matchMedia: () => ({ matches: false, addEventListener() {}, removeEventListener() {} })
 });
-Object.defineProperty(window, "innerWidth", { configurable: true, value: 1366 });
+function setViewportWidth(width) {
+  Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
+  Object.defineProperty(globalThis, "innerWidth", { configurable: true, value: width });
+  Object.defineProperty(document.documentElement, "clientWidth", { configurable: true, value: width });
+}
+setViewportWidth(1366);
 Object.defineProperty(window, "innerHeight", { configurable: true, value: 900 });
 window.localStorage = localStorage;
 window.matchMedia = globalThis.matchMedia;
@@ -114,7 +119,7 @@ document.querySelector("#past-toggle").addEventListener("click", () => { showPas
 renderCalendar();
 
 const viewMode = await import(`./view-mode.js?navigation-test=${Date.now()}`);
-viewMode.init({ profile: { uid: "annie", role: "director" }, now: new Date("2026-07-14T12:00:00-04:00"), contentNoticeDwellMs: 20, decisionDockMinWidth: 1180 });
+viewMode.init({ profile: { uid: "annie", role: "director" }, now: new Date("2026-07-14T12:00:00-04:00"), contentNoticeDwellMs: 20, decisionDockMinWidth: 1180, decisionDockAvailableWidth: 360 });
 await wait();
 
 const decisionCards = () => [...document.querySelectorAll(".vm-decisions .vm-event")];
@@ -249,17 +254,60 @@ assert.equal(seenNotice?.actionItemId, "content-notice-project-one-v1", "La lect
 
 // La file flottante réutilise exactement les décisions déjà chargées. Elle
 // apparaît seulement pour la direction sur ordinateur, puis revient à sa place.
-const decisionPanel = document.querySelector("#vm-panel-decision");
+let decisionPanel = document.querySelector("#vm-panel-decision");
 decisionPanel.getBoundingClientRect = () => ({ top: -420, bottom: 80, left: 0, right: 700, width: 700, height: 500 });
 window.dispatchEvent(new window.Event("scroll"));
 const dock = document.querySelector("#vm-decision-dock");
+const dockTab = document.querySelector("#vm-decision-dock-tab");
 assert.ok(dock.classList.contains("is-visible"), "La file doit suivre la direction après le défilement sur ordinateur.");
+assert.equal(dockTab.classList.contains("is-visible"), false, "La languette doit se ranger lorsque le panneau tient sans chevaucher le contenu.");
 assert.match(dock.textContent, /Nouveau — Projet test/);
 dock.querySelector("[data-vm-dock-toggle]").click();
-assert.ok(dock.classList.contains("is-collapsed"), "Le widget doit rester réductible.");
-document.querySelector("#vm-panel-decision").getBoundingClientRect = () => ({ top: 140, bottom: 640, left: 0, right: 700, width: 700, height: 500 });
+assert.equal(dock.classList.contains("is-visible"), false, "Le panneau doit pouvoir disparaître entièrement.");
+assert.ok(dockTab.classList.contains("is-visible"), "Une grande languette doit rester disponible après la réduction.");
+assert.match(dockTab.textContent, /Mes décisions/);
+dockTab.click();
+assert.ok(dock.classList.contains("is-visible"), "La languette doit rouvrir le panneau.");
+
+// Si la gouttière latérale devient trop étroite, le panneau se range sans
+// recouvrir le texte. La languette permet néanmoins une ouverture temporaire.
+viewMode.update({ decisionDockAvailableWidth: 170 });
+await wait();
+decisionPanel = document.querySelector("#vm-panel-decision");
+decisionPanel.getBoundingClientRect = () => ({ top: -420, bottom: 80, left: 0, right: 700, width: 700, height: 500 });
+window.dispatchEvent(new window.Event("scroll"));
+assert.ok(dock.classList.contains("is-overlay"), "Une ouverture demandée doit rester possible en superposition temporaire.");
+window.dispatchEvent(new window.Event("resize"));
+assert.equal(dock.classList.contains("is-visible"), false, "Un redimensionnement sans place doit ranger automatiquement le panneau.");
+assert.ok(dockTab.classList.contains("is-visible"), "La languette doit rester accessible quand le panneau ne tient plus.");
+dockTab.click();
+assert.ok(dock.classList.contains("is-overlay"), "La languette doit rouvrir le panneau même sur une largeur contrainte.");
+
+// Sur téléphone, la languette rejoint le sommaire collant : elle participe à
+// la mise en page au lieu de recouvrir le texte ou une publication.
+setViewportWidth(390);
+window.dispatchEvent(new window.Event("resize"));
+assert.equal(dock.classList.contains("is-visible"), false, "Le panneau mobile doit rester fermé jusqu’à une demande explicite.");
+assert.equal(dockTab.parentElement, document.querySelector(".nav .wrap"), "La languette mobile doit vivre dans le sommaire et ne jamais flotter sur le contenu.");
+assert.ok(dockTab.classList.contains("is-inline"), "La variante mobile compacte doit être explicite.");
+assert.ok(dockTab.classList.contains("is-visible"), "Le raccourci mobile doit rester accessible après le défilement.");
+dockTab.click();
+assert.ok(dock.classList.contains("is-overlay"), "Le raccourci intégré au sommaire doit ouvrir le panneau à la demande.");
+setViewportWidth(1366);
+window.dispatchEvent(new window.Event("resize"));
+assert.equal(dockTab.parentElement, document.body, "La languette doit retrouver le bord de l’écran quand la largeur revient.");
+assert.equal(dockTab.classList.contains("is-inline"), false, "Le style mobile ne doit pas contaminer l’ordinateur.");
+
+viewMode.update({ decisionDockAvailableWidth: 360 });
+await wait();
+decisionPanel = document.querySelector("#vm-panel-decision");
+decisionPanel.getBoundingClientRect = () => ({ top: -420, bottom: 80, left: 0, right: 700, width: 700, height: 500 });
+window.dispatchEvent(new window.Event("scroll"));
+assert.equal(dock.classList.contains("is-overlay"), false, "Le panneau doit reprendre naturellement la gouttière quand la place revient.");
+decisionPanel.getBoundingClientRect = () => ({ top: 140, bottom: 640, left: 0, right: 700, width: 700, height: 500 });
 window.dispatchEvent(new window.Event("scroll"));
 assert.equal(dock.classList.contains("is-visible"), false, "La file flottante doit se réintégrer au tableau au retour vers le haut.");
+assert.equal(dockTab.classList.contains("is-visible"), false, "La languette doit aussi disparaître lorsque le tableau principal est revenu à l’écran.");
 completedAdminCard.dataset.workflowStage = "published";
 window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
 await wait();
@@ -276,6 +324,13 @@ assert.equal(document.querySelector('[data-item-id="future-2"] details.cockpit-m
 window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "valentin", role: "admin" } } }));
 await wait();
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Vérifier le visuel recommandé/);
+decisionPanel = document.querySelector("#vm-panel-decision");
+decisionPanel.getBoundingClientRect = () => ({ top: -420, bottom: 80, left: 0, right: 700, width: 700, height: 500 });
+window.dispatchEvent(new window.Event("scroll"));
+assert.ok(dock.classList.contains("is-visible"), "La file flottante doit aussi être disponible pour les communications.");
+assert.match(dock.querySelector("[data-vm-dock-eyebrow]").textContent, /Communications/);
+assert.match(dock.querySelector("[data-vm-dock-title]").textContent, /À accomplir maintenant/);
+assert.match(dockTab.textContent, /Mes tâches/, "La languette admin doit nommer clairement sa propre file.");
 window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "annie", role: "director" } } }));
 await wait();
 let remoteLoadRequests = 0;
