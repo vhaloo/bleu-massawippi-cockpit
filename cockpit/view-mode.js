@@ -713,10 +713,15 @@ function clearCalendarFilters() {
   const search = document.querySelector("#search");
   const week = document.querySelector("#week");
   const theme = document.querySelector("#theme");
-  if (search) search.value = "";
-  if (week) week.value = "all";
-  if (theme) theme.value = "all";
-  dispatchFilterRender(search, week, theme);
+  const changed = Boolean(
+    (search && search.value !== "")
+    || (week && week.value !== "all")
+    || (theme && theme.value !== "all")
+  );
+  if (search && search.value !== "") search.value = "";
+  if (week && week.value !== "all") week.value = "all";
+  if (theme && theme.value !== "all") theme.value = "all";
+  if (changed) dispatchFilterRender(search, week, theme);
 }
 
 function prepareCalendarTarget(id) {
@@ -780,8 +785,22 @@ function targetLabel(target, fallback) {
     || "Élément";
 }
 
-function focusAndHighlight(target, card = null) {
+function targetIsMeaningfullyVisible(target) {
+  const rect = target?.getBoundingClientRect?.();
+  const viewportHeight = Number(globalThis.innerHeight || document.documentElement?.clientHeight || 0);
+  if (!rect || !viewportHeight) return true;
+  return rect.bottom > 16 && rect.top < viewportHeight * 0.72;
+}
+
+/**
+ * Positionne une cible sans animation native longue. Sur les grandes cartes du
+ * calendrier, un scroll smooth pouvait être interrompu par le rerendu du
+ * tableau de bord et laisser l'ancienne carte (souvent le 18 juillet) visible.
+ * Le gel d'ancrage reste local, bref et sans lecture ni écriture distante.
+ */
+async function focusAndHighlight(target, card = null) {
   const focusTarget = card || target;
+  const scrollTarget = card?.querySelector?.(":scope > .post-head") || focusTarget;
   runtime.focusedCard?.classList.remove("vm-focus", "vm-target-focus");
   runtime.focusedCard = focusTarget;
   focusTarget.classList.add(card ? "vm-focus" : "vm-target-focus");
@@ -789,9 +808,18 @@ function focusAndHighlight(target, card = null) {
     focusTarget.setAttribute("tabindex", "-1");
     focusTarget.dataset.vmTemporaryTabindex = "true";
   }
-  const reducedMotion = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true;
-  focusTarget.scrollIntoView?.({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
   try { focusTarget.focus({ preventScroll: true }); } catch { focusTarget.focus?.(); }
+  const root = document.documentElement;
+  root?.classList.add("vm-programmatic-navigation");
+  try {
+    await delay(0);
+    const scrollOptions = { behavior: "auto", block: card ? "start" : "center" };
+    scrollTarget.scrollIntoView?.(scrollOptions);
+    await delay(24);
+    if (!targetIsMeaningfullyVisible(scrollTarget)) scrollTarget.scrollIntoView?.(scrollOptions);
+  } finally {
+    root?.classList.remove("vm-programmatic-navigation");
+  }
   clearTimeout(runtime.focusTimer);
   runtime.focusTimer = setTimeout(() => {
     focusTarget.classList.remove("vm-focus", "vm-target-focus");
@@ -856,7 +884,7 @@ export async function navigateToEntity({ type = "schedule", id = "", mediaId = "
       focusTarget = media;
     }
   }
-  focusAndHighlight(focusTarget, focusTarget === card ? card : null);
+  await focusAndHighlight(focusTarget, focusTarget === card ? card : null);
   const label = targetLabel(card || target, targetId);
   announce(`Élément ouvert : ${label}. Le brief et les médias sont prêts à être consultés.`);
   clearNavigationError();
