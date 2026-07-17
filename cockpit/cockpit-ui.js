@@ -35,13 +35,13 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260716-b19";
-import { createEventContextController } from "./event-context-data.js?v=20260716-b19";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260716-b19";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260716-b19";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260716-b19";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260716-b19";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260716-b19";
+} from "./firebase-client.js?v=20260717-b20";
+import { createEventContextController } from "./event-context-data.js?v=20260717-b20";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260717-b20";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260717-b20";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260717-b20";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260717-b20";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260717-b20";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -1995,6 +1995,8 @@ function safeMediaUrl(value) {
 function mediaPreviewUrl(row) {
   const url = safeMediaUrl(row.url);
   if (!url || row.kind !== "image") return "";
+  const dedicatedPreview = safeMediaUrl(row.previewUrl || "");
+  if (/\.(?:jpe?g|png|webp|gif)(?:$|\?)/i.test(dedicatedPreview)) return dedicatedPreview;
   const parsed = new URL(url);
   if (parsed.hostname.toLowerCase().endsWith(".sharepoint.com") && parsed.pathname.includes("/:i:/")) {
     parsed.searchParams.set("download", "1");

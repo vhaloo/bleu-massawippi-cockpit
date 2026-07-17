@@ -341,7 +341,7 @@ service cloud.firestore {
 
     function validMediaLink(data) {
       return data.keys().hasAll(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy'])
-        && data.keys().hasOnly(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy', 'selectedFinal', 'approvedAt', 'approvedBy', 'approvedByLabel', 'publicationBlocked', 'altText', 'rightsStatus'])
+        && data.keys().hasOnly(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy', 'selectedFinal', 'approvedAt', 'approvedBy', 'approvedByLabel', 'publicationBlocked', 'altText', 'rightsStatus', 'previewUrl'])
         && data.eventId is string && data.eventId.size() >= 3 && data.eventId.size() <= 80
         && data.label is string && data.label.size() > 0 && data.label.size() <= 180
         && data.url is string && data.url.size() > 8 && data.url.size() <= 2048
@@ -356,6 +356,7 @@ service cloud.firestore {
         && (!('publicationBlocked' in data) || data.publicationBlocked is bool)
         && (!('altText' in data) || (data.altText is string && data.altText.size() <= 1000))
         && (!('rightsStatus' in data) || (data.rightsStatus is string && data.rightsStatus.size() <= 120))
+        && (!('previewUrl' in data) || (data.previewUrl is string && data.previewUrl.size() > 8 && data.previewUrl.size() <= 2048))
         && (!('approvedBy' in data) || data.approvedBy is string)
         && (!('approvedByLabel' in data) || data.approvedByLabel is string)
         && data.updatedBy is string && data.updatedBy.size() > 0;
