@@ -4,9 +4,30 @@ import { EDITORIAL_OVERRIDES_JUL27_AUG09 } from "./editorial-overrides-jul27-aug
 const SEPARATOR = "=========================================";
 const TONE_VERSION = "warm-neighbourly-v2-2026-07-13";
 const BILINGUAL_POLICY_VERSION = "fr-original-en-adaptation-v1";
+const QUIZ_URL = "https://bleumassawippi.com/quiz";
+const QUIZ_FORMAT_PATTERN = /\b(?:quiz|devinette|deviner|devinez|vrai\s*\/?\s*faux|true\s*or\s*false|guess|myst[eè]re)\b/i;
 
 function bilingual(frOriginal, enAdaptation) {
   return `FR — ${frOriginal}\n\n${SEPARATOR}\n\nEN — ${enAdaptation}`;
+}
+
+function insertBeforeHashtags(segment, invitation) {
+  const hashtagIndex = segment.search(/\n\n(?=#)/);
+  if (hashtagIndex < 0) return `${segment}\n\n${invitation}`;
+  return `${segment.slice(0, hashtagIndex)}\n\n${invitation}${segment.slice(hashtagIndex)}`;
+}
+
+function appendQuizInvitation(post) {
+  const descriptor = [post.title, post.format, post.role, post.cta].filter(Boolean).join(" ");
+  if (post.contentVariant !== "quiz" && !QUIZ_FORMAT_PATTERN.test(descriptor)) return;
+  if (!post.copy || post.copy.includes(QUIZ_URL)) return;
+  const halves = post.copy.split(`\n\n${SEPARATOR}\n\n`);
+  if (halves.length !== 2) return;
+  post.copy = [
+    insertBeforeHashtags(halves[0], `Envie de continuer à jouer? Testez vos connaissances du lac avec notre quiz bilingue de plus de 500 questions : ${QUIZ_URL}`),
+    insertBeforeHashtags(halves[1], `Want to keep playing? Test your knowledge of the lake with our bilingual quiz featuring more than 500 questions: ${QUIZ_URL}`)
+  ].join(`\n\n${SEPARATOR}\n\n`);
+  post.quizDestinationVersion = "bleumassawippi-quiz-v1-2026-07-17";
 }
 
 const RESERVE_OVERRIDES = {
@@ -52,14 +73,16 @@ export function applyEditorialCopyOverrides(posts) {
   if (!Array.isArray(posts)) return posts;
   for (const post of posts) {
     const override = EDITORIAL_COPY_OVERRIDES[post.id];
-    if (!override) continue;
-    Object.assign(post, override, {
-      editorialToneVersion: TONE_VERSION,
-      bilingualPolicyVersion: BILINGUAL_POLICY_VERSION
-    });
-    if (post.optionLabel) {
-      post.optionLabel = post.optionLabel.replace(/^(Option\s+[A-Z]+\s+—\s+).*$/u, `$1${post.title}`);
+    if (override) {
+      Object.assign(post, override, {
+        editorialToneVersion: TONE_VERSION,
+        bilingualPolicyVersion: BILINGUAL_POLICY_VERSION
+      });
+      if (post.optionLabel) {
+        post.optionLabel = post.optionLabel.replace(/^(Option\s+[A-Z]+\s+—\s+).*$/u, `$1${post.title}`);
+      }
     }
+    appendQuizInvitation(post);
   }
   return posts;
 }

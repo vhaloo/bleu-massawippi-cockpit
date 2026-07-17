@@ -129,6 +129,8 @@ Il s’agit d’un disque de Secchi. On note la profondeur à laquelle il cesse 
 
 Aviez-vous déjà vu cet outil en action?
 
+Envie de continuer à jouer? Testez vos connaissances du lac avec notre quiz bilingue de plus de 500 questions : https://bleumassawippi.com/quiz
+
 #QuizDuLac #BleuMassawippi #LacMassawippi #QualitéDeLEau
 
 =========================================
@@ -138,6 +140,8 @@ EN — Lake quiz: what is the white disk that researchers lower into the water u
 It is a Secchi disk. We record the depth at which it is no longer visible to obtain an indicator of water clarity. This measurement does not, on its own, determine the lake’s health: it adds one piece to the picture, which is compared with other indicators and observations from previous years.
 
 Have you ever seen this tool in action?
+
+Want to keep playing? Test your knowledge of the lake with our bilingual quiz featuring more than 500 questions: https://bleumassawippi.com/quiz
 
 #LakeQuiz #BleuMassawippi #LakeMassawippi #WaterQuality
 ```
@@ -261,6 +265,8 @@ Réponse : toutes ces réponses! Un même milieu humide peut remplir plusieurs f
 
 Laquelle de ces fonctions aimeriez-vous explorer dans une prochaine capsule?
 
+Envie de continuer à jouer? Testez vos connaissances du lac avec notre quiz bilingue de plus de 500 questions : https://bleumassawippi.com/quiz
+
 #QuizDuLac #BleuMassawippi #MilieuxHumides #LacMassawippi
 
 =========================================
@@ -274,6 +280,8 @@ C — Help filter water and stabilize shorelines.
 Answer: all of the above! One wetland can perform several functions at the same time. Exactly how it does so depends on its type, condition and location.
 
 Which of these functions would you like us to explore in a future post?
+
+Want to keep playing? Test your knowledge of the lake with our bilingual quiz featuring more than 500 questions: https://bleumassawippi.com/quiz
 
 #LakeQuiz #BleuMassawippi #Wetlands #LakeMassawippi
 ```
@@ -323,6 +331,8 @@ Faux. Ne rien voir ne veut pas dire qu’aucun organisme n’est présent. Pour 
 
 Le guide à garder sous la main : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
 
+Envie de continuer à jouer? Testez vos connaissances du lac avec notre quiz bilingue de plus de 500 questions : https://bleumassawippi.com/quiz
+
 #QuizDuLac #BleuMassawippi #EspècesEnvahissantes #NautismeResponsable
 
 =========================================
@@ -332,6 +342,8 @@ EN — True or false? A boat with no visible debris is automatically ready to mo
 False. Seeing nothing does not mean no organisms are present. To reduce the risk of transporting invasive alien species, washing everything that has touched the water is essential. Retained water must also be drained and equipment dried according to official guidance: a visual check cannot replace those steps.
 
 Keep the official guide handy: https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+
+Want to keep playing? Test your knowledge of the lake with our bilingual quiz featuring more than 500 questions: https://bleumassawippi.com/quiz
 
 #LakeQuiz #BleuMassawippi #InvasiveSpecies #ResponsibleBoating
 ```

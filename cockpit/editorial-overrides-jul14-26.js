@@ -87,6 +87,7 @@ If you spot one, simply give it a little space and enjoy the show. What small li
     visual: "Affiche naturaliste vintage : libellule crédible sur une tige, petite vignette d’une personne tenant un carnet d’observation et trois détails agrandis — ailes, yeux, tige. Créer une atmosphère de découverte sans pictogramme d’interdiction."
   },
   s1d5: {
+    contentVariant: "quiz",
     title: "Le disque blanc qui nous aide à lire le lac",
     cta: "Deviner, puis découvrir",
     copy: bilingual(
@@ -263,6 +264,7 @@ If you spot one, enjoy it with your eyes and camera, without picking it or revea
     visual: "Visuel phare 4:5 à fort impact : macro réaliste et correctement identifiée d’un iris versicolore, fleur très présente mais milieu humide encore lisible. Seconde carte éducative vintage : plante entière, fleur agrandie et trois repères — « eau · rive · biodiversité ». Aucun emplacement précis."
   },
   s2d1b: {
+    contentVariant: "quiz",
     title: "Le petit quiz des milieux humides",
     cta: "Choisir une réponse",
     copy: bilingual(
@@ -362,6 +364,7 @@ Official guidance: ${OFFICIAL_BOAT_CLEANING_URL}
     visual: "Carrousel photo documentaire en trois gestes réalisés par une même personne, souriante ou montrée par les mains : regarder coque et remorque, retirer un fragment, puis vider et nettoyer selon le guide. Finir par « Merci d’en faire une habitude »."
   },
   "alt-20260722": {
+    contentVariant: "quiz",
     title: "Propre à l’œil… vraiment prêt?",
     cta: "Faire défiler pour la réponse",
     copy: bilingual(

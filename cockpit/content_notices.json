@@ -13,6 +13,17 @@
       "message": "Un nouveau document de référence est disponible dans le contexte stratégique. Vous pouvez simplement y jeter un coup d’œil."
     },
     {
+      "id": "strategic-sharepoint-ca-workflow-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "section",
+      "sourceId": "governance-sharepoint-ca",
+      "publishedOn": "2026-07-17",
+      "priorityKey": 39,
+      "title": "Nouveau — Circuit SharePoint et validation CA",
+      "message": "Le parcours des documents, du travail interne jusqu’à l’espace validé du CA, est maintenant résumé dans la stratégie avec ses raccourcis utiles."
+    },
+    {
       "id": "internal-fund-environmental-v1",
       "audienceRole": "director",
       "assigneeEmail": "dg@bleumassawippi.com",
