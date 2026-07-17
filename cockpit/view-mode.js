@@ -952,16 +952,24 @@ function incomingMessageFor(card) {
 }
 
 function mediaStateFor(card) {
-  const proposals = [...card.querySelectorAll(".cockpit-media-card")].filter((media) => {
+  const mediaCards = [...card.querySelectorAll(".cockpit-media-card")];
+  const isSelected = (media) => media.classList.contains("is-final")
+    || media.dataset.mediaSelectedFinal === "true"
+    || media.dataset.mediaCommunicationsSelected === "true"
+    || media.dataset.mediaDirectionSelected === "true";
+  const candidates = mediaCards.filter((media) => {
     const stage = media.dataset.mediaStage || "";
-    return !["source", "reference"].includes(stage);
+    // Une photo source ou une référence peut être retenue telle quelle comme
+    // visuel final. Dès qu'un rôle la choisit, elle participe donc au passage
+    // de relais même si son étiquette documentaire demeure « source ».
+    return !["source", "reference"].includes(stage) || isSelected(media);
   });
   return {
-    count: proposals.length,
-    selectedCount: proposals.filter((media) => media.classList.contains("is-final") || media.dataset.mediaSelectedFinal === "true").length,
-    communicationsSelected: proposals.some((media) => media.dataset.mediaCommunicationsSelected === "true"),
-    directionSelected: proposals.some((media) => media.dataset.mediaDirectionSelected === "true"),
-    latestUpdate: proposals.reduce((latest, media) => Math.max(latest, dataMillis(media.dataset.mediaUpdatedAt)), 0)
+    count: candidates.length,
+    selectedCount: candidates.filter((media) => media.classList.contains("is-final") || media.dataset.mediaSelectedFinal === "true").length,
+    communicationsSelected: candidates.some((media) => media.dataset.mediaCommunicationsSelected === "true"),
+    directionSelected: candidates.some((media) => media.dataset.mediaDirectionSelected === "true"),
+    latestUpdate: candidates.reduce((latest, media) => Math.max(latest, dataMillis(media.dataset.mediaUpdatedAt)), 0)
   };
 }
 

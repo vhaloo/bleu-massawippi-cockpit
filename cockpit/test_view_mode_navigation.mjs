@@ -79,6 +79,13 @@ window.HTMLElement.prototype.scrollIntoView = function scrollIntoView(options) {
 window.HTMLElement.prototype.focus = function focus() { this.dataset.testFocused = "true"; };
 
 const wait = (milliseconds = 120) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+function switchTestRole(uid, role) {
+  const session = document.querySelector("#cockpit-session");
+  session.dataset.uid = uid;
+  document.querySelector("#cockpit-session-label").textContent = `Connecté · rôle ${role}`;
+  document.body.classList.toggle("cockpit-admin", role === "admin");
+  window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid, role } } }));
+}
 const isoDate = (day) => `2026-07-${String(day).padStart(2, "0")}`;
 const frenchDate = (day) => `${day} juillet 2026`;
 
@@ -247,7 +254,7 @@ assert.equal(decisionCards().length, 7, "La page locale suivante doit afficher t
 assert.match(document.querySelector(".vm-queue-end").textContent, /toutes vos décisions chargées/i);
 
 // Un rôle communications ne reçoit que sa propre tâche matérialisée.
-  window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "valentin", role: "admin" } } }));
+  switchTestRole("valentin", "admin");
   await wait();
   assert.match(document.querySelector(".vm-decisions").textContent, /Action réservée aux communications/);
   document.body.dataset.workflowSync = "pending";
@@ -281,7 +288,7 @@ assert.match(document.querySelector(".vm-queue-end").textContent, /toutes vos d�
     "Même une ancienne tâche techniquement plus récente ne doit pas ressusciter un événement terminé.");
   completedAdminCard.dataset.workflowStage = "content_review";
   completedAdminCard.dataset.workflowUpdatedAt = "100";
-  window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "annie", role: "director" } } }));
+  switchTestRole("annie", "director");
 await wait();
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Action réservée aux communications/);
 
@@ -381,7 +388,7 @@ assert.ok(mediaAction, "L’action personnelle doit transporter la cible média 
 mediaAction.click();
 await wait(250);
 assert.equal(document.querySelector('[data-item-id="future-2"] details.cockpit-media-info').hasAttribute("open"), true);
-window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "valentin", role: "admin" } } }));
+switchTestRole("valentin", "admin");
 await wait();
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Vérifier le visuel recommandé/);
 decisionPanel = document.querySelector("#vm-panel-decision");
@@ -391,13 +398,61 @@ assert.ok(dock.classList.contains("is-visible"), "La file flottante doit aussi �
 assert.match(dock.querySelector("[data-vm-dock-eyebrow]").textContent, /Communications/);
 assert.match(dock.querySelector("[data-vm-dock-title]").textContent, /À accomplir maintenant/);
 assert.match(dockTab.textContent, /Mes tâches/, "La languette admin doit nommer clairement sa propre file.");
+
+// Un original historique peut devenir le visuel final sans changer son rôle de
+// source documentaire. Dès que les communications l'ont recommandé et remis à
+// la direction, leur tour est terminé : l'événement quitte leur file, mais il
+// apparaît immédiatement dans celle de la direction pour la validation finale.
+const handedOffSourceCard = document.querySelector('[data-item-id="future-3"]');
+const handedOffSourceMedia = handedOffSourceCard.querySelector('.cockpit-media-card');
+const handedOffOtherStages = [...document.querySelectorAll('.post[data-item-id]')]
+  .filter((card) => card !== handedOffSourceCard)
+  .map((card) => [card, card.dataset.workflowStage]);
+handedOffOtherStages.forEach(([card]) => { card.dataset.workflowStage = "scheduled"; });
+handedOffSourceCard.dataset.workflowStage = "media_review";
+handedOffSourceMedia.dataset.mediaStage = "source";
+handedOffSourceMedia.dataset.mediaCommunicationsSelected = "true";
+handedOffSourceMedia.dataset.mediaDirectionSelected = "false";
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
+const adminHandoffTargets = [...document.querySelectorAll(".vm-decisions [data-vm-target]")].map((node) => node.dataset.vmTarget);
+assert.equal(adminHandoffTargets.includes("future-3"), false,
+  "Après remise d'un visuel source, les communications ne doivent plus voir l'événement dans leur file personnelle.");
+switchTestRole("annie", "director");
+await wait();
+const directionSourceDecision = [...document.querySelectorAll(".vm-decisions [data-vm-target]")]
+  .find((node) => node.dataset.vmTarget === "future-3")?.closest(".vm-event");
+assert.ok(directionSourceDecision,
+  "Le même passage de relais doit faire apparaître la validation dans la file de la direction.");
+assert.match(directionSourceDecision.textContent, /Confirmer le visuel recommandé/);
+handedOffSourceMedia.dataset.mediaDirectionSelected = "true";
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
+assert.equal([...document.querySelectorAll(".vm-decisions [data-vm-target]")]
+  .some((node) => node.dataset.vmTarget === "future-3"), false,
+  "Après son choix, la direction ne doit plus conserver l'événement dans sa propre file.");
+switchTestRole("valentin", "admin");
+await wait();
+const returnedToCommunications = [...document.querySelectorAll(".vm-decisions [data-vm-target]")]
+  .find((node) => node.dataset.vmTarget === "future-3")?.closest(".vm-event");
+assert.ok(returnedToCommunications,
+  "Une fois le média validé par la direction, la publication doit revenir dans la file des communications.");
+assert.match(returnedToCommunications.textContent, /Publier ou programmer/);
+handedOffOtherStages.forEach(([card, stage]) => { card.dataset.workflowStage = stage; });
+handedOffSourceCard.dataset.workflowStage = "content_review";
+handedOffSourceMedia.dataset.mediaStage = "draft";
+handedOffSourceMedia.dataset.mediaCommunicationsSelected = "false";
+handedOffSourceMedia.dataset.mediaDirectionSelected = "false";
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
+
 const adminDockOpen = dock.querySelector("[data-vm-target]");
 const adminDockTarget = adminDockOpen.dataset.vmTarget;
 adminDockOpen.click();
 await wait(250);
 assert.equal(scrollCalls.at(-1)?.element.closest?.(".post[data-item-id]")?.dataset.itemId, adminDockTarget,
   "Le widget des communications doit lui aussi viser l'événement porté par son propre bouton.");
-window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "annie", role: "director" } } }));
+switchTestRole("annie", "director");
 await wait();
 let remoteLoadRequests = 0;
 window.addEventListener("cockpit:load-more-action-items", () => { remoteLoadRequests += 1; });
