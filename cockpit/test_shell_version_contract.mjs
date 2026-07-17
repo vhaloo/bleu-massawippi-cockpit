@@ -21,7 +21,14 @@ const actionItemsUi = fs.readFileSync(new URL("./action-items-ui.js", import.met
 const healthUi = fs.readFileSync(new URL("./client-health-ui.js", import.meta.url), "utf8");
 const adminLazyUi = fs.readFileSync(new URL("./admin-lazy-data.js", import.meta.url), "utf8");
 const mediaChoiceUi = fs.readFileSync(new URL("./media-choice-ui.js", import.meta.url), "utf8");
+const taskProgressUi = fs.readFileSync(new URL("./task-progress-ui.js", import.meta.url), "utf8");
 assert.match(cockpitUi, new RegExp(`action-items-ui\\.js\\?v=${release}`), "Le module actionItems doit partager la version du shell.");
+const taskProgressImport = cockpitUi.match(/import\s*\{([^}]+)\}\s*from\s*["']\.\/task-progress-ui\.js\?v=[^"']+["']/s);
+assert.ok(taskProgressImport, "Le module principal doit importer explicitement les aides de progression.");
+for (const importedName of taskProgressImport[1].split(",").map((name) => name.trim()).filter(Boolean)) {
+  assert.match(taskProgressUi, new RegExp(`export\\s+(?:async\\s+)?(?:function|const|let|class)\\s+${importedName}\\b`),
+    `task-progress-ui.js doit réellement exporter ${importedName}.`);
+}
 assert.match(index, /serviceWorker\.register\("\.\/sw\.js", \{ scope: "\.\/", updateViaCache: "none" \}\)/,
   "Le service worker doit conserver la portée locale exigée par GitHub Pages.");
 assert.match(index, /registration\.update\(\)/, "Chaque ouverture doit vérifier la coque sans attendre le cache HTTP de GitHub Pages.");
