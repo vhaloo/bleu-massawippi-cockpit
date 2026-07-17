@@ -38,7 +38,8 @@ for (const item of selectedManifest) {
   const contentFields = {
     eventId: item.eventId, label: item.label, url, kind: item.kind || "image",
     note: item.note || `Visuel original, format 4:5 (1080 × 1350). ${item.altText} Vérifier une dernière fois le texte et les faits avant diffusion.`,
-    altText: item.altText, rightsStatus: item.rightsStatus || "original"
+    altText: item.altText, rightsStatus: item.rightsStatus || "original",
+    ...(item.previewUrl ? { previewUrl: item.previewUrl } : {})
   };
   const safetyFields = {
     ...(item.publicationBlocked === true ? { publicationBlocked: true } : {}),

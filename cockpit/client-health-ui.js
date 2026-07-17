@@ -5,7 +5,7 @@ import {
   setPersistentCachePreference,
   requestSafeMode,
   forgetThisDevice
-} from "./firebase-client.js?v=20260716-b19";
+} from "./firebase-client.js?v=20260717-b20";
 
 let unsubscribeDiagnostics = null;
 
