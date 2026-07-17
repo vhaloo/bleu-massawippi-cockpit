@@ -365,17 +365,17 @@ Official guidance: ${OFFICIAL_BOAT_CLEANING_URL}
   },
   "alt-20260722": {
     contentVariant: "quiz",
-    title: "Propre à l’œil… vraiment prêt?",
-    cta: "Faire défiler pour la réponse",
+    title: "Ça semble propre… mais l’est-ce vraiment?",
+    cta: "Faire défiler pour vérifier les étapes",
     copy: bilingual(
-      `Vrai ou faux? Une embarcation sans débris visible est automatiquement prête à changer de plan d’eau.
+      `Vrai ou faux? Une embarcation sans débris visible peut passer directement d’un plan d’eau à un autre.
 
 Faux. Ne rien voir ne veut pas dire qu’aucun organisme n’est présent. Pour réduire le risque de transporter des espèces exotiques envahissantes (EEE), le lavage de tout ce qui a touché l’eau est essentiel. Il faut aussi vider l’eau retenue et sécher selon les consignes officielles : un simple coup d’œil ne remplace pas ces étapes.
 
 Le guide à garder sous la main : ${OFFICIAL_BOAT_CLEANING_URL}
 
 #QuizDuLac #BleuMassawippi #EspècesEnvahissantes #NautismeResponsable`,
-      `True or false? A boat with no visible debris is automatically ready to move to another body of water.
+      `True or false? A boat with no visible debris can move directly from one body of water to another.
 
 False. Seeing nothing does not mean no organisms are present. To reduce the risk of transporting invasive alien species, washing everything that has touched the water is essential. Retained water must also be drained and equipment dried according to official guidance: a visual check cannot replace those steps.
 
@@ -383,7 +383,7 @@ Keep the official guide handy: ${OFFICIAL_BOAT_CLEANING_URL}
 
 #LakeQuiz #BleuMassawippi #InvasiveSpecies #ResponsibleBoating`
     ),
-    visual: "Deux cartes : 1) coque qui paraît propre, cadrée comme une énigme; 2) véritable lavage de la coque, de la remorque et de l’équipement, puis les repères « Vider · Sécher ». Faire du lavage le geste central, avec le lien officiel du Québec, sans esthétique punitive."
+    visual: "Planche scolaire chaleureuse : une embarcation qui semble propre, un détail grossi des organismes invisibles à l’œil nu, puis les trois gestes « Nettoyer · Vider · Sécher ». Question manuscrite bilingue : « Ça semble propre… mais l’est-ce vraiment? / It looks clean… but is it really? »."
   },
   s2d2: {
     title: "Une rive vivante protège et accueille",

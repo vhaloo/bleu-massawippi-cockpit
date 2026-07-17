@@ -311,13 +311,13 @@ EN — Take a moment to appreciate what we are fortunate to protect: the lake, i
 #BlueMoment #BleuMassawippi #LakeMassawippi #EasternTownships
 ```
 
-## Mercredi 22 juillet — Propre à l’œil… vraiment prêt?
+## Mercredi 22 juillet — Ça semble propre… mais l’est-ce vraiment?
 
 **Thème :** Interaction
 **Format :** Vrai ou faux · deux cartes
 **Objectif :** Faire comprendre qu’un regard rapide ne remplace pas le lavage requis pour réduire le transport d’espèces exotiques envahissantes.
-**CTA :** Faire défiler pour la réponse
-**Visuel final :** Deux cartes : 1) coque qui paraît propre, cadrée comme une énigme; 2) véritable lavage de la coque, de la remorque et de l’équipement, puis les repères « Vider · Sécher ». Faire du lavage le geste central, avec le lien officiel du Québec, sans esthétique punitive.
+**CTA :** Faire défiler pour vérifier les étapes
+**Visuel final :** Planche scolaire chaleureuse : une embarcation qui semble propre, un détail grossi des organismes invisibles à l’œil nu, puis les trois gestes « Nettoyer · Vider · Sécher ». Question manuscrite bilingue : « Ça semble propre… mais l’est-ce vraiment? / It looks clean… but is it really? ».
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
 **Source de référence :** Gouvernement du Québec — nettoyage des embarcations et prévention des EEE · https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
 **Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
@@ -325,7 +325,7 @@ EN — Take a moment to appreciate what we are fortunate to protect: the lake, i
 ### Légende prête à programmer
 
 ```text
-FR — Vrai ou faux? Une embarcation sans débris visible est automatiquement prête à changer de plan d’eau.
+FR — Vrai ou faux? Une embarcation sans débris visible peut passer directement d’un plan d’eau à un autre.
 
 Faux. Ne rien voir ne veut pas dire qu’aucun organisme n’est présent. Pour réduire le risque de transporter des espèces exotiques envahissantes (EEE), le lavage de tout ce qui a touché l’eau est essentiel. Il faut aussi vider l’eau retenue et sécher selon les consignes officielles : un simple coup d’œil ne remplace pas ces étapes.
 
@@ -337,7 +337,7 @@ Envie de continuer à jouer? Testez vos connaissances du lac avec notre quiz bil
 
 =========================================
 
-EN — True or false? A boat with no visible debris is automatically ready to move to another body of water.
+EN — True or false? A boat with no visible debris can move directly from one body of water to another.
 
 False. Seeing nothing does not mean no organisms are present. To reduce the risk of transporting invasive alien species, washing everything that has touched the water is essential. Retained water must also be drained and equipment dried according to official guidance: a visual check cannot replace those steps.
 
@@ -727,7 +727,7 @@ FR — Avant qu’un résultat apparaisse dans un rapport, chaque échantillon e
 2. Identifier la bouteille et consigner la date, le lieu et les observations.
 3. Prélever sans contaminer l’échantillon, le garder au frais et respecter les consignes du laboratoire.
 
-Les mêmes paramètres ne sont donc pas mesurés à chaque endroit. Nous montrerons d’abord comment les échantillons sont recueillis; les résultats seront partagés seulement après leur validation et avec le contexte nécessaire.
+Le protocole varie selon le lieu et l’objectif : on ne cherche pas les mêmes informations au centre du lac, dans un tributaire ou à une plage. Dans une prochaine publication, nous vous montrerons les gestes qui permettent de recueillir et de conserver un échantillon avec soin. Les résultats seront partagés seulement après leur validation, accompagnés du contexte nécessaire pour bien les comprendre.
 
 #ScienceDuLac #BleuMassawippi #QualitéDeLEau #LacMassawippi #Tributaires
 
@@ -739,7 +739,7 @@ EN — Before a result appears in a report, every sample is collected according 
 2. Label the bottle and record the date, location and field observations.
 3. Collect the sample without contaminating it, keep it cool and follow the laboratory’s handling instructions.
 
-That means the same parameters are not measured at every location. We will begin by showing how samples are collected. Results will be shared only after they have been validated and with the context needed to understand them.
+The protocol varies with the location and purpose: teams are not looking for the same information in the middle of the lake, in a tributary or at a beach. In an upcoming post, we will show the careful steps used to collect and preserve a sample. Results will be shared only after validation, together with the context needed to understand them.
 
 #LakeScience #BleuMassawippi #WaterQuality #LakeMassawippi #Tributaries
 ```
