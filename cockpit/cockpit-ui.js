@@ -35,13 +35,13 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260717-b20";
-import { createEventContextController } from "./event-context-data.js?v=20260717-b20";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260717-b20";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260717-b20";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260717-b20";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260717-b20";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260717-b20";
+} from "./firebase-client.js?v=20260717-b21";
+import { createEventContextController } from "./event-context-data.js?v=20260717-b21";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260717-b21";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260717-b21";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260717-b21";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260717-b21";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260717-b21";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -868,8 +868,6 @@ function enhanceTaskEvents() {
     const taskId = completeButton.dataset.completeTask;
     completeActionTask(taskId, state.profile)
       .then(() => {
-        // Le listener confirmera ensuite l'état distant. Cette mise à jour
-        // locale retire immédiatement la tâche des deux vues sans relecture.
         state.tasks = state.tasks.map((task) => task.id === taskId ? { ...task, status: "done" } : task);
         renderActionTasks(state.tasks);
         notifyViewUpdate("task-completed");
@@ -1992,10 +1990,18 @@ function safeMediaUrl(value) {
   }
 }
 
+function safeMediaPreviewUrl(value) {
+  try {
+    const p = new URL(value);
+    if (p.protocol === "https:" && p.hostname.toLowerCase() === "vhaloo.github.io" && p.pathname.startsWith("/bleu-massawippi-cockpit/media-previews/")) return p.href;
+    return safeMediaUrl(p.href);
+  } catch { return ""; }
+}
+
 function mediaPreviewUrl(row) {
   const url = safeMediaUrl(row.url);
   if (!url || row.kind !== "image") return "";
-  const dedicatedPreview = safeMediaUrl(row.previewUrl || "");
+  const dedicatedPreview = safeMediaPreviewUrl(row.previewUrl || "");
   if (/\.(?:jpe?g|png|webp|gif)(?:$|\?)/i.test(dedicatedPreview)) return dedicatedPreview;
   const parsed = new URL(url);
   if (parsed.hostname.toLowerCase().endsWith(".sharepoint.com") && parsed.pathname.includes("/:i:/")) {
