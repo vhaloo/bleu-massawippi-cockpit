@@ -11,11 +11,14 @@ const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
 const MESSAGE_SEEN_PREFIX = "bleu-massawippi-message-seen-v1";
 const DECISION_DOCK_PREFIX = "bleu-massawippi-decision-dock-v1";
+const ATTENTION_PREFIX = "bleu-massawippi-attention-v1";
 const VALID_MODES = new Set(["essential", "complete"]);
 const QUEUE_PAGE_SIZE = Object.freeze({ director: 5, admin: 7 });
 const NAVIGATION_ATTEMPTS = 5;
 const NAVIGATION_DELAY_MS = 60;
 const CONTENT_NOTICE_DWELL_MS = 2200;
+const ATTENTION_DWELL_MS = 1800;
+const ATTENTION_TOKEN_LIMIT = 240;
 const DECISION_DOCK_MIN_WIDTH = 1180;
 const DECISION_DOCK_PANEL_MIN_WIDTH = 200;
 const DECISION_DOCK_PANEL_MAX_WIDTH = 318;
@@ -47,7 +50,14 @@ const runtime = {
   contentNoticeTarget: null,
   decisionDockCollapsed: false,
   decisionDockForcedOpen: false,
-  decisionDockHasItems: false
+  decisionDockHasItems: false,
+  attentionEnabled: true,
+  attentionCurrent: false,
+  attentionUnseen: false,
+  attentionTokens: [],
+  attentionSeenTokens: new Set(),
+  attentionSignature: "",
+  attentionReviewTimer: 0
 };
 
 const icon = (name) => {
@@ -122,6 +132,187 @@ function readDecisionDockPreference(identity = runtime.identity) {
 function writeDecisionDockPreference(collapsed) {
   try { localStorage.setItem(decisionDockStorageKey(), collapsed ? "collapsed" : "expanded"); }
   catch { /* préférence limitée à la session */ }
+}
+
+function attentionStorageKey(identity = runtime.identity) {
+  const owner = identity.uid ? `uid:${identity.uid}` : identity.role ? `role:${identity.role}` : "device";
+  return `${ATTENTION_PREFIX}:${owner}`;
+}
+
+function readAttentionPreference(identity = runtime.identity) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(attentionStorageKey(identity)) || "null");
+    return {
+      enabled: parsed?.enabled !== false,
+      seenTokens: Array.isArray(parsed?.seenTokens)
+        ? parsed.seenTokens.filter((token) => typeof token === "string").slice(0, ATTENTION_TOKEN_LIMIT)
+        : []
+    };
+  } catch {
+    return { enabled: true, seenTokens: [] };
+  }
+}
+
+function writeAttentionPreference() {
+  try {
+    localStorage.setItem(attentionStorageKey(), JSON.stringify({
+      enabled: runtime.attentionEnabled,
+      seenTokens: [...runtime.attentionSeenTokens].slice(0, ATTENTION_TOKEN_LIMIT)
+    }));
+  } catch { /* l'indicateur reste utilisable pendant la session */ }
+}
+
+function hydrateAttentionPreference(identity = runtime.identity) {
+  const saved = readAttentionPreference(identity);
+  runtime.attentionEnabled = saved.enabled;
+  runtime.attentionSeenTokens = new Set(saved.seenTokens);
+  runtime.attentionCurrent = false;
+  runtime.attentionUnseen = false;
+  runtime.attentionTokens = [];
+  runtime.attentionSignature = "";
+  clearAttentionReview();
+  updateAppAttentionBadge(false);
+}
+
+function attentionHash(value) {
+  let hash = 2166136261;
+  for (const character of String(value || "")) {
+    hash ^= character.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+function decisionAttentionToken(decision) {
+  const owner = decision.actionItemId || decision.taskId || `${decision.targetType || "schedule"}:${decision.targetId || decision.id}`;
+  const version = Number(decision.updatedAt || 0);
+  const meaning = attentionHash([
+    decision.action || "",
+    decision.whyNow || "",
+    decision.mediaId || "",
+    decision.stage || "",
+    decision.date?.toISOString?.() || ""
+  ].join("|"));
+  return `${owner}:${version}:${meaning}`;
+}
+
+function updateAppAttentionBadge(active) {
+  // L'API Badging affiche un simple indicateur lorsqu'elle est appelée sans
+  // nombre. Elle est facultative : le point dans l'interface reste le repli.
+  try {
+    const operation = active
+      ? globalThis.navigator?.setAppBadge?.()
+      : globalThis.navigator?.clearAppBadge?.();
+    operation?.catch?.(() => {});
+  } catch { /* navigateur sans Badging API ou permission locale refusée */ }
+}
+
+function ensureAttentionControls() {
+  const panel = document.querySelector("#vm-panel-decision");
+  const body = panel?.querySelector(":scope > .vm-panel-body");
+  if (!panel || !body) return null;
+  let controls = panel.querySelector(":scope > [data-vm-attention-controls]");
+  if (!controls) {
+    controls = document.createElement("div");
+    controls.className = "vm-attention-controls";
+    controls.dataset.vmAttentionControls = "";
+    controls.innerHTML = `
+      <span class="vm-attention-state"><i class="vm-attention-dot" data-vm-attention-dot hidden aria-hidden="true"></i><span><b data-vm-attention-title></b><small data-vm-attention-copy></small></span></span>
+      <span class="vm-attention-actions"><button type="button" data-vm-attention-seen>Tout marquer comme vu</button><button type="button" data-vm-attention-toggle aria-pressed="true"></button></span>`;
+    body.before(controls);
+  }
+  return controls;
+}
+
+function updateAttentionSurfaces() {
+  const active = runtime.attentionEnabled && runtime.attentionCurrent && runtime.attentionUnseen;
+  updateAppAttentionBadge(active);
+  document.documentElement.classList.toggle("cockpit-has-unseen", active);
+  document.querySelectorAll("[data-vm-attention-dot]").forEach((dot) => {
+    dot.hidden = !active;
+    dot.setAttribute("aria-hidden", String(!active));
+  });
+  const nav = document.querySelector('[data-vm-nav="decision"]');
+  if (nav) nav.setAttribute("aria-label", active ? "Décisions — nouveauté non vue" : "Décisions");
+
+  const controls = ensureAttentionControls();
+  if (!controls) return;
+  controls.classList.toggle("has-unseen", active);
+  controls.classList.toggle("is-disabled", !runtime.attentionEnabled);
+  const title = controls.querySelector("[data-vm-attention-title]");
+  const copy = controls.querySelector("[data-vm-attention-copy]");
+  if (title) title.textContent = !runtime.attentionEnabled ? "Notifications désactivées sur cet appareil" : active ? "Nouveautés à voir" : "À jour sur cet appareil";
+  if (copy) copy.textContent = !runtime.attentionEnabled
+    ? "Vos décisions restent disponibles normalement."
+    : active ? "Un coup d’œil à votre file suffit pour retirer le point rouge." : "Le point rouge reviendra seulement lorsqu’une décision change ou s’ajoute.";
+  const seen = controls.querySelector("[data-vm-attention-seen]");
+  if (seen) seen.hidden = !active;
+  const toggle = controls.querySelector("[data-vm-attention-toggle]");
+  if (toggle) {
+    toggle.setAttribute("aria-pressed", String(runtime.attentionEnabled));
+    toggle.textContent = runtime.attentionEnabled ? "Notifications activées" : "Réactiver les notifications";
+    toggle.title = runtime.attentionEnabled
+      ? "Désactiver les notifications de nouveauté uniquement sur cet appareil"
+      : "Réactiver les notifications de nouveauté sur cet appareil";
+  }
+}
+
+function clearAttentionReview() {
+  clearTimeout(runtime.attentionReviewTimer);
+  runtime.attentionReviewTimer = 0;
+}
+
+function markCurrentAttentionSeen({ announceChange = true } = {}) {
+  if (!runtime.attentionCurrent) return;
+  const merged = [...new Set([...runtime.attentionTokens, ...runtime.attentionSeenTokens])].slice(0, ATTENTION_TOKEN_LIMIT);
+  runtime.attentionSeenTokens = new Set(merged);
+  runtime.attentionUnseen = false;
+  clearAttentionReview();
+  writeAttentionPreference();
+  updateAttentionSurfaces();
+  if (announceChange) announce("Nouveautés marquées comme vues sur cet appareil.");
+}
+
+function decisionReviewIsVisible() {
+  if (document.visibilityState === "hidden" || runtime.mode !== "essential") return false;
+  const panel = document.querySelector("#vm-panel-decision");
+  const dock = document.querySelector("#vm-decision-dock.is-visible");
+  return isMeaningfullyVisible(panel) || isMeaningfullyVisible(dock);
+}
+
+function scheduleAttentionReview() {
+  if (runtime.attentionReviewTimer || !runtime.attentionEnabled || !runtime.attentionCurrent || !runtime.attentionUnseen) return;
+  const dwell = Number.isFinite(Number(runtime.options.attentionDwellMs))
+    ? Math.max(250, Number(runtime.options.attentionDwellMs))
+    : ATTENTION_DWELL_MS;
+  runtime.attentionReviewTimer = setTimeout(() => {
+    runtime.attentionReviewTimer = 0;
+    if (runtime.attentionUnseen && decisionReviewIsVisible()) markCurrentAttentionSeen({ announceChange: false });
+  }, dwell);
+}
+
+function syncAttentionSnapshot(decisions, { current = false } = {}) {
+  const tokens = current ? decisions.map(decisionAttentionToken) : [];
+  const signature = tokens.join("|");
+  if (signature !== runtime.attentionSignature) clearAttentionReview();
+  runtime.attentionSignature = signature;
+  runtime.attentionTokens = tokens;
+  runtime.attentionCurrent = Boolean(current);
+  runtime.attentionUnseen = Boolean(current && tokens.some((token) => !runtime.attentionSeenTokens.has(token)));
+  updateAttentionSurfaces();
+  scheduleAttentionReview();
+}
+
+function toggleAttentionPreference() {
+  runtime.attentionEnabled = !runtime.attentionEnabled;
+  runtime.attentionUnseen = runtime.attentionEnabled
+    && runtime.attentionCurrent
+    && runtime.attentionTokens.some((token) => !runtime.attentionSeenTokens.has(token));
+  clearAttentionReview();
+  writeAttentionPreference();
+  updateAttentionSurfaces();
+  scheduleAttentionReview();
+  announce(runtime.attentionEnabled ? "Notifications de nouveauté activées sur cet appareil." : "Notifications de nouveauté désactivées sur cet appareil.");
 }
 
 function decisionDockLabels(role = runtime.identity.role) {
@@ -220,7 +411,7 @@ function ensureDecisionDock() {
     tab.setAttribute("aria-expanded", "false");
     tab.setAttribute("aria-hidden", "true");
     tab.tabIndex = -1;
-    tab.innerHTML = `<span class="vm-decision-dock-tab-handle" aria-hidden="true">›</span><span data-vm-dock-tab-label></span><span data-vm-dock-tab-short aria-hidden="true">À faire</span><strong data-vm-dock-tab-count></strong>`;
+    tab.innerHTML = `<span class="vm-decision-dock-tab-handle" aria-hidden="true">›</span><span data-vm-dock-tab-label></span><span data-vm-dock-tab-short aria-hidden="true">À faire</span><strong data-vm-dock-tab-count></strong><i class="vm-attention-dot vm-attention-dot-dock" data-vm-attention-dot hidden aria-hidden="true"></i>`;
     document.body.appendChild(tab);
   }
   return dock;
@@ -354,7 +545,9 @@ function ensureEssentialNav() {
     decisions = document.createElement("a");
     decisions.href = "#vm-panel-decision";
     decisions.dataset.vmNav = "decision";
-    decisions.innerHTML = `${icon("decision")}<span>Décisions</span>`;
+    decisions.innerHTML = `${icon("decision")}<span>Décisions</span><i class="vm-attention-dot" data-vm-attention-dot hidden aria-hidden="true"></i>`;
+  } else if (!decisions.querySelector("[data-vm-attention-dot]")) {
+    decisions.insertAdjacentHTML("beforeend", `<i class="vm-attention-dot" data-vm-attention-dot hidden aria-hidden="true"></i>`);
   }
   let today = wrap.querySelector('[data-vm-nav="today"]');
   if (!today) {
@@ -1237,6 +1430,10 @@ function renderDashboard(now = new Date()) {
     decisionsBody,
     { hasItems: !decisionsAreCurrent || allDecisions.length > 0 || remoteMore || Boolean(remoteError) }
   );
+  ensureAttentionControls();
+  // Aucun listener supplémentaire : la notification réutilise exactement la file
+  // personnelle que ce rendu vient déjà de calculer.
+  syncAttentionSnapshot(allDecisions, { current: workflowSync === "server" });
 
   enhanceCardSummaries();
   const messageBadge = ensureEssentialNav()?.querySelector("[data-vm-message-count]");
@@ -1318,7 +1515,7 @@ function loadMoreDecisions(control) {
   setTimeout(() => {
     try {
       runtime.queueVisibleCount += queuePageSize();
-      renderDashboard();
+      renderDashboard(runtime.options.now instanceof Date ? runtime.options.now : new Date());
       announce("La page suivante de votre file est chargée.");
     } catch {
       control.disabled = false;
@@ -1332,7 +1529,7 @@ function loadMoreDecisions(control) {
 
 function scheduleRender() {
   clearTimeout(runtime.renderTimer);
-  runtime.renderTimer = setTimeout(() => renderDashboard(), 80);
+  runtime.renderTimer = setTimeout(() => renderDashboard(runtime.options.now instanceof Date ? runtime.options.now : new Date()), 80);
 }
 
 function observeDataDom() {
@@ -1355,6 +1552,7 @@ function refreshIdentity(detail = null) {
     runtime.queueVisibleCount = 0;
     runtime.decisionDockCollapsed = readDecisionDockPreference(next);
     runtime.decisionDockForcedOpen = false;
+    hydrateAttentionPreference(next);
   }
   if (changed && !runtime.explicitMode) {
     applyMode(readPreference(next) || defaultMode(next));
@@ -1362,11 +1560,21 @@ function refreshIdentity(detail = null) {
 }
 
 function handleClick(event) {
+  const markSeen = event.target.closest("[data-vm-attention-seen]");
+  if (markSeen) {
+    markCurrentAttentionSeen();
+    return;
+  }
+  const attentionToggle = event.target.closest("[data-vm-attention-toggle]");
+  if (attentionToggle) {
+    toggleAttentionPreference();
+    return;
+  }
   const modeButton = event.target.closest("[data-view-mode]");
   if (modeButton && VALID_MODES.has(modeButton.dataset.viewMode)) {
     runtime.explicitMode = true;
     applyMode(modeButton.dataset.viewMode, { persist: true });
-    if (runtime.mode === "essential") renderDashboard();
+    if (runtime.mode === "essential") renderDashboard(runtime.options.now instanceof Date ? runtime.options.now : new Date());
     return;
   }
   const dockToggle = event.target.closest("[data-vm-dock-toggle]");
@@ -1385,6 +1593,7 @@ function handleClick(event) {
     runtime.decisionDockForcedOpen = true;
     writeDecisionDockPreference(false);
     syncDecisionDockVisibility();
+    scheduleAttentionReview();
     const close = document.querySelector("[data-vm-dock-toggle]");
     try { close?.focus?.({ preventScroll: true }); } catch { close?.focus?.(); }
     return;
@@ -1394,6 +1603,12 @@ function handleClick(event) {
     const panel = document.querySelector("#vm-panel-decision");
     panel?.scrollIntoView?.({ behavior: globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? "auto" : "smooth", block: "start" });
     try { panel?.focus?.({ preventScroll: true }); } catch { panel?.focus?.(); }
+    scheduleAttentionReview();
+    return;
+  }
+  const decisionNav = event.target.closest('[data-vm-nav="decision"]');
+  if (decisionNav) {
+    setTimeout(scheduleAttentionReview, 0);
     return;
   }
   const cardHeader = event.target.closest("[data-vm-header-toggle]");
@@ -1452,6 +1667,7 @@ export function init(options = {}) {
   runtime.identity = detectIdentity(options.profile || options);
   runtime.decisionDockCollapsed = readDecisionDockPreference(runtime.identity);
   runtime.decisionDockForcedOpen = false;
+  hydrateAttentionPreference(runtime.identity);
   const requested = VALID_MODES.has(options.mode) ? options.mode : "";
   runtime.mode = requested || readPreference(runtime.identity) || defaultMode(runtime.identity);
   runtime.explicitMode = Boolean(requested);
@@ -1468,6 +1684,11 @@ export function init(options = {}) {
     runtime.queueVisibleCount = 0;
     runtime.navigationToken += 1;
     clearContentNoticeDwell();
+    clearAttentionReview();
+    runtime.attentionCurrent = false;
+    runtime.attentionUnseen = false;
+    updateAppAttentionBadge(false);
+    document.documentElement.classList.remove("cockpit-has-unseen");
     document.querySelector("#cockpit-view-mode-toggle")?.remove();
     document.querySelector("#cockpit-essential-dashboard")?.remove();
     document.querySelector("#vm-decision-dock")?.remove();
@@ -1476,11 +1697,19 @@ export function init(options = {}) {
   });
   listen(window, "cockpit:data-updated", () => update());
   listen(window, "pageshow", () => update());
-  listen(window, "scroll", syncDecisionDockVisibility, { passive: true });
+  listen(window, "scroll", () => {
+    syncDecisionDockVisibility();
+    scheduleAttentionReview();
+  }, { passive: true });
   listen(window, "resize", () => {
     runtime.decisionDockForcedOpen = false;
     syncDecisionDockVisibility();
+    scheduleAttentionReview();
   }, { passive: true });
+  listen(document, "visibilitychange", () => {
+    if (document.visibilityState === "hidden") clearAttentionReview();
+    else scheduleAttentionReview();
+  });
 
   update();
 }
@@ -1494,7 +1723,7 @@ export function update(options = {}) {
   ensureDashboard();
   ensureEssentialNav();
   applyMode(runtime.mode);
-  renderDashboard(options.now instanceof Date ? options.now : new Date());
+  renderDashboard(runtime.options.now instanceof Date ? runtime.options.now : new Date());
   observeDataDom();
 }
 
@@ -1503,6 +1732,8 @@ export function destroy() {
   clearTimeout(runtime.renderTimer);
   clearTimeout(runtime.focusTimer);
   clearContentNoticeDwell();
+  clearAttentionReview();
+  updateAppAttentionBadge(false);
   runtime.observer?.disconnect();
   runtime.listeners.splice(0).forEach((remove) => remove());
   document.querySelector("#cockpit-view-mode-toggle")?.remove();
@@ -1513,6 +1744,7 @@ export function destroy() {
   document.querySelectorAll(".vm-card-summary").forEach((node) => node.remove());
   document.querySelector(`link[data-module="${MODULE_ID}"]`)?.remove();
   document.documentElement.removeAttribute("data-cockpit-view");
+  document.documentElement.classList.remove("cockpit-has-unseen");
   document.body.classList.remove("cockpit-view-essential", "cockpit-view-complete");
   runtime.initialized = false;
   runtime.explicitMode = false;
@@ -1523,6 +1755,10 @@ export function destroy() {
   runtime.queueVisibleCount = 0;
   runtime.decisionDockForcedOpen = false;
   runtime.decisionDockHasItems = false;
+  runtime.attentionCurrent = false;
+  runtime.attentionUnseen = false;
+  runtime.attentionTokens = [];
+  runtime.attentionSignature = "";
 }
 
 // Autonome lorsque chargé directement; init() reste exporté pour les tests et

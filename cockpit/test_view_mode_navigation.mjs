@@ -41,6 +41,16 @@ Object.assign(globalThis, {
   requestAnimationFrame: (callback) => setTimeout(callback, 0),
   matchMedia: () => ({ matches: false, addEventListener() {}, removeEventListener() {} })
 });
+const appBadgeCalls = [];
+let appBadgeClearCalls = 0;
+Object.defineProperty(globalThis, "navigator", {
+  configurable: true,
+  value: {
+    onLine: true,
+    setAppBadge: (...args) => { appBadgeCalls.push(args); return Promise.resolve(); },
+    clearAppBadge: () => { appBadgeClearCalls += 1; return Promise.resolve(); }
+  }
+});
 function setViewportWidth(width) {
   Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
   Object.defineProperty(globalThis, "innerWidth", { configurable: true, value: width });
@@ -48,6 +58,7 @@ function setViewportWidth(width) {
 }
 setViewportWidth(1366);
 Object.defineProperty(window, "innerHeight", { configurable: true, value: 900 });
+Object.defineProperty(globalThis, "innerHeight", { configurable: true, value: 900 });
 window.localStorage = localStorage;
 window.matchMedia = globalThis.matchMedia;
 Object.defineProperty(window.HTMLSelectElement.prototype, "value", {
@@ -119,7 +130,7 @@ document.querySelector("#past-toggle").addEventListener("click", () => { showPas
 renderCalendar();
 
 const viewMode = await import(`./view-mode.js?navigation-test=${Date.now()}`);
-viewMode.init({ profile: { uid: "annie", role: "director" }, now: new Date("2026-07-14T12:00:00-04:00"), contentNoticeDwellMs: 20, decisionDockMinWidth: 1180, decisionDockAvailableWidth: 360 });
+viewMode.init({ profile: { uid: "annie", role: "director" }, now: new Date("2026-07-14T12:00:00-04:00"), contentNoticeDwellMs: 20, attentionDwellMs: 60, decisionDockMinWidth: 1180, decisionDockAvailableWidth: 360 });
 await wait();
 
 const decisionCards = () => [...document.querySelectorAll(".vm-decisions .vm-event")];
@@ -139,6 +150,40 @@ assert.ok(document.querySelector('[data-vm-target="future-1"]').closest(".vm-eve
 assert.ok(decisionCards().some((card) => card.classList.contains("priority-current-week")), "Le reste de la semaine doit être orange, sans urgence pulsante.");
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Action réservée aux communications/);
 assert.ok(document.querySelector("[data-vm-load-more]"), "La suite de la file doit être disponible à la demande.");
+
+// La notification de nouveauté est strictement locale à l'identité, sans compteur ni
+// lecture supplémentaire. Un coup d'œil réel ou le bouton manuel l'efface.
+const attentionDot = () => document.querySelector('[data-vm-nav="decision"] [data-vm-attention-dot]');
+assert.equal(attentionDot().hidden, false, "Une file personnelle jamais vue doit allumer le point de nouveauté.");
+assert.ok(appBadgeCalls.length > 0, "L’application installée doit recevoir le badge lorsque l’API existe.");
+assert.ok(appBadgeCalls.every((args) => args.length === 0), "Le badge système doit être un point, jamais un nombre.");
+assert.match(document.querySelector("[data-vm-attention-title]").textContent, /Nouveautés à voir/);
+document.querySelector("[data-vm-attention-seen]").click();
+assert.equal(attentionDot().hidden, true, "Le bouton manuel doit retirer immédiatement la notification.");
+assert.ok(appBadgeClearCalls > 0);
+assert.ok([...storage.keys()].some((key) => key.includes("bleu-massawippi-attention-v1:uid:annie")), "L’état vu doit rester isolé à l’uid sur cet appareil.");
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
+assert.equal(attentionDot().hidden, true, "Un rendu identique ne doit jamais rallumer la nouveauté.");
+document.querySelector('[data-item-id="future-1"]').dataset.workflowUpdatedAt = "101";
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
+assert.equal(attentionDot().hidden, false, "Une décision modifiée après lecture doit rallumer le point.");
+const visibleDecisionPanel = document.querySelector("#vm-panel-decision");
+visibleDecisionPanel.getBoundingClientRect = () => ({ top: 160, bottom: 650, left: 80, right: 720, width: 640, height: 490 });
+window.dispatchEvent(new window.Event("scroll"));
+await wait(320);
+assert.equal(attentionDot().hidden, true, "Une consultation visible et suffisamment longue doit retirer le point sans clic métier.");
+const attentionToggle = document.querySelector("[data-vm-attention-toggle]");
+attentionToggle.click();
+assert.equal(attentionToggle.getAttribute("aria-pressed"), "false", "Les notifications doivent pouvoir être désactivées uniquement sur cet appareil.");
+document.querySelector('[data-item-id="future-3"]').dataset.workflowUpdatedAt = "102";
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
+assert.equal(attentionDot().hidden, true, "Une nouveauté ne doit pas réapparaître tant que les notifications locales sont désactivées.");
+document.querySelector("[data-vm-attention-toggle]").click();
+assert.equal(attentionDot().hidden, false, "Réactiver les notifications doit révéler une décision réellement nouvelle.");
+document.querySelector("[data-vm-attention-seen]").click();
 
 // L'en-tête éditorial complet agit comme le bouton « Voir et décider », sans
 // écriture distante. Le clavier et les contrôles internes restent sûrs.

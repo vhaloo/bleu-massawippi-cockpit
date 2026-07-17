@@ -84,6 +84,19 @@ async function requestAppInstall() {
   }
 }
 
+function showSoftRipple(target) {
+  if (root.dataset.motion !== "on" || reducedMotion?.matches || target?.nodeType !== 1 || !target.isConnected) return;
+  const ripple = document.createElement("span");
+  ripple.className = "cockpit-soft-ripple";
+  ripple.setAttribute("aria-hidden", "true");
+  target.classList.add("cockpit-soft-ripple-host");
+  target.appendChild(ripple);
+  window.setTimeout(() => {
+    ripple.remove();
+    if (!target.querySelector(".cockpit-soft-ripple")) target.classList.remove("cockpit-soft-ripple-host");
+  }, 1050);
+}
+
 function buildInstallShortcut() {
   if (isStandaloneApp() || document.querySelector("#cockpit-install-shortcut")) return;
   const footer = document.querySelector("footer");
@@ -128,6 +141,8 @@ style.textContent = `
   html[data-motion="on"] [data-dictate][aria-pressed="true"]::after { position:absolute; inset:-5px; border:2px solid rgba(32,168,189,.48); border-radius:inherit; content:""; pointer-events:none; animation:cockpit-voice-ring 1.4s ease-out infinite; }
   html[data-motion="on"] .cockpit-voice-status.live::before { display:inline-block; width:18px; height:10px; margin-right:6px; content:""; vertical-align:-1px; background:repeating-linear-gradient(90deg,#1692aa 0 2px,transparent 2px 4px); transform-origin:center; animation:cockpit-voice-meter .72s ease-in-out infinite alternate; }
   html[data-motion="on"] :is([data-media-decision],[data-media-override],[data-workflow-stage],[data-comment-action],[data-vm-load-more],.cockpit-workflow-gate):active { transform:translateY(1px) scale(.985); }
+  .cockpit-soft-ripple-host { position:relative; isolation:isolate; }
+  .cockpit-soft-ripple { position:absolute; left:50%; top:50%; z-index:8; width:34px; height:34px; border:2px solid rgba(79,190,199,.58); border-radius:50%; content:""; pointer-events:none; transform:translate(-50%,-50%) scale(.12); animation:cockpit-soft-water-ripple 1s cubic-bezier(.16,.7,.25,1) forwards; }
   html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="off"] *::after { scroll-behavior:auto !important; animation:none !important; transition-duration:.01ms !important; transition-delay:0ms !important; }
   [data-theme="dark"] #cockpit-motion-toggle { border-color:#7395a0; background:#102e3a; box-shadow:0 7px 20px rgba(0,0,0,.34); }
   #cockpit-install-launch { position:fixed; right:15px; bottom:121px; z-index:31; display:flex; align-items:center; gap:8px; max-width:min(340px,calc(100vw - 30px)); padding:10px 12px; border:1px solid #b9dde2; border-radius:14px; color:#073a52; background:#f8fcfc; box-shadow:0 11px 28px rgba(7,58,82,.16); font-size:.76rem; }
@@ -143,6 +158,7 @@ style.textContent = `
   @keyframes cockpit-voice-button { 0%,100% { box-shadow:0 0 0 0 rgba(32,168,189,.08); } 50% { box-shadow:0 0 0 5px rgba(32,168,189,.16); } }
   @keyframes cockpit-voice-ring { from { opacity:.8; transform:scale(.86); } to { opacity:0; transform:scale(1.28); } }
   @keyframes cockpit-voice-meter { from { transform:scaleY(.45); opacity:.7; } to { transform:scaleY(1); opacity:1; } }
+  @keyframes cockpit-soft-water-ripple { 0% { opacity:0; transform:translate(-50%,-50%) scale(.12); box-shadow:0 0 0 0 rgba(72,181,192,.28),0 0 0 0 rgba(72,181,192,.16); } 18% { opacity:.78; } 100% { opacity:0; transform:translate(-50%,-50%) scale(4.6); box-shadow:0 0 0 9px rgba(72,181,192,.06),0 0 0 21px rgba(72,181,192,0); } }
   @media (max-width:700px) {
     #cockpit-motion-toggle { left:8px; bottom:62px; width:40px; height:40px; }
     #cockpit-install-launch { right:8px; bottom:62px; max-width:calc(100vw - 16px); }
@@ -165,6 +181,10 @@ addEventListener("cockpit:session-ended", () => {
   document.querySelector("#cockpit-motion-toggle")?.remove();
   document.querySelector("#cockpit-install-launch")?.remove();
   document.querySelector("#cockpit-install-shortcut")?.remove();
+});
+addEventListener("cockpit:soft-ripple", (event) => {
+  const target = event.detail?.target;
+  showSoftRipple(target?.closest?.(".cockpit-media-card")?.querySelector(".cockpit-media-preview") || target);
 });
 addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();
