@@ -568,7 +568,7 @@ FR — Cet été, le suivi du lac Massawippi et de ses tributaires se poursuit.
 
 On observe, on mesure, on échantillonne et on consigne. Chaque passage ajoute des données qui, comparées dans le temps, nous aideront à mieux comprendre l’évolution du lac et des cours d’eau qui l’alimentent.
 
-Le suivi est notre outil : c’est une façon rigoureuse de rester attentifs et de mieux orienter les décisions. Nous partagerons ce que les données permettent de dire — et ce qu’elles ne permettent pas encore de conclure.
+Le suivi est notre outil : c’est une façon rigoureuse de rester attentifs et de mieux orienter les décisions.
 
 Merci de suivre le lac et ses tributaires avec nous.
 
@@ -580,7 +580,7 @@ EN — This summer, monitoring continues across Lake Massawippi and its tributar
 
 Our field teams observe, measure, collect samples and keep careful records. Each visit adds to a body of data that, over time, helps us understand how the lake and the waterways that feed it are changing.
 
-Regular monitoring helps us pay close attention to the watershed and make better-informed decisions. We will share what the data show — and be clear about what we do not yet know.
+Regular monitoring helps us pay close attention to the watershed and make better-informed decisions.
 
 Thank you for taking an interest in this work.
 
@@ -692,7 +692,7 @@ You can write to us at info@bleumassawippi.com. Your observations help us ask th
 ### Légende prête à programmer
 
 ```text
-FR — Une lumière sur l’eau, un coin de rive, un moment en famille : chacun porte un regard différent sur le Massawippi, et nous aimerions découvrir le vôtre.
+FR — La lumière sur l’eau, un coin de rive, un moment en famille : chacun porte un regard différent sur le Massawippi, et nous aimerions découvrir le vôtre.
 
 Envoyez une photo prise par vous et une courte phrase sur ce qu’elle représente à info@bleumassawippi.com, objet : Photo Massawippi. Dites-nous simplement si vous seriez à l’aise qu’elle soit publiée. Nous vous recontacterons toujours avant toute diffusion.
 
@@ -700,7 +700,7 @@ Envoyez une photo prise par vous et une courte phrase sur ce qu’elle représen
 
 =========================================
 
-EN — Light on the water, a favourite stretch of shoreline, a family moment: everyone sees Massawippi a little differently, and we would love to discover your view.
+EN — The light on the water, a favourite stretch of shoreline, a family moment: everyone sees Massawippi a little differently, and we would love to discover your view.
 
 Send a photo you took and a short sentence about what it means to info@bleumassawippi.com, subject: Massawippi Photo. Simply tell us whether you would be comfortable having it shared. We will always contact you before publication.
 
