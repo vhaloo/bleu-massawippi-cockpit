@@ -35,13 +35,13 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260717-b26";
-import { createEventContextController } from "./event-context-data.js?v=20260717-b26";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260717-b26";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260717-b26";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260717-b26";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260717-b26";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260717-b26";
+} from "./firebase-client.js?v=20260717-b28";
+import { createEventContextController } from "./event-context-data.js?v=20260717-b28";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260717-b28";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260717-b28";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260717-b28";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260717-b28";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260717-b28";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";

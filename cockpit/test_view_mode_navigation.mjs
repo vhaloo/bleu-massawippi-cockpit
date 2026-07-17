@@ -71,7 +71,11 @@ Object.defineProperty(window.HTMLSelectElement.prototype, "value", {
     });
   }
 });
-window.HTMLElement.prototype.scrollIntoView = function scrollIntoView(options) { this.__scrollOptions = options; };
+const scrollCalls = [];
+window.HTMLElement.prototype.scrollIntoView = function scrollIntoView(options) {
+  this.__scrollOptions = options;
+  scrollCalls.push({ element: this, options });
+};
 window.HTMLElement.prototype.focus = function focus() { this.dataset.testFocused = "true"; };
 
 const wait = (milliseconds = 120) => new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -215,11 +219,16 @@ clickableHeader.appendChild(nestedControl);
 nestedControl.click();
 assert.equal(headerCard.classList.contains('vm-expanded'), true, 'Un contrôle interne ne doit pas replier la publication.');
 
-const firstOpenControl = document.querySelector(".vm-decisions [data-vm-target]");
+const firstOpenControl = document.querySelector('.vm-decisions [data-vm-target="future-1"]');
+assert.ok(firstOpenControl, "La recette doit fournir une première cible future déjà visible.");
 const firstOpenTarget = firstOpenControl.dataset.vmTarget;
 firstOpenControl.click();
 await wait(250);
 assert.equal(document.querySelector(`.post[data-item-id="${firstOpenTarget}"]`).classList.contains("vm-expanded"), true);
+assert.equal(scrollCalls.at(-1)?.element.closest?.(".post[data-item-id]")?.dataset.itemId, firstOpenTarget,
+  "Chaque bouton de la direction doit positionner le calendrier sur son événement exact.");
+assert.equal(scrollCalls.at(-1)?.options?.behavior, "auto",
+  "La navigation doit éviter le long scroll doux qui pouvait être interrompu par un rerendu.");
 assert.match(firstOpenControl.textContent, /Ouvrir/, "Le bouton doit retrouver son libellé après la navigation.");
 
 // Quand une décision visible sort de la file, la suivante remonte sans charger
@@ -382,6 +391,12 @@ assert.ok(dock.classList.contains("is-visible"), "La file flottante doit aussi �
 assert.match(dock.querySelector("[data-vm-dock-eyebrow]").textContent, /Communications/);
 assert.match(dock.querySelector("[data-vm-dock-title]").textContent, /À accomplir maintenant/);
 assert.match(dockTab.textContent, /Mes tâches/, "La languette admin doit nommer clairement sa propre file.");
+const adminDockOpen = dock.querySelector("[data-vm-target]");
+const adminDockTarget = adminDockOpen.dataset.vmTarget;
+adminDockOpen.click();
+await wait(250);
+assert.equal(scrollCalls.at(-1)?.element.closest?.(".post[data-item-id]")?.dataset.itemId, adminDockTarget,
+  "Le widget des communications doit lui aussi viser l'événement porté par son propre bouton.");
 window.dispatchEvent(new window.CustomEvent("cockpit:session-ready", { detail: { profile: { uid: "annie", role: "director" } } }));
 await wait();
 let remoteLoadRequests = 0;
@@ -494,6 +509,10 @@ assert.equal(error.hidden, true);
 window.dispatchEvent(new window.Event("pageshow"));
 await wait();
 assert.equal(await viewMode.navigateToEntity({ type: "schedule", id: "future-3" }), true);
+assert.equal(scrollCalls.at(-1)?.element.closest?.(".post[data-item-id]")?.dataset.itemId, "future-3",
+  "Une navigation ultérieure doit remplacer la cible précédente au lieu de revenir sur une carte ancienne.");
+assert.equal(document.documentElement.classList.contains("vm-programmatic-navigation"), false,
+  "Le gel d'ancrage doit toujours être retiré après le positionnement.");
 assert.equal(document.querySelectorAll("#cockpit-essential-dashboard").length, 1);
 
 viewMode.destroy();

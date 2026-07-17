@@ -753,6 +753,20 @@ html.cockpit-has-unseen[data-motion="on"] .vm-attention-dot { animation: vm-atte
   filter: none !important;
 }
 
+/* Une navigation explicite doit gagner sur le scroll doux global et sur
+   l'ancrage automatique du navigateur. La classe ne vit que quelques ms. */
+html.vm-programmatic-navigation {
+  scroll-behavior: auto !important;
+  overflow-anchor: none;
+}
+
+html.vm-programmatic-navigation body,
+html.vm-programmatic-navigation #posts { overflow-anchor: none; }
+
+.post.vm-navigation-reveal > .post-head {
+  scroll-margin-top: calc(var(--cockpit-session-height, 54px) + var(--cockpit-nav-height, 46px) + 16px);
+}
+
 @keyframes vm-focus {
   0%, 100% { box-shadow: none; }
   35% { box-shadow: 0 0 0 10px rgba(42, 182, 187, .2); }
