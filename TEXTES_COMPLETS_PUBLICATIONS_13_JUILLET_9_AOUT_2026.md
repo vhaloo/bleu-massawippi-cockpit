@@ -428,7 +428,7 @@ What wildlife have you noticed near a vegetated shoreline at Massawippi?
 ### Légende prête à programmer
 
 ```text
-FR — Après une averse, l’eau se met en route vers les fossés, les ruisseaux et parfois jusqu’au lac. Sur son chemin, elle peut aussi entraîner de la terre et d’autres matières.
+FR — Après une averse, l’eau se met en route vers les fossés, les ruisseaux et parfois jusqu’au lac. Sur son chemin, elle peut emporter de la terre, des débris végétaux, des fertilisants et d’autres polluants présents au sol.
 
 Un jardin de pluie lui offre un endroit où ralentir et pénétrer doucement dans le sol. Cet automne, Bleu Massawippi prépare un atelier pour découvrir le principe, voir des exemples et poser vos questions. La date sera annoncée dès qu’elle sera confirmée.
 
@@ -438,7 +438,7 @@ Vous aimeriez recevoir les détails? Écrivez-nous en message privé et nous vou
 
 =========================================
 
-EN — After a downpour, runoff flows toward ditches and streams—and sometimes all the way to the lake. Along the way, it can carry soil and other material.
+EN — After a downpour, runoff flows toward ditches and streams—and sometimes all the way to the lake. Along the way, it can pick up soil, plant debris, fertilizers and other pollutants found on the ground.
 
 A rain garden gives that water a place to slow down and gently soak into the ground. This fall, Bleu Massawippi is preparing a workshop to explore the idea, see examples and answer questions. The date will be shared as soon as it is confirmed.
 
@@ -453,7 +453,7 @@ Would you like to receive the details? Send us a private message and we will kee
 **Format :** Photo de bateau responsable ou visuel typographique
 **Objectif :** Parler de nautisme intelligent sans caricaturer les plaisanciers ni citer une règle non validée.
 **CTA :** Respecter le 10 km/h à moins de 100 m
-**Visuel final :** Photo réelle et paisible montrant une embarcation ralentie loin des autres usages. Intégrer avec sobriété « 10 km/h · à 100 m ou moins de la rive » et un petit crédit « Source : Transports Canada », sans transformer le visuel en panneau répressif.
+**Visuel final :** Planche scolaire vintage très simple : une rive, une embarcation, la limite de 100 m et le repère 10 km/h. Retirer les explications périphériques et ajouter seulement l’accroche manuscrite chaleureuse « Mon lac, j’en prends soin · I care for my lake ».
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
 **Source de référence :** https://bleumassawippi.com/laccessible/en
 **Préparation :** Utiliser une image qui montre une navigation calme et dégagée; éviter les chiffres ou règles locales non validés pour le jour de publication.
@@ -465,7 +465,7 @@ FR — Sur le Massawippi, le plaisir prend mille formes : naviguer, pagayer, pê
 
 Pour les embarcations à propulsion mécanique ou électrique, la limite officielle est de 10 km/h à 100 mètres ou moins de la rive du lac Massawippi. Respecter cette zone, garder une distance confortable et rester attentif à son sillage aide à protéger les rives et à laisser de l’espace aux autres usages.
 
-Merci de ralentir près du bord : c’est une attention simple qui rend le lac plus agréable pour tout le monde.
+Merci de ralentir près du bord : c’est une attention simple qui réduit notre impact sur un écosystème fragile et rend le lac plus agréable pour tout le monde.
 
 Source officielle — Transports Canada : https://tc.canada.ca/fr/transport-maritime/securite-maritime/securite-nautique/annexes-reglement-restrictions-visant-utilisation-batiments-2ieme-edition-avril-2026
 
@@ -477,7 +477,7 @@ EN — On Massawippi, enjoyment takes many forms: boating, paddling, fishing, sw
 
 For power-driven and electrically propelled vessels, the official limit is 10 km/h within 100 metres of the shore of Lake Massawippi. Respecting this zone, leaving comfortable space and staying aware of your wake helps protect shorelines and leaves room for other lake users.
 
-Thank you for slowing down near shore. It is a simple courtesy that makes the lake more enjoyable for everyone.
+Thank you for slowing down near shore. It is a simple courtesy that reduces our impact on a fragile ecosystem and makes the lake more enjoyable for everyone.
 
 Official source — Transport Canada: https://tc.canada.ca/en/marine-transportation/marine-safety/boating-safety/schedules-vessel-operation-restriction-regulations-2nd-edition-april-2026
 
@@ -630,7 +630,7 @@ Water quality, wildlife, shorelines, history or fieldwork: what would you like t
 ### Légende prête à programmer
 
 ```text
-FR — Ouvrons le rapport 2025 ensemble. Le phosphore total, la chlorophylle a et la transparence sont trois repères utiles parmi plusieurs éléments suivis et analysés pour mieux comprendre le lac.
+FR — Ouvrons le rapport 2025 ensemble. Le phosphore total, la chlorophylle a et la transparence sont trois données utiles parmi plusieurs éléments suivis et analysés pour mieux comprendre le lac.
 
 Aucun indicateur ne raconte toute l’histoire à lui seul. C’est en croisant les résultats, leur contexte et leur évolution dans le temps que le portrait devient plus juste. Le rapport complet présente la démarche et l’ensemble des résultats disponibles.
 
@@ -640,7 +640,7 @@ https://bleumassawippi.com/rapports-et-memoires
 
 =========================================
 
-EN — Let’s open the 2025 report together. Total phosphorus, chlorophyll a and water clarity are three useful reference points among several elements monitored and analyzed to better understand the lake.
+EN — Let’s open the 2025 report together. Total phosphorus, chlorophyll a and water clarity are three useful data points among several elements monitored and analyzed to better understand the lake.
 
 No single indicator tells the whole story. A more accurate picture emerges when results, context and changes over time are considered together. The full report presents the approach and all available results.
 
@@ -663,7 +663,7 @@ https://bleumassawippi.com/rapports-et-memoires
 ### Légende prête à programmer
 
 ```text
-FR — Une forte pluie peut changer rapidement l’apparence de l’eau, des rives et des tributaires. Si quelque chose attire votre attention, prenez simplement note du lieu, du moment et de ce que vous voyez.
+FR — Une forte pluie peut changer rapidement l’apparence de l’eau, des rives et des tributaires. Si quelque chose attire votre attention, prenez simplement note du lieu, du moment et de ce que vous voyez. Si vous pouvez le faire en sécurité, prenez aussi une ou deux photos d’ensemble et de détail pour bien documenter votre observation.
 
 Vous pouvez nous écrire à info@bleumassawippi.com. Vos observations nous aident à poser les bonnes questions et à rester attentifs au territoire. Merci d’être nos yeux autour du lac.
 
@@ -671,7 +671,7 @@ Vous pouvez nous écrire à info@bleumassawippi.com. Vos observations nous aiden
 
 =========================================
 
-EN — Heavy rain can quickly change the appearance of the water, shorelines and tributaries. If something catches your attention, simply note the location, time and what you observe.
+EN — Heavy rain can quickly change the appearance of the water, shorelines and tributaries. If something catches your attention, simply note the location, time and what you observe. If it is safe to do so, take one or two overview and detail photos to document your observation clearly.
 
 You can write to us at info@bleumassawippi.com. Your observations help us ask the right questions and stay attentive to the watershed. Thank you for being our eyes around the lake.
 
