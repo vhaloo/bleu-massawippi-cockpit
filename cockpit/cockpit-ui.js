@@ -35,13 +35,13 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260717-b21";
-import { createEventContextController } from "./event-context-data.js?v=20260717-b21";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260717-b21";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260717-b21";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260717-b21";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260717-b21";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260717-b21";
+} from "./firebase-client.js?v=20260717-b22";
+import { createEventContextController } from "./event-context-data.js?v=20260717-b22";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260717-b22";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260717-b22";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260717-b22";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260717-b22";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260717-b22";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -1417,7 +1417,7 @@ function setupCollapsibleNavigation() {
   if (document.body.dataset.collapsibleNavigationReady === "true") return;
   document.body.dataset.collapsibleNavigationReady = "true";
   document.addEventListener("click", (event) => {
-    const link = event.target.closest('.nav a[href^="#"], .hero a.button[href^="#"]');
+    const link = event.target.closest('.nav a[href^="#"], .hero a.button[href^="#"], .strategy-toc a[href^="#"]');
     if (!link) return;
     const rawId = link.getAttribute("href")?.slice(1) || "";
     const target = document.getElementById(decodeURIComponent(rawId));

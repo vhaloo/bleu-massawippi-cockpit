@@ -39,6 +39,6 @@ assert.match(read("seed_content_notices.js"), /if \(existing\.exists\)[\s\S]*pre
 assert.match(read("seed_content_notices.js"), /Une version vue ne doit jamais être rouverte/);
 const contentNotices = JSON.parse(read("content_notices.json"));
 assert.equal(contentNotices.schemaVersion, 1);
-assert.equal(contentNotices.notices.length, 3);
+assert.equal(contentNotices.notices.length, 4);
 assert.ok(contentNotices.notices.every((item) => item.audienceRole === "director" && item.assigneeEmail === "dg@bleumassawippi.com"));
 console.log("Contrat d’idempotence des synchronisations : OK");

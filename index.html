@@ -50,6 +50,46 @@
     [data-theme="dark"] .strategic-document-copy p { color:#d0e5e2; }
     [data-theme="dark"] .strategic-document-points span { color:#d8f5ef; background:#28514c; }
     [data-theme="dark"] .strategic-document-actions a.secondary { color:#d9fbff; background:#254349; border-color:#63969b; }
+    .strategy-toc { margin:16px 0 12px; padding:16px; border:1px solid #bddfe0; border-radius:18px; background:linear-gradient(135deg,#f4fbfb,#fff); box-shadow:0 8px 20px rgba(7,58,82,.05); scroll-margin-top:calc(var(--cockpit-session-height,52px) + var(--cockpit-nav-height,44px) + 14px); }
+    .strategy-toc-heading { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:11px; }
+    .strategy-toc-heading strong { color:#073a52; font-size:.92rem; }
+    .strategy-toc-heading small { color:#648088; font-size:.69rem; font-weight:750; }
+    .strategy-toc-links { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+    .strategy-toc-links a { display:flex; min-height:43px; align-items:center; gap:8px; padding:9px 10px; border:1px solid #d2e8e9; border-radius:11px; color:#174f61; background:#fff; font-size:.73rem; font-weight:850; line-height:1.25; text-decoration:none; }
+    .strategy-toc-links a:hover,.strategy-toc-links a:focus-visible { border-color:#2ab6bb; outline:none; box-shadow:0 0 0 3px rgba(42,182,187,.16); transform:translateY(-1px); }
+    .strategy-toc-links b { display:grid; flex:0 0 25px; width:25px; height:25px; place-items:center; border-radius:8px; color:#fff; background:#0b7895; font-size:.62rem; }
+    .sharepoint-governance { scroll-margin-top:calc(var(--cockpit-session-height,52px) + var(--cockpit-nav-height,44px) + 14px); }
+    .sharepoint-zones { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; margin:15px 0; }
+    .sharepoint-zone { padding:16px; border:1px solid #c9e1e3; border-radius:15px; background:#fff; }
+    .sharepoint-zone small { display:block; margin-bottom:5px; color:#28766f; font-size:.66rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+    .sharepoint-zone h3 { margin:0 0 7px; color:#073a52; font-size:1rem; }
+    .sharepoint-zone p { margin:0; color:#55727d; font-size:.8rem; line-height:1.5; }
+    .sharepoint-folder-map { overflow:hidden; margin:0 0 13px; border:1px solid #c9e1e3; border-radius:14px; background:#fff; }
+    .sharepoint-folder-map > summary { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; color:#174f61; background:#edf8f8; font-size:.76rem; }
+    .sharepoint-folder-map > summary:after { content:none!important; }
+    .sharepoint-folder-toggle { display:inline-grid; flex:0 0 1.55rem; width:1.55rem; height:1.55rem; place-items:center; border:1px solid #9bcfd2; border-radius:50%; color:#0b7895; background:#fff; font-size:1.1rem; font-weight:950; line-height:1; }
+    .sharepoint-folder-toggle .minus { display:none; }
+    .sharepoint-folder-map[open] .sharepoint-folder-toggle .plus { display:none; }
+    .sharepoint-folder-map[open] .sharepoint-folder-toggle .minus { display:inline; }
+    .sharepoint-folder-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:13px; }
+    .sharepoint-folder-grid h3 { margin:0 0 6px; color:#073a52; font-size:.83rem; }
+    .sharepoint-folder-grid ul { margin:0; padding-left:18px; color:#55727d; font-size:.73rem; line-height:1.5; }
+    .sharepoint-folder-grid li+li { margin-top:3px; }
+    .sharepoint-flow { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; margin:13px 0; }
+    .sharepoint-flow div { position:relative; min-height:88px; padding:11px 8px; border:1px solid #cce5e5; border-radius:12px; color:#315d62; background:#f5fbfb; font-size:.69rem; line-height:1.35; }
+    .sharepoint-flow b { display:grid; width:24px; height:24px; margin-bottom:7px; place-items:center; border-radius:50%; color:#fff; background:#0b7895; font-size:.66rem; }
+    .sharepoint-flow strong { display:block; margin-bottom:2px; color:#073a52; font-size:.72rem; }
+    .sharepoint-resources { display:flex; flex-wrap:wrap; gap:8px; margin-top:13px; }
+    .sharepoint-resources a { display:inline-flex; min-height:42px; align-items:center; padding:9px 12px; border:1px solid #0b6077; border-radius:11px; color:#0b6077; background:#fff; font-size:.73rem; font-weight:900; text-decoration:none; }
+    .sharepoint-resources a.primary { color:#fff; background:#0b6077; }
+    [data-theme="dark"] .strategy-toc { border-color:#4d7e83; background:linear-gradient(135deg,#18383c,#1d3035); }
+    [data-theme="dark"] .strategy-toc-heading strong,[data-theme="dark"] .strategy-toc-links a,[data-theme="dark"] .sharepoint-zone h3,[data-theme="dark"] .sharepoint-flow strong,[data-theme="dark"] .sharepoint-folder-grid h3 { color:#d9f8fa; }
+    [data-theme="dark"] .strategy-toc-heading small,[data-theme="dark"] .sharepoint-zone p,[data-theme="dark"] .sharepoint-flow div,[data-theme="dark"] .sharepoint-folder-grid ul { color:#c4dadd; }
+    [data-theme="dark"] .strategy-toc-links a,[data-theme="dark"] .sharepoint-zone,[data-theme="dark"] .sharepoint-flow div,[data-theme="dark"] .sharepoint-folder-map { border-color:#466b70; background:#20373c; }
+    [data-theme="dark"] .sharepoint-folder-map > summary { color:#d9f8fa; background:#29464b; }
+    [data-theme="dark"] .sharepoint-folder-toggle { color:#8ce4eb; border-color:#5f9297; background:#20373c; }
+    [data-theme="dark"] .sharepoint-resources a { color:#dcf7fa; border-color:#6e9ca1; background:#254349; }
+    [data-theme="dark"] .sharepoint-resources a.primary { color:#fff; border-color:#0f9bb0; background:#0d7187; }
     .calendar-card { margin-top: 16px; }
     .post > details > summary { margin: 0 12px 12px; padding: 12px 14px; border: 1px solid var(--accent); border-radius: 11px; color: #fff; background: var(--accent); box-shadow: 0 5px 13px color-mix(in srgb,var(--accent) 24%,transparent); font-size: .83rem; }
     .post > details[open] > summary { margin-bottom: 14px; }
@@ -237,7 +277,7 @@
     .context-fold.has-guide-update { border-color: #e8b949; box-shadow: 0 0 0 4px rgba(255,214,92,.16), 0 12px 30px rgba(7,58,82,.08); }
     .context-fold.guide-new-focus { animation: guide-new-focus 1.2s ease; }
     @keyframes guide-new-focus { 0%,100% { box-shadow: 0 12px 30px rgba(7,58,82,.05); } 45% { box-shadow: 0 0 0 7px rgba(255,214,92,.28), 0 12px 30px rgba(7,58,82,.08); } }
-    @media(max-width:700px){ .context-body { padding: 0 10px 18px; } .readme-body { padding: 3px 13px 16px; } .readme-grid { grid-template-columns: 1fr; } .workflow-svg { min-height: 130px; } .workflow-node text { font-size: 12px; } .workflow-return { font-size: 10px; } .responsibility-grid { grid-template-columns: 1fr; } .context-fold > summary,.readme-fold > summary{padding:11px 12px;align-items:flex-start;flex-wrap:wrap}.context-fold > summary small,.readme-fold > summary small{font-size:.66rem}.guide-summary-actions{width:100%;justify-content:flex-start;flex-wrap:wrap}.guide-startup-control,.guide-new-badge{font-size:.64rem}.toolbar{grid-template-columns:1fr 1fr}.toolbar .history-toggle{grid-column:1/-1}.strategic-document-card{grid-template-columns:auto minmax(0,1fr);padding:13px;gap:11px}.strategic-document-icon{width:44px;height:52px}.strategic-document-actions{grid-column:1/-1;min-width:0;grid-template-columns:1fr 1fr}.strategic-document-actions a{min-height:46px;padding:9px;font-size:.72rem} }
+    @media(max-width:700px){ .context-body { padding: 0 10px 18px; } .readme-body { padding: 3px 13px 16px; } .readme-grid { grid-template-columns: 1fr; } .workflow-svg { min-height: 130px; } .workflow-node text { font-size: 12px; } .workflow-return { font-size: 10px; } .responsibility-grid { grid-template-columns: 1fr; } .context-fold > summary,.readme-fold > summary{padding:11px 12px;align-items:flex-start;flex-wrap:wrap}.context-fold > summary small,.readme-fold > summary small{font-size:.66rem}.guide-summary-actions{width:100%;justify-content:flex-start;flex-wrap:wrap}.guide-startup-control,.guide-new-badge{font-size:.64rem}.toolbar{grid-template-columns:1fr 1fr}.toolbar .history-toggle{grid-column:1/-1}.strategic-document-card{grid-template-columns:auto minmax(0,1fr);padding:13px;gap:11px}.strategic-document-icon{width:44px;height:52px}.strategic-document-actions{grid-column:1/-1;min-width:0;grid-template-columns:1fr 1fr}.strategic-document-actions a{min-height:46px;padding:9px;font-size:.72rem}.strategy-toc{padding:12px}.strategy-toc-heading{align-items:flex-start;flex-direction:column;gap:2px}.strategy-toc-links{grid-template-columns:1fr 1fr}.strategy-toc-links a{min-height:46px}.sharepoint-zones,.sharepoint-folder-grid{grid-template-columns:1fr}.sharepoint-flow{grid-template-columns:1fr 1fr}.sharepoint-flow div{min-height:78px}.sharepoint-resources{display:grid;grid-template-columns:1fr}.sharepoint-resources a{justify-content:center;min-height:46px;text-align:center} }
     @media(max-width:700px){.nav{top:var(--cockpit-session-height,52px)}.nav .wrap{width:100%;padding:0 8px}.nav a{padding:10px 9px;font-size:.75rem}.project-grid,.project-docs,.opportunity-detail-grid,.internal-project-grid,.internal-project-roles,.internal-project-checklist,.internal-project-poster{grid-template-columns:1fr}.project-timeline,.internal-project-milestones{grid-template-columns:1fr 1fr}.internal-project-run{grid-template-columns:1fr 1fr}.project-decision,.internal-project-intro{grid-template-columns:1fr}.project-hub-body,.internal-project-hub-body{padding:4px 12px 16px}.project-hub>summary,.internal-project-hub>summary{align-items:flex-start;flex-wrap:wrap}.project-summary-actions,.internal-project-summary-actions{width:100%;margin-left:0;flex-wrap:wrap}.opportunity-heading{align-items:flex-start;flex-direction:column}.opportunity>summary,.internal-project>summary{grid-template-columns:1fr auto}.opportunity>summary .opp-urgent,.opportunity>summary .opp-open,.opportunity>summary .opp-watch,.opportunity>summary .opp-conditional,.internal-project>summary .internal-project-priority{grid-column:1}.opportunity>summary strong,.internal-project>summary strong{grid-column:1/-1}.opportunity>summary .eligibility,.internal-project>summary .internal-project-stage-label{grid-column:1}.opportunity>summary small,.internal-project>summary small{grid-column:2;grid-row:1/4;align-self:center}.opportunity-stage-buttons,.internal-project-stage-buttons{display:grid;grid-template-columns:1fr 1fr}.opportunity-stage-buttons button,.internal-project-stage-buttons button{width:100%}.internal-project-poster img{max-width:420px;margin:auto}}
     .detail,.detail-grid,.detail-grid > *, .box { min-width: 0; }
     .detail-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
@@ -259,9 +299,21 @@
 </header>
 <section class="wrap stats"><div class="stat"><b>28</b><span>publications principales<br>séquence de lancement</span></div><div class="stat"><b>12</b><span>thèmes éditoriaux<br>dans le premier cycle</span></div><div class="stat"><b>3 + 4</b><span>piliers + passerelles<br>par semaine</span></div><div class="stat"><b>48 h</b><span>avant la première<br>lecture des résultats</span></div></section>
 <div class="wrap" data-cockpit-private-root>
-<details id="context-collapsible" class="context-fold" data-layout-version="2026-07-16-partenariat-v3" open>
+<details id="context-collapsible" class="context-fold" data-layout-version="2026-07-17-sharepoint-ca-v4" open>
  <summary><span>Contexte stratégique et collaboration</span><small>Réduire / afficher</small></summary>
  <div class="context-body">
+<nav class="strategy-toc" aria-label="Sommaire de la stratégie">
+ <div class="strategy-toc-heading"><strong>Sommaire de la stratégie</strong><small>Aller directement à une section</small></div>
+ <div class="strategy-toc-links">
+  <a href="#readme-collapsible"><b>01</b><span>Mode d’emploi</span></a>
+  <a href="#strategic-document-plan"><b>02</b><span>Document de partenariat</span></a>
+  <a href="#collaboration"><b>03</b><span>Collaboration</span></a>
+  <a href="#governance-sharepoint-ca"><b>04</b><span>SharePoint et CA</span></a>
+  <a href="#cap"><b>05</b><span>Cap éditorial</span></a>
+  <a href="#cadence"><b>06</b><span>Cadence</span></a>
+  <a href="#validation"><b>07</b><span>Validation</span></a>
+ </div>
+</nav>
 <details id="readme-collapsible" class="readme-fold" data-readme-version="2026-07-10" open>
  <summary><span>Lire-moi — collaborer dans le cockpit</span><small>Réduire / afficher</small></summary>
  <div class="readme-body">
@@ -297,7 +349,7 @@
   <p class="readme-note"><strong>Règle simple :</strong> on peut déposer une idée sans interrompre l’autre personne; une décision sensible est explicitement signalée; la diffusion reste conditionnelle à la validation prévue dans le calendrier.</p>
  </div>
 </details>
-<article class="strategic-document-card" data-id="document-plan-partenariat-2026-2027" aria-labelledby="plan-partenariat-title">
+<article id="strategic-document-plan" class="strategic-document-card" data-id="document-plan-partenariat-2026-2027" aria-labelledby="plan-partenariat-title">
  <div class="strategic-document-icon" aria-hidden="true">PDF</div>
  <div class="strategic-document-copy">
   <small>Document de référence · Partenariats 2026–2027 · 6 pages</small>
@@ -323,12 +375,46 @@
   <p>Le prochain point hebdomadaire est proposé le lundi matin autour de 10 h. L’horaire reste modifiable dans l’agenda partagé; ce bouton crée un rappel dans le calendrier choisi sur votre appareil.</p>
   <div class="calendar-actions"><button type="button" data-add-calendar>Ajouter à mon agenda</button><span data-calendar-feedback aria-live="polite"></span></div>
  </article> <div class="note"><strong>Règle de décision :</strong> la direction garde un droit de regard sur les faits, le contexte, la sécurité, les partenariats et les sujets sensibles; la création peut être ambitieuse tant qu’elle reste vérifiable, respectueuse et révisable.</div>
-</section><section id="cap" class="section">
+</section>
+<section id="governance-sharepoint-ca" class="section sharepoint-governance" data-id="strategy-sharepoint-ca-validation-v1">
+ <div class="heading"><p class="eyebrow">Documents et gouvernance</p><h2>Deux espaces SharePoint, une seule porte de sortie vers le CA.</h2><p>Les documents se construisent dans l’espace interne. Le conseil d’administration ne reçoit que les versions explicitement validées par la direction générale et les communications, classées au bon endroit et accompagnées de leur historique.</p></div>
+ <div class="sharepoint-zones">
+  <article class="sharepoint-zone"><small>Zone de travail interne</small><h3>Pilotage, CA et continuité</h3><p>Les sources, brouillons, versions à relire, validations et traces de décision restent réunis ici. C’est l’espace de travail quotidien; aucune version en chantier n’est présentée comme finale au CA.</p></article>
+  <article class="sharepoint-zone"><small>Zone de consultation du CA</small><h3>Communications — documents validés</h3><p>Cette zone reçoit uniquement les documents prêts à consulter : état d’avancement, orientations stratégiques, partenariats et commandites, modèles validés ou archives.</p></article>
+ </div>
+ <details class="sharepoint-folder-map">
+  <summary><span>Voir le classement exact des dossiers</span><span class="sharepoint-folder-toggle" aria-hidden="true"><b class="plus">+</b><b class="minus">−</b></span></summary>
+  <div class="sharepoint-folder-grid">
+   <div><h3>Interne · Communications/02 — Pilotage, CA et continuité</h3><ul><li>01 — Travail interne : sources, rédaction, validation conjointe et versions prêtes</li><li>02 — Suivi et historique : registre des décisions, journal du travail et passation</li><li>03 — Modèles de travail</li></ul></div>
+   <div><h3>CA · Communications — documents validés</h3><ul><li>01 — État d’avancement</li><li>02 — Orientations stratégiques</li><li>03 — Partenariats et commandites</li><li>04 — Modèles validés</li><li>05 — Archives</li></ul></div>
+  </div>
+ </details>
+ <div class="sharepoint-flow" aria-label="Cycle de validation des documents destinés au conseil d’administration">
+  <div><b>1</b><strong>Sources</strong>Rassembler les documents et références.</div>
+  <div><b>2</b><strong>Rédaction</strong>Préparer la version de travail.</div>
+  <div><b>3</b><strong>À valider</strong>Déposer une mouture complète à relire.</div>
+  <div><b>4</b><strong>Relecture</strong>Vérifier faits, risques, gouvernance et clarté.</div>
+  <div><b>5</b><strong>Accord commun</strong>Obtenir deux validations explicites.</div>
+  <div><b>6</b><strong>Dépôt au CA</strong>Classer la version finale dans le bon dossier.</div>
+  <div><b>7</b><strong>Continuité</strong>Consigner décision, version et historique.</div>
+ </div>
+ <div class="note"><strong>Règle de passage :</strong> une version n’entre dans l’espace du CA qu’après l’accord explicite des deux rôles. Les corrections produisent une nouvelle version; elles n’effacent pas les étapes, décisions ou fichiers précédents utiles.</div>
+ <div class="sharepoint-resources" aria-label="Raccourcis vers les espaces et guides SharePoint">
+  <a class="primary" href="https://bleumassawippi.sharepoint.com/Documents%20partages/Communications/02%20-%20Pilotage,%20CA%20et%20continuit%C3%A9" target="_blank" rel="noopener noreferrer">Ouvrir l’espace de travail ↗</a>
+  <a href="https://bleumassawippi.sharepoint.com/_layouts/15/Doc.aspx?sourcedoc=%7BC127F8E9-F7DF-4839-BB5F-F9167037C4A4%7D&amp;file=00%20-%20Guide%20de%20gouvernance%20-%20Communications%20et%20CA.docx&amp;action=default&amp;mobileredirect=true" target="_blank" rel="noopener noreferrer">Guide de gouvernance ↗</a>
+  <a href="https://bleumassawippi.sharepoint.com/_layouts/15/Doc.aspx?sourcedoc=%7B9A8410FA-A084-4405-A030-CD74045F83DB%7D&amp;file=GUIDE%20RAPIDE%20-%20Annie%20-%20Validation%20des%20documents%20pour%20le%20CA.docx&amp;action=default&amp;mobileredirect=true" target="_blank" rel="noopener noreferrer">Guide rapide de validation ↗</a>
+  <a href="https://bleumassawippi.sharepoint.com/_layouts/15/Doc.aspx?sourcedoc=%7BEA62547A-20FC-4BCB-8DBC-D1410547111C%7D&amp;file=ORGANIGRAMME%20-%20Cycle%20de%20validation%20et%20publication%20au%20CA.pptx&amp;action=edit&amp;mobileredirect=true" target="_blank" rel="noopener noreferrer">Voir l’organigramme ↗</a>
+  <a href="https://bleumassawippi.sharepoint.com/sites/CA-ConseilAdministration/Documents%20partages/Communications%20-%20documents%20valid%C3%A9s" target="_blank" rel="noopener noreferrer">Voir l’espace validé du CA ↗</a>
+  <a href="https://bleumassawippi.sharepoint.com/sites/CA-ConseilAdministration/_layouts/15/Doc.aspx?sourcedoc=%7B8F7DE1B5-7B6D-4870-98DC-564F1015AA42%7D&amp;file=00%20-%20LIRE%20EN%20PREMIER%20-%20Regles%20de%20depot.docx&amp;action=default&amp;mobileredirect=true" target="_blank" rel="noopener noreferrer">Règles de dépôt du CA ↗</a>
+ </div>
+</section>
+<section id="cap" class="section">
  <div class="heading"><p class="eyebrow">Le cap</p><h2>Une voix qui inspire confiance avant de demander l’action.</h2><p>Le plan traduit la mission de Bleu Massawippi et la vision de la nouvelle direction : plus de matière réelle, plus d’émotion, plus de diversité — sans renoncer à la rigueur scientifique.</p></div>
  <div class="grid2">
   <article class="panel"><h3>La promesse éditoriale</h3><p>Faire de Bleu Massawippi la référence locale qui transforme une attention sincère pour le lac en gestes observables : apprendre, protéger, s’impliquer et soutenir.</p><div class="principles"><div class="principle"><b>Le vrai avant le joli</b><span>Photos, vidéos, gestes et voix réels. L’authenticité prime sur les effets de présentation.</span></div><div class="principle"><b>Un message par visuel</b><span>Une image forte, très peu de texte dans l’image, puis une légende que l’on choisit d’ouvrir.</span></div><div class="principle"><b>Le mot écrit à la main</b><span>Lorsqu’un visuel comporte du texte, privilégier un lettrage manuscrit humain, chaleureux et légèrement irrégulier, dans l’esprit d’un mot laissé sur le frigo. Les horaires, données et mentions obligatoires restent simples et parfaitement lisibles.</span></div><div class="principle"><b>Le français d’abord</b><span>Rédiger un français naturel pour le public québécois, puis adapter l’anglais au même message. Chaque version doit se lire avec fluidité par elle-même, sans traduction phrase par phrase.</span></div><div class="principle"><b>Science accessible</b><span>Une donnée, sa source, ses limites et son lien avec la vie autour du lac.</span></div><div class="principle"><b>Inviter, jamais blâmer</b><span>Un ton de voisin compétent : solutions, fierté collective et gestes possibles.</span></div><div class="principle"><b>Des alliés, pas des adversaires</b><span>Créer de la confiance avec les riverains, usagers, entreprises, bénévoles et partenaires avant de demander un changement de pratique.</span></div></div></article>
   <article class="panel"><h3>Hiérarchie de décision</h3><p>Le goût éditorial oriente les essais; il ne surclasse ni les faits, ni le droit, ni les résultats mesurés du propre public de Bleu Massawippi. En cas d’hésitation entre deux options, consulter les sources et les meilleures pratiques applicables, retenir l’option la plus solide, consigner brièvement le raisonnement, puis l’exécuter sans laisser l’arbitrage en suspens.</p><div class="evidence"><div class="ev"><i>1</i><span><strong>Faits et obligations</strong><br>Données validées, consentement, droits, règles applicables.</span></div><div class="ev"><i>2</i><span><strong>Bonnes pratiques vérifiables</strong><br>Originalité, clarté, accessibilité et mesure sur les plateformes.</span></div><div class="ev"><i>3</i><span><strong>Résultats de Bleu</strong><br>Partages, enregistrements, clics et actions, comparés sur plusieurs posts.</span></div><div class="ev"><i>4</i><span><strong>Préférences éditoriales</strong><br>Intuition et créativité, testées sans s’imposer contre les preuves.</span></div></div></article>
  </div>
+ <div class="note quiz-policy"><strong>Règle permanente des quiz et devinettes :</strong> chaque publication de ce type se termine, en français et en anglais, par une invitation chaleureuse à poursuivre le jeu sur le <a href="https://bleumassawippi.com/quiz" target="_blank" rel="noopener noreferrer">quiz bilingue de Bleu Massawippi</a>. Le lien reste dans la légende, jamais comme surcharge obligatoire du visuel.</div>
  <div class="note"><strong>Règle du plan :</strong> une publication n’est prête que lorsque son visuel, ses droits, sa source et son appel à l’action sont confirmés. Si l’un manque, on utilise le scénario de repli — jamais une approximation.</div>
 </section><section id="cadence" class="section">
  <div class="heading"><p class="eyebrow">La cadence choisie</p><h2>Quotidien ne veut pas dire répétitif.</h2><p>La règle opérationnelle est de sept publications par semaine, une par jour, ni plus ni moins dans ce cycle. Trois contenus piliers peuvent être accompagnés de quatre passerelles plus légères. Lorsque la capacité doit être réservée au financement, à l’administration, aux partenariats ou au développement de projets, un format photo simple et validé remplace un format riche : la qualité de la preuve reste non négociable.</p></div>

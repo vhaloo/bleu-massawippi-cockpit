@@ -393,6 +393,38 @@ assert.match(mainNav, /<a href="#context-collapsible">Stratégie<\/a>/,
   "Le sommaire doit regrouper le contexte éditorial sous une seule entrée Stratégie.");
 assert.doesNotMatch(mainNav, />Lire-moi<\/a>|>Collaboration<\/a>|>Cap<\/a>|>Cadence<\/a>|>Validation<\/a>|Participation photo/,
   "Le sommaire ne doit plus répéter les sous-sections du contexte stratégique ni isoler la participation photo.");
+const strategyToc = source.match(/<nav class="strategy-toc"[\s\S]*?<\/nav>/)?.[0] || "";
+for (const target of ["readme-collapsible", "strategic-document-plan", "collaboration", "governance-sharepoint-ca", "cap", "cadence", "validation"]) {
+  assert.match(strategyToc, new RegExp(`href="#${target}"`), `Le sommaire stratégique doit relier la section ${target}.`);
+}
+const sharepointGovernance = source.match(/<section id="governance-sharepoint-ca"[\s\S]*?<\/section>/)?.[0] || "";
+assert.match(sharepointGovernance, /Deux espaces SharePoint, une seule porte de sortie vers le CA/);
+assert.match(sharepointGovernance, /Obtenir deux validations explicites/);
+assert.match(sharepointGovernance, /Travail interne : sources, rédaction, validation conjointe et versions prêtes/);
+assert.match(sharepointGovernance, /Suivi et historique : registre des décisions, journal du travail et passation/);
+assert.match(sharepointGovernance, /05 — Archives/);
+assert.match(sharepointGovernance, /Pilotage,%20CA%20et%20continuit%C3%A9/);
+assert.match(sharepointGovernance, /CA-ConseilAdministration\/Documents%20partages\/Communications%20-%20documents%20valid%C3%A9s/);
+assert.match(sharepointGovernance, /Guide de gouvernance/);
+assert.match(sharepointGovernance, /Règles de dépôt du CA/);
+assert.match(sharepointGovernance, /class="sharepoint-folder-toggle"[\s\S]*class="plus">\+[\s\S]*class="minus">−/,
+  "Le classement SharePoint doit afficher un véritable contrôle + / −, lisible à l’état fermé comme ouvert.");
+assert.match(ui, /\.strategy-toc a\[href\^="#"\]/,
+  "Les raccourcis internes de la stratégie doivent ouvrir leurs panneaux parents avant le défilement.");
+assert.match(source, /data-layout-version="2026-07-17-sharepoint-ca-v4"/,
+  "La nouveauté stratégique doit être signalée même lorsque le guide reste réduit au démarrage.");
+assert.match(source, /Règle permanente des quiz et devinettes/);
+for (const id of ["s1d5", "s2d1b", "alt-20260722"]) {
+  const quizPost = posts.find((post) => post.id === id);
+  assert.ok(quizPost, `Le contenu ludique ${id} doit exister.`);
+  assert.equal((quizPost.copy.match(/https:\/\/bleumassawippi\.com\/quiz/g) || []).length, 2,
+    `Le contenu ludique ${id} doit proposer le quiz officiel dans ses deux langues.`);
+  assert.match(quizPost.copy, /plus de 500 questions/);
+  assert.match(quizPost.copy, /more than 500 questions/);
+  assert.equal(quizPost.quizDestinationVersion, "bleumassawippi-quiz-v1-2026-07-17");
+}
+assert.doesNotMatch(posts.find((post) => post.id === "s4d7").copy, /bleumassawippi\.com\/quiz/,
+  "Un sondage qui mentionne éventuellement un quiz ne doit pas être transformé en publication quiz.");
 assert.equal((source.match(/data-internal-project-id=/g) || []).length, 15, "Le registre privé doit contenir les quinze projets internes documentés.");
 assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-07-17-regards-photo-v4"/);
 const internalProjectIds = [...source.matchAll(/data-internal-project-id="([a-z0-9-]+)"/g)].map((match) => match[1]).sort();
