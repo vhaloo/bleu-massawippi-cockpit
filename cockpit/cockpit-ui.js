@@ -35,13 +35,13 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260717-b22";
-import { createEventContextController } from "./event-context-data.js?v=20260717-b22";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260717-b22";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260717-b22";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260717-b22";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260717-b22";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260717-b22";
+} from "./firebase-client.js?v=20260717-b24";
+import { createEventContextController } from "./event-context-data.js?v=20260717-b24";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260717-b24";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260717-b24";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260717-b24";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260717-b24";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260717-b24";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -70,22 +70,19 @@ function notifyViewUpdate(reason = "data") {
   dispatchEvent(new CustomEvent("cockpit:data-updated", { detail: { reason } }));
 }
 
-function announce(message) {
-  const node = document.querySelector("#cockpit-announcer");
-  if (!node) return;
-  node.textContent = "";
-  requestAnimationFrame(() => { node.textContent = message; });
-}
+const ripple=target=>target&&dispatchEvent(new CustomEvent("cockpit:soft-ripple",{detail:{target}}));
+
+function announce(message){const node=document.querySelector("#cockpit-announcer");if(!node)return;node.textContent="";requestAnimationFrame(()=>{node.textContent=message})}
 
 const style = document.createElement("style");
 style.textContent = `
-  .cockpit-skip-link { position:fixed; top:8px; left:8px; z-index:2000; padding:10px 14px; border-radius:10px; color:#fff; background:#073a52; font-weight:850; transform:translateY(-160%); transition:transform .15s ease; }
-  .cockpit-skip-link:focus { transform:translateY(0); }
-  .cockpit-visually-hidden { position:absolute !important; width:1px !important; height:1px !important; padding:0 !important; margin:-1px !important; overflow:hidden !important; clip:rect(0,0,0,0) !important; white-space:nowrap !important; border:0 !important; }
-  body.cockpit-locked > *:not(#cockpit-login) { filter: blur(5px); pointer-events: none; user-select: none; }
-  #cockpit-login { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px; background: rgba(5, 35, 51, .72); backdrop-filter: blur(14px); }
-  #cockpit-login[hidden] { display: none; }
-  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid #2ab6bb; outline-offset: 3px; }
+  .cockpit-skip-link{position:fixed;top:8px;left:8px;z-index:2000;padding:10px 14px;border-radius:10px;color:#fff;background:#073a52;font-weight:850;transform:translateY(-160%);transition:transform .15s}
+  .cockpit-skip-link:focus{transform:translateY(0)}
+  .cockpit-visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+  body.cockpit-locked>*:not(#cockpit-login){filter:blur(5px);pointer-events:none;user-select:none}
+  #cockpit-login{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:24px;background:rgba(5,35,51,.72);backdrop-filter:blur(14px)}
+  #cockpit-login[hidden]{display:none}
+  button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #2ab6bb;outline-offset:3px}
   .cockpit-login-card { width: min(450px, 100%); padding: 30px; border: 1px solid rgba(255,255,255,.35); border-radius: 24px; color: #102f3f; background: #f8fcfc; box-shadow: 0 30px 70px rgba(0,0,0,.25); }
   .cockpit-login-card h2 { margin: 0 0 7px; color: #073a52; font-size: 2rem; letter-spacing: -.04em; }
   .cockpit-login-card p { color: #54717d; }
@@ -2733,6 +2730,7 @@ function enhanceCardEvents() {
       setWorkflowStage(card.dataset.itemId, workflowButton.dataset.workflowStage, state.profile)
         .then(async () => {
           const planItem = getPlanItem(card);
+          ripple(workflowButton);
           if (state.profile.role === "director" && ["content_approved","final_approved","changes_requested"].includes(workflowButton.dataset.workflowStage)) {
             await recordActionTask(`workflow-${card.dataset.itemId}`, { status: "pending", title: workflowButton.dataset.workflowStage === "final_approved" ? `Prêt à publier — ${planItem?.title}` : `Cycle de validation — ${planItem?.title}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${planItem?.title || ""}`, message:`Nouvelle étape : ${workflowButton.textContent.trim()}.\n\n${responsibilitySummary(planItem)}` });
           }
@@ -2798,6 +2796,7 @@ function enhanceCardEvents() {
       setMediaDecision(card.dataset.itemId, mediaId, selected, state.profile)
         .then(async (decision) => {
           const planItem = getPlanItem(card);
+          ripple(mediaDecisionButton);
           if (state.profile.role === "director") {
             const actionItem = [...document.querySelectorAll("#cockpit-action-item-source [data-action-item-id]")]
               .find((item) => item.dataset.actionTarget === card.dataset.itemId && (!item.dataset.actionMedia || item.dataset.actionMedia === mediaId));
@@ -2841,6 +2840,7 @@ function enhanceCardEvents() {
       mediaOverrideButton.disabled = true;
       setMediaDecision(card.dataset.itemId, mediaId, true, state.profile, { override: true, reason })
         .then(async (decision) => {
+          ripple(mediaOverrideButton);
           if (state.profile.role === "director" && ["agreed", "overridden"].includes(decision?.agreement?.status)) {
             const actionItem = [...document.querySelectorAll("#cockpit-action-item-source [data-action-item-id]")]
               .find((item) => item.dataset.actionTarget === card.dataset.itemId && (!item.dataset.actionMedia || item.dataset.actionMedia === mediaId));

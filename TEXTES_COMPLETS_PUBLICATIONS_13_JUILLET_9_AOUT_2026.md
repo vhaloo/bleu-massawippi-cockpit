@@ -292,7 +292,7 @@ Want to keep playing? Test your knowledge of the lake with our bilingual quiz fe
 **Format :** Reel contemplatif 10–20 s · vidéo réelle
 **Objectif :** Publication contemplative retenue et déplacée au mardi afin d’éviter deux contenus émotionnels consécutifs les 17 et 18 juillet.
 **CTA :** Prendre un instant
-**Visuel final :** Reel réel de 10 à 15 secondes : arrivée d’une personne au bord du lac, reflet de lumière, main sur une rambarde, respiration et plan final large. Son naturel; afficher « Un instant bleu » seulement à la fin.
+**Visuel final :** Reel réel de 10 à 15 secondes : arrivée d’une personne au bord du lac, reflet de lumière, main sur une rambarde, respiration et plan final large. Conserver uniquement l’ambiance naturelle enregistrée depuis la rive — eau, vent léger ou oiseaux — sans bruitage de plongée ni son sous-marin ajouté; afficher « Un instant bleu » seulement à la fin.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
 **Source de référence :** Banque vidéo de l’association — droits documentés
 **Préparation :** Choisir une captation réelle du Massawippi, sans filtre qui modifie la couleur de l’eau ni image générée.

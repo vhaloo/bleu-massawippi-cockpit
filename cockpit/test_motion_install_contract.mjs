@@ -11,12 +11,17 @@ for (const token of [
   "cockpit-motion-toggle",
   "cockpit-water-level",
   "cockpit-voice-meter",
+  "cockpit-soft-water-ripple",
+  "cockpit:soft-ripple",
+  "cockpit-soft-ripple-host",
   "[data-dictate][aria-pressed=\"true\"]",
   "html[data-motion=\"off\"]"
 ]) assert.ok(motion.includes(token), `La couche de mouvement doit conserver ${token}.`);
 
 assert.match(motion, /localStorage\.setItem\(MOTION_KEY, next\)/, "La préférence de mouvement doit rester locale à l’appareil.");
 assert.match(motion, /button\.disabled = systemReduced/, "La préférence système de réduction doit toujours primer.");
+assert.match(motion, /root\.dataset\.motion !== "on"/, "L’ondulation doit respecter le bouton local sans animation.");
+assert.match(motion, /reducedMotion\?\.matches/, "L’ondulation doit respecter la préférence système.");
 assert.match(motion, /cockpit:session-ended/, "Le widget ne doit pas rester visible après la déconnexion.");
 assert.match(motion, /function buildInstallShortcut\(\)/, "Un raccourci d’installation permanent doit exister.");
 assert.match(motion, /id = "cockpit-install-shortcut"/, "Le raccourci d’installation doit avoir un identifiant stable.");

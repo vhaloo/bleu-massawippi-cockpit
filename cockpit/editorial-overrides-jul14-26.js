@@ -136,7 +136,7 @@ Observation shows what is visible today. Measurement provides a precise referenc
 
 #BlueMoment #BleuMassawippi #LakeMassawippi #EasternTownships`
     ),
-    visual: "Reel réel de 10 à 15 secondes : arrivée d’une personne au bord du lac, reflet de lumière, main sur une rambarde, respiration et plan final large. Son naturel; afficher « Un instant bleu » seulement à la fin."
+    visual: "Reel réel de 10 à 15 secondes : arrivée d’une personne au bord du lac, reflet de lumière, main sur une rambarde, respiration et plan final large. Conserver uniquement l’ambiance naturelle enregistrée depuis la rive — eau, vent léger ou oiseaux — sans bruitage de plongée ni son sous-marin ajouté; afficher « Un instant bleu » seulement à la fin."
   },
   "alt-20260717": {
     title: "Votre journée en bleu",

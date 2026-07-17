@@ -110,8 +110,15 @@ assert.match(stateMutation, /queueKey: actionItemQueueKey/);
 assert.doesNotMatch(stateMutation, /getDocs|onSnapshot|query\(/, "La bascule ne doit faire qu’une lecture ciblée, jamais relire la file.");
 assert.match(subscription, /setLocalState\(actionItemId, nextState\)[\s\S]*retainedPages = retainedPages\.map/);
 assert.match(actionUi, /cockpit:action-item-state-saved[\s\S]*setLocalState/);
-assert.match(actionUi, /navigator\.setAppBadge\?\.\(1\)/, "Le badge PWA doit réutiliser la file déjà chargée sans nouvelle lecture.");
-assert.match(actionUi, /navigator\.clearAppBadge/);
+assert.match(view, /globalThis\.navigator\?\.setAppBadge\?\.\(\)/, "Le badge PWA doit être un simple point sans nombre.");
+assert.match(view, /globalThis\.navigator\?\.clearAppBadge/);
+assert.doesNotMatch(view, /setAppBadge\?\.\(\s*\d+/, "L’indicateur ne doit jamais afficher un compteur.");
+assert.match(view, /bleu-massawippi-attention-v1/);
+assert.match(view, /decisionAttentionToken/);
+assert.match(view, /markCurrentAttentionSeen/);
+assert.match(view, /data-vm-attention-seen/);
+assert.match(view, /attentionDwellMs/);
+assert.doesNotMatch(actionUi, /setAppBadge|clearAppBadge/, "La file Firestore ne doit plus badger tous les éléments pending comme s’ils étaient nouveaux.");
 assert.match(actionUi, /cockpit:content-notice-seen[\s\S]*setPersonalActionItemState\(actionItemId, "done", activeProfile\)/,
   "Une nouveauté réellement consultée doit utiliser la mutation personnelle ciblée existante.");
 assert.match(actionUi, /item\.dataset\.actionType !== "content_notice"/,

@@ -1,4 +1,4 @@
-import { setPersonalActionItemState, subscribePersonalActionItems } from "./firebase-client.js?v=20260717-b22";
+import { setPersonalActionItemState, subscribePersonalActionItems } from "./firebase-client.js?v=20260717-b24";
 
 let controller = null;
 let activeProfile = null;
@@ -19,15 +19,6 @@ function sourceNode() {
   return source;
 }
 
-function updateAppAttentionBadge(count) {
-  // Ce signal réutilise uniquement la file déjà chargée : aucune lecture
-  // Firestore, aucun polling et aucun coût supplémentaire.
-  try {
-    if (count > 0) navigator.setAppBadge?.(1)?.catch?.(() => {});
-    else navigator.clearAppBadge?.()?.catch?.(() => {});
-  } catch { /* API facultative selon le navigateur */ }
-}
-
 function render(items, meta = {}) {
   const source = sourceNode();
   source.dataset.ready = "true";
@@ -36,7 +27,6 @@ function render(items, meta = {}) {
   source.dataset.loading = String(Boolean(meta.loading));
   source.dataset.error = String(meta.error || "").slice(0, 500);
   source.innerHTML = (Array.isArray(items) ? items : []).map((item) => `<article data-action-item-id="${esc(item.id)}" data-action-assignee-role="${esc(item.assigneeRole || "")}" data-action-target-type="${esc(item.sourceType || "schedule")}" data-action-target="${esc(item.sourceId || "")}" data-action-media="${esc(item.mediaId || "")}" data-action-type="${esc(item.actionType || "")}" data-action-priority="${Number.isInteger(item.priorityKey) ? item.priorityKey : 9999}" data-action-date="${esc(item.eventDateIso || "9999-12-31")}" data-action-updated-at="${millis(item.updatedAt || item.createdAt)}"><b>${esc(item.title || "Décision à prendre")}</b><p>${esc(item.message || "")}</p></article>`).join("");
-  updateAppAttentionBadge(items?.length || 0);
   dispatchEvent(new CustomEvent("cockpit:action-items-updated", { detail: { count: items?.length || 0, ...meta } }));
 }
 
@@ -91,5 +81,4 @@ export function clearPersonalActionItems() {
   controller = null;
   activeProfile = null;
   document.querySelector("#cockpit-action-item-source")?.remove();
-  updateAppAttentionBadge(0);
 }
