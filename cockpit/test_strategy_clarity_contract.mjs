@@ -14,7 +14,8 @@ for (const marker of [
   "20 h de communications et 5 h de projets liés ou d’administration",
   'class="project-portfolio-map"',
   'href="#projets-internes"',
-  'href="#occasions-a-saisir"'
+  'href="#occasions-a-saisir"',
+  ".strategy-mandate-heading > .section-feedback"
 ]) assert.ok(strategy.includes(marker), `La stratégie clarifiée doit conserver : ${marker}`);
 
 assert.equal((strategy.match(/class="strategy-toc-links"[\s\S]*?<\/nav>/)?.[0].match(/<a /g) || []).length, 8,
