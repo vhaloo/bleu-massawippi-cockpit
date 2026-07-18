@@ -35,17 +35,21 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260718-b30";
-import { createEventContextController } from "./event-context-data.js?v=20260718-b30";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260718-b30";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260718-b30";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260718-b30";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260718-b30";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260718-b30";
+} from "./firebase-client.js?v=20260718-b31";
+import { createEventContextController } from "./event-context-data.js?v=20260718-b31";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260718-b31";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260718-b31";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260718-b31";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260718-b31";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260718-b31";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260718-b31";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260718-b31";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260718-b31";
+import { setupControlHints } from "./control-hints.js?v=20260718-b31";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
-const state = { user: null, profile: null, rows: new Map(), mediaByEvent: new Map(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
+const state = { user: null, profile: null, rows: new Map(), basePosts: [], editorialSignature: "[]", mediaByEvent: new Map(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
 let eventContextController = null;
 let activeRecognition = null;
 let activeTextarea = null;
@@ -1121,7 +1125,7 @@ function setupMonthlyEditorialSnapshot() {
     const heading = calendar.querySelector(":scope > .heading");
     if (heading) heading.after(snapshot); else calendar.prepend(snapshot);
     snapshot.addEventListener("toggle", () => {
-      try { localStorage.setItem(monthlySnapshotCollapsedKey, String(!snapshot.open)); } catch { /* préférence facultative */ }
+      try { localStorage.setItem(monthlySnapshotCollapsedKey, String(!snapshot.open)); } catch {}
     });
     snapshot.addEventListener("click", (event) => {
       const button = event.target.closest("button[data-monthly-snapshot-event]");
@@ -1386,21 +1390,7 @@ function syncCardAccess() {
 function setupCollapsibleNavigation() {
   if (document.body.dataset.collapsibleNavigationReady === "true") return;
   document.body.dataset.collapsibleNavigationReady = "true";
-  document.addEventListener("click", (event) => {
-    const link = event.target.closest('.nav a[href^="#"], .hero a.button[href^="#"], .strategy-toc a[href^="#"]');
-    if (!link) return;
-    const rawId = link.getAttribute("href")?.slice(1) || "";
-    const target = document.getElementById(decodeURIComponent(rawId));
-    if (!target) return;
-    event.preventDefault();
-    let node = target;
-    while (node) {
-      if (node.matches?.("details")) node.open = true;
-      node = node.parentElement;
-    }
-    try { history.pushState(null, "", `#${encodeURIComponent(target.id)}`); } catch { /* ancre facultative */ }
-    requestAnimationFrame(() => target.scrollIntoView({ behavior:"smooth", block:"start" }));
-  });
+  setupSectionNavigation();
 }
 
 function setupGuidePreference() {
@@ -2262,10 +2252,20 @@ function activateEventContext(eventId) {
 
 function installBrandLogo() {
   const url = safeMediaUrl(state.mediaConfig?.logoUrl || "");
-  if (!url || document.querySelector(".cockpit-brand-logo")) return;
+  const targets = [...document.querySelectorAll("[data-brand-logo-target]")];
+  if (!url || !targets.length) return;
   const parsed = new URL(url); parsed.searchParams.set("download", "1");
-  const img = document.createElement("img"); img.className = "cockpit-brand-logo"; img.src = parsed.href; img.alt = "Bleu Massawippi";
-  document.querySelector(".hero > div")?.prepend(img);
+  targets.forEach((target) => {
+    if (target.querySelector(".cockpit-brand-logo")) return;
+    const img = document.createElement("img");
+    img.className = "cockpit-brand-logo";
+    img.src = parsed.href;
+    img.alt = "Bleu Massawippi";
+    img.decoding = "async";
+    img.onload = () => target.classList.add("has-brand-logo");
+    img.onerror = () => img.remove();
+    target.prepend(img);
+  });
 }
 
 function updateSinglePostLayouts() {
@@ -2277,6 +2277,52 @@ function updateSinglePostLayouts() {
     const isConfirmedSingle = Boolean(item && sameDay.length === 1 && item.choiceRequired !== true && !item.optionGroup);
     grid.classList.toggle("single-post", isConfirmedSingle);
   });
+}
+
+function syncCalendarFilterOptions(plan = []) {
+  const weekSelect = document.querySelector("#week");
+  const themeSelect = document.querySelector("#theme");
+  if (weekSelect) {
+    const current = weekSelect.value || "all";
+    const existing = new Set([...weekSelect.options].map((option) => option.value));
+    [...new Set(plan.map((item) => Number(item.w)).filter((value) => Number.isInteger(value) && value > 0))]
+      .sort((left, right) => left - right)
+      .forEach((week) => {
+        if (existing.has(String(week))) return;
+        const option = document.createElement("option");
+        option.value = String(week);
+        option.textContent = `Semaine ${week}`;
+        weekSelect.appendChild(option);
+      });
+    weekSelect.value = [...weekSelect.options].some((option) => option.value === current) ? current : "all";
+  }
+  if (themeSelect) {
+    const current = themeSelect.value || "all";
+    const existing = new Set([...themeSelect.options].map((option) => option.value));
+    [...new Set(plan.map((item) => String(item.t || "").trim()).filter(Boolean))].sort((left, right) => left.localeCompare(right, "fr"))
+      .forEach((theme) => {
+        if (existing.has(theme)) return;
+        const option = document.createElement("option");
+        option.value = theme;
+        option.textContent = theme;
+        themeSelect.appendChild(option);
+      });
+    themeSelect.value = [...themeSelect.options].some((option) => option.value === current) ? current : "all";
+  }
+}
+
+function applyEditorialScheduleRows() {
+  const rows = [...state.rows.entries()].map(([id, row]) => ({ id, ...row }));
+  const signature = editorialRowsSignature(rows);
+  if (signature === state.editorialSignature) return false;
+  state.editorialSignature = signature;
+  globalThis.posts = mergePostsWithScheduleRows(state.basePosts, rows);
+  syncCalendarFilterOptions(globalThis.posts);
+  if (typeof globalThis.render === "function") globalThis.render();
+  enhanceCards();
+  refreshPublicationStudio();
+  notifyViewUpdate("publication-content");
+  return true;
 }
 
 function enhanceCards() {
@@ -2923,6 +2969,10 @@ async function loadPrivateContent() {
   planScript.textContent = content.script;
   document.body.appendChild(planScript);
   planScript.remove();
+  state.basePosts = typeof structuredClone === "function"
+    ? structuredClone(Array.isArray(globalThis.posts) ? globalThis.posts : [])
+    : JSON.parse(JSON.stringify(Array.isArray(globalThis.posts) ? globalThis.posts : []));
+  state.editorialSignature = "[]";
   decorateInternalProjectDocuments();
   setupCollapsibleNavigation();
   setupGuidePreference();
@@ -2939,6 +2989,8 @@ function clearPrivateContent() {
   document.querySelector("#cockpit-private-style")?.remove();
   document.querySelector("#cockpit-date-elevator")?.remove();
   state.contentLoaded = false;
+  state.basePosts = [];
+  state.editorialSignature = "[]";
   globalThis.posts = [];
 }
 
@@ -2965,11 +3017,13 @@ async function applyProfile(profile) {
   dispatchEvent(new CustomEvent("cockpit:session-ready", { detail: { profile } }));
   setupResponsiveOffsets();
   setupPersonalActionItems(profile, configured);
+  destroyPublicationStudio();
   if (profile.role === "admin") {
     document.body.classList.add("cockpit-admin");
     buildAdminSidebar();
     buildTaskWidget();
     buildHealthWidget(profile);
+    if (!safeMode) initPublicationStudio({ profile, getPosts: () => globalThis.posts || [], getRows: () => state.rows });
     enhanceTaskEvents();
     clearAdminLazyData();
     state.tasksUnsubscribe?.();
@@ -3042,6 +3096,7 @@ function applySignedOut(message = "") {
   document.querySelector("#cockpit-feedback-launch")?.remove();
   document.querySelector("#cockpit-feedback-panel")?.remove();
   clearHealthWidget();
+  destroyPublicationStudio();
   document.body.classList.remove("cockpit-admin");
   document.body.classList.remove("cockpit-safe-mode");
   document.body.classList.add("cockpit-readonly");
@@ -3072,7 +3127,8 @@ function subscribeRemoteData() {
   state.scheduleUnsubscribe?.();
   state.scheduleUnsubscribe = subscribeScheduleItems((rows) => {
     state.rows = new Map(rows.map((row) => [row.id, row]));
-    applyRemoteRows();
+    if (!applyEditorialScheduleRows()) applyRemoteRows();
+    refreshPublicationStudio();
     renderMonthlyEditorialSnapshot();
     notifyViewUpdate("schedule");
   }, (error) => toast("Le calendrier n’est pas accessible : " + error.message, true));
@@ -3147,6 +3203,7 @@ function subscribeRemoteData() {
 function start() {
   document.body.classList.add("cockpit-locked");
   buildLogin();
+  setupControlHints(document);
   enhanceCardEvents();
   enhanceFeedbackListEvents();
   let enhanceFrame = 0;

@@ -1,0 +1,35 @@
+{
+  "id": "pub-20260730-exemple-a-verifier",
+  "title": "Un exemple à vérifier",
+  "dateIso": "2026-07-30",
+  "theme": "Éducation",
+  "week": 3,
+  "tier": "Pilier",
+  "format": "Photo réelle ou affiche éducative + légende bilingue",
+  "role": "Expliquer une seule idée vérifiée avec chaleur et clarté.",
+  "cta": "Découvrir avec nous",
+  "visual": "Privilégier une photo réelle autorisée; sinon, une planche naturaliste simple.",
+  "source": "Source primaire à confirmer",
+  "fallback": "Composition typographique bilingue sobre.",
+  "kpi": "Enregistrements et commentaires utiles",
+  "task": "Vérifier le fait, la source, les droits du média et le texte alternatif avant programmation.",
+  "copy": "FR — Texte français final à vérifier.\n\n=========================================\n\nEN — Final English copy to verify.",
+  "tasksValentin": [
+    "Finaliser le texte bilingue et le média autorisé.",
+    "Programmer après les validations requises."
+  ],
+  "tasksAnnie": [
+    "Confirmer le fait sensible ou l’engagement institutionnel."
+  ],
+  "calendarTime": "08:00",
+  "calendarDurationMinutes": 30,
+  "calendarLocation": "",
+  "calendarCost": "Gratuit",
+  "choiceRequired": false,
+  "optionGroup": "",
+  "optionLabel": "",
+  "isAlternative": false,
+  "archivedEditorial": false,
+  "originId": "",
+  "templateId": "educational"
+}

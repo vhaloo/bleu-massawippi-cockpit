@@ -285,6 +285,16 @@ html.cockpit-has-unseen[data-motion="on"] .vm-attention-dot { animation: vm-atte
   gap: 14px;
 }
 
+.vm-decisions,
+.vm-week { grid-column: 1 / -1; }
+
+.vm-decisions { border-color: #dbc585; box-shadow: 0 10px 28px rgba(116, 77, 18, .09); }
+.vm-decisions .vm-panel-body { max-height: 440px; }
+.vm-week .vm-panel-body { max-height: 330px; }
+.vm-panel.vm-compact { align-self: start; }
+.vm-panel.vm-compact .vm-panel-body { max-height: 230px; }
+.vm-panel.vm-compact .vm-empty { margin: 0; padding: 13px 8px; }
+
 .vm-panel {
   min-width: 0;
   overflow: hidden;
@@ -891,6 +901,8 @@ html[data-theme="dark"] .vm-navigation-status b { color: #fff0eb; }
   .vm-dashboard-head { align-items: stretch; flex-direction: column; gap: 12px; padding: 15px; }
   .vm-show-complete { width: 100%; min-height: 46px; }
   .vm-dashboard-grid { grid-template-columns: 1fr; gap: 11px; }
+  .vm-decisions,
+  .vm-week { grid-column: auto; }
   .vm-panel-body { max-height: 330px; }
   .vm-open { min-width: 44px; min-height: 44px; justify-content: center; }
   .vm-event, .vm-message { gap: 8px; }

@@ -380,7 +380,15 @@ export function preparePlanScript(script, posts) {
     /var posts=\[[\s\S]*?\];\s*var meta=/,
     `var posts=${JSON.stringify(updatedPosts)};var meta=`
   );
-  output = output.replace(/\[[1-8,]+\]\.forEach/, "[1,2,3,4,5,6,7,8].forEach");
+  output = output.replace(
+    /\[[1-8,]+\]\.forEach/,
+    "Array.from(new Set(list.map(function(p){return Number(p.w)}))).filter(function(n){return Number.isFinite(n)&&n>0}).sort(function(a,b){return a-b}).forEach"
+  );
+  output = output.replace(
+    /if\(!a\.length\)return;var days=/,
+    'if(!a.length)return;var weekInfo=meta[n]||["Semaine "+n,"Calendrier évolutif"];var days='
+  );
+  output = output.replace(/meta\[n\]\[0\]/g, "weekInfo[0]").replace(/meta\[n\]\[1\]/g, "weekInfo[1]");
   output = output.replace(
     /Object\.keys\(days\)(?:\.sort\([\s\S]*?\))?\.forEach\(function\(day\)\{/,
     "Object.keys(days).sort(function(a,b){return postDate(days[a][0])-postDate(days[b][0])}).forEach(function(day){"

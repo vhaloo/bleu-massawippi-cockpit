@@ -154,7 +154,9 @@ const decisionCards = () => [...document.querySelectorAll(".vm-decisions .vm-eve
 assert.equal(document.body.classList.contains("cockpit-view-essential"), true);
 const initialPanels = [...document.querySelectorAll(".vm-dashboard-grid > .vm-panel")];
 assert.ok(initialPanels[0].classList.contains("vm-decisions"), "Les décisions doivent être le premier panneau.");
-assert.ok(initialPanels[1].classList.contains("vm-today"), "Aujourd'hui doit suivre les décisions.");
+assert.ok(initialPanels[1].classList.contains("vm-week"), "Les sept prochains jours doivent suivre les décisions.");
+assert.ok(initialPanels[2].classList.contains("vm-today") && initialPanels[2].classList.contains("vm-compact"), "Aujourd'hui doit rester disponible dans un panneau compact.");
+assert.ok(initialPanels[3].classList.contains("vm-messages") && initialPanels[3].classList.contains("vm-compact"), "Les messages doivent rester disponibles dans un panneau compact.");
 const essentialNav = [...document.querySelectorAll(".nav .wrap > [data-vm-nav]")];
 assert.equal(essentialNav[0].dataset.vmNav, "decision", "Le raccourci Décisions doit être le premier.");
 assert.equal(essentialNav[1].dataset.vmNav, "today", "Le raccourci Aujourd'hui doit être le deuxième.");
