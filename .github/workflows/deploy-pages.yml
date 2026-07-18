@@ -76,6 +76,7 @@ jobs:
           cp cockpit/index.html public/
           cp cockpit/actualiser.html public/
           cp cockpit/cockpit-ui.js public/
+          cp cockpit/clarity.css public/
           cp cockpit/event-context-data.js public/
           cp cockpit/action-items-ui.js public/
           cp cockpit/client-health-ui.js public/

@@ -13,7 +13,7 @@ assert.ok(releaseMatch, "Le service worker doit déclarer une version de publica
 assert.ok(cacheMatch && Number(cacheMatch[1]) >= 36, "Le cache public doit être incrémenté après une mutation du shell.");
 
 const release = releaseMatch[1];
-for (const resource of ["firebase-config.js", "theme.js", "motion.js", "cockpit-ui.js", "view-mode.js"]) {
+for (const resource of ["firebase-config.js", "theme.js", "motion.js", "cockpit-ui.js", "view-mode.js", "clarity.css"]) {
   assert.match(index, new RegExp(`${resource.replace(".", "\\.")}\\?v=${release}`), `${resource} doit utiliser la version ${release}.`);
 }
 const cockpitUi = fs.readFileSync(new URL("./cockpit-ui.js", import.meta.url), "utf8");
@@ -47,7 +47,7 @@ assert.match(refresher, /bleu-massawippi-cockpit-shell-/, "La remise à neuf doi
 assert.match(refresher, /registration\.scope\.startsWith\(baseUrl\.href\)/, "La remise à neuf ne doit désinscrire que les workers de cette application.");
 assert.match(refresher, /destination\.searchParams\.set\("fresh"/, "La réouverture doit contourner le cache HTTP avec une URL unique.");
 assert.doesNotMatch(refresher, /indexedDB\.(deleteDatabase|databases)|localStorage\.clear|sessionStorage\.clear/, "La remise à neuf ne doit effacer ni session, ni préférences, ni cache Firestore.");
-for (const resource of ["firebase-config.js", "theme.js", "motion.js", "cockpit-ui.js", "event-context-data.js", "action-items-ui.js", "client-health-ui.js", "admin-lazy-data.js", "media-choice-ui.js", "task-progress-ui.js", "view-mode.js"]) {
+for (const resource of ["firebase-config.js", "theme.js", "motion.js", "cockpit-ui.js", "event-context-data.js", "action-items-ui.js", "client-health-ui.js", "admin-lazy-data.js", "media-choice-ui.js", "task-progress-ui.js", "view-mode.js", "clarity.css"]) {
   assert.match(worker, new RegExp(resource.replace(".", "\\.")), `${resource} doit faire partie du shell hors ligne.`);
   assert.match(deploymentWorkflow, new RegExp(`cp cockpit/${resource.replace(".", "\\.")} public/`), `${resource} doit faire partie de l’artefact GitHub Pages.`);
 }

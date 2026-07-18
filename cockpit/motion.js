@@ -94,7 +94,7 @@ function showSoftRipple(target) {
   window.setTimeout(() => {
     ripple.remove();
     if (!target.querySelector(".cockpit-soft-ripple")) target.classList.remove("cockpit-soft-ripple-host");
-  }, 1050);
+  }, 1400);
 }
 
 function buildInstallShortcut() {
@@ -130,7 +130,7 @@ style.textContent = `
   #cockpit-motion-toggle { position:fixed; left:150px; bottom:15px; z-index:30; display:grid; width:42px; height:42px; padding:0; place-items:center; overflow:hidden; border:1px solid rgba(255,255,255,.7); border-radius:50%; color:#fff; background:#073a52; box-shadow:0 7px 20px rgba(7,58,82,.22); cursor:pointer; isolation:isolate; }
   #cockpit-motion-toggle::before { position:absolute; inset:54% -20% -12%; z-index:-2; border-radius:45% 48% 0 0; content:""; background:#20a8bd; transform:rotate(-2deg); }
   #cockpit-motion-toggle::after { position:absolute; left:-12%; right:-12%; top:48%; z-index:-1; height:9px; border-radius:50%; content:""; background:rgba(117,225,231,.7); }
-  html[data-motion="on"] #cockpit-motion-toggle::after { animation:cockpit-water-level 3.8s ease-in-out infinite; }
+  html[data-motion="on"] #cockpit-motion-toggle::after { animation:cockpit-water-level 4.8s ease-in-out infinite; }
   #cockpit-motion-toggle [data-motion-icon] { position:relative; z-index:1; font-size:1.25rem; font-weight:900; line-height:1; text-shadow:0 1px 3px rgba(0,0,0,.25); }
   #cockpit-motion-toggle:disabled { cursor:default; opacity:.82; }
   .cockpit-motion-label { position:absolute !important; width:1px !important; height:1px !important; padding:0 !important; margin:-1px !important; overflow:hidden !important; clip:rect(0,0,0,0) !important; white-space:nowrap !important; border:0 !important; }
@@ -142,7 +142,7 @@ style.textContent = `
   html[data-motion="on"] .cockpit-voice-status.live::before { display:inline-block; width:18px; height:10px; margin-right:6px; content:""; vertical-align:-1px; background:repeating-linear-gradient(90deg,#1692aa 0 2px,transparent 2px 4px); transform-origin:center; animation:cockpit-voice-meter .72s ease-in-out infinite alternate; }
   html[data-motion="on"] :is([data-media-decision],[data-media-override],[data-workflow-stage],[data-comment-action],[data-vm-load-more],.cockpit-workflow-gate):active { transform:translateY(1px) scale(.985); }
   .cockpit-soft-ripple-host { position:relative; isolation:isolate; }
-  .cockpit-soft-ripple { position:absolute; left:50%; top:50%; z-index:8; width:34px; height:34px; border:2px solid rgba(79,190,199,.58); border-radius:50%; content:""; pointer-events:none; transform:translate(-50%,-50%) scale(.12); animation:cockpit-soft-water-ripple 1s cubic-bezier(.16,.7,.25,1) forwards; }
+  .cockpit-soft-ripple { position:absolute; left:50%; top:50%; z-index:8; width:34px; height:34px; border:2px solid rgba(79,190,199,.58); border-radius:50%; content:""; pointer-events:none; transform:translate(-50%,-50%) scale(.12); animation:cockpit-soft-water-ripple 1.3s cubic-bezier(.16,.7,.25,1) forwards; }
   html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="off"] *::after { scroll-behavior:auto !important; animation:none !important; transition-duration:.01ms !important; transition-delay:0ms !important; }
   [data-theme="dark"] #cockpit-motion-toggle { border-color:#7395a0; background:#102e3a; box-shadow:0 7px 20px rgba(0,0,0,.34); }
   #cockpit-install-launch { position:fixed; right:15px; bottom:121px; z-index:31; display:flex; align-items:center; gap:8px; max-width:min(340px,calc(100vw - 30px)); padding:10px 12px; border:1px solid #b9dde2; border-radius:14px; color:#073a52; background:#f8fcfc; box-shadow:0 11px 28px rgba(7,58,82,.16); font-size:.76rem; }
