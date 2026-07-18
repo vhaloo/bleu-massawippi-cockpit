@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recette locale — Studio des communications</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; color: #173f4e; background: #f5fbfb; font: 16px/1.5 system-ui, sans-serif; }
+    #cockpit-session { display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 8px 16px; color: white; background: #073a52; }
+    #cockpit-session strong { margin-right: auto; }
+    #cockpit-logout { min-height: 40px; padding: 7px 12px; border: 1px solid #86bac3; border-radius: 9px; color: white; background: transparent; }
+    main { width: min(1000px, calc(100% - 32px)); margin: 48px auto; padding: 28px; border: 1px solid #c9dfe2; border-radius: 18px; background: white; }
+    main h1 { margin-top: 0; }
+  </style>
+</head>
+<body>
+  <div id="cockpit-session">
+    <strong>Recette locale · Valentin · administration</strong>
+    <button id="cockpit-logout" type="button">Se déconnecter</button>
+  </div>
+  <main>
+    <h1>Recette du Studio</h1>
+    <p>Cette page vérifie l’interface sans enregistrer ni interroger de contenu de production.</p>
+  </main>
+  <script type="module">
+    import { initPublicationStudio } from "../editor-studio.js?v=20260718-b31";
+
+    const posts = [
+      {
+        id: "fixture-studio-1",
+        date: "Lundi 20 juillet",
+        dateIso: "2026-07-20",
+        title: "Le lac, tout près de nous",
+        t: "Communauté",
+        objective: "Créer un lien chaleureux avec les riverains.",
+        copy: "FR — Une invitation simple à observer le lac.\n\nEN — A simple invitation to notice the lake.",
+        visual: "Photographie réelle du lac, sans texte superposé.",
+        roles: ["communications", "direction"],
+        cta: "Partagez votre regard.",
+        source: "Archives internes vérifiées",
+        tasksCommunications: ["Finaliser la légende bilingue", "Préparer le visuel"],
+        tasksDirection: ["Valider le ton"],
+        week: 2,
+        slot: 1
+      },
+      {
+        id: "fixture-studio-2",
+        date: "Mardi 21 juillet",
+        dateIso: "2026-07-21",
+        title: "Une rive pleine de vie",
+        t: "Nature",
+        objective: "Éveiller la curiosité avec une information vérifiée.",
+        copy: "FR — Regardons ce qui vit près de la rive.\n\nEN — Let’s notice what lives near the shore.",
+        visual: "Planche éducative vintage bilingue.",
+        roles: ["communications"],
+        week: 2,
+        slot: 2
+      }
+    ];
+    const rows = new Map([
+      ["fixture-studio-1", { editorial: { revision: 3 } }],
+      ["fixture-studio-2", { editorial: { revision: 1 } }]
+    ]);
+    const role = new URLSearchParams(location.search).get("role") === "director" ? "director" : "admin";
+    initPublicationStudio({ profile: { uid: `fixture-${role}`, role }, getPosts: () => posts, getRows: () => rows });
+    document.querySelector("#cockpit-studio-launch")?.click();
+  </script>
+</body>
+</html>

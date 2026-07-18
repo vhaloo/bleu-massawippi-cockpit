@@ -34,9 +34,33 @@ service cloud.firestore {
       return status in ['approved', 'needs_work', 'pending', 'deleted'];
     }
 
+    function validPublicationEditorial(value) {
+      return value is map
+        && value.keys().hasAll(['revision', 'theme', 'week', 'tier', 'visual', 'copy', 'fallback', 'kpi', 'task', 'choiceRequired', 'optionGroup', 'optionLabel', 'isAlternative', 'archivedEditorial', 'originId', 'templateId', 'createdBy', 'createdAt'])
+        && value.keys().hasOnly(['revision', 'theme', 'week', 'tier', 'visual', 'copy', 'fallback', 'kpi', 'task', 'choiceRequired', 'optionGroup', 'optionLabel', 'isAlternative', 'archivedEditorial', 'originId', 'templateId', 'createdBy', 'createdAt'])
+        && value.revision is int && value.revision > 0 && value.revision <= 1000000
+        && value.theme is string && value.theme.size() <= 80
+        && value.week is int && value.week > 0 && value.week <= 260
+        && value.tier is string && value.tier.size() <= 80
+        && value.visual is string && value.visual.size() <= 5000
+        && value.copy is string && value.copy.size() > 0 && value.copy.size() <= 10000
+        && value.fallback is string && value.fallback.size() <= 2000
+        && value.kpi is string && value.kpi.size() <= 500
+        && value.task is string && value.task.size() <= 2000
+        && value.choiceRequired is bool
+        && value.optionGroup is string && value.optionGroup.size() <= 80
+        && value.optionLabel is string && value.optionLabel.size() <= 220
+        && value.isAlternative is bool
+        && value.archivedEditorial is bool
+        && value.originId is string && value.originId.size() <= 80
+        && value.templateId is string && value.templateId.size() <= 80
+        && value.createdBy is string && value.createdBy.size() > 0 && value.createdBy.size() <= 128
+        && value.createdAt is timestamp;
+    }
+
     function validSchedule(data) {
       return data.keys().hasAll(['title', 'dateKey', 'dateIso', 'format', 'role', 'cta', 'source', 'tasksValentin', 'tasksAnnie', 'calendarTime', 'calendarDurationMinutes', 'calendarLocation', 'calendarCost', 'status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
-        && data.keys().hasOnly(['title', 'dateKey', 'dateIso', 'format', 'role', 'cta', 'source', 'tasksValentin', 'tasksAnnie', 'calendarTime', 'calendarDurationMinutes', 'calendarLocation', 'calendarCost', 'status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
+        && data.keys().hasOnly(['title', 'dateKey', 'dateIso', 'format', 'role', 'cta', 'source', 'tasksValentin', 'tasksAnnie', 'calendarTime', 'calendarDurationMinutes', 'calendarLocation', 'calendarCost', 'status', 'deleted', 'selected', 'editorial', 'updatedAt', 'updatedBy'])
         && data.title is string && data.title.size() <= 220
         && data.dateKey is string && data.dateKey.size() <= 80
         && data.dateIso is string && data.dateIso.matches('^\\d{4}-\\d{2}-\\d{2}$')
@@ -53,6 +77,7 @@ service cloud.firestore {
         && knownStatus(data.status)
         && data.deleted is bool && data.deleted == (data.status == 'deleted')
         && data.selected is bool
+        && (!('editorial' in data) || validPublicationEditorial(data.editorial))
         && data.updatedAt is timestamp
         && data.updatedBy == request.auth.uid;
     }
@@ -384,11 +409,30 @@ service cloud.firestore {
 
     match /scheduleItems/{itemId} {
       allow read: if activeUser();
-      allow create: if isEditor() && validSchedule(request.resource.data);
+      allow create: if validSchedule(request.resource.data)
+        && ((isEditor() && !('editorial' in request.resource.data))
+          || (isAdmin()
+            && ('editorial' in request.resource.data)
+            && request.resource.data.editorial.revision == 1
+            && request.resource.data.editorial.createdBy == request.auth.uid));
       allow update: if isEditor()
-        && request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
-        && validSchedule(request.resource.data);
+        && validSchedule(request.resource.data)
+        && (request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
+          || (isAdmin()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'title', 'dateKey', 'dateIso', 'format', 'role', 'cta', 'source',
+              'tasksValentin', 'tasksAnnie', 'calendarTime', 'calendarDurationMinutes',
+              'calendarLocation', 'calendarCost', 'editorial', 'updatedAt', 'updatedBy'
+            ])
+            && ('editorial' in request.resource.data)
+            && ((!('editorial' in resource.data)
+                && request.resource.data.editorial.revision == 1
+                && request.resource.data.editorial.createdBy == request.auth.uid)
+              || (('editorial' in resource.data)
+                && request.resource.data.editorial.revision == resource.data.editorial.revision + 1
+                && request.resource.data.editorial.createdBy == resource.data.editorial.createdBy
+                && request.resource.data.editorial.createdAt == resource.data.editorial.createdAt))));
       allow delete: if false;
     }
 

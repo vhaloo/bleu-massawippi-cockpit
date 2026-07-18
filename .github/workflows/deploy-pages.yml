@@ -18,7 +18,7 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 18
     steps:
       - name: Récupérer le dépôt
         uses: actions/checkout@v4
@@ -40,6 +40,17 @@ jobs:
           ! grep -q 'var posts=' cockpit/index.html
           git diff --exit-code
           npm --prefix cockpit run check
+      - name: Installer Java pour l’émulateur Firestore
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Tester le Studio et ses règles Firestore
+        run: |
+          npm --prefix cockpit run test:publication-editor
+          npm --prefix cockpit run test:editor-studio
+          npm --prefix cockpit run test:editor-cli
+          npm --prefix cockpit run test:editor-rules
       - name: Vérifier l’absence de secrets locaux
         run: |
           ! git ls-files | grep -E '(^|/)(service-account[^/]*\.json|[^/]*-service-account[^/]*\.json|firebase-config\.local\.js)$'
@@ -76,6 +87,10 @@ jobs:
           cp cockpit/index.html public/
           cp cockpit/actualiser.html public/
           cp cockpit/cockpit-ui.js public/
+          cp cockpit/section-navigation.js public/
+          cp cockpit/publication-editor-schema.mjs public/
+          cp cockpit/editor-studio.js public/
+          cp cockpit/control-hints.js public/
           cp cockpit/clarity.css public/
           cp cockpit/event-context-data.js public/
           cp cockpit/action-items-ui.js public/

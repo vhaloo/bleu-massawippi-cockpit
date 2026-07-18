@@ -1469,9 +1469,9 @@ function renderDashboard(now = new Date()) {
 
   grid.innerHTML = [
     panel("decision", "Décisions qui m’attendent", decisionsAreCurrent ? `${allDecisions.length}${remoteMore ? "+" : ""} pour vous` : "Synchronisation", decisionsBody, "vm-decisions"),
-    panel("today", "Aujourd’hui", `${today.length} événement${today.length > 1 ? "s" : ""}`, todayBody, "vm-today"),
     panel("week", "Les sept prochains jours", `${nextWeek.length} événement${nextWeek.length > 1 ? "s" : ""}`, weekBody, "vm-week"),
-    panel("message", "Messages actifs", `${messages.length} récent${messages.length > 1 ? "s" : ""}`, messagesBody, "vm-messages")
+    panel("today", "Aujourd’hui", `${today.length} événement${today.length > 1 ? "s" : ""}`, todayBody, "vm-today vm-compact"),
+    panel("message", "Messages actifs", `${messages.length} récent${messages.length > 1 ? "s" : ""}`, messagesBody, "vm-messages vm-compact")
   ].join("");
   renderDecisionDock(
     decisionsAreCurrent ? `${allDecisions.length}${remoteMore ? "+" : ""} pour vous` : "Synchronisation",

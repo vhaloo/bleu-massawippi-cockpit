@@ -15,8 +15,15 @@ for (const marker of [
   'class="project-portfolio-map"',
   'href="#projets-internes"',
   'href="#occasions-a-saisir"',
-  ".strategy-mandate-heading > .section-feedback"
+  ".strategy-mandate-heading > .section-feedback",
+  'data-brand-logo-target',
+  "Le lac au centre.",
+  "2 feux",
+  "0 perte"
 ]) assert.ok(strategy.includes(marker), `La stratégie clarifiée doit conserver : ${marker}`);
+assert.ok(!strategy.includes("Observer.<br>Comprendre.<br>Agir."), "L’accueil ne doit plus utiliser l’ancien visuel éditorial générique.");
+assert.ok(!strategy.includes("publications principales<br>séquence de lancement"), "L’accueil doit présenter un outil durable, pas une séquence de 28 jours.");
+assert.match(cockpitUi, /querySelectorAll\("\[data-brand-logo-target\]"\)/, "Le vrai logo configuré doit alimenter le repère d’identité de l’accueil.");
 
 assert.equal((strategy.match(/class="strategy-toc-links"[\s\S]*?<\/nav>/)?.[0].match(/<a /g) || []).length, 8,
   "Le sommaire stratégique doit offrir exactement huit repères stables.");

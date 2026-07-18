@@ -35,6 +35,7 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260718-b31";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -430,6 +431,65 @@ export async function upsertScheduleItem(itemId, payload, profile) {
   }, profile));
   await batch.commit();
   recordConfirmedWrites(2);
+}
+
+export async function savePublicationContent(draft, profile, { expectedRevision = 0, action = "publication modifiée" } = {}) {
+  requireWritable();
+  if (!profile || profile.role !== "admin") throw new Error("Le Studio de publication est réservé aux communications.");
+  const errors = validatePublicationDraft(draft);
+  if (errors.length) throw new Error(errors.join(" "));
+  const normalized = normalizePublicationDraft(draft);
+  if (!normalized.id.match(/^[a-z0-9-]{3,80}$/i)) throw new Error("Identifiant de publication invalide.");
+  const reference = doc(db, "scheduleItems", normalized.id);
+  const mutationId = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const archiveReference = doc(db, "changeArchive", `publication-${normalized.id}-${mutationId}`.slice(0, 160));
+  const result = await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(reference);
+    const before = snapshot.exists() ? snapshot.data() : {};
+    const currentRevision = Number(before.editorial?.revision || 0);
+    if (currentRevision !== Number(expectedRevision || 0)) {
+      throw new Error("Cette publication a changé depuis son ouverture. Rechargez-la avant d’enregistrer.");
+    }
+    const payload = schedulePayloadFromDraft(normalized, before);
+    const editorial = {
+      ...payload.editorial,
+      createdBy: before.editorial?.createdBy || profile.uid,
+      createdAt: before.editorial?.createdAt || serverTimestamp()
+    };
+    const after = {
+      ...payload,
+      editorial,
+      updatedAt: serverTimestamp(),
+      updatedBy: profile.uid
+    };
+    transaction.set(reference, after, { merge: snapshot.exists() });
+    transaction.set(archiveReference, changeArchiveEntry(
+      "publicationContent",
+      normalized.id,
+      String(action || (snapshot.exists() ? "publication modifiée" : "publication créée")).slice(0, 160),
+      before,
+      after,
+      profile
+    ));
+    return { id: normalized.id, revision: payload.editorial.revision, created: !snapshot.exists() };
+  });
+  recordConfirmedWrites(2);
+  return result;
+}
+
+export async function fetchPublicationHistory(itemId, { pageSize = 20 } = {}) {
+  requireConfigured();
+  const id = String(itemId || "").trim();
+  if (!id.match(/^[a-z0-9-]{3,80}$/i)) throw new Error("Identifiant de publication invalide.");
+  const historyQuery = query(
+    collection(db, "changeArchive"),
+    where("entityType", "==", "publicationContent"),
+    where("entityId", "==", id),
+    orderBy("createdAt", "desc"),
+    limit(Math.min(40, Math.max(1, Number(pageSize) || 20)))
+  );
+  const snapshot = await getDocs(historyQuery);
+  return snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
 }
 
 export async function setScheduleSelection(itemId, groupIds, selected, profile) {

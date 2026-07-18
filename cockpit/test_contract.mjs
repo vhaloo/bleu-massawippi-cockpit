@@ -8,6 +8,7 @@ import { BILINGUAL_POLICY_VERSION, FUTURE_EDITORIAL_IDS, TONE_VERSION } from "./
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
 const ui = fs.readFileSync(path.join(here, "cockpit-ui.js"), "utf8");
+const sectionNavigation = fs.readFileSync(path.join(here, "section-navigation.js"), "utf8");
 const taskProgressUi = fs.readFileSync(path.join(here, "task-progress-ui.js"), "utf8");
 const viewMode = fs.readFileSync(path.join(here, "view-mode.js"), "utf8");
 const viewFixture = fs.readFileSync(path.join(here, "test-fixtures", "view-mode.html"), "utf8");
@@ -187,7 +188,8 @@ for (const historicalId of ["alt-20260719", "alt-20260726", "alt-20260801", "alt
   assert.equal(historicalPost.t, "Patrimoine");
 }
 const preparedPlanScript = preparePlanScript(source.match(/<script>\s*(var posts=[\s\S]*?)<\/script>/i)[1], posts);
-assert.match(preparedPlanScript, /\[1,2,3,4,5,6,7,8\]\.forEach/);
+assert.match(preparedPlanScript, /Array\.from\(new Set\(list\.map/, "Le rendu privé doit accepter les semaines ajoutées par le Studio sans plafond fixe.");
+assert.match(preparedPlanScript, /Calendrier évolutif/, "Une nouvelle semaine doit recevoir un libellé de repli lisible.");
 assert.match(preparedPlanScript, /Object\.keys\(days\)\.sort/, "Le rendu privé doit trier les journées avant de construire les cartes.");
 assert.match(source, /Object\.keys\(days\)\.sort/, "La source locale doit suivre le même ordre chronologique.");
 assert.doesNotMatch(source, /readybox|id="done"/, "L’ancien état local « prêt » ne doit plus contredire le workflow partagé.");
@@ -203,7 +205,7 @@ assert.match(ui, /item\.archivedEditorial !== true[\s\S]{0,120}!isPlanItemPast\(
 assert.match(ui, /focusMonthlySnapshotEvent\(itemId, allowRetry = true\)/);
 assert.match(ui, /focusMonthlySnapshotEvent\(itemId, false\)/, "La navigation mensuelle doit borner sa relance.");
 assert.match(ui, /setupCollapsibleNavigation/);
-assert.match(ui, /while \(node\)[\s\S]{0,100}node\.matches\?\.\("details"\)/, "La navigation doit ouvrir tous les volets ancêtres.");
+assert.match(sectionNavigation, /while \(node[\s\S]{0,180}node\.matches\?\.\("details"\)/, "La navigation doit ouvrir tous les volets ancêtres.");
 assert.match(ui, /\[data-cockpit-private-root\] section\[id\]/, "Les boîtes d’avis doivent survivre au retrait du main imbriqué.");
 assert.match(ui, /grid-template-columns:46px minmax\(0,1fr\)/, "Le bouton Enregistrer du mini-chat doit rester lisible sur mobile.");
 assert.match(viewMode, /\(\?:er\)\?\\s\+\(janvier/);
@@ -419,7 +421,7 @@ assert.match(sharepointGovernance, /Guide de gouvernance/);
 assert.match(sharepointGovernance, /Règles de dépôt du CA/);
 assert.match(sharepointGovernance, /class="sharepoint-folder-toggle"[\s\S]*class="plus">\+[\s\S]*class="minus">−/,
   "Le classement SharePoint doit afficher un véritable contrôle + / −, lisible à l’état fermé comme ouvert.");
-assert.match(ui, /\.strategy-toc a\[href\^="#"\]/,
+assert.match(sectionNavigation, /\.strategy-toc a\[href\^="#"\]/,
   "Les raccourcis internes de la stratégie doivent ouvrir leurs panneaux parents avant le défilement.");
 assert.match(source, /data-layout-version="2026-07-17-sharepoint-ca-v4"/,
   "La nouveauté stratégique doit être signalée même lorsque le guide reste réduit au démarrage.");
