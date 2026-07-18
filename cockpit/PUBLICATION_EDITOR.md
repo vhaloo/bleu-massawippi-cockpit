@@ -16,10 +16,11 @@ Le Studio est une couche d’édition structurée réservée au compte des commu
 1. Se connecter avec le compte des communications.
 2. Cliquer sur **✎ Studio** dans la barre de session.
 3. Choisir une publication ou un modèle.
-4. Vérifier la date, le texte bilingue, le visuel prévu et les responsabilités.
-5. Cliquer sur **✓ Enregistrer dans le cockpit**.
+4. Saisir la date et le titre : l’identifiant unique se construit automatiquement sous la forme `pub-AAAAMMJJ-titre`, avec un suffixe (`-2`, `-3`, etc.) seulement si nécessaire.
+5. Vérifier le texte bilingue, le visuel prévu et les responsabilités.
+6. Cliquer sur **✓ Enregistrer dans le cockpit**.
 
-**Dupliquer** conserve la publication source comme origine et crée un nouvel identifiant. **Classer** masque éditorialement le contenu sans supprimer ses données. **Historique** permet de restaurer une ancienne version en créant une révision supplémentaire.
+Après le premier enregistrement, l’identifiant reste stable même si le titre ou la date change. **Dupliquer** conserve la publication source comme origine et crée automatiquement un nouvel identifiant disponible. **Classer** masque éditorialement le contenu sans supprimer ses données. **Historique** permet de restaurer une ancienne version en créant une révision supplémentaire.
 
 ## Utiliser l’outil local
 

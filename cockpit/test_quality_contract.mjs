@@ -7,6 +7,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
 const read = (relative) => fs.readFileSync(path.join(root, relative), "utf8");
 const exists = (relative) => fs.existsSync(path.join(root, relative));
+const portableByteLength = (value) => Buffer.byteLength(String(value || "").replace(/\r\n?/g, "\n"), "utf8");
 
 const files = {
   shell: read("cockpit/index.html"),
@@ -150,8 +151,8 @@ warning("PWA-006", "Entrées JavaScript essentielles préchargées", ["cockpit-u
 warning("PWA-007", "Repli index réservé aux navigations", /request\.mode\s*===\s*["']navigate["']|destination\s*===\s*["']document["']/.test(files.sw), "Un module JS manquant ne doit jamais recevoir du HTML en guise de réponse.");
 
 // Performance et contrats métier structurants.
-const uiBytes = Buffer.byteLength(files.ui);
-const sourceBytes = Buffer.byteLength(files.source);
+const uiBytes = portableByteLength(files.ui);
+const sourceBytes = portableByteLength(files.source);
 critical("PERF-001", "Module UI sous 200 Kio", uiBytes < 200 * 1024, `${Math.round(uiBytes / 1024)} Kio détectés.`);
 warning("PERF-002", "Module UI sous le seuil de vigilance de 120 Kio", uiBytes < 120 * 1024, `${Math.round(uiBytes / 1024)} Kio; poursuivre le découpage modulaire sans réécriture globale.`);
 warning("PERF-003", "Source privée initiale sous 180 Kio", sourceBytes < 180 * 1024, `${Math.round(sourceBytes / 1024)} Kio détectés.`);
