@@ -10,6 +10,13 @@ const workflow = fs.readFileSync(new URL("../.github/workflows/deploy-pages.yml"
 assert.match(studio, /profile\?\.role !== "admin"/, "Le Studio doit rester invisible hors du compte des communications.");
 assert.match(studio, /Nouvelle publication non enregistrée/);
 assert.match(studio, /Dupliquer/);
+assert.match(studio, /Identifiant automatique/);
+assert.match(studio, /data-field="id"[\s\S]*readonly[\s\S]*aria-readonly="true"/,
+  "L’identifiant doit être généré sans saisie manuelle.");
+assert.match(studio, /resolvePublicationId/);
+assert.match(studio, /stableId/);
+assert.match(studio, /mustCreate: creating/,
+  "Une création doit refuser atomiquement une collision tardive.");
 assert.match(studio, /Classer sans supprimer/);
 assert.match(studio, /Restaurer crée une nouvelle version/);
 assert.match(studio, /data-field="copy"[\s\S]*maxlength="10000"/);
@@ -24,6 +31,8 @@ assert.doesNotMatch(studio, /deleteDoc|removeDoc|eval\(|new Function/, "Le Studi
 assert.match(client, /export async function savePublicationContent/);
 assert.match(client, /runTransaction\(db/);
 assert.match(client, /currentRevision !== Number\(expectedRevision/);
+assert.match(client, /mustCreate && snapshot\.exists\(\)/,
+  "Une collision apparue entre l’affichage et l’enregistrement ne doit jamais écraser une publication.");
 assert.match(client, /changeArchiveEntry\(\s*"publicationContent"/);
 assert.match(client, /export async function fetchPublicationHistory/);
 assert.match(rules, /isAdmin\(\)[\s\S]*request\.resource\.data\.editorial\.revision/,

@@ -4,7 +4,9 @@ import {
   mergePostsWithScheduleRows,
   normalizePublicationDraft,
   publicationIdFrom,
+  resolvePublicationId,
   schedulePayloadFromDraft,
+  uniquePublicationId,
   validatePublicationDraft,
   weekForDate
 } from "./publication-editor-schema.mjs";
@@ -25,6 +27,15 @@ assert.equal(draft.tasksValentin.length, 2);
 assert.deepEqual(validatePublicationDraft(draft), []);
 assert.equal(weekForDate("2026-08-12", "2026-07-13"), 5);
 assert.match(publicationIdFrom(draft), /^pub-20260812-une-rive-vivante$/);
+assert.equal(publicationIdFrom({ title: "À l’école du lac!", dateIso: "2026-08-13" }), "pub-20260813-a-l-ecole-du-lac");
+assert.equal(uniquePublicationId({ title: "Une rive vivante", dateIso: "2026-08-12" }, [
+  "pub-20260812-une-rive-vivante",
+  "pub-20260812-une-rive-vivante-2"
+]), "pub-20260812-une-rive-vivante-3");
+assert.equal(resolvePublicationId({
+  draft: { title: "Titre changé", dateIso: "2026-09-01" },
+  stableId: "publication-historique-stable"
+}), "publication-historique-stable", "Un identifiant enregistré doit rester immuable quand le titre ou la date change.");
 
 const payload = schedulePayloadFromDraft(draft, { status: "pending", selected: true });
 assert.equal(payload.editorial.revision, 1);

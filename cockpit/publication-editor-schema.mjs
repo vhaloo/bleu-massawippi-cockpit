@@ -41,6 +41,24 @@ export function publicationIdFrom({ title = "publication", dateIso = "" } = {}) 
   return `pub-${date}-${slug}`.slice(0, 80);
 }
 
+export function uniquePublicationId(input = {}, existingIds = []) {
+  const base = publicationIdFrom(input);
+  const used = new Set(Array.from(existingIds || [], (value) => String(value || "").trim().toLowerCase()).filter(Boolean));
+  if (!used.has(base.toLowerCase())) return base;
+  for (let index = 2; index <= 9999; index += 1) {
+    const suffix = `-${index}`;
+    const stem = base.slice(0, 80 - suffix.length).replace(/-+$/g, "");
+    const candidate = `${stem}${suffix}`;
+    if (!used.has(candidate.toLowerCase())) return candidate;
+  }
+  throw new Error("Impossible de produire un identifiant unique pour cette publication.");
+}
+
+export function resolvePublicationId({ draft = {}, existingIds = [], stableId = "" } = {}) {
+  const locked = cleanText(stableId, 80);
+  return locked || uniquePublicationId(draft, existingIds);
+}
+
 export function validatePublicationDraft(input) {
   const errors = [];
   if (!cleanText(input?.title, TEXT_LIMITS.title)) errors.push("Le titre est obligatoire.");

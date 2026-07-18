@@ -35,7 +35,7 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260718-b31";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260718-b32";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -433,7 +433,7 @@ export async function upsertScheduleItem(itemId, payload, profile) {
   recordConfirmedWrites(2);
 }
 
-export async function savePublicationContent(draft, profile, { expectedRevision = 0, action = "publication modifiée" } = {}) {
+export async function savePublicationContent(draft, profile, { expectedRevision = 0, action = "publication modifiée", mustCreate = false } = {}) {
   requireWritable();
   if (!profile || profile.role !== "admin") throw new Error("Le Studio de publication est réservé aux communications.");
   const errors = validatePublicationDraft(draft);
@@ -445,6 +445,9 @@ export async function savePublicationContent(draft, profile, { expectedRevision 
   const archiveReference = doc(db, "changeArchive", `publication-${normalized.id}-${mutationId}`.slice(0, 160));
   const result = await runTransaction(db, async (transaction) => {
     const snapshot = await transaction.get(reference);
+    if (mustCreate && snapshot.exists()) {
+      throw new Error("Cet identifiant vient d’être utilisé. Modifiez légèrement le titre ou la date, puis réessayez.");
+    }
     const before = snapshot.exists() ? snapshot.data() : {};
     const currentRevision = Number(before.editorial?.revision || 0);
     if (currentRevision !== Number(expectedRevision || 0)) {

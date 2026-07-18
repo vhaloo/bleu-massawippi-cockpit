@@ -35,17 +35,17 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260718-b31";
-import { createEventContextController } from "./event-context-data.js?v=20260718-b31";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260718-b31";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260718-b31";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260718-b31";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260718-b31";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260718-b31";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260718-b31";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260718-b31";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260718-b31";
-import { setupControlHints } from "./control-hints.js?v=20260718-b31";
+} from "./firebase-client.js?v=20260718-b32";
+import { createEventContextController } from "./event-context-data.js?v=20260718-b32";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260718-b32";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260718-b32";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260718-b32";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260718-b32";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260718-b32";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260718-b32";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260718-b32";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260718-b32";
+import { setupControlHints } from "./control-hints.js?v=20260718-b32";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
