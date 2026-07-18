@@ -268,7 +268,7 @@
     .context-fold > summary, .readme-fold > summary { margin: 5px; border: 1px solid #9fcfd3; border-radius: 14px; background: #eaf8f8; box-shadow: 0 4px 12px rgba(7,58,82,.08); }
     .context-fold > summary:hover, .readme-fold > summary:hover { background: #dff3f4; }
     .context-fold > summary span, .readme-fold > summary span { display: inline-flex; align-items: center; gap: 8px; padding: 5px 9px; border-radius: 999px; color: #fff; background: #0b7895; }
-    .context-fold > summary small, .readme-fold > summary small { color: #fff; }
+    .context-fold > summary small, .readme-fold > summary small { color: #55727d; }
     .guide-summary-actions { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; margin-left: auto; }
     .guide-startup-control { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border: 1px solid #9fcfd3; border-radius: 999px; color: #174e62; background: #fff; font-size: .68rem; font-weight: 800; cursor: pointer; white-space: nowrap; }
     .guide-startup-control input { width: 16px; height: 16px; margin: 0; accent-color: #0b7895; }
@@ -277,8 +277,41 @@
     .context-fold.has-guide-update { border-color: #e8b949; box-shadow: 0 0 0 4px rgba(255,214,92,.16), 0 12px 30px rgba(7,58,82,.08); }
     .context-fold.guide-new-focus { animation: guide-new-focus 1.2s ease; }
     @keyframes guide-new-focus { 0%,100% { box-shadow: 0 12px 30px rgba(7,58,82,.05); } 45% { box-shadow: 0 0 0 7px rgba(255,214,92,.28), 0 12px 30px rgba(7,58,82,.08); } }
+    .strategy-art { display:block; width:72px; height:72px; flex:0 0 72px; border:1px solid rgba(7,58,82,.12); border-radius:18px; background-image:url("./assets/strategy/reperes-cockpit-2x2.webp"); background-repeat:no-repeat; background-size:200% 200%; box-shadow:0 9px 22px rgba(7,58,82,.13); }
+    .strategy-art-collaboration { background-position:100% 0; }
+    .strategy-art-projects { background-position:0 100%; }
+    .strategy-mandate { margin:18px 0 8px; padding:22px; border:1px solid #badbdd; border-radius:20px; background:linear-gradient(135deg,rgba(238,249,249,.96),rgba(255,255,255,.94)); box-shadow:0 10px 26px rgba(7,58,82,.07); }
+    .strategy-mandate-heading { display:flex; align-items:center; gap:16px; }
+    .strategy-mandate-heading .eyebrow { margin-bottom:7px; }
+    .strategy-mandate-heading h2 { margin:0 0 7px; color:#073a52; font-size:clamp(1.55rem,2.8vw,2.45rem); line-height:1.02; letter-spacing:-.045em; }
+    .strategy-mandate-heading p:last-child { max-width:900px; margin:0; color:#55727d; font-size:.88rem; }
+    .strategy-mandate-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin-top:17px; }
+    .strategy-mandate-grid article { padding:13px; border:1px solid #d2e7e8; border-radius:13px; background:rgba(255,255,255,.88); }
+    .strategy-mandate-grid b { display:block; margin-bottom:4px; color:#073a52; font-size:.78rem; }
+    .strategy-mandate-grid span { display:block; color:#55727d; font-size:.74rem; line-height:1.43; }
+    .strategy-mandate-note { margin:12px 0 0; padding:10px 12px; border-left:4px solid #e8ae4b; border-radius:0 11px 11px 0; color:#4d666f; background:#fff9e9; font-size:.76rem; }
+    .project-portfolio-map { display:grid; grid-template-columns:auto minmax(0,1fr) minmax(260px,.55fr); gap:17px; align-items:center; margin:0 0 16px; padding:20px; border:1px solid #b6d9da; border-radius:22px; background:linear-gradient(135deg,#f4fbfa,#fffaf0); box-shadow:0 11px 28px rgba(7,58,82,.07); }
+    .project-portfolio-copy .eyebrow { margin-bottom:7px; }
+    .project-portfolio-copy h2 { margin:0 0 7px; color:#073a52; font-size:clamp(1.45rem,2.4vw,2.2rem); line-height:1.03; letter-spacing:-.04em; }
+    .project-portfolio-copy p:last-child { margin:0; color:#55727d; font-size:.8rem; line-height:1.48; }
+    .project-portfolio-links { display:grid; gap:7px; }
+    .project-portfolio-links a { display:grid; min-height:48px; grid-template-columns:34px minmax(0,1fr); gap:9px; align-items:center; padding:8px 10px; border:1px solid #c5dcdd; border-radius:11px; color:#174e62; background:#fff; text-decoration:none; transition:border-color .25s ease,background .25s ease,transform .25s ease,box-shadow .25s ease; }
+    .project-portfolio-links a:hover,.project-portfolio-links a:focus-visible { border-color:#4ca6ac; background:#edf9f9; box-shadow:0 6px 15px rgba(7,58,82,.09); transform:translateY(-1px); }
+    .project-portfolio-links b { display:grid; width:31px; height:31px; place-items:center; border-radius:50%; color:#fff; background:#0b7895; font-size:.73rem; }
+    .project-portfolio-links a:last-child b { color:#694612; background:#ffe4a7; }
+    .project-portfolio-links span { font-size:.74rem; font-weight:850; }
+    [data-theme="dark"] .strategy-mandate,[data-theme="dark"] .project-portfolio-map { border-color:#4f737b; background:linear-gradient(135deg,#173640,#203237); }
+    [data-theme="dark"] :is(.strategy-mandate-heading h2,.strategy-mandate-grid b,.project-portfolio-copy h2) { color:#effbfc; }
+    [data-theme="dark"] :is(.strategy-mandate-heading p:last-child,.strategy-mandate-grid span,.project-portfolio-copy p:last-child) { color:#c4d9dd; }
+    [data-theme="dark"] .strategy-mandate-grid article { border-color:#456873; background:#1d3942; }
+    [data-theme="dark"] .strategy-mandate-note { color:#f1e5c5; background:#443b25; }
+    [data-theme="dark"] .project-portfolio-links a { color:#e5f6f7; border-color:#4d7078; background:#1c3942; }
+    [data-theme="dark"] .project-portfolio-links a:hover,[data-theme="dark"] .project-portfolio-links a:focus-visible { border-color:#71c5cc; background:#244b55; }
+    [data-theme="dark"] .context-fold > summary small,[data-theme="dark"] .readme-fold > summary small { color:#c4d9dd; }
     @media(max-width:700px){ .context-body { padding: 0 10px 18px; } .readme-body { padding: 3px 13px 16px; } .readme-grid { grid-template-columns: 1fr; } .workflow-svg { min-height: 130px; } .workflow-node text { font-size: 12px; } .workflow-return { font-size: 10px; } .responsibility-grid { grid-template-columns: 1fr; } .context-fold > summary,.readme-fold > summary{padding:11px 12px;align-items:flex-start;flex-wrap:wrap}.context-fold > summary small,.readme-fold > summary small{font-size:.66rem}.guide-summary-actions{width:100%;justify-content:flex-start;flex-wrap:wrap}.guide-startup-control,.guide-new-badge{font-size:.64rem}.toolbar{grid-template-columns:1fr 1fr}.toolbar .history-toggle{grid-column:1/-1}.strategic-document-card{grid-template-columns:auto minmax(0,1fr);padding:13px;gap:11px}.strategic-document-icon{width:44px;height:52px}.strategic-document-actions{grid-column:1/-1;min-width:0;grid-template-columns:1fr 1fr}.strategic-document-actions a{min-height:46px;padding:9px;font-size:.72rem}.strategy-toc{padding:12px}.strategy-toc-heading{align-items:flex-start;flex-direction:column;gap:2px}.strategy-toc-links{grid-template-columns:1fr 1fr}.strategy-toc-links a{min-height:46px}.sharepoint-zones,.sharepoint-folder-grid{grid-template-columns:1fr}.sharepoint-flow{grid-template-columns:1fr 1fr}.sharepoint-flow div{min-height:78px}.sharepoint-resources{display:grid;grid-template-columns:1fr}.sharepoint-resources a{justify-content:center;min-height:46px;text-align:center} }
     @media(max-width:700px){.nav{top:var(--cockpit-session-height,52px)}.nav .wrap{width:100%;padding:0 8px}.nav a{padding:10px 9px;font-size:.75rem}.project-grid,.project-docs,.opportunity-detail-grid,.internal-project-grid,.internal-project-roles,.internal-project-checklist,.internal-project-poster{grid-template-columns:1fr}.project-timeline,.internal-project-milestones{grid-template-columns:1fr 1fr}.internal-project-run{grid-template-columns:1fr 1fr}.project-decision,.internal-project-intro{grid-template-columns:1fr}.project-hub-body,.internal-project-hub-body{padding:4px 12px 16px}.project-hub>summary,.internal-project-hub>summary{align-items:flex-start;flex-wrap:wrap}.project-summary-actions,.internal-project-summary-actions{width:100%;margin-left:0;flex-wrap:wrap}.opportunity-heading{align-items:flex-start;flex-direction:column}.opportunity>summary,.internal-project>summary{grid-template-columns:1fr auto}.opportunity>summary .opp-urgent,.opportunity>summary .opp-open,.opportunity>summary .opp-watch,.opportunity>summary .opp-conditional,.internal-project>summary .internal-project-priority{grid-column:1}.opportunity>summary strong,.internal-project>summary strong{grid-column:1/-1}.opportunity>summary .eligibility,.internal-project>summary .internal-project-stage-label{grid-column:1}.opportunity>summary small,.internal-project>summary small{grid-column:2;grid-row:1/4;align-self:center}.opportunity-stage-buttons,.internal-project-stage-buttons{display:grid;grid-template-columns:1fr 1fr}.opportunity-stage-buttons button,.internal-project-stage-buttons button{width:100%}.internal-project-poster img{max-width:420px;margin:auto}}
+    @media(max-width:900px){.strategy-mandate-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.project-portfolio-map{grid-template-columns:auto minmax(0,1fr)}.project-portfolio-links{grid-column:1/-1;grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:700px){.strategy-art{width:58px;height:58px;flex-basis:58px;border-radius:15px}.strategy-mandate{padding:15px}.strategy-mandate-heading{align-items:flex-start;gap:11px}.strategy-mandate-grid{grid-template-columns:1fr}.project-portfolio-map{grid-template-columns:auto minmax(0,1fr);padding:15px;gap:12px}.project-portfolio-links{grid-column:1/-1;grid-template-columns:1fr}.project-portfolio-links a{min-height:46px}}
     .detail,.detail-grid,.detail-grid > *, .box { min-width: 0; }
     .detail-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
     .box span,.box a { overflow-wrap: anywhere; }
@@ -306,12 +339,13 @@
  <div class="strategy-toc-heading"><strong>Sommaire de la stratégie</strong><small>Aller directement à une section</small></div>
  <div class="strategy-toc-links">
   <a href="#readme-collapsible"><b>01</b><span>Mode d’emploi</span></a>
-  <a href="#strategic-document-plan"><b>02</b><span>Document de partenariat</span></a>
-  <a href="#collaboration"><b>03</b><span>Collaboration</span></a>
-  <a href="#governance-sharepoint-ca"><b>04</b><span>SharePoint et CA</span></a>
-  <a href="#cap"><b>05</b><span>Cap éditorial</span></a>
-  <a href="#cadence"><b>06</b><span>Cadence</span></a>
-  <a href="#validation"><b>07</b><span>Validation</span></a>
+  <a href="#mandate-collaboration"><b>02</b><span>Cadre du mandat</span></a>
+  <a href="#strategic-document-plan"><b>03</b><span>Document de partenariat</span></a>
+  <a href="#collaboration"><b>04</b><span>Collaboration</span></a>
+  <a href="#governance-sharepoint-ca"><b>05</b><span>SharePoint et CA</span></a>
+  <a href="#cap"><b>06</b><span>Cap éditorial</span></a>
+  <a href="#cadence"><b>07</b><span>Cadence</span></a>
+  <a href="#validation"><b>08</b><span>Validation</span></a>
  </div>
 </nav>
 <details id="readme-collapsible" class="readme-fold" data-readme-version="2026-07-10" open>
@@ -321,12 +355,12 @@
   <h2>Voir vite. Décider clairement. Avancer sans micromanagement.</h2>
   <p>Le cockpit donne à la direction une vue d’ensemble et aux communications des feux verts précis. Rien n’est publié automatiquement.</p>
   <div class="readme-grid">
-   <article class="readme-step"><b>1 · Proposition</b><span>Les communications préparent le texte, le concept et les choix.</span></article>
-   <article class="readme-step"><b>2 · Texte approuvé</b><span>La direction donne le premier feu vert sur le texte et le concept.</span></article>
-   <article class="readme-step"><b>3 · Production média</b><span>Les communications réalisent l’image ou la vidéo et ajoutent son lien OneDrive.</span></article>
-   <article class="readme-step"><b>4 · Visuel approuvé</b><span>La direction retient le ou les médias finaux et donne le second feu vert.</span></article>
-   <article class="readme-step"><b>5 · Terminer</b><span>Les communications programment ou publient, puis marquent l’événement terminé.</span></article>
-   <article class="readme-step"><b>6 · Rien ne disparaît</b><span>Le jour même reste visible; plus tard, l’événement demeure consultable dans les publications passées.</span></article>
+   <article class="readme-step"><b>📝 1 · Proposition</b><span>Les communications préparent le texte, le concept et les choix.</span></article>
+   <article class="readme-step"><b>✓ 2 · Texte approuvé</b><span>La direction donne le premier feu vert sur le texte et le concept.</span></article>
+   <article class="readme-step"><b>🎨 3 · Production média</b><span>Les communications réalisent l’image ou la vidéo et ajoutent son lien OneDrive.</span></article>
+   <article class="readme-step"><b>🖼️ 4 · Visuel approuvé</b><span>La direction retient le ou les médias finaux et donne le second feu vert.</span></article>
+   <article class="readme-step"><b>📅 5 · Terminer</b><span>Les communications programment ou publient, puis marquent l’événement terminé.</span></article>
+   <article class="readme-step"><b>🗂️ 6 · Rien ne disparaît</b><span>Le jour même reste visible; plus tard, l’événement demeure consultable dans les publications passées.</span></article>
   </div>
   <div class="workflow-label">Flux de travail proposé</div>
   <svg class="workflow-svg" data-workflow-svg viewBox="0 0 920 270" role="img" aria-labelledby="workflow-title workflow-description">
@@ -349,6 +383,21 @@
   <p class="readme-note"><strong>Règle simple :</strong> on peut déposer une idée sans interrompre l’autre personne; une décision sensible est explicitement signalée; la diffusion reste conditionnelle à la validation prévue dans le calendrier.</p>
  </div>
 </details>
+<section id="mandate-collaboration" class="section strategy-mandate" data-id="strategy-mandate-2026">
+ <div class="strategy-mandate-heading">
+  <span class="strategy-art strategy-art-collaboration" aria-hidden="true"></span>
+  <div><p class="eyebrow">Cadre du mandat en vigueur</p><h2>Autonomie claire. Décisions explicites. Travail soutenable.</h2><p>Le cockpit traduit le mandat signé en réflexes simples : les communications préparent et exécutent; la direction arbitre les décisions institutionnelles; chaque validation importante reste explicite, réversible et traçable.</p></div>
+ </div>
+ <div class="strategy-mandate-grid">
+  <article><b>🧭 Préparer et recommander</b><span>Les communications structurent les options, vérifient les sources disponibles et proposent une marche à suivre.</span></article>
+  <article><b>✓ Décider au bon niveau</b><span>La direction confirme les faits sensibles, les engagements, les partenaires et les décisions institutionnelles finales.</span></article>
+  <article><b>🕰️ Travailler en asynchrone</b><span>Le cockpit est la référence quotidienne. Il n’impose ni réponse immédiate ni disponibilité continue; les urgences réelles sont signalées clairement.</span></article>
+  <article><b>🔐 Valider explicitement</b><span>Le silence n’est jamais une approbation. Un feu vert, un choix média ou une consigne consignée rend la décision compréhensible.</span></article>
+  <article><b>🗂️ Protéger la capacité</b><span>La base régulière distingue 20 h de communications et 5 h de projets liés ou d’administration; tout dépassement exige une autorisation écrite simple.</span></article>
+  <article><b>🛟 Suspendre en cas de risque</b><span>Une action non publiée peut être mise en attente si les faits, les droits, le mandat ou les conséquences restent incertains; une correction est alors recommandée.</span></article>
+ </div>
+ <p class="strategy-mandate-note"><strong>En pratique :</strong> moins de micromanagement, plus de décisions visibles. Les fichiers, commentaires, versions et preuves restent conservés afin que le travail puisse être repris sans perte.</p>
+</section>
 <article id="strategic-document-plan" class="strategic-document-card" data-id="document-plan-partenariat-2026-2027" aria-labelledby="plan-partenariat-title">
  <div class="strategic-document-icon" aria-hidden="true">PDF</div>
  <div class="strategic-document-copy">
@@ -432,7 +481,12 @@
 
 
 <section id="projets" class="section project-section">
- <details class="internal-project-hub" data-internal-project-register data-layout-version="2026-07-17-regards-photo-v4" open>
+ <section class="project-portfolio-map" aria-labelledby="project-portfolio-map-title">
+  <span class="strategy-art strategy-art-projects" aria-hidden="true"></span>
+  <div class="project-portfolio-copy"><p class="eyebrow">Carte du portefeuille</p><h2 id="project-portfolio-map-title">Ouvrir seulement ce qui demande une décision.</h2><p>Les dossiers sont séparés en deux familles. Les projets internes organisent le travail de Bleu Massawippi; les occasions externes suivent les candidatures, programmes et prix. Une fiche terminée est classée, jamais supprimée.</p></div>
+  <nav class="project-portfolio-links" aria-label="Accès rapide aux projets"><a href="#projets-internes"><b>15</b><span>Projets internes</span></a><a href="#occasions-a-saisir"><b>8</b><span>Occasions externes</span></a><a href="#internal-project-lamproie-du-nord"><b>!</b><span>Priorité actuelle</span></a></nav>
+ </section>
+ <details id="projets-internes" class="internal-project-hub" data-internal-project-register data-layout-version="2026-07-17-regards-photo-v4" open>
   <summary><span>Projets internes — priorités, décisions et prochaines actions</span><small>Réduire</small></summary>
   <div class="internal-project-hub-body">
    <div class="heading"><p class="eyebrow">Portefeuille de l’association</p><h2>Voir l’essentiel, puis ouvrir seulement ce qui demande une décision.</h2><p>Chaque fiche résume l’état connu, la prochaine action, le partage des responsabilités et les documents utiles. La direction garde une vue d’ensemble; les communications et les responsables de projet transforment les décisions en suivis concrets. Les idées encore à cadrer forment un portefeuille à prioriser selon la capacité réelle de l’équipe et la planification stratégique; leur présence ici ne constitue pas un engagement.</p></div>
@@ -659,7 +713,7 @@
    </div>
   </div>
  </details>
- <details class="project-hub" data-project-register data-layout-version="2026-07-13-opportunities-notes-v3" open>
+ <details id="occasions-a-saisir" class="project-hub" data-project-register data-layout-version="2026-07-13-opportunities-notes-v3" open>
   <summary><span>Projets, candidatures et occasions à saisir</span><small>Réduire</small></summary>
   <div class="project-hub-body">
    <div class="heading"><p class="eyebrow">Développement de projets</p><h2>Transformer les réalisations en candidatures solides.</h2><p>Cette section suit les concours, appels à projets et occasions de rayonnement. Une candidature n’est déposée qu’après validation des faits, des droits, des partenaires et de la capacité réelle de livrer.</p></div>

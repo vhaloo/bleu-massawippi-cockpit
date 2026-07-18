@@ -1,0 +1,32 @@
+/* Repères de clarté incrémentaux. La logique métier reste dans cockpit-ui.js. */
+.cockpit-workflow{margin:12px 0 0;padding:13px;border:2px solid #8dcfd4;border-radius:14px;background:#f8fdfd;box-shadow:0 7px 18px rgba(7,58,82,.07)}
+.cockpit-workflow h5{margin:0;color:#073a52;font-size:.86rem}
+.cockpit-workflow-gates{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.cockpit-workflow-gate{position:relative;min-height:76px;padding:9px 8px 8px 32px;border:1px solid #d5e6e8;border-radius:10px;color:#607b85;background:#f4f8f9;font:inherit;font-size:.66rem;text-align:left;cursor:pointer}
+.cockpit-workflow-gate:before{position:absolute;left:9px;top:10px;display:grid;width:17px;height:17px;place-items:center;border:2px solid #9db4bc;border-radius:5px;content:"";color:#fff;background:#fff;font-size:.7rem;font-weight:900}
+.cockpit-workflow-gate b{display:block;margin-bottom:3px;color:#315564;font-size:.7rem}
+.cockpit-workflow-gate span{display:block;line-height:1.35}
+.cockpit-workflow-gate.done{color:#155c4e;border-color:#8ec8b5;background:#e3f5ee;font-weight:850}
+.cockpit-workflow-gate.done:before{border-color:#21866d;content:"✓";background:#21866d}
+.cockpit-workflow-gate.current{border-color:#d7a33f;background:#fff8e8;box-shadow:0 0 0 2px rgba(215,163,63,.13)}
+.cockpit-workflow-gate:focus-visible{outline:3px solid rgba(11,120,149,.3);outline-offset:2px}
+.cockpit-workflow-gate:disabled{cursor:not-allowed;opacity:.62}
+.cockpit-workflow-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.cockpit-workflow-actions button{min-height:38px;padding:8px 11px;border:1px solid #0b7895;border-radius:10px;color:#0b6077;background:#fff;font-size:.7rem;font-weight:900;cursor:pointer}
+.cockpit-workflow-actions button.primary{color:#fff;background:#0b7895;box-shadow:0 5px 13px rgba(11,120,149,.2)}
+.cockpit-workflow-actions button.correction{color:#7a4d10;border-color:#d7a33f;background:#fff8e8}
+.cockpit-workflow-complete{margin:8px 0 0;padding:8px 10px;border-radius:9px;color:#155c4e;background:#e3f5ee;font-size:.7rem;font-weight:850}
+.cockpit-workflow h5{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cockpit-workflow-path{display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border:1px solid #c8e3e5;border-radius:999px;color:#4c717c;background:#fff;font-size:.59rem;font-weight:850;white-space:nowrap}
+.cockpit-workflow-help{margin:6px 0 10px;border:1px solid #d6e7e9;border-radius:9px;background:#fff}
+.cockpit-workflow-help summary{min-height:34px;padding:8px 10px;color:#426b78;font-size:.66rem;font-weight:900;cursor:pointer}
+.cockpit-workflow-help summary::marker{color:#16859b}
+.cockpit-workflow-help p{margin:0;padding:0 10px 10px;color:#587680;font-size:.66rem;line-height:1.45}
+.cockpit-workflow-gate.current[data-gate="content"]{color:#0b6077;border-color:#6ebdc7;background:#edfafa;box-shadow:0 0 0 2px rgba(32,168,189,.12)}
+.cockpit-workflow-gate.current[data-gate="media"]{color:#79520f;border-color:#e3b455;background:#fff8e8;box-shadow:0 0 0 2px rgba(215,163,63,.13)}
+.cockpit-workflow-gate.current[data-gate="publication"]{color:#60458c;border-color:#b9a1db;background:#f7f2ff;box-shadow:0 0 0 2px rgba(121,84,171,.12)}
+html[data-motion="on"] .cockpit-workflow-gate:not(:disabled):hover{transform:translateY(-1px)}
+[data-theme="dark"] :is(.cockpit-workflow-path,.cockpit-workflow-help){color:#d8edf0;border-color:#4d7078;background:#193640}
+[data-theme="dark"] .cockpit-workflow-help summary{color:#d8edf0}
+[data-theme="dark"] .cockpit-workflow-help p{color:#c1d8dc}
+@media(max-width:700px){.cockpit-workflow{padding:11px}.cockpit-workflow h5{align-items:flex-start;flex-direction:column}.cockpit-workflow-path{white-space:normal}.cockpit-workflow-gates{grid-template-columns:repeat(3,minmax(0,1fr))}.cockpit-workflow-gate{min-height:78px;padding:28px 6px 7px;text-align:center}.cockpit-workflow-gate:before{top:7px;left:50%;transform:translateX(-50%)}.cockpit-workflow-gate b{font-size:.69rem}.cockpit-workflow-gate span{font-size:.63rem}.cockpit-workflow-actions button{width:100%;min-height:44px}}

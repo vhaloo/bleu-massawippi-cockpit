@@ -35,13 +35,13 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260717-b29";
-import { createEventContextController } from "./event-context-data.js?v=20260717-b29";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260717-b29";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260717-b29";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260717-b29";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260717-b29";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260717-b29";
+} from "./firebase-client.js?v=20260718-b30";
+import { createEventContextController } from "./event-context-data.js?v=20260718-b30";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260718-b30";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260718-b30";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260718-b30";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260718-b30";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260718-b30";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -239,24 +239,6 @@ style.textContent = `
   .cockpit-media-note { margin: 0; color: #6b858d; font-size: .65rem; }
   .cockpit-brand-logo { display:block; width:clamp(115px,14vw,190px); height:auto; margin:0 0 14px; object-fit:contain; }
   .mast .cockpit-brand-logo { display:inline-block; width:96px; margin:0 10px 0 0; vertical-align:middle; }
-  .cockpit-workflow { margin:12px 0 0; padding:13px; border:2px solid #8dcfd4; border-radius:14px; background:#f8fdfd; box-shadow:0 7px 18px rgba(7,58,82,.07); }
-  .cockpit-workflow h5 { margin:0; color:#073a52; font-size:.86rem; }
-  .cockpit-workflow-intro { margin:3px 0 10px; color:#587680; font-size:.69rem; line-height:1.4; }
-  .cockpit-workflow-gates { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
-  .cockpit-workflow-gate { position:relative; min-height:76px; padding:9px 8px 8px 32px; border:1px solid #d5e6e8; border-radius:10px; color:#607b85; background:#f4f8f9; font:inherit; font-size:.66rem; text-align:left; cursor:pointer; }
-  .cockpit-workflow-gate:before { position:absolute; left:9px; top:10px; display:grid; width:17px; height:17px; place-items:center; border:2px solid #9db4bc; border-radius:5px; content:""; color:#fff; background:#fff; font-size:.7rem; font-weight:900; }
-  .cockpit-workflow-gate b { display:block; margin-bottom:3px; color:#315564; font-size:.7rem; }
-  .cockpit-workflow-gate span { display:block; line-height:1.35; }
-  .cockpit-workflow-gate.done { color:#155c4e; border-color:#8ec8b5; background:#e3f5ee; font-weight:850; }
-  .cockpit-workflow-gate.done:before { border-color:#21866d; content:"✓"; background:#21866d; }
-  .cockpit-workflow-gate.current { border-color:#d7a33f; background:#fff8e8; box-shadow:0 0 0 2px rgba(215,163,63,.13); }
-  .cockpit-workflow-gate:focus-visible { outline:3px solid rgba(11,120,149,.3); outline-offset:2px; }
-  .cockpit-workflow-gate:disabled { cursor:not-allowed; opacity:.62; }
-  .cockpit-workflow-actions { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
-  .cockpit-workflow-actions button { min-height:38px; padding:8px 11px; border:1px solid #0b7895; border-radius:10px; color:#0b6077; background:#fff; font-size:.7rem; font-weight:900; cursor:pointer; }
-  .cockpit-workflow-actions button.primary { color:#fff; background:#0b7895; box-shadow:0 5px 13px rgba(11,120,149,.2); }
-  .cockpit-workflow-actions button.correction { color:#7a4d10; border-color:#d7a33f; background:#fff8e8; }
-  .cockpit-workflow-complete { margin:8px 0 0; padding:8px 10px; border-radius:9px; color:#155c4e; background:#e3f5ee; font-size:.7rem; font-weight:850; }
   .post.workflow-complete { box-shadow:0 0 0 2px rgba(33,134,109,.18); }
   .post.workflow-complete:after { position:absolute; top:10px; right:10px; z-index:2; padding:3px 7px; border-radius:999px; content:"✓ Terminé"; color:#155c4e; background:#dff4ea; font-size:.62rem; font-weight:900; }
   .ready { display:none !important; }
@@ -448,13 +430,6 @@ style.textContent = `
     .cockpit-media-comment button[data-dictate] { grid-column:1; }
     .cockpit-media-comment button[data-save-media-comment] { grid-column:2; }
     .cockpit-media-card button[data-archive-media] { min-height:44px; font-size:.72rem; }
-    .cockpit-workflow { padding:11px; }
-    .cockpit-workflow-gates { grid-template-columns:repeat(3,minmax(0,1fr)); }
-    .cockpit-workflow-gate { min-height:78px; padding:28px 6px 7px; text-align:center; }
-    .cockpit-workflow-gate:before { top:7px; left:50%; transform:translateX(-50%); }
-    .cockpit-workflow-gate b { font-size:.69rem; }
-    .cockpit-workflow-gate span { font-size:.63rem; }
-    .cockpit-workflow-actions button { width:100%; min-height:44px; }
     .toolbar { gap:7px; padding:8px; }
     .toolbar :is(input,select,button) { min-height:46px; min-width:0; font-size:.78rem; }
     body .toolbar :is(select,button) { min-height:46px; }
@@ -2145,7 +2120,7 @@ const workflowOrder = ["proposal", "content_review", "changes_requested", "conte
 function workflowRank(stage) { return workflowOrder.indexOf(stage || "proposal"); }
 
 function workflowMarkup(planItem) {
-  return `<section class="cockpit-workflow" data-workflow><h5>Les 3 feux verts</h5><p class="cockpit-workflow-intro">Le texte et le visuel peuvent avancer en parallèle. Chacun peut choisir son visuel dans la galerie; le choix de la direction marque le visuel comme prêt et un choix identique des deux rôles affiche automatiquement leur accord. Cliquez de nouveau pour retirer votre choix : chaque changement reste dans l’historique. La publication demeure réservée aux communications et exige les deux feux verts.</p><div class="cockpit-workflow-gates"><button type="button" class="cockpit-workflow-gate" data-gate="content" aria-pressed="false"><b>1 · Texte</b><span data-gate-label>À valider</span></button><button type="button" class="cockpit-workflow-gate" data-gate="media" aria-pressed="false"><b>2 · Visuel</b><span data-gate-label>Choix en attente</span></button><button type="button" class="cockpit-workflow-gate" data-gate="publication" aria-pressed="false"><b>3 · Terminé</b><span data-gate-label>Publié ou programmé</span></button></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
+  return `<section class="cockpit-workflow" data-workflow><h5><span>Les 3 feux verts</span><small class="cockpit-workflow-path">📝 Texte → 🖼️ Visuel → ✓ Publication</small></h5><details class="cockpit-workflow-help"><summary>Comment ça marche ?</summary><p>Le texte et le visuel peuvent avancer en parallèle. Chacun peut choisir un visuel; le choix de la direction le marque prêt et un même choix des deux rôles affiche leur accord. Cliquez de nouveau pour retirer votre choix : l’historique est conservé. La publication demeure réservée aux communications et exige les deux feux verts.</p></details><div class="cockpit-workflow-gates"><button type="button" class="cockpit-workflow-gate" data-gate="content" aria-pressed="false"><b>📝 1 · Texte</b><span data-gate-label>À valider</span></button><button type="button" class="cockpit-workflow-gate" data-gate="media" aria-pressed="false"><b>🖼️ 2 · Visuel</b><span data-gate-label>Choix en attente</span></button><button type="button" class="cockpit-workflow-gate" data-gate="publication" aria-pressed="false"><b>✓ 3 · Terminé</b><span data-gate-label>Publié ou programmé</span></button></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
 }
 
 function editorialDecisionMarkup(planItem) {
