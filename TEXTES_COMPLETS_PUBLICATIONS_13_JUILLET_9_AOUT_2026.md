@@ -649,35 +649,6 @@ https://bleumassawippi.com/rapports-et-memoires
 #WaterQuality #BleuMassawippi #LakeMassawippi #LakeScience
 ```
 
-## Mercredi 29 juillet — Après la pluie, vos observations comptent
-
-**Thème :** Actualité
-**Format :** Carrousel 3 gestes · après fortes pluies
-**Objectif :** Répondre au besoin de vigilance avec des comportements utiles, sans simuler une alerte officielle.
-**CTA :** Partager une observation
-**Visuel final :** Photo réelle d’un tributaire ou d’une rive après la pluie, tons naturels et non dramatiques; trois repères visuels discrets « lieu · moment · observation » sans simuler une alerte.
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/accueil-1
-**Préparation :** Ne pas publier d’avis de baignade ou de cause présumée sans validation scientifique et administrative; orienter les questions vers le contact officiel.
-
-### Légende prête à programmer
-
-```text
-FR — Une forte pluie peut changer rapidement l’apparence de l’eau, des rives et des tributaires. Si quelque chose attire votre attention, prenez simplement note du lieu, du moment et de ce que vous voyez. Si vous pouvez le faire en sécurité, prenez aussi une ou deux photos d’ensemble et de détail pour bien documenter votre observation.
-
-Vous pouvez nous écrire à info@bleumassawippi.com. Vos observations nous aident à poser les bonnes questions et à rester attentifs au territoire. Merci d’être nos yeux autour du lac.
-
-#ObservationCitoyenne #BleuMassawippi #LacMassawippi #BassinVersant
-
-=========================================
-
-EN — Heavy rain can quickly change the appearance of the water, shorelines and tributaries. If something catches your attention, simply note the location, time and what you observe. If it is safe to do so, take one or two overview and detail photos to document your observation clearly.
-
-You can write to us at info@bleumassawippi.com. Your observations help us ask the right questions and stay attentive to the watershed. Thank you for being our eyes around the lake.
-
-#CommunityObservation #BleuMassawippi #LakeMassawippi #Watershed
-```
-
 ## Mercredi 29 juillet — Votre impact prend racine
 
 **Thème :** Soutien
@@ -1138,64 +1109,6 @@ Thank you to everyone who keeps an eye out and leaves room for others to enjoy t
 #SharedEnjoyment #BleuMassawippi #ResponsibleBoating #LakeMassawippi
 ```
 
-## Vendredi 7 août — Ayer’s Cliff sur une carte postale ancienne
-
-**Thème :** Patrimoine
-**Format :** Carte postale historique commentée · publication bilingue
-**Objectif :** Faire appel à la mémoire locale pour documenter prudemment une vue d’Ayer’s Cliff datée entre environ 1914 et 1940.
-**CTA :** Observer les détails d’autrefois
-**Visuel final :** Carte postale ancienne présentée entière, bordure et inscriptions conservées; carrousel optionnel avec deux détails agrandis, question « Reconnaissez-vous ce lieu? » et crédit complet sur la dernière carte.
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Domaine public · entre environ 1914 et 1940 · collection BAnQ 2637704 / Wikimedia Commons · https://commons.wikimedia.org/wiki/File:Ayers_Cliff,_Que._(BAnQ_2637704).jpg
-**Préparation :** Vérifier la légende, le crédit, la licence et les limites historiques avant de préparer l’image et les deux validations.
-
-### Légende prête à programmer
-
-```text
-FR — Petite promenade dans l’Ayer’s Cliff d’autrefois. Cette carte postale, datée entre environ 1914 et 1940, nous laisse observer un paysage familier sous un autre jour.
-
-Les bâtiments, la rue et les aménagements visibles deviennent des repères pour comparer doucement le village d’hier et celui d’aujourd’hui. La fourchette de dates sera précisée si une source plus complète est retrouvée.
-
-#Patrimoine #BleuMassawippi #AyersCliff #MémoireLocale
-
-=========================================
-
-EN — A short walk through Ayer’s Cliff of years past. Dating from roughly 1914 to 1940, this postcard lets us see a familiar landscape in a different light.
-
-The buildings, street and visible features offer reference points for gently comparing yesterday’s village with today’s. The date range will be refined if a more complete source is found.
-
-#Heritage #BleuMassawippi #AyersCliff #LocalMemory
-```
-
-## Vendredi 7 août — Le voyage d’une goutte de pluie
-
-**Thème :** Coulisses
-**Format :** Photo de tributaire / bassin versant + récit court
-**Objectif :** Rendre le bassin versant tangible grâce à une image de terrain.
-**CTA :** Suivre son chemin
-**Visuel final :** Infographie illustrée comme un petit voyage : une goutte tombe sur un toit ou un jardin, rejoint un fossé, un tributaire puis le lac; chemin clair, paysage accueillant, palette pluie-vert-lac.
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/accueil-1
-**Préparation :** Ne pas identifier un terrain privé ni présenter un tributaire comme une source de problème sans données confirmées.
-
-### Légende prête à programmer
-
-```text
-FR — Imaginez une goutte de pluie qui tombe sur un toit, un chemin ou une pelouse. Elle peut rejoindre un fossé, poursuivre vers un tributaire, puis arriver au Massawippi.
-
-Suivre son voyage aide à voir le bassin versant autrement : ce qui ralentit et absorbe l’eau en amont donne aussi un coup de main au lac. La prochaine fois qu’il pleut, regardez où l’eau choisit de passer.
-
-#BassinVersant #BleuMassawippi #LacMassawippi #AgirEnAmont
-
-=========================================
-
-EN — Imagine a raindrop landing on a roof, road or lawn. It may reach a ditch, continue toward a tributary and eventually arrive at Massawippi.
-
-Following its journey offers a new way to see the watershed: what slows and absorbs water upstream also lends the lake a hand. The next time it rains, notice where the water chooses to travel.
-
-#Watershed #BleuMassawippi #LakeMassawippi #ThinkUpstream
-```
-
 ## Vendredi 7 août — Merci de faire grandir l’élan autour du lac
 
 **Thème :** Gratitude
@@ -1489,6 +1402,93 @@ In the field, every observation, sample and measurement adds a data point. Repea
 Thank you to everyone who makes this patient work possible, season after season.
 
 #BleuMassawippi #LakeMassawippi #LakeScience #BehindTheScenes
+```
+
+## Vendredi 14 août — Ayer’s Cliff sur une carte postale ancienne
+
+**Thème :** Patrimoine
+**Format :** Carte postale historique commentée · publication bilingue
+**Objectif :** Faire appel à la mémoire locale pour documenter prudemment une vue d’Ayer’s Cliff datée entre environ 1914 et 1940.
+**CTA :** Observer les détails d’autrefois
+**Visuel final :** Carte postale ancienne présentée entière, bordure et inscriptions conservées; carrousel optionnel avec deux détails agrandis, question « Reconnaissez-vous ce lieu? » et crédit complet sur la dernière carte.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Domaine public · entre environ 1914 et 1940 · collection BAnQ 2637704 / Wikimedia Commons · https://commons.wikimedia.org/wiki/File:Ayers_Cliff,_Que._(BAnQ_2637704).jpg
+**Préparation :** Vérifier la légende, le crédit, la licence et les limites historiques avant de préparer l’image et les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Petite promenade dans l’Ayer’s Cliff d’autrefois. Cette carte postale, datée entre environ 1914 et 1940, nous laisse observer un paysage familier sous un autre jour.
+
+Les bâtiments, la rue et les aménagements visibles deviennent des repères pour comparer doucement le village d’hier et celui d’aujourd’hui. La fourchette de dates sera précisée si une source plus complète est retrouvée.
+
+#Patrimoine #BleuMassawippi #AyersCliff #MémoireLocale
+
+=========================================
+
+EN — A short walk through Ayer’s Cliff of years past. Dating from roughly 1914 to 1940, this postcard lets us see a familiar landscape in a different light.
+
+The buildings, street and visible features offer reference points for gently comparing yesterday’s village with today’s. The date range will be refined if a more complete source is found.
+
+#Heritage #BleuMassawippi #AyersCliff #LocalMemory
+```
+
+## Vendredi 14 août — Le voyage d’une goutte de pluie
+
+**Thème :** Coulisses
+**Format :** Photo de tributaire / bassin versant + récit court
+**Objectif :** Rendre le bassin versant tangible grâce à une image de terrain.
+**CTA :** Suivre son chemin
+**Visuel final :** Infographie illustrée comme un petit voyage : une goutte tombe sur un toit ou un jardin, rejoint un fossé, un tributaire puis le lac; chemin clair, paysage accueillant, palette pluie-vert-lac.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** https://bleumassawippi.com/accueil-1
+**Préparation :** Ne pas identifier un terrain privé ni présenter un tributaire comme une source de problème sans données confirmées.
+
+### Légende prête à programmer
+
+```text
+FR — Imaginez une goutte de pluie qui tombe sur un toit, un chemin ou une pelouse. Elle peut rejoindre un fossé, poursuivre vers un tributaire, puis arriver au Massawippi.
+
+Suivre son voyage aide à voir le bassin versant autrement : ce qui ralentit et absorbe l’eau en amont donne aussi un coup de main au lac. La prochaine fois qu’il pleut, regardez où l’eau choisit de passer.
+
+#BassinVersant #BleuMassawippi #LacMassawippi #AgirEnAmont
+
+=========================================
+
+EN — Imagine a raindrop landing on a roof, road or lawn. It may reach a ditch, continue toward a tributary and eventually arrive at Massawippi.
+
+Following its journey offers a new way to see the watershed: what slows and absorbs water upstream also lends the lake a hand. The next time it rains, notice where the water chooses to travel.
+
+#Watershed #BleuMassawippi #LakeMassawippi #ThinkUpstream
+```
+
+## Samedi 15 août — Après la pluie, vos observations comptent
+
+**Thème :** Actualité
+**Format :** Carrousel 3 gestes · après fortes pluies
+**Objectif :** Répondre au besoin de vigilance avec des comportements utiles, sans simuler une alerte officielle.
+**CTA :** Partager une observation
+**Visuel final :** Photo réelle d’un tributaire ou d’une rive après la pluie, tons naturels et non dramatiques; trois repères visuels discrets « lieu · moment · observation » sans simuler une alerte.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** https://bleumassawippi.com/accueil-1
+**Préparation :** Ne pas publier d’avis de baignade ou de cause présumée sans validation scientifique et administrative; orienter les questions vers le contact officiel.
+
+### Légende prête à programmer
+
+```text
+FR — Une forte pluie peut changer rapidement l’apparence de l’eau, des rives et des tributaires. Si quelque chose attire votre attention, prenez simplement note du lieu, du moment et de ce que vous voyez. Si vous pouvez le faire en sécurité, prenez aussi une ou deux photos d’ensemble et de détail pour bien documenter votre observation.
+
+Vous pouvez nous écrire à info@bleumassawippi.com. Vos observations nous aident à poser les bonnes questions et à rester attentifs au territoire. Merci d’être nos yeux autour du lac.
+
+#ObservationCitoyenne #BleuMassawippi #LacMassawippi #BassinVersant
+
+=========================================
+
+EN — Heavy rain can quickly change the appearance of the water, shorelines and tributaries. If something catches your attention, simply note the location, time and what you observe. If it is safe to do so, take one or two overview and detail photos to document your observation clearly.
+
+You can write to us at info@bleumassawippi.com. Your observations help us ask the right questions and stay attentive to the watershed. Thank you for being our eyes around the lake.
+
+#CommunityObservation #BleuMassawippi #LakeMassawippi #Watershed
 ```
 
 ## Dimanche 16 août — Votre essentiel avant de partir
