@@ -44,6 +44,39 @@
       "priorityKey": 42,
       "title": "Nouveau — Collaborations entre organismes de lacs",
       "message": "Une proposition de rencontres et de collaboration interlacs est maintenant structurée. Vous pouvez y jeter un coup d’œil."
+    },
+    {
+      "id": "strategic-zeffy-recurring-gifts-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "section",
+      "sourceId": "strategie-dons-recurrents",
+      "publishedOn": "2026-07-20",
+      "priorityKey": 43,
+      "title": "Nouveau — Suivi simple des dons Zeffy",
+      "message": "Une courte procédure explique les dons récurrents, les campagnes historiques et la façon de confirmer un montant avant de le remercier publiquement."
+    },
+    {
+      "id": "internal-application-funding-nonmunicipal-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "application-carte-vivante-lac",
+      "publishedOn": "2026-07-20",
+      "priorityKey": 44,
+      "title": "Nouveau — Financement hors municipalités pour la carte du lac",
+      "message": "Les pistes RBC, Mitacs, Esri, TD, Québec et CIRA sont maintenant classées avec leur adéquation et les premières actions à poser."
+    },
+    {
+      "id": "internal-poetry-progress-v2",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "poesie-du-lac",
+      "publishedOn": "2026-07-20",
+      "priorityKey": 45,
+      "title": "Mise à jour — Poésie au bord du lac",
+      "message": "Le projet reflète maintenant un plateau presque constitué, un format d’environ 90 minutes et les décisions finales encore attendues pour la fin de l’été."
     }
   ]
 }

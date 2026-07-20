@@ -195,6 +195,120 @@ Which other lake-related word would you like us to explain in plain language?
   taskOwnersVersion: "event-task-owners-2026-07-13-lexicon-v1"
 };
 
+const DONATION_CADENCE_POSTS = [
+  {
+    id: "don-20260729-appel-soutien",
+    w: 3,
+    date: "Mercredi 29 juillet",
+    calendarTime: "12:00",
+    t: "Soutien",
+    tier: "Pilier",
+    title: "Votre impact prend racine",
+    format: "Photo réelle + appel aux dons bilingue",
+    role: "Présenter avec chaleur ce que les dons rendent possible, sans culpabiliser et sans annoncer de contrepartie financière non confirmée.",
+    cta: "Soutenir Bleu Massawippi",
+    visual: "Photographie réelle, autorisée et évocatrice du lac ou d’un geste de terrain; une seule courte mention manuscrite : « Votre impact prend racine ».",
+    source: "Lien de don Zeffy historique à revérifier avant programmation : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007",
+    fallback: "Photo réelle du lac et appel sobre vers la page officielle de Bleu Massawippi si le formulaire Zeffy doit être remplacé.",
+    kpi: "Dons confirmés / montant net reçu / clics vers le formulaire",
+    task: "Vérifier le formulaire de don, choisir une preuve visuelle autorisée et programmer seulement après les validations du texte, du média et du lien.",
+    copy: `FR — Votre impact prend racine.
+
+Protéger le lac Massawippi, c’est observer avec rigueur, expliquer avec clarté et agir avec constance. Votre don aide Bleu Massawippi à soutenir des actions concrètes : suivi du lac et de ses tributaires, sensibilisation, mobilisation citoyenne et préparation de projets utiles au bassin versant.
+
+Chaque contribution compte, à la mesure de chacun. Merci de faire partie des personnes qui prennent soin du lac avec nous.
+
+Faire un don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LacMassawippi #SoutenirLeLac #ChaqueGesteCompte
+
+=========================================
+
+EN — Your impact takes root.
+
+Protecting Lake Massawippi means observing carefully, explaining clearly and acting consistently. Your donation helps Bleu Massawippi support concrete work: monitoring the lake and its tributaries, education, community involvement and the preparation of useful watershed projects.
+
+Every contribution matters, at whatever level is right for you. Thank you for being among the people who care for the lake with us.
+
+Donate: https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LakeMassawippi #SupportTheLake #EveryActionCounts`,
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    isAlternative: false,
+    decisionLocked: true,
+    parallelOperationalItem: true,
+    donationCadence: "biweekly-wednesday",
+    tasksValentin: [
+      "Ouvrir et vérifier le formulaire Zeffy, puis remplacer le lien si une campagne institutionnelle plus récente est officiellement retenue.",
+      "Choisir une photographie réelle autorisée, produire le format 4:5 et soumettre le texte puis le média aux validations prévues.",
+      "Programmer sur Facebook et Instagram, puis relever uniquement les dons confirmés dans le rapport Paiements de Zeffy pour préparer le bilan."
+    ],
+    tasksAnnie: [
+      "Confirmer que les actions citées correspondent aux priorités institutionnelles actuelles et approuver le texte puis le média."
+    ],
+    taskOwnersVersion: "event-task-owners-2026-07-20-donation-cycle-v1"
+  },
+  {
+    id: "don-20260807-merci-bilan",
+    w: 4,
+    date: "Vendredi 7 août",
+    calendarTime: "12:00",
+    t: "Gratitude",
+    tier: "Pilier",
+    title: "Merci de faire grandir l’élan autour du lac",
+    format: "Photo réelle + bilan de dons bilingue",
+    role: "Remercier avec précision et transparence le vendredi de la semaine suivant l’appel, en utilisant uniquement le montant net réellement confirmé.",
+    cta: "Remercier et montrer la suite",
+    visual: "Photographie réelle et autorisée du lac ou d’une action concrète; courte mention manuscrite « Merci d’être là pour le lac ».",
+    source: "Zeffy — rapport Paiements filtré par date de paiement, statut Réussi et formulaire; exclure remboursements, litiges et paiements hors ligne non reçus.",
+    fallback: "Si aucun montant n’est prêt, reporter cette publication; ne jamais afficher un chiffre estimé ni un champ temporaire.",
+    kpi: "Montant net confirmé / donateurs remerciés / partages",
+    task: "Remplacer les deux champs entre crochets par des données Zeffy vérifiées, faire relire le contexte et ne programmer qu’après disparition complète des champs temporaires.",
+    copy: `FR — Merci d’être là pour le lac.
+
+Depuis notre appel du [DATE DE L’APPEL], votre générosité a permis de réunir [MONTANT NET CONFIRMÉ] pour soutenir le travail de Bleu Massawippi.
+
+Derrière ce résultat, il y a des personnes qui choisissent d’agir à leur mesure. Chaque contribution nourrit un effort collectif : mieux suivre le lac, mieux partager les connaissances et mieux préparer les actions à venir.
+
+Merci pour votre confiance. Nous continuerons à vous montrer clairement ce que cet élan rend possible.
+
+#BleuMassawippi #LacMassawippi #Merci #SoutenirLeLac
+
+=========================================
+
+EN — Thank you for being there for the lake.
+
+Since our appeal on [APPEAL DATE], your generosity has raised [CONFIRMED NET AMOUNT] to support Bleu Massawippi’s work.
+
+Behind this result are people choosing to act in ways that are right for them. Every contribution strengthens a shared effort: monitoring the lake, sharing knowledge and preparing the actions ahead.
+
+Thank you for your trust. We will continue to show clearly what this momentum makes possible.
+
+#BleuMassawippi #LakeMassawippi #ThankYou #SupportTheLake`,
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    isAlternative: false,
+    decisionLocked: true,
+    parallelOperationalItem: true,
+    donationCadence: "following-week-friday",
+    publicationBlocked: true,
+    requiresConfirmedDonationAmount: true,
+    requiredPlaceholders: ["[DATE DE L’APPEL]", "[MONTANT NET CONFIRMÉ]", "[APPEAL DATE]", "[CONFIRMED NET AMOUNT]"],
+    tasksValentin: [
+      "Dans Zeffy, filtrer le rapport Paiements depuis l’appel et conserver seulement les transactions réussies réellement reçues.",
+      "Remplacer les quatre champs temporaires, documenter la période et le montant net, puis vérifier que le texte ne laisse aucun champ entre crochets.",
+      "Choisir une photographie réelle autorisée, soumettre le texte et le média, puis programmer seulement lorsque le blocage de données est levé."
+    ],
+    tasksAnnie: [
+      "Confirmer le montant net et la période de référence, puis approuver le texte et le média avant diffusion."
+    ],
+    taskOwnersVersion: "event-task-owners-2026-07-20-donation-cycle-v1"
+  }
+];
+
 function buildAlternative(spec) {
   const nature = spec.t === "Nature";
   const heritage = spec.t === "Patrimoine";
@@ -219,6 +333,9 @@ function buildAlternative(spec) {
 export function applyPlanOverridesToPosts(posts) {
   if (!Array.isArray(posts)) return posts;
   if (!posts.some((post) => post.id === TRIBUTARY_LEXICON_POST.id)) posts.push({ ...TRIBUTARY_LEXICON_POST });
+  DONATION_CADENCE_POSTS.forEach((post) => {
+    if (!posts.some((item) => item.id === post.id)) posts.push({ ...post });
+  });
   const first = posts.find((post) => post.id === "s1d1");
   if (first) Object.assign(first, OPEN_HOUSE_POST, { decisionLocked: true });
   const moved = posts.find((post) => post.id === "s1d1b");

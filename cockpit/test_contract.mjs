@@ -88,8 +88,16 @@ assert.ok(volunteer.tasksAnnie.some((task) => /coordonn/i.test(task)));
 assert.ok(volunteer.tasksAnnie.some((task) => /consentement/i.test(task)));
 assert.equal(firstTuesday.choiceRequired, false, "La proposition retenue du mardi est verrouillée et ne demande plus d’arbitrage.");
 assert.equal(firstTuesday.optionGroup, null, "Une proposition verrouillée ne doit plus appartenir à un groupe de choix actif.");
-assert.equal(posts.filter((post) => !post.isAlternative).length, 28);
-assert.equal(posts.length, 58);
+assert.equal(posts.filter((post) => !post.isAlternative).length, 30);
+assert.equal(posts.length, 60);
+const donationAppeal = posts.find((post) => post.id === "don-20260729-appel-soutien");
+const donationThanks = posts.find((post) => post.id === "don-20260807-merci-bilan");
+assert.equal(donationAppeal.parallelOperationalItem, true, "L’appel aux dons doit s’ajouter sans supprimer le sujet déjà prévu le même jour.");
+assert.match(donationAppeal.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
+assert.equal(donationThanks.publicationBlocked, true, "Le remerciement doit rester bloqué tant que le montant réel n’est pas confirmé.");
+assert.equal(donationThanks.requiresConfirmedDonationAmount, true);
+assert.deepEqual(donationThanks.requiredPlaceholders, ["[DATE DE L’APPEL]", "[MONTANT NET CONFIRMÉ]", "[APPEAL DATE]", "[CONFIRMED NET AMOUNT]"]);
+assert.match(donationThanks.source, /Paiements filtré par date de paiement/i);
 const samplingPost = posts.find((post) => post.id === "s3d5");
 assert.match(samplingPost.title, /prélèvement/i, "Le retour sur les résultats doit devenir une explication concrète du prélèvement.");
 assert.match(samplingPost.copy, /lac, tributaire ou plage/i);
@@ -110,7 +118,9 @@ const lexiconPost = posts.find((post) => post.id === "lexique-20260830-tributair
 assert.match(lexiconPost.copy, /cours d’eau qui en rejoint un autre/i);
 const firstFourWeeks = Object.groupBy(posts.filter((post) => post.w <= 4), (post) => post.date);
 assert.equal(Object.keys(firstFourWeeks).length, 28);
-assert.equal(Object.values(firstFourWeeks).filter((items) => items.length >= 2).length, 8);
+assert.equal(Object.values(firstFourWeeks).filter((items) => items.length >= 2).length, 9);
+assert.ok(firstFourWeeks["Mercredi 29 juillet"].some((post) => post.id === donationAppeal.id));
+assert.ok(firstFourWeeks["Vendredi 7 août"].some((post) => post.id === donationThanks.id));
 const deferredBoatWash = posts.find((post) => post.id === "s4d1");
 assert.equal(deferredBoatWash.date, "Vendredi 21 août");
 assert.equal(deferredBoatWash.w, 6);
@@ -483,9 +493,11 @@ assert.match(poetryProject, /Direction générale — environ 1 h 15 au total/);
 assert.match(poetryProject, /Communications — environ 8 à 12 h au total/);
 assert.match(poetryProject, /affiche-poesie-au-bord-du-lac-concept-v1\.webp/);
 assert.match(poetryProject, /affiche-poesie-au-bord-du-lac-concept-v1\.png/);
-assert.match(poetryProject, /data-initial-stage="to_frame" open/,
-  "La fiche poésie doit être ouverte à sa première présentation afin de rendre l’affiche immédiatement visible.");
-assert.match(poetryProject, /IDÉE À CADRER/);
+assert.match(poetryProject, /data-initial-stage="active" open/,
+  "La fiche poésie en préparation avancée doit rester ouverte afin de rendre l’affiche immédiatement visible.");
+assert.match(poetryProject, /PRÉPARATION AVANCÉE/);
+assert.match(poetryProject, /presque tout le plateau/i);
+assert.match(poetryProject, /date de fin d’été/i);
 assert.match(poetryProject, /href="#poesie-du-lac-fiche-operationnelle"/);
 assert.ok(poetryProject.indexOf("internal-project-poster") < poetryProject.indexOf("internal-project-capacity"),
   "L’affiche doit précéder le développement de la fiche afin d’être visible dès l’ouverture du projet.");
@@ -556,4 +568,7 @@ assert.match(natureMediaSeed, /publicationBlocked: item\.publicationBlocked === 
   "Le seed nature doit reconstruire le blocage éditorial d’une référence non diffusable.");
 assert.match(natureMediaSeed, /archived: item\.archived === true/,
   "Le seed nature doit garder les anciennes variantes hors des propositions actives lors d’une reconstruction.");
-console.log(JSON.stringify({ passed: true, mainPosts: 28, totalPosts: posts.length, pairedDays: 8, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 15, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 494 }, null, 2));
+const mainPostCount = posts.filter((post) => !post.isAlternative).length;
+const postsPerDay = posts.reduce((counts, post) => counts.set(post.dateIso, (counts.get(post.dateIso) || 0) + 1), new Map());
+const pairedDayCount = [...postsPerDay.values()].filter((count) => count > 1).length;
+console.log(JSON.stringify({ passed: true, mainPosts: mainPostCount, totalPosts: posts.length, pairedDays: pairedDayCount, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 15, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 494 }, null, 2));
