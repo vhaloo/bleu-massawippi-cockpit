@@ -12,6 +12,7 @@ const STORAGE_PREFIX = "bleu-massawippi-view-mode";
 const MESSAGE_SEEN_PREFIX = "bleu-massawippi-message-seen-v1";
 const DECISION_DOCK_PREFIX = "bleu-massawippi-decision-dock-v1";
 const ATTENTION_PREFIX = "bleu-massawippi-attention-v1";
+const CARD_EXPANSION_PREFIX = "bleu-massawippi-card-expansion-v1";
 const VALID_MODES = new Set(["essential", "complete"]);
 const QUEUE_PAGE_SIZE = Object.freeze({ director: 5, admin: 7 });
 const NAVIGATION_ATTEMPTS = 5;
@@ -101,6 +102,27 @@ function storageKeys(identity = runtime.identity) {
   if (identity.uid) return [`${STORAGE_PREFIX}:uid:${identity.uid}`];
   if (identity.role) return [`${STORAGE_PREFIX}:role:${identity.role}`];
   return [`${STORAGE_PREFIX}:device`];
+}
+
+function identityStorageOwner(identity = runtime.identity) {
+  if (identity.uid) return `uid:${identity.uid}`;
+  if (identity.role) return `role:${identity.role}`;
+  return "device";
+}
+
+function cardExpansionStorageKey(itemId, identity = runtime.identity) {
+  return `${CARD_EXPANSION_PREFIX}:${identityStorageOwner(identity)}:${encodeURIComponent(String(itemId || ""))}`;
+}
+
+function readCardExpansion(itemId, identity = runtime.identity) {
+  try { return localStorage.getItem(cardExpansionStorageKey(itemId, identity)) === "open"; }
+  catch { return false; }
+}
+
+function writeCardExpansion(itemId, expanded) {
+  if (!itemId) return;
+  try { localStorage.setItem(cardExpansionStorageKey(itemId), expanded ? "open" : "closed"); }
+  catch { /* la préférence reste utilisable pendant la session */ }
 }
 
 function readPreference(identity) {
@@ -773,8 +795,6 @@ function revealTargetTree(target) {
   card.hidden = false;
   card.classList.add("vm-navigation-reveal");
   setCardExpanded(card, true);
-  card.querySelector(":scope > details")?.setAttribute("open", "");
-  card.querySelector("details.cockpit-media")?.setAttribute("open", "");
   return card;
 }
 
@@ -1324,14 +1344,25 @@ function gateIsDone(card, gate) {
   return Boolean(card.querySelector(`[data-gate="${gate}"][aria-pressed="true"], [data-gate="${gate}"].done`));
 }
 
-function setCardExpanded(card, expanded) {
+function synchronizeCardDetails(card, expanded) {
+  card?.querySelectorAll?.("details").forEach((details) => {
+    if (expanded) details.setAttribute("open", "");
+    else details.removeAttribute("open");
+  });
+}
+
+function setCardExpanded(card, expanded, { persist = true } = {}) {
   if (!card) return;
   const isExpanded = Boolean(expanded);
   card.classList.toggle("vm-expanded", isExpanded);
+  synchronizeCardDetails(card, isExpanded);
+  if (persist) writeCardExpansion(card.dataset.itemId, isExpanded);
   const toggle = card.querySelector(":scope > .vm-card-summary [data-vm-card-toggle]");
   if (toggle) {
     toggle.setAttribute("aria-expanded", String(isExpanded));
-    toggle.textContent = isExpanded ? "− Réduire" : "+ Voir et décider";
+    toggle.textContent = isExpanded ? "− Réduire" : "+ Ouvrir";
+    const title = card.querySelector(":scope > .post-head h4")?.textContent?.trim() || "cette publication";
+    toggle.setAttribute("aria-label", `${isExpanded ? "Réduire" : "Ouvrir"} le brief complet — ${title}`);
   }
   const head = card.querySelector(":scope > .post-head[data-vm-header-toggle]");
   if (head) {
@@ -1343,14 +1374,6 @@ function setCardExpanded(card, expanded) {
 }
 
 function configureCardHeaderToggle(card, head, expanded) {
-  if (runtime.mode !== "essential") {
-    delete head.dataset.vmHeaderToggle;
-    head.removeAttribute("role");
-    head.removeAttribute("tabindex");
-    head.removeAttribute("aria-expanded");
-    head.removeAttribute("aria-label");
-    return;
-  }
   const title = head.querySelector("h4")?.textContent?.trim() || "cette publication";
   head.dataset.vmHeaderToggle = "";
   head.setAttribute("role", "button");
@@ -1370,25 +1393,33 @@ function enhanceCardSummaries() {
       head.after(summary);
     }
 
+    const expansionOwner = identityStorageOwner();
+    if (card.dataset.vmExpansionOwner !== expansionOwner) {
+      card.dataset.vmExpansionOwner = expansionOwner;
+      setCardExpanded(card, readCardExpansion(card.dataset.itemId), { persist: false });
+    }
+
     const action = card.querySelector("[data-workflow-actions] button:not(:disabled)")?.textContent?.trim()
       || (card.classList.contains("workflow-complete") ? "Publication terminée" : "Ouvrir pour poursuivre");
     const state = {
-      content: gateIsDone(card, "content"),
-      media: gateIsDone(card, "media"),
-      publication: gateIsDone(card, "publication")
+      content: gateIsDone(card, "content") ? "done" : card.querySelector('[data-gate="content"].current') ? "active" : "pending",
+      media: gateIsDone(card, "media") ? "done" : card.querySelector('[data-gate="media"].current') ? "active" : "pending",
+      publication: gateIsDone(card, "publication") ? "done" : card.querySelector('[data-gate="publication"].current') ? "active" : "pending"
     };
     const expanded = card.classList.contains("vm-expanded");
+    synchronizeCardDetails(card, expanded);
     configureCardHeaderToggle(card, head, expanded);
     const signature = JSON.stringify({ action, state, expanded });
     if (summary.dataset.signature === signature) return;
     summary.dataset.signature = signature;
-    const step = (label, done) => `<span class="${done ? "done" : ""}"><i aria-hidden="true">${done ? "✓" : "○"}</i>${label}</span>`;
+    const stateLabels = { done: "terminé", active: "en cours", pending: "en attente" };
+    const step = (label, status) => `<span class="state-${status}" aria-label="${label} : ${stateLabels[status]}" title="${label} : ${stateLabels[status]}"><i aria-hidden="true">${status === "done" ? "✓" : "●"}</i>${label}</span>`;
     summary.innerHTML = `
       <div class="vm-card-next"><small>Prochaine étape</small><b>${escapeHtml(action)}</b></div>
-      <div class="vm-card-progress" aria-label="Texte ${state.content ? "approuvé" : "à valider"}; média ${state.media ? "approuvé" : "à valider"}; publication ${state.publication ? "terminée" : "à faire"}">
+      <div class="vm-card-progress" aria-label="Avancement du texte, du média et de la publication">
         ${step("Texte", state.content)}${step("Média", state.media)}${step("Publication", state.publication)}
       </div>
-      <button type="button" data-vm-card-toggle aria-expanded="${expanded}">${expanded ? "− Réduire" : "+ Voir et décider"}</button>`;
+      <button type="button" data-vm-card-toggle aria-expanded="${expanded}" aria-label="${expanded ? "Réduire" : "Ouvrir"} le brief complet — ${escapeHtml(head.querySelector("h4")?.textContent?.trim() || "cette publication")}">${expanded ? "− Réduire" : "+ Ouvrir"}</button>`;
   });
 }
 
@@ -1744,6 +1775,13 @@ export function init(options = {}) {
     document.querySelectorAll("[data-vm-nav]").forEach((node) => node.remove());
   });
   listen(window, "cockpit:data-updated", () => update());
+  listen(window, "cockpit:card-expansion-request", (event) => {
+    const card = cardForId(String(event.detail?.itemId || ""));
+    if (card) {
+      setCardExpanded(card, event.detail?.expanded !== false);
+      event.preventDefault();
+    }
+  });
   listen(window, "pageshow", () => update());
   listen(window, "scroll", () => {
     syncDecisionDockVisibility();
