@@ -99,6 +99,7 @@ jobs:
           cp cockpit/admin-activity-summary.js public/
           cp cockpit/media-choice-ui.js public/
           cp cockpit/task-progress-ui.js public/
+          cp cockpit/monthly-snapshot-state.js public/
           cp cockpit/view-mode.js public/
           cp cockpit/view-mode.css public/
           cp cockpit/firebase-client.js public/

@@ -170,6 +170,7 @@ style.textContent = `
   [data-theme="dark"] :is(.cockpit-monthly-snapshot-title b,.cockpit-monthly-month h3) { color:#f2fbfc !important; }
   [data-theme="dark"] .cockpit-monthly-snapshot-title small { color:#c8dde2 !important; }
   [data-theme="dark"] .cockpit-monthly-snapshot-count { color:#06181e !important; background:#82e2ef !important; }
+  [data-theme="dark"] .cockpit-monthly-legend { color:#d0e2e6 !important; }
   [data-theme="dark"] .cockpit-monthly-item button { color:#eef9fa !important; background:#193640 !important; border-color:color-mix(in srgb,var(--snapshot-color,#72d9ed) 68%,#66808a) !important; border-left-color:var(--snapshot-color,#72d9ed) !important; }
   [data-theme="dark"] .cockpit-monthly-item button:hover { background:#234853 !important; }
   [data-theme="dark"] .cockpit-monthly-date { color:#d2e5e9 !important; }

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QA — état de l’aperçu mensuel</title>
+  <style>
+    body { margin:0; padding:24px; background:#eaf4f5; font-family:Inter,system-ui,sans-serif; }
+    #cockpit-content { width:min(980px,100%); margin:auto; }
+    [data-theme="dark"] body { background:#0d252d; }
+  </style>
+</head>
+<body>
+  <main id="cockpit-content"></main>
+  <script type="module">
+    const query = new URLSearchParams(location.search);
+    document.documentElement.dataset.theme = query.get("theme") === "dark" ? "dark" : "light";
+    await import("../theme.js?v=20260720-b33");
+    await import("../cockpit-ui.js?v=20260720-b33");
+    document.documentElement.dataset.theme = query.get("theme") === "dark" ? "dark" : "light";
+    document.body.classList.remove("cockpit-locked", "cockpit-readonly");
+    document.querySelector("#cockpit-login")?.remove();
+    document.querySelector("#cockpit-content").innerHTML = `
+      <details class="cockpit-monthly-snapshot" open>
+        <summary><span class="cockpit-monthly-snapshot-title"><b>Aperçu mensuel</b><small>Dates, thèmes, titres et état de préparation d’un coup d’œil</small></span><span class="cockpit-monthly-snapshot-count">3</span></summary>
+        <div class="cockpit-monthly-legend" role="group" aria-label="Légende de l’état des publications">
+          <span class="cockpit-monthly-legend-item"><span class="cockpit-monthly-state is-new" aria-hidden="true">!</span>Nouvelle proposition</span>
+          <span class="cockpit-monthly-legend-item"><span class="cockpit-monthly-state is-editing" aria-hidden="true">✎</span>En cours d’édition</span>
+          <span class="cockpit-monthly-legend-item"><span class="cockpit-monthly-state is-ready" aria-hidden="true">✓</span>Publié ou programmé</span>
+        </div>
+        <div class="cockpit-monthly-snapshot-body">
+          <section class="cockpit-monthly-month"><h3>juillet 2026</h3><ol class="cockpit-monthly-list">
+            <li class="cockpit-monthly-item" data-monthly-post-state="new" style="--snapshot-color:#3d8b66"><button type="button" aria-label="mar. 21, Nature : À la rencontre du rivage. État : Nouvelle proposition"><time class="cockpit-monthly-date">mar. 21</time><span class="cockpit-monthly-theme"><span aria-hidden="true">❧</span>Nature</span><span class="cockpit-monthly-post-title">À la rencontre du rivage</span><span class="cockpit-monthly-state is-new" title="Nouvelle proposition" aria-hidden="true">!</span></button></li>
+            <li class="cockpit-monthly-item" data-monthly-post-state="editing" style="--snapshot-color:#268a91"><button type="button" aria-label="mer. 22, Science : Propre à l’œil… vraiment prêt? État : En cours d’édition"><time class="cockpit-monthly-date">mer. 22</time><span class="cockpit-monthly-theme"><span aria-hidden="true">✦</span>Science</span><span class="cockpit-monthly-post-title">Propre à l’œil… vraiment prêt?</span><span class="cockpit-monthly-state is-editing" title="En cours d’édition" aria-hidden="true">✎</span></button></li>
+            <li class="cockpit-monthly-item" data-monthly-post-state="ready" style="--snapshot-color:#8b6a45"><button type="button" aria-label="jeu. 23, Patrimoine : Une image, une époque. État : Publié ou programmé"><time class="cockpit-monthly-date">jeu. 23</time><span class="cockpit-monthly-theme"><span aria-hidden="true">⌛</span>Patrimoine</span><span class="cockpit-monthly-post-title">Une image, une époque, le même amour du lac</span><span class="cockpit-monthly-state is-ready" title="Publié ou programmé" aria-hidden="true">✓</span></button></li>
+          </ol></section>
+        </div>
+      </details>`;
+  </script>
+</body>
+</html>
