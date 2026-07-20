@@ -647,22 +647,7 @@ html.cockpit-has-unseen[data-motion="on"] .vm-attention-dot { animation: vm-atte
   text-align: center;
 }
 
-.vm-card-summary { display: none; }
-
-.cockpit-view-essential .post > .post-head[data-vm-header-toggle] {
-  cursor: pointer;
-  transition: background-color .16s ease, box-shadow .16s ease;
-}
-.cockpit-view-essential .post > .post-head[data-vm-header-toggle]:hover {
-  background: color-mix(in srgb, #dff4f2 42%, transparent);
-}
-.cockpit-view-essential .post > .post-head[data-vm-header-toggle]:focus-visible {
-  outline: 3px solid #0b7895;
-  outline-offset: -3px;
-  box-shadow: inset 0 0 0 1px #fff;
-}
-
-.cockpit-view-essential .vm-card-summary {
+.vm-card-summary {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
@@ -670,6 +655,19 @@ html.cockpit-has-unseen[data-motion="on"] .vm-attention-dot { animation: vm-atte
   padding: 12px 14px;
   border-top: 1px solid #dbe9eb;
   background: #f8fcfc;
+}
+
+.post > .post-head[data-vm-header-toggle] {
+  cursor: pointer;
+  transition: background-color .16s ease, box-shadow .16s ease;
+}
+.post > .post-head[data-vm-header-toggle]:hover {
+  background: color-mix(in srgb, #dff4f2 42%, transparent);
+}
+.post > .post-head[data-vm-header-toggle]:focus-visible {
+  outline: 3px solid #0b7895;
+  outline-offset: -3px;
+  box-shadow: inset 0 0 0 1px #fff;
 }
 
 .vm-card-next { display: grid; gap: 2px; min-width: 0; }
@@ -699,7 +697,12 @@ html.cockpit-has-unseen[data-motion="on"] .vm-attention-dot { animation: vm-atte
   font-size: .64rem;
   font-weight: 800;
 }
-.vm-card-progress span.done { color: #22624f; background: #e1f4ea; }
+.vm-card-progress span.state-done { color: #1f604b; background: #dff3e8; }
+.vm-card-progress span.state-active { color: #76510b; background: #fff0c4; }
+.vm-card-progress span.state-pending { color: #8a3838; background: #fbe4e2; }
+.vm-card-progress span.state-done i { color: #16815e; }
+.vm-card-progress span.state-active i { color: #d28100; }
+.vm-card-progress span.state-pending i { color: #c44d4d; }
 .vm-card-progress i { font-style: normal; }
 .vm-card-summary button {
   min-height: 44px;
@@ -714,10 +717,13 @@ html.cockpit-has-unseen[data-motion="on"] .vm-attention-dot { animation: vm-atte
   cursor: pointer;
 }
 
-.cockpit-view-essential .post:not(.vm-expanded) > :is(.post-foot, details, .cockpit-controls) {
+.post:not(.vm-expanded) > :is(.post-foot, details, .cockpit-controls) {
   display: none !important;
 }
-.cockpit-view-essential .post:not(.vm-expanded) > .post-head p { display: none; }
+.post:not(.vm-expanded) > .post-head {
+  padding-bottom: 8px;
+}
+.post:not(.vm-expanded) > .post-head p { display: none; }
 
 .cockpit-view-essential .post :is(
   .cockpit-decision-guide,
@@ -910,9 +916,16 @@ html[data-theme="dark"] .vm-navigation-status b { color: #fff0eb; }
   .vm-navigation-status:not([hidden]) { align-items: stretch; flex-direction: column; }
   .vm-queue-footer button,
   .vm-navigation-status button { width: 100%; }
-  .cockpit-view-essential .vm-card-summary { grid-template-columns: 1fr; gap: 9px; }
+  .vm-card-summary {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "next toggle" "progress progress";
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .vm-card-next { grid-area: next; }
+  .vm-card-progress { grid-area: progress; }
   .vm-card-next b { white-space: normal; }
-  .vm-card-summary button { width: 100%; }
+  .vm-card-summary button { grid-area: toggle; width: auto; min-width: 88px; }
 }
 
 @media (max-width: 1179px) {
@@ -1017,14 +1030,24 @@ html[data-theme="dark"] .vm-navigation-status b { color: #fff0eb; }
   .vm-decision-dock-tab.is-inline [data-vm-dock-tab-count] { min-width: 18px; height: 18px; padding: 0 3px; font-size: .56rem; }
 }
 
-html[data-theme="dark"] .cockpit-view-essential .vm-card-summary {
+html[data-theme="dark"] .vm-card-summary {
   border-top-color: #355965;
   background: #173842;
 }
 html[data-theme="dark"] .vm-card-next small { color: #bdd2d6; }
 html[data-theme="dark"] .vm-card-next b { color: #f2fbfc; }
 html[data-theme="dark"] .vm-card-progress span { color: #d0e0e3; background: #2b4e58; }
-html[data-theme="dark"] .vm-card-progress span.done { color: #b9f0d7; background: #214c3e; }
+html[data-theme="dark"] .vm-card-progress span.state-done { color: #c6f4df; background: #205044; }
+html[data-theme="dark"] .vm-card-progress span.state-active { color: #ffe4a3; background: #634b1d; }
+html[data-theme="dark"] .vm-card-progress span.state-pending { color: #ffd0cc; background: #653b3d; }
+
+@media print {
+  .vm-card-summary { display: none !important; }
+  .post:not(.vm-expanded) > .post-foot { display: flex !important; }
+  .post:not(.vm-expanded) > details,
+  .post:not(.vm-expanded) > .cockpit-controls { display: block !important; }
+  .post:not(.vm-expanded) > .post-head p { display: block !important; }
+}
 
 @media (max-width: 430px) {
   .vm-dashboard { padding-inline: 9px; }

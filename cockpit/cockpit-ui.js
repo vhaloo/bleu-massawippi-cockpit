@@ -35,18 +35,18 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260720-b33";
-import { createEventContextController } from "./event-context-data.js?v=20260720-b33";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260720-b33";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260720-b33";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260720-b33";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260720-b33";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260720-b33";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260720-b33";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260720-b33";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260720-b33";
-import { setupControlHints } from "./control-hints.js?v=20260720-b33";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260720-b33";
+} from "./firebase-client.js?v=20260720-b34";
+import { createEventContextController } from "./event-context-data.js?v=20260720-b34";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260720-b34";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260720-b34";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260720-b34";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260720-b34";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260720-b34";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260720-b34";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260720-b34";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260720-b34";
+import { setupControlHints } from "./control-hints.js?v=20260720-b34";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260720-b34";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -807,6 +807,26 @@ function requestCalendarItemVisibility(itemId) {
   return true;
 }
 
+function requestCardExpansion(card, expanded = true) {
+  if (!card?.dataset?.itemId) return;
+  const handledByViewMode = !window.dispatchEvent(new CustomEvent("cockpit:card-expansion-request", {
+    cancelable: true,
+    detail: { itemId: card.dataset.itemId, expanded: Boolean(expanded) }
+  }));
+  if (handledByViewMode) return;
+  // Repli sûr si le module de vue n'est pas encore chargé.
+  card.classList.toggle("vm-expanded", Boolean(expanded));
+  card.querySelectorAll("details").forEach((details) => {
+    if (expanded) details.setAttribute("open", "");
+    else details.removeAttribute("open");
+  });
+  const toggle = card.querySelector(":scope > .vm-card-summary [data-vm-card-toggle]");
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", String(Boolean(expanded)));
+    toggle.textContent = expanded ? "− Réduire" : "+ Ouvrir";
+  }
+}
+
 function revealTaskTarget(type, id, allowRetry = true) {
   const target = findTaskTarget(type, id);
   if (!target) {
@@ -823,14 +843,7 @@ function revealTaskTarget(type, id, allowRetry = true) {
     ancestor = ancestor.parentElement;
   }
   const card = target.matches?.(".post[data-item-id]") ? target : target.closest?.(".post[data-item-id]");
-  if (card && document.body.classList.contains("cockpit-view-essential")) {
-    card.classList.add("vm-expanded");
-    const cardToggle = card.querySelector(":scope > .vm-card-summary [data-vm-card-toggle]");
-    if (cardToggle) {
-      cardToggle.setAttribute("aria-expanded", "true");
-      cardToggle.textContent = "− Réduire";
-    }
-  }
+  if (card) requestCardExpansion(card, true);
   target.scrollIntoView({ behavior: "smooth", block: "center" });
   target.classList.add("task-focus");
   window.setTimeout(() => target.classList.remove("task-focus"), 1800);
@@ -1122,11 +1135,7 @@ function focusMonthlySnapshotEvent(itemId, allowRetry = true) {
     toast("Cette publication n’est plus visible dans le calendrier actif.", true);
     return;
   }
-  if (document.body.classList.contains("cockpit-view-essential")) {
-    card.classList.add("vm-expanded");
-    const toggle = card.querySelector(":scope > .vm-card-summary [data-vm-card-toggle]");
-    if (toggle) { toggle.setAttribute("aria-expanded", "true"); toggle.textContent = "− Réduire"; }
-  }
+  requestCardExpansion(card, true);
   card.scrollIntoView({ behavior:"smooth", block:"center" });
   card.classList.remove("monthly-snapshot-focus");
   requestAnimationFrame(() => card.classList.add("monthly-snapshot-focus"));

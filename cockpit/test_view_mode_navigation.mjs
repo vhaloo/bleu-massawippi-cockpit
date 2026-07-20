@@ -204,20 +204,35 @@ document.querySelector("[data-vm-attention-toggle]").click();
 assert.equal(attentionDot().hidden, false, "Réactiver les notifications doit révéler une décision réellement nouvelle.");
 document.querySelector("[data-vm-attention-seen]").click();
 
-// L'en-tête éditorial complet agit comme le bouton « Voir et décider », sans
-// écriture distante. Le clavier et les contrôles internes restent sûrs.
+// Toutes les cartes commencent compactes, dans les deux vues. L'en-tête agit
+// comme « Ouvrir », tous les sous-panneaux suivent et l'état reste local à
+// l'utilisateur, sans écriture distante.
 const headerCard = document.querySelector('[data-item-id="future-3"]');
 const clickableHeader = headerCard.querySelector(':scope > .post-head');
 const headerToggle = headerCard.querySelector('[data-vm-card-toggle]');
+assert.ok([...document.querySelectorAll('.post[data-item-id]')].every((card) => !card.classList.contains('vm-expanded')),
+  'Toutes les publications doivent être réduites par défaut.');
+assert.ok([...headerCard.querySelectorAll('details')].every((details) => !details.hasAttribute('open')),
+  'Aucun sous-panneau ne doit rester ouvert dans une carte réduite.');
+assert.equal(headerCard.querySelectorAll('.vm-card-progress .state-active').length, 1,
+  'L’étape active doit être orange dans le résumé.');
+assert.equal(headerCard.querySelectorAll('.vm-card-progress .state-pending').length, 2,
+  'Les étapes encore bloquées doivent être rouges dans le résumé.');
 assert.equal(clickableHeader.getAttribute('role'), 'button');
 assert.equal(clickableHeader.getAttribute('tabindex'), '0');
 assert.equal(clickableHeader.getAttribute('aria-expanded'), 'false');
 clickableHeader.click();
 assert.equal(headerCard.classList.contains('vm-expanded'), true);
+assert.ok([...headerCard.querySelectorAll('details')].every((details) => details.hasAttribute('open')),
+  'Ouvrir une publication doit ouvrir tous ses sous-panneaux en un seul geste.');
 assert.equal(clickableHeader.getAttribute('aria-expanded'), 'true');
 assert.match(headerToggle.textContent, /Réduire/);
+assert.equal(storage.get('bleu-massawippi-card-expansion-v1:uid:annie:future-3'), 'open');
 clickableHeader.click();
 assert.equal(headerCard.classList.contains('vm-expanded'), false);
+assert.ok([...headerCard.querySelectorAll('details')].every((details) => !details.hasAttribute('open')),
+  'Réduire une publication doit refermer tous ses sous-panneaux.');
+assert.equal(storage.get('bleu-massawippi-card-expansion-v1:uid:annie:future-3'), 'closed');
 const enterKey = new window.Event('keydown', { bubbles: true, cancelable: true });
 Object.defineProperty(enterKey, 'key', { value: 'Enter' });
 clickableHeader.dispatchEvent(enterKey);
@@ -227,6 +242,13 @@ nestedControl.textContent = 'Contrôle interne';
 clickableHeader.appendChild(nestedControl);
 nestedControl.click();
 assert.equal(headerCard.classList.contains('vm-expanded'), true, 'Un contrôle interne ne doit pas replier la publication.');
+renderCalendar();
+window.dispatchEvent(new window.CustomEvent('cockpit:data-updated'));
+await wait();
+const restoredDirectorCard = document.querySelector('[data-item-id="future-3"]');
+assert.equal(restoredDirectorCard.classList.contains('vm-expanded'), true,
+  'Une publication laissée ouverte doit le rester après un nouveau rendu.');
+assert.ok([...restoredDirectorCard.querySelectorAll('details')].every((details) => details.hasAttribute('open')));
 
 const firstOpenControl = document.querySelector('.vm-decisions [data-vm-target="future-1"]');
 assert.ok(firstOpenControl, "La recette doit fournir une première cible future déjà visible.");
@@ -258,6 +280,12 @@ assert.match(document.querySelector(".vm-queue-end").textContent, /toutes vos d�
 // Un rôle communications ne reçoit que sa propre tâche matérialisée.
   switchTestRole("valentin", "admin");
   await wait();
+  const adminIdentityCard = document.querySelector('[data-item-id="future-3"]');
+  assert.equal(document.body.classList.contains('cockpit-view-complete'), true);
+  assert.equal(adminIdentityCard.classList.contains('vm-expanded'), false,
+    'La préférence ouverte de la direction ne doit jamais contaminer le compte des communications.');
+  assert.equal(adminIdentityCard.querySelector(':scope > .post-head').getAttribute('role'), 'button',
+    'La carte doit rester ouvrable dans la vue complète des communications.');
   assert.match(document.querySelector(".vm-decisions").textContent, /Action réservée aux communications/);
   document.body.dataset.workflowSync = "pending";
   window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
@@ -292,6 +320,8 @@ assert.match(document.querySelector(".vm-queue-end").textContent, /toutes vos d�
   completedAdminCard.dataset.workflowUpdatedAt = "100";
   switchTestRole("annie", "director");
 await wait();
+assert.equal(document.querySelector('[data-item-id="future-3"]').classList.contains('vm-expanded'), true,
+  'Le retour au compte de la direction doit restaurer sa propre préférence.');
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Action réservée aux communications/);
 
 // Une action Firestore personnelle devient prioritaire, reste strictement
