@@ -10,6 +10,7 @@ const root = path.resolve(here, "..");
 const ui = fs.readFileSync(path.join(here, "cockpit-ui.js"), "utf8");
 const sectionNavigation = fs.readFileSync(path.join(here, "section-navigation.js"), "utf8");
 const taskProgressUi = fs.readFileSync(path.join(here, "task-progress-ui.js"), "utf8");
+const monthlySnapshotState = fs.readFileSync(path.join(here, "monthly-snapshot-state.js"), "utf8");
 const viewMode = fs.readFileSync(path.join(here, "view-mode.js"), "utf8");
 const viewFixture = fs.readFileSync(path.join(here, "test-fixtures", "view-mode.html"), "utf8");
 const client = fs.readFileSync(path.join(here, "firebase-client.js"), "utf8");
@@ -541,6 +542,13 @@ for (const collectionName of ["opportunityStates", "internalProjectStates"]) {
 assert.doesNotMatch(ui, /data-attachment-input|uploadImageAttachment|subscribeImageAttachments/);
 assert.doesNotMatch(client, /firebase-storage|uploadBytes|getDownloadURL/);
 assert.doesNotMatch(ui + client, /data-attachment-input|seed_open_house_attachments/);
+assert.match(ui, /data-monthly-post-state=/, "Chaque publication de l’aperçu mensuel doit exposer son état calculé.");
+assert.match(ui, /Légende de l’état des publications/, "L’aperçu mensuel doit expliquer ses trois icônes.");
+for (const label of ["Nouvelle proposition", "En cours d’édition", "Publié ou programmé"]) {
+  assert.match(monthlySnapshotState, new RegExp(label), `La légende mensuelle doit conserver l’état « ${label} ».`);
+}
+assert.doesNotMatch(monthlySnapshotState, /subscribe|onSnapshot|getDoc|firebase/i,
+  "La classification mensuelle doit réutiliser les données déjà chargées sans requête Firebase supplémentaire.");
 assert.match(firebaseConfig, /apiKey:\s*"AIza[A-Za-z0-9_-]{20,}"/);
 assert.doesNotMatch(firebaseConfig, /GEMINI|gemini_api_key/i);
 const seedContentFieldsMatch = privateContentSeed.match(/const contentFields = \{([\s\S]*?)\r?\n  \};\r?\n  if \(existing\.exists\)/);

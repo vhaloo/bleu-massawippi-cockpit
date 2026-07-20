@@ -35,17 +35,18 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260718-b32";
-import { createEventContextController } from "./event-context-data.js?v=20260718-b32";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260718-b32";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260718-b32";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260718-b32";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260718-b32";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260718-b32";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260718-b32";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260718-b32";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260718-b32";
-import { setupControlHints } from "./control-hints.js?v=20260718-b32";
+} from "./firebase-client.js?v=20260720-b33";
+import { createEventContextController } from "./event-context-data.js?v=20260720-b33";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260720-b33";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260720-b33";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260720-b33";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260720-b33";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260720-b33";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260720-b33";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260720-b33";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260720-b33";
+import { setupControlHints } from "./control-hints.js?v=20260720-b33";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260720-b33";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -134,16 +135,23 @@ style.textContent = `
   .cockpit-monthly-snapshot-title b { color:#073a52; font-size:.88rem; }
   .cockpit-monthly-snapshot-title small { color:#587680; font-size:.67rem; line-height:1.35; }
   .cockpit-monthly-snapshot-count { display:inline-grid; min-width:27px; min-height:27px; padding:0 7px; place-items:center; border-radius:999px; color:#fff; background:#0b7895; font-size:.68rem; font-weight:900; }
-  .cockpit-monthly-snapshot-body { display:grid; gap:14px; padding:14px; }
+  .cockpit-monthly-legend { display:flex; flex-wrap:wrap; gap:7px 13px; padding:11px 14px 0; color:#496b76; font-size:.64rem; font-weight:800; }
+  .cockpit-monthly-legend-item { display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+  .cockpit-monthly-snapshot-body { display:grid; gap:14px; padding:12px 14px 14px; }
   .cockpit-monthly-month { display:grid; gap:8px; }
   .cockpit-monthly-month h3 { margin:0; color:#174e62; font-size:.78rem; letter-spacing:.045em; text-transform:uppercase; }
   .cockpit-monthly-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:7px; margin:0; padding:0; list-style:none; }
   .cockpit-monthly-item { min-width:0; }
-  .cockpit-monthly-item button { display:grid; width:100%; min-height:68px; grid-template-columns:auto minmax(0,1fr); grid-template-areas:"date title" "theme title"; gap:3px 9px; align-items:start; padding:9px 10px; border:1px solid color-mix(in srgb,var(--snapshot-color,#0b7895) 38%,#d6e6e8); border-left:5px solid var(--snapshot-color,#0b7895); border-radius:11px; color:#173f4e; background:#fff; font:inherit; text-align:left; cursor:pointer; }
+  .cockpit-monthly-item button { display:grid; width:100%; min-height:68px; grid-template-columns:auto minmax(0,1fr) 24px; grid-template-areas:"date title state" "theme title state"; gap:3px 9px; align-items:start; padding:9px 10px; border:1px solid color-mix(in srgb,var(--snapshot-color,#0b7895) 38%,#d6e6e8); border-left:5px solid var(--snapshot-color,#0b7895); border-radius:11px; color:#173f4e; background:#fff; font:inherit; text-align:left; cursor:pointer; }
   .cockpit-monthly-item button:hover { background:color-mix(in srgb,var(--snapshot-color,#0b7895) 8%,#fff); }
   .cockpit-monthly-date { grid-area:date; color:#486c78; font-size:.64rem; font-weight:900; white-space:nowrap; }
   .cockpit-monthly-theme { grid-area:theme; display:inline-flex; width:max-content; max-width:100%; align-items:center; gap:4px; padding:2px 6px; border-radius:999px; color:#163d49; background:color-mix(in srgb,var(--snapshot-color,#0b7895) 19%,#fff); font-size:.6rem; font-weight:900; }
   .cockpit-monthly-post-title { grid-area:title; align-self:center; overflow:hidden; font-size:.73rem; font-weight:850; line-height:1.35; }
+  .cockpit-monthly-state { display:inline-grid; width:24px; height:24px; grid-area:state; place-items:center; align-self:center; border:2px solid rgba(255,255,255,.9); border-radius:50%; color:#fff; font-size:.72rem; font-weight:950; line-height:1; box-shadow:0 1px 5px rgba(7,58,82,.22); }
+  .cockpit-monthly-state.is-new { background:#b6404e; }
+  .cockpit-monthly-state.is-editing { background:#a95a00; }
+  .cockpit-monthly-state.is-ready { background:#1e775b; }
+  .cockpit-monthly-legend .cockpit-monthly-state { width:18px; height:18px; grid-area:auto; border-width:1px; font-size:.58rem; box-shadow:none; }
   .cockpit-monthly-empty { margin:0; padding:16px; color:#5f7881; font-size:.76rem; text-align:center; }
   .post.monthly-snapshot-focus { animation:monthly-snapshot-focus 1.8s ease; }
   @keyframes monthly-snapshot-focus { 0%,100% { box-shadow:inherit; } 25%,70% { box-shadow:0 0 0 4px rgba(42,182,187,.35); } }
@@ -152,9 +160,10 @@ style.textContent = `
     .cockpit-monthly-snapshot > summary { min-height:58px; padding:11px 12px; }
     .cockpit-monthly-snapshot-title b { font-size:.82rem; }
     .cockpit-monthly-snapshot-title small { font-size:.64rem; }
-    .cockpit-monthly-snapshot-body { padding:10px; }
+    .cockpit-monthly-legend { gap:6px 10px; padding:9px 10px 0; font-size:.61rem; }
+    .cockpit-monthly-snapshot-body { padding:9px 10px 10px; }
     .cockpit-monthly-list { grid-template-columns:1fr; gap:6px; }
-    .cockpit-monthly-item button { min-height:62px; grid-template-columns:78px minmax(0,1fr); padding:8px 9px; }
+    .cockpit-monthly-item button { min-height:62px; grid-template-columns:78px minmax(0,1fr) 24px; padding:8px 9px; }
     .cockpit-monthly-post-title { font-size:.74rem; }
   }
   .cockpit-voice-status { min-height: 18px; margin-top: 4px; color: #54717d; font-size: .7rem; }
@@ -1052,6 +1061,19 @@ function monthlySnapshotActivePosts() {
   });
 }
 
+function monthlySnapshotState(item) {
+  const schedule = state.rows.get(item.id) || {};
+  const workflow = state.workflows.get(item.id) || {};
+  const editorialDecision = state.decisions.get(item.id) || {};
+  return classifyMonthlyPostState({
+    workflowStage: workflow.stage,
+    comments: state.commentsByEvent.get(item.id) || [],
+    scheduleStatus: schedule.status,
+    editorialDecision: editorialDecision.decision,
+    mediaDecision: state.mediaDecisions.get(item.id) || null
+  });
+}
+
 function renderMonthlyEditorialSnapshot() {
   const snapshot = document.querySelector("#cockpit-monthly-snapshot");
   if (!snapshot) return;
@@ -1080,8 +1102,9 @@ function renderMonthlyEditorialSnapshot() {
       : "Date à confirmer";
     const items = entries.map(({ item, date }) => {
       const theme = monthlySnapshotTheme(item.t);
+      const readiness = monthlySnapshotState(item);
       const dateLabel = date ? date.toLocaleDateString("fr-CA", { weekday:"short", day:"numeric" }) : String(item.date || "À dater");
-      return `<li class="cockpit-monthly-item" style="--snapshot-color:${theme.color}"><button type="button" data-monthly-snapshot-event="${esc(item.id)}" aria-label="${esc(`${dateLabel}, ${item.t || "Thème"} : ${item.title || "Publication"}`)}"><time class="cockpit-monthly-date"${date ? ` datetime="${date.toISOString().slice(0, 10)}"` : ""}>${esc(dateLabel)}</time><span class="cockpit-monthly-theme"><span aria-hidden="true">${theme.symbol}</span>${esc(item.t || "Thème")}</span><span class="cockpit-monthly-post-title">${esc(item.title || "Publication sans titre")}</span></button></li>`;
+      return `<li class="cockpit-monthly-item" data-monthly-post-state="${readiness.key}" style="--snapshot-color:${theme.color}"><button type="button" data-monthly-snapshot-event="${esc(item.id)}" aria-label="${esc(`${dateLabel}, ${item.t || "Thème"} : ${item.title || "Publication"}. État : ${readiness.label}`)}"><time class="cockpit-monthly-date"${date ? ` datetime="${date.toISOString().slice(0, 10)}"` : ""}>${esc(dateLabel)}</time><span class="cockpit-monthly-theme"><span aria-hidden="true">${theme.symbol}</span>${esc(item.t || "Thème")}</span><span class="cockpit-monthly-post-title">${esc(item.title || "Publication sans titre")}</span><span class="cockpit-monthly-state ${readiness.className}" title="${esc(readiness.label)}" aria-hidden="true">${readiness.symbol}</span></button></li>`;
     }).join("");
     return `<section class="cockpit-monthly-month" data-month="${esc(key)}"><h3>${esc(monthLabel)}</h3><ol class="cockpit-monthly-list">${items}</ol></section>`;
   }).join("");
@@ -1121,7 +1144,8 @@ function setupMonthlyEditorialSnapshot() {
     snapshot.setAttribute("aria-labelledby", "cockpit-monthly-snapshot-title");
     try { snapshot.open = localStorage.getItem(monthlySnapshotCollapsedKey) !== "true"; }
     catch { snapshot.open = true; }
-    snapshot.innerHTML = `<summary><span class="cockpit-monthly-snapshot-title"><b id="cockpit-monthly-snapshot-title">Aperçu mensuel</b><small>Dates, thèmes et titres pour vérifier la variété d’un coup d’œil</small></span><span class="cockpit-monthly-snapshot-count" data-monthly-snapshot-count>0</span></summary><div class="cockpit-monthly-snapshot-body" data-monthly-snapshot-body></div>`;
+    const legend = Object.values(monthlyPostStates).map((item) => `<span class="cockpit-monthly-legend-item"><span class="cockpit-monthly-state ${item.className}" aria-hidden="true">${item.symbol}</span>${esc(item.label)}</span>`).join("");
+    snapshot.innerHTML = `<summary><span class="cockpit-monthly-snapshot-title"><b id="cockpit-monthly-snapshot-title">Aperçu mensuel</b><small>Dates, thèmes, titres et état de préparation d’un coup d’œil</small></span><span class="cockpit-monthly-snapshot-count" data-monthly-snapshot-count>0</span></summary><div class="cockpit-monthly-legend" role="group" aria-label="Légende de l’état des publications">${legend}</div><div class="cockpit-monthly-snapshot-body" data-monthly-snapshot-body></div>`;
     const heading = calendar.querySelector(":scope > .heading");
     if (heading) heading.after(snapshot); else calendar.prepend(snapshot);
     snapshot.addEventListener("toggle", () => {
@@ -2244,7 +2268,7 @@ function stopEventContext() {
 function activateEventContext(eventId) {
   eventContextController ||= createEventContextController({
     enabled: configured && !safeMode && Boolean(state.profile),
-    onRows: (kind,id,rows) => { (kind==="comments"?state.commentsByEvent:state.mediaByEvent).set(id,rows); const card=document.querySelector(`.post[data-item-id="${CSS.escape(id)}"]`); if(card){renderCommentThread(card);renderMediaForCard(card);renderWorkflow(card);} notifyViewUpdate(`event-${kind}`); },
+    onRows: (kind,id,rows) => { (kind==="comments"?state.commentsByEvent:state.mediaByEvent).set(id,rows); const card=document.querySelector(`.post[data-item-id="${CSS.escape(id)}"]`); if(card){renderCommentThread(card);renderMediaForCard(card);renderWorkflow(card);} renderMonthlyEditorialSnapshot(); notifyViewUpdate(`event-${kind}`); },
     onError: (error) => console.warn("Contexte temps réel de l’événement indisponible", error)
   });
   eventContextController.activate(eventId);
@@ -3119,6 +3143,7 @@ function syncWorkflow(rows, meta) {
   state.workflows = new Map(rows.map((row) => [row.eventId || row.id, row]));
   document.body.dataset.workflowSync = meta.fromCache ? "cache" : "server";
   renderAllCollaboration();
+  renderMonthlyEditorialSnapshot();
   notifyViewUpdate(meta.fromCache ? "workflow-cache" : "workflow-server");
 }
 
@@ -3138,6 +3163,7 @@ function subscribeRemoteData() {
       state.mediaDecisions = new Map(rows.map((row) => [row.eventId || row.id, row]));
       renderAllMedia();
       renderAllCollaboration();
+      renderMonthlyEditorialSnapshot();
       notifyViewUpdate("media-decisions-cache");
     }, (error) => console.warn("Décisions média absentes du cache", error));
     state.workflowUnsubscribe?.();
@@ -3169,13 +3195,14 @@ function subscribeRemoteData() {
     state.mediaDecisions = new Map(rows.map((row) => [row.eventId || row.id, row]));
     renderAllMedia();
     renderAllCollaboration();
+    renderMonthlyEditorialSnapshot();
     notifyViewUpdate("media-decisions");
   }, (error) => toast("Les décisions média ne sont pas accessibles : " + error.message, true));
   state.commentsUnsubscribe?.();
   state.commentsUnsubscribe = subscribeComments((rows) => {
     const grouped = new Map();
     rows.forEach((row) => { const id=String(row.sectionId||""); if(!grouped.has(id)) grouped.set(id,[]); grouped.get(id).push(row); });
-    state.commentsByEvent = grouped; renderAllCollaboration(); renderOpportunityNotes(); renderInternalProjectNotes(); renderAllMedia(); notifyViewUpdate("comments");
+    state.commentsByEvent = grouped; renderAllCollaboration(); renderOpportunityNotes(); renderInternalProjectNotes(); renderAllMedia(); renderMonthlyEditorialSnapshot(); notifyViewUpdate("comments");
   }, (error) => toast("Le fil de commentaires n’est pas accessible : " + error.message, true));
   state.workflowUnsubscribe?.();
   state.workflowUnsubscribe = subscribeWorkflowStates(syncWorkflow, (error) => toast("Le cycle de validation n’est pas accessible : " + error.message, true));
