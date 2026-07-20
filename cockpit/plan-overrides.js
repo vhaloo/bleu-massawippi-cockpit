@@ -238,7 +238,9 @@ Donate: https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b430
     optionLabel: null,
     isAlternative: false,
     decisionLocked: true,
-    parallelOperationalItem: true,
+    parallelOperationalItem: false,
+    calendarPriority: "donation-cadence",
+    replacesDailySlot: true,
     donationCadence: "biweekly-wednesday",
     tasksValentin: [
       "Ouvrir et vérifier le formulaire Zeffy, puis remplacer le lien si une campagne institutionnelle plus récente est officiellement retenue.",
@@ -292,7 +294,9 @@ Thank you for your trust. We will continue to show clearly what this momentum ma
     optionLabel: null,
     isAlternative: false,
     decisionLocked: true,
-    parallelOperationalItem: true,
+    parallelOperationalItem: false,
+    calendarPriority: "donation-cadence",
+    replacesDailySlot: true,
     donationCadence: "following-week-friday",
     publicationBlocked: true,
     requiresConfirmedDonationAmount: true,
@@ -467,7 +471,43 @@ export function applyPlanOverridesToPosts(posts) {
     const post = finalPosts.find((item) => item.id === id);
     if (post) Object.assign(post, placement, { choiceRequired: false, optionGroup: null, optionLabel: null });
   });
-  ["s1d3b", "alt-20260715", "s1d5", "s1d6", "s1d4", "s1d2", "s2d1b", "s1d7", "s2d1", "s2d2", "alt-20260722", "s2d4", "s2d5", "s2d7", "alt-20260726", "s3d1", "s3d2", "s3d4", "s3d3", "s3d7", "s4d1", "s4d1b", "alt-20260729", "alt-20260802", "lexique-20260830-tributaire"].forEach((id) => {
+  const donationDisplacements = {
+    "s3d4": {
+      w: 5,
+      date: "Samedi 15 août",
+      choiceRequired: false,
+      optionGroup: null,
+      optionLabel: null,
+      rescheduledFrom: "2026-07-29",
+      rescheduledReason: "Créneau libéré en priorité pour l’appel aux dons Zeffy du 29 juillet.",
+      displacedBy: "don-20260729-appel-soutien"
+    },
+    "s4d5": {
+      w: 5,
+      date: "Vendredi 14 août",
+      choiceRequired: true,
+      optionGroup: "20260814",
+      optionLabel: "Option A — Le voyage d’une goutte de pluie",
+      rescheduledFrom: "2026-08-07",
+      rescheduledReason: "Créneau libéré en priorité pour le bilan de dons Zeffy du 7 août.",
+      displacedBy: "don-20260807-merci-bilan"
+    },
+    "alt-20260807": {
+      w: 5,
+      date: "Vendredi 14 août",
+      choiceRequired: true,
+      optionGroup: "20260814",
+      optionLabel: "Option B — Ayer’s Cliff sur une carte postale ancienne",
+      rescheduledFrom: "2026-08-07",
+      rescheduledReason: "Créneau libéré en priorité pour le bilan de dons Zeffy du 7 août.",
+      displacedBy: "don-20260807-merci-bilan"
+    }
+  };
+  Object.entries(donationDisplacements).forEach(([id, placement]) => {
+    const post = finalPosts.find((item) => item.id === id);
+    if (post) Object.assign(post, placement);
+  });
+  ["s1d3b", "alt-20260715", "s1d5", "s1d6", "s1d4", "s1d2", "s2d1b", "s1d7", "s2d1", "s2d2", "alt-20260722", "s2d4", "s2d5", "s2d7", "alt-20260726", "s3d1", "s3d2", "s3d4", "s3d3", "s3d7", "s4d1", "s4d1b", "alt-20260729", "alt-20260802", "lexique-20260830-tributaire", "don-20260729-appel-soutien", "don-20260807-merci-bilan"].forEach((id) => {
     const post = finalPosts.find((item) => item.id === id);
     if (post) Object.assign(post, { choiceRequired: false, optionGroup: null, optionLabel: null });
   });
