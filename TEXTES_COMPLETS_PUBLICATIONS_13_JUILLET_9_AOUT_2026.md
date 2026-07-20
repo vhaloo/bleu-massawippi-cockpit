@@ -678,6 +678,43 @@ You can write to us at info@bleumassawippi.com. Your observations help us ask th
 #CommunityObservation #BleuMassawippi #LakeMassawippi #Watershed
 ```
 
+## Mercredi 29 juillet — Votre impact prend racine
+
+**Thème :** Soutien
+**Format :** Photo réelle + appel aux dons bilingue
+**Objectif :** Présenter avec chaleur ce que les dons rendent possible, sans culpabiliser et sans annoncer de contrepartie financière non confirmée.
+**CTA :** Soutenir Bleu Massawippi
+**Visuel final :** Photographie réelle, autorisée et évocatrice du lac ou d’un geste de terrain; une seule courte mention manuscrite : « Votre impact prend racine ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Lien de don Zeffy historique à revérifier avant programmation : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+**Préparation :** Vérifier le formulaire de don, choisir une preuve visuelle autorisée et programmer seulement après les validations du texte, du média et du lien.
+
+### Légende prête à programmer
+
+```text
+FR — Votre impact prend racine.
+
+Protéger le lac Massawippi, c’est observer avec rigueur, expliquer avec clarté et agir avec constance. Votre don aide Bleu Massawippi à soutenir des actions concrètes : suivi du lac et de ses tributaires, sensibilisation, mobilisation citoyenne et préparation de projets utiles au bassin versant.
+
+Chaque contribution compte, à la mesure de chacun. Merci de faire partie des personnes qui prennent soin du lac avec nous.
+
+Faire un don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LacMassawippi #SoutenirLeLac #ChaqueGesteCompte
+
+=========================================
+
+EN — Your impact takes root.
+
+Protecting Lake Massawippi means observing carefully, explaining clearly and acting consistently. Your donation helps Bleu Massawippi support concrete work: monitoring the lake and its tributaries, education, community involvement and the preparation of useful watershed projects.
+
+Every contribution matters, at whatever level is right for you. Thank you for being among the people who care for the lake with us.
+
+Donate: https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LakeMassawippi #SupportTheLake #EveryActionCounts
+```
+
 ## Jeudi 30 juillet — Le Massawippi à travers vos yeux
 
 **Thème :** Communauté
@@ -1157,6 +1194,43 @@ EN — Imagine a raindrop landing on a roof, road or lawn. It may reach a ditch,
 Following its journey offers a new way to see the watershed: what slows and absorbs water upstream also lends the lake a hand. The next time it rains, notice where the water chooses to travel.
 
 #Watershed #BleuMassawippi #LakeMassawippi #ThinkUpstream
+```
+
+## Vendredi 7 août — Merci de faire grandir l’élan autour du lac
+
+**Thème :** Gratitude
+**Format :** Photo réelle + bilan de dons bilingue
+**Objectif :** Remercier avec précision et transparence le vendredi de la semaine suivant l’appel, en utilisant uniquement le montant net réellement confirmé.
+**CTA :** Remercier et montrer la suite
+**Visuel final :** Photographie réelle et autorisée du lac ou d’une action concrète; courte mention manuscrite « Merci d’être là pour le lac ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Zeffy — rapport Paiements filtré par date de paiement, statut Réussi et formulaire; exclure remboursements, litiges et paiements hors ligne non reçus.
+**Préparation :** Remplacer les deux champs entre crochets par des données Zeffy vérifiées, faire relire le contexte et ne programmer qu’après disparition complète des champs temporaires.
+
+### Légende prête à programmer
+
+```text
+FR — Merci d’être là pour le lac.
+
+Depuis notre appel du [DATE DE L’APPEL], votre générosité a permis de réunir [MONTANT NET CONFIRMÉ] pour soutenir le travail de Bleu Massawippi.
+
+Derrière ce résultat, il y a des personnes qui choisissent d’agir à leur mesure. Chaque contribution nourrit un effort collectif : mieux suivre le lac, mieux partager les connaissances et mieux préparer les actions à venir.
+
+Merci pour votre confiance. Nous continuerons à vous montrer clairement ce que cet élan rend possible.
+
+#BleuMassawippi #LacMassawippi #Merci #SoutenirLeLac
+
+=========================================
+
+EN — Thank you for being there for the lake.
+
+Since our appeal on [APPEAL DATE], your generosity has raised [CONFIRMED NET AMOUNT] to support Bleu Massawippi’s work.
+
+Behind this result are people choosing to act in ways that are right for them. Every contribution strengthens a shared effort: monitoring the lake, sharing knowledge and preparing the actions ahead.
+
+Thank you for your trust. We will continue to show clearly what this momentum makes possible.
+
+#BleuMassawippi #LakeMassawippi #ThankYou #SupportTheLake
 ```
 
 ## Samedi 8 août — 15 secondes sur le terrain avec nous

@@ -23,8 +23,8 @@ if (!css || !html || !script || !postsJson) {
 
 const posts = applyPlanOverridesToPosts(JSON.parse(postsJson));
 const mainPosts = Array.isArray(posts) ? posts.filter((post) => post.isAlternative !== true) : [];
-if (!Array.isArray(posts) || mainPosts.length !== 28 || posts.length < 28) {
-  throw new Error("Le plan source doit contenir 28 publications principales et ses alternatives éventuelles.");
+if (!Array.isArray(posts) || mainPosts.length < 28 || posts.length < mainPosts.length) {
+  throw new Error("Le plan source doit contenir au moins 28 publications principales et ses alternatives éventuelles.");
 }
 
 const privateContent = {
