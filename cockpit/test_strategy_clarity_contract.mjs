@@ -18,9 +18,13 @@ for (const marker of [
   ".strategy-mandate-heading > .section-feedback",
   'data-brand-logo-target',
   "Le lac au centre.",
-  "2 feux",
-  "0 perte"
+  "La règle de diffusion reste sept publications par semaine, une par jour.",
+  "✓ 2 · Texte approuvé",
+  "🖼️ 4 · Visuel approuvé",
+  "🗂️ 6 · Rien ne disparaît",
+  "la direction arbitre les décisions institutionnelles"
 ]) assert.ok(strategy.includes(marker), `La stratégie clarifiée doit conserver : ${marker}`);
+assert.ok(!strategy.includes('class="wrap stats"'), "Le bandeau de métriques redondant ne doit pas réapparaître hors de la stratégie.");
 assert.ok(!strategy.includes("Observer.<br>Comprendre.<br>Agir."), "L’accueil ne doit plus utiliser l’ancien visuel éditorial générique.");
 assert.ok(!strategy.includes("publications principales<br>séquence de lancement"), "L’accueil doit présenter un outil durable, pas une séquence de 28 jours.");
 assert.match(cockpitUi, /querySelectorAll\("\[data-brand-logo-target\]"\)/, "Le vrai logo configuré doit alimenter le repère d’identité de l’accueil.");
