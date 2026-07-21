@@ -41,7 +41,9 @@ const has = (text, pattern) => pattern instanceof RegExp ? pattern.test(text) : 
 // Coque publique et dépendances déclarées.
 for (const relative of [
   "cockpit/index.html", "cockpit/cockpit-ui.js", "cockpit/action-items-ui.js", "cockpit/firebase-client.js", "cockpit/theme.js",
-  "cockpit/sw.js", "cockpit/manifest.webmanifest", "cockpit/icon.svg", "cockpit/firestore.rules"
+  "cockpit/sw.js", "cockpit/manifest.webmanifest", "cockpit/icon.svg", "cockpit/firestore.rules",
+  "cockpit/assets/brand/logo-bleu-massawippi-2024.png", "cockpit/assets/brand/cockpit-bleu-massawippi-lockup.svg",
+  "cockpit/assets/brand/cockpit-bleu-massawippi-icon-192.png", "cockpit/assets/brand/cockpit-bleu-massawippi-icon-512.png"
 ]) {
   critical("PUB-001", `Fichier public requis : ${relative}`, exists(relative), "Le déploiement ne doit pas produire une coque partielle.");
 }
@@ -142,6 +144,12 @@ critical("VIS-004", "Bascule de thème compacte dans l’en-tête mobile", /#coc
 
 // PWA et service worker.
 critical("PWA-001", "Manifest relié et application standalone", /rel="manifest"/.test(files.shell) && /"display"\s*:\s*"standalone"/.test(files.manifest), "Le nom, le scope, les couleurs et l’icône restent valides.");
+critical("PWA-009", "Icônes produit fondées sur le logo officiel et livrées localement",
+  /cockpit-bleu-massawippi-icon-192\.png/.test(files.manifest)
+    && /cockpit-bleu-massawippi-icon-512\.png/.test(files.manifest)
+    && /cockpit-bleu-massawippi-lockup\.svg/.test(files.source)
+    && /logo-bleu-massawippi-2024\.png/.test(files.sw),
+  "Le produit ne doit dépendre ni de l’ancien pictogramme abstrait ni d’un téléchargement OneDrive au démarrage.");
 critical("PWA-002", "Service worker enregistré avec portée locale", /serviceWorker\.register\("\.\/sw\.js"/.test(files.shell), "GitHub Pages doit conserver le sous-chemin du dépôt.");
 critical("PWA-003", "Cycle SW versionné et activation immédiate", /const CACHE\s*=\s*["'][^"']+v\d+/i.test(files.sw) && /skipWaiting\(\)/.test(files.sw) && /clients\.claim\(\)/.test(files.sw), "Incrémenter le cache à chaque modification publique.");
 critical("PWA-004", "Anciens caches purgés", /caches\.keys\(\)/.test(files.sw) && /caches\.delete/.test(files.sw), "Évite le mélange de versions de modules.");
