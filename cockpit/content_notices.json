@@ -77,6 +77,28 @@
       "priorityKey": 45,
       "title": "Mise à jour — Poésie au bord du lac",
       "message": "Le projet reflète maintenant un plateau presque constitué, un format d’environ 90 minutes et les décisions finales encore attendues pour la fin de l’été."
+    },
+    {
+      "id": "internal-poetry-progress-v3",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "poesie-du-lac",
+      "publishedOn": "2026-07-21",
+      "priorityKey": 46,
+      "title": "Mise à jour — Au bord du bleu",
+      "message": "Le 30 août, de 13 h à 16 h, le nouveau titre, l’affiche et le plan minimal sont prêts. Il reste à valider le lieu, le repli, le budget plafond et la captation."
+    },
+    {
+      "id": "internal-youth-drawing-toolkit-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "concours-dessin-jeunesse",
+      "publishedOn": "2026-07-21",
+      "priorityKey": 47,
+      "title": "Nouveau — Le lac dans tes yeux",
+      "message": "Le pilote bilingue, les écoles du premier cercle, la grande frise et les dix outils de la trousse jeunesse sont maintenant structurés pour une décision interne."
     }
   ]
 }

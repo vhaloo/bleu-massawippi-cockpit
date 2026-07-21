@@ -35,18 +35,18 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260721-b35";
-import { createEventContextController } from "./event-context-data.js?v=20260721-b35";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260721-b35";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260721-b35";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260721-b35";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260721-b35";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260721-b35";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260721-b35";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260721-b35";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260721-b35";
-import { setupControlHints } from "./control-hints.js?v=20260721-b35";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260721-b35";
+} from "./firebase-client.js?v=20260721-b36";
+import { createEventContextController } from "./event-context-data.js?v=20260721-b36";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260721-b36";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260721-b36";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260721-b36";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260721-b36";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260721-b36";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260721-b36";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260721-b36";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260721-b36";
+import { setupControlHints } from "./control-hints.js?v=20260721-b36";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260721-b36";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";

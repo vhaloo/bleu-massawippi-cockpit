@@ -527,26 +527,49 @@ assert.match(poetryProject, /Valentin Wittwe, directeur des communications de Bl
   "La fiche poésie doit expliciter l’actif relationnel demandé par les communications.");
 assert.match(poetryProject, /réseau d’acteurs, de poètes, de slameurs et d’interprètes/,
   "Le réseau professionnel mobilisable doit être décrit sans réduire le projet à un appel public.");
-assert.match(poetryProject, /75 à 105 minutes/);
-assert.match(poetryProject, /6 à 10 artistes/);
+assert.match(poetryProject, /Au bord du bleu/);
+assert.match(poetryProject, /dimanche 30 août/i);
+assert.match(poetryProject, /13 h à 16 h/i);
+assert.match(poetryProject, /75 à 90 minutes/);
+assert.match(poetryProject, /6 à 10 voix/);
+assert.match(poetryProject, /partie engazonnée du parc Lôbadanaki/i);
+assert.match(poetryProject, /distincte de la bande riveraine fermée/i);
+assert.match(poetryProject, /Cible : 0 \$/);
+assert.match(poetryProject, /Plafond prudent : 250 \$ maximum/);
 assert.match(poetryProject, /Direction générale — environ 1 h 15 au total/);
 assert.match(poetryProject, /Communications — environ 8 à 12 h au total/);
-assert.match(poetryProject, /affiche-poesie-au-bord-du-lac-concept-v1\.webp/);
-assert.match(poetryProject, /affiche-poesie-au-bord-du-lac-concept-v1\.png/);
+assert.match(poetryProject, /affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v4\.webp/);
+assert.match(poetryProject, /affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v4\.png/);
 assert.match(poetryProject, /data-initial-stage="active" open/,
   "La fiche poésie en préparation avancée doit rester ouverte afin de rendre l’affiche immédiatement visible.");
-assert.match(poetryProject, /PRÉPARATION AVANCÉE/);
+assert.match(poetryProject, /30 AOÛT · 13 H–16 H · LIEU À AUTORISER/);
 assert.match(poetryProject, /presque tout le plateau/i);
-assert.match(poetryProject, /date de fin d’été/i);
 assert.match(poetryProject, /href="#poesie-du-lac-fiche-operationnelle"/);
+assert.doesNotMatch(poetryProject, /Je protège mon Massawippi|date de fin d’été|au coucher du soleil|concept-v1/,
+  "La fiche poésie ne doit pas réintroduire le thème, le créneau ou l’affiche abandonnés.");
 assert.ok(poetryProject.indexOf("internal-project-poster") < poetryProject.indexOf("internal-project-capacity"),
   "L’affiche doit précéder le développement de la fiche afin d’être visible dès l’ouverture du projet.");
 for (const asset of [
-  "cockpit/assets/projects/poesie-du-lac/affiche-poesie-au-bord-du-lac-concept-v1.webp",
-  "cockpit/assets/projects/poesie-du-lac/affiche-poesie-au-bord-du-lac-concept-v1.png"
+  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v4.webp",
+  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v4.png"
 ]) assert.ok(fs.existsSync(path.join(root, asset)), `Le livrable poésie doit exister : ${asset}`);
-assert.ok(fs.statSync(path.join(root, "cockpit/assets/projects/poesie-du-lac/affiche-poesie-au-bord-du-lac-concept-v1.webp")).size < 150_000,
+assert.ok(fs.statSync(path.join(root, "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v4.webp")).size < 150_000,
   "L’aperçu WebP du projet poésie doit rester léger sur mobile.");
+const youthProject = source.match(/<details class="internal-project" id="internal-project-concours-dessin-jeunesse"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
+assert.match(youthProject, /Le lac dans tes yeux — concours-exposition de dessin jeunesse/);
+assert.match(youthProject, /data-initial-stage="planned" open/);
+assert.match(youthProject, /activité adaptable de 45 à 90 minutes/i);
+assert.match(youthProject, /Saint-Barthélemy et Ayer’s Cliff Elementary/);
+assert.match(youthProject, /Toutes les œuvres admissibles et autorisées/);
+assert.match(youthProject, /aucun vote public/i);
+assert.match(youthProject, /Aucune adresse familiale ni coordonnée d’enfant/);
+assert.match(youthProject, /L’enfant conserve le droit d’auteur/);
+assert.match(youthProject, /photo de la frise exige l’autorisation de chaque œuvre visible/);
+assert.match(youthProject, /Direction générale — environ 1 h 30 avant lancement/);
+assert.match(youthProject, /Communications — environ 12 à 18 h avant lancement/);
+assert.match(youthProject, /Dix outils versionnés sont regroupés dans deux documents internes/);
+assert.match(youthProject, /Dossier_operationnel_le_lac_dans_tes_yeux_v1\.pdf/);
+assert.match(youthProject, /Trousse_ecoles_le_lac_dans_tes_yeux_v1\.pdf/);
 const pagesWorkflow = fs.readFileSync(path.join(root, ".github/workflows/deploy-pages.yml"), "utf8");
 assert.match(pagesWorkflow, /cp -R cockpit\/assets public\/assets/,
   "GitHub Pages doit publier les visuels des projets internes.");

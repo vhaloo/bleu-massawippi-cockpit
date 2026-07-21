@@ -874,6 +874,18 @@ html[data-theme="dark"] .vm-navigation-status { color: #ffd7ca; border-color: #9
 html[data-theme="dark"] .vm-navigation-status b { color: #fff0eb; }
 
 @media (max-width: 780px) {
+  /* La vue complète contient davantage d'onglets que la vue essentielle.
+     Leur défilement reste confiné au sommaire au lieu d'élargir la page. */
+  .nav { overflow-x: hidden; }
+  .nav .wrap {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+  }
+  .nav .wrap > a { flex: 0 0 auto; }
   .vm-attention-controls { align-items: stretch; flex-direction: column; }
   .vm-attention-actions { width: 100%; }
   .vm-attention-actions button { min-height: 44px; flex: 1 1 0; }

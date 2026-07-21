@@ -13,7 +13,7 @@ const defaults = {
   "technicien-un-jour": "to_frame",
   "jeux-provinciaux-peche": "completed",
   "moules-zebrees-continuite": "blocked",
-  "concours-dessin-jeunesse": "to_frame",
+  "concours-dessin-jeunesse": "planned",
   "poesie-du-lac": "to_frame",
   "fonds-environnemental-partenarial": "to_frame",
   "colloque-reseautage-associations": "to_frame",
