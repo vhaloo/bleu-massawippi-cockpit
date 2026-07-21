@@ -198,41 +198,45 @@ Which other lake-related word would you like us to explain in plain language?
 const DONATION_CADENCE_POSTS = [
   {
     id: "don-20260729-appel-soutien",
-    w: 3,
-    date: "Mercredi 29 juillet",
+    w: 2,
+    date: "Mercredi 22 juillet",
     calendarTime: "12:00",
     t: "Soutien",
     tier: "Pilier",
-    title: "Votre impact prend racine",
-    format: "Photo réelle + appel aux dons bilingue",
-    role: "Présenter avec chaleur ce que les dons rendent possible, sans culpabiliser et sans annoncer de contrepartie financière non confirmée.",
-    cta: "Soutenir Bleu Massawippi",
-    visual: "Photographie réelle, autorisée et évocatrice du lac ou d’un geste de terrain; une seule courte mention manuscrite : « Votre impact prend racine ».",
-    source: "Lien de don Zeffy historique à revérifier avant programmation : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007",
-    fallback: "Photo réelle du lac et appel sobre vers la page officielle de Bleu Massawippi si le formulaire Zeffy doit être remplacé.",
-    kpi: "Dons confirmés / montant net reçu / clics vers le formulaire",
-    task: "Vérifier le formulaire de don, choisir une preuve visuelle autorisée et programmer seulement après les validations du texte, du média et du lien.",
-    copy: `FR — Votre impact prend racine.
+    title: "Doublez votre impact pour le lac",
+    format: "Photo réelle + note manuscrite 4:5 · appel bilingue",
+    role: "Inviter chaleureusement à devenir membre ou à faire un don, en précisant que le doublement par le fonds spécial vise uniquement la nouvelle adhésion de 100 $.",
+    cta: "Devenir membre ou faire un don",
+    visual: "Photographie réelle du lac fournie par l’association, conservée reconnaissable; carnet ivoire au premier plan avec le titre manuscrit bilingue « Doublez votre impact / Double your impact » et la précision « Nouvelle adhésion : 100 $ → 200 $ pour le lac ».",
+    source: "Documents internes SharePoint vérifiés le 21 juillet 2026 : Passation communication; Campagne 2026 FR; 20260304 - Campagne 2026 EN. Ces documents limitent le doublement à la contribution des nouveaux membres grâce à un fonds spécial. Liens Zeffy vérifiés : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007",
+    fallback: "Photographie réelle du lac avec un appel sobre à devenir membre ou à faire un don; ne jamais laisser entendre que tous les dons libres sont doublés.",
+    kpi: "Nouvelles adhésions confirmées / dons libres / montant net reçu / clics vers les formulaires FR et EN",
+    task: "Confirmer que le fonds spécial 2026 est toujours disponible, vérifier les deux formulaires Zeffy et programmer seulement après les validations du texte, du média et des liens.",
+    copy: `FR — 💙 Doublez votre impact pour le lac.
 
-Protéger le lac Massawippi, c’est observer avec rigueur, expliquer avec clarté et agir avec constance. Votre don aide Bleu Massawippi à soutenir des actions concrètes : suivi du lac et de ses tributaires, sensibilisation, mobilisation citoyenne et préparation de projets utiles au bassin versant.
+Cet été, chaque geste aide Bleu Massawippi à mieux suivre le lac et ses tributaires, à sensibiliser la communauté et à préparer les prochaines actions sur le terrain.
 
-Chaque contribution compte, à la mesure de chacun. Merci de faire partie des personnes qui prennent soin du lac avec nous.
+Vous devenez membre pour la première fois? En choisissant l’option « Adhésion — Doublez votre impact » à 100 $, un fonds spécial porte cette nouvelle adhésion à 200 $ pour le lac.
 
-Faire un don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+Vous préférez simplement faire un don? Le même formulaire permet aussi de contribuer librement, au montant qui vous convient. Merci d’avancer avec nous.
 
-#BleuMassawippi #LacMassawippi #SoutenirLeLac #ChaqueGesteCompte
+Adhésion et don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LacMassawippi #DoublezVotreImpact #SoutenirLeLac
 
 =========================================
 
-EN — Your impact takes root.
+EN — 💙 Double your impact for the lake.
 
-Protecting Lake Massawippi means observing carefully, explaining clearly and acting consistently. Your donation helps Bleu Massawippi support concrete work: monitoring the lake and its tributaries, education, community involvement and the preparation of useful watershed projects.
+This summer, every contribution helps Bleu Massawippi monitor the lake and its tributaries, engage the community and prepare the next actions in the field.
 
-Every contribution matters, at whatever level is right for you. Thank you for being among the people who care for the lake with us.
+Are you becoming a member for the first time? When you choose the $100 “Membership — Double Your Impact” option, a special fund brings that new membership contribution to $200 for the lake.
 
-Donate: https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+Would you rather make a donation? The same form also lets you contribute freely, in the amount that is right for you. Thank you for moving forward with us.
 
-#BleuMassawippi #LakeMassawippi #SupportTheLake #EveryActionCounts`,
+Membership and donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LakeMassawippi #DoubleYourImpact #SupportTheLake`,
     choiceRequired: false,
     optionGroup: null,
     optionLabel: null,
@@ -242,15 +246,17 @@ Donate: https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b430
     calendarPriority: "donation-cadence",
     replacesDailySlot: true,
     donationCadence: "biweekly-wednesday",
+    rescheduledFrom: "2026-07-29",
+    rescheduledReason: "Appel avancé au mercredi 22 juillet à la demande des communications; l’identifiant est conservé pour préserver le feu vert texte et l’historique Firestore existants.",
     tasksValentin: [
-      "Ouvrir et vérifier le formulaire Zeffy, puis remplacer le lien si une campagne institutionnelle plus récente est officiellement retenue.",
-      "Choisir une photographie réelle autorisée, produire le format 4:5 et soumettre le texte puis le média aux validations prévues.",
-      "Programmer sur Facebook et Instagram, puis relever uniquement les dons confirmés dans le rapport Paiements de Zeffy pour préparer le bilan."
+      "Ouvrir et vérifier séparément les formulaires Zeffy français et anglais, puis confirmer que les deux mènent à la même campagne officielle.",
+      "Conserver la distinction entre nouvelle adhésion doublée et don libre, finaliser le visuel réel 4:5 et soumettre le média aux validations prévues.",
+      "Programmer sur Facebook et Instagram, puis relever séparément les nouvelles adhésions et les dons confirmés dans le rapport Paiements de Zeffy pour préparer le bilan."
     ],
     tasksAnnie: [
-      "Confirmer que les actions citées correspondent aux priorités institutionnelles actuelles et approuver le texte puis le média."
+      "Confirmer que le fonds spécial 2026 peut encore doubler les nouvelles adhésions de 100 $, puis approuver le texte et le média."
     ],
-    taskOwnersVersion: "event-task-owners-2026-07-20-donation-cycle-v1"
+    taskOwnersVersion: "event-task-owners-2026-07-21-donation-match-v2"
   },
   {
     id: "don-20260807-merci-bilan",
@@ -459,6 +465,7 @@ export function applyPlanOverridesToPosts(posts) {
   }
   const finalPosts = applyEditorialCopyOverrides(posts);
   const reprogrammed = {
+    "alt-20260722": { w: 6, date: "Dimanche 23 août", rescheduledFrom: "2026-07-22", rescheduledReason: "Bonne idée conservée et déplacée pour réserver le mercredi 22 juillet à l’appel Zeffy; la publication de prévention garde son texte, ses commentaires, ses médias et ses validations existants.", displacedBy: "don-20260729-appel-soutien", role: "Bonne idée interactive conservée et reprogrammée : rappeler avec chaleur que l’absence de débris visibles ne remplace pas le lavage, la vidange et le séchage recommandés." },
     "alt-20260721": { w: 7, date: "Lundi 24 août", role: "Bonne idée conservée et reprogrammée après arbitrage; capsule nature à produire avec une photographie réelle correctement identifiée." },
     "alt-20260723": { w: 7, date: "Mardi 25 août", role: "Bonne idée conservée et reprogrammée après arbitrage; capsule sur les fonctions d’une rive végétalisée à renforcer en français." },
     "alt-20260724": { w: 7, date: "Mercredi 26 août", role: "Bonne idée conservée et reprogrammée après arbitrage; amorce éditoriale de l’atelier d’automne sur les jardins de pluie, sans annoncer de date non confirmée." },
@@ -472,16 +479,6 @@ export function applyPlanOverridesToPosts(posts) {
     if (post) Object.assign(post, placement, { choiceRequired: false, optionGroup: null, optionLabel: null });
   });
   const donationDisplacements = {
-    "s3d4": {
-      w: 5,
-      date: "Samedi 15 août",
-      choiceRequired: false,
-      optionGroup: null,
-      optionLabel: null,
-      rescheduledFrom: "2026-07-29",
-      rescheduledReason: "Créneau libéré en priorité pour l’appel aux dons Zeffy du 29 juillet.",
-      displacedBy: "don-20260729-appel-soutien"
-    },
     "s4d5": {
       w: 5,
       date: "Vendredi 14 août",
