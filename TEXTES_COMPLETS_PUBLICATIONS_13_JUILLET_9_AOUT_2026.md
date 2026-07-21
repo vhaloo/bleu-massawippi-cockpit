@@ -625,30 +625,30 @@ Water quality, wildlife, shorelines, history or fieldwork: what would you like t
 **Thème :** Science
 **Format :** Infographie simple · résultats publiés seulement
 **Objectif :** Répondre au besoin de résultat d’analyse par une lecture prudente, sourcée et non sensationnaliste.
-**CTA :** Explorer le rapport 2025
+**CTA :** Lire le rapport annuel 2025
 **Visuel final :** Carrousel 4:5, chaleureux et très lisible : couverture « Trois repères parmi plusieurs », puis une carte illustrée pour le phosphore, la chlorophylle a et la transparence; dernière carte invitant à consulter le rapport complet sans présenter ces trois repères comme une liste exhaustive.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/rapports-et-memoires
+**Source de référence :** Bleu Massawippi — Suivi de la qualité de l’eau du lac Massawippi : Rapport annuel 2025, accessible dans Rapports et mémoires : https://bleumassawippi.com/rapports-et-memoires
 **Préparation :** Lier la page officielle des rapports; conserver les données chiffrées détaillées dans le rapport plutôt que dans la légende.
 
 ### Légende prête à programmer
 
 ```text
-FR — Ouvrons le rapport 2025 ensemble. Le phosphore total, la chlorophylle a et la transparence sont trois données utiles parmi plusieurs éléments suivis et analysés pour mieux comprendre le lac.
+FR — Jetons un coup d’œil au « Suivi de la qualité de l’eau du lac Massawippi : Rapport annuel 2025 », accessible dans la section Rapports et mémoires du site de Bleu Massawippi.
 
-Aucun indicateur ne raconte toute l’histoire à lui seul. C’est en croisant les résultats, leur contexte et leur évolution dans le temps que le portrait devient plus juste. Le rapport complet présente la démarche et l’ensemble des résultats disponibles.
+Le phosphore total, la chlorophylle a et la transparence sont trois données utiles parmi plusieurs éléments suivis et analysés pour mieux comprendre le lac. Aucun indicateur ne raconte toute l’histoire à lui seul : c’est en croisant les résultats, leur contexte et leur évolution dans le temps que le portrait devient plus juste.
 
-https://bleumassawippi.com/rapports-et-memoires
+Consultez le rapport annuel 2025 : https://bleumassawippi.com/rapports-et-memoires
 
 #QualitéDeLEau #BleuMassawippi #LacMassawippi #ScienceDuLac
 
 =========================================
 
-EN — Let’s open the 2025 report together. Total phosphorus, chlorophyll a and water clarity are three useful data points among several elements monitored and analyzed to better understand the lake.
+EN — Let’s take a look at “Lake Massawippi Water Quality Monitoring: 2025 Annual Report,” available in the Reports and Briefs section of the Bleu Massawippi website.
 
-No single indicator tells the whole story. A more accurate picture emerges when results, context and changes over time are considered together. The full report presents the approach and all available results.
+Total phosphorus, chlorophyll a and water clarity are three useful data points among several elements monitored and analyzed to better understand the lake. No single indicator tells the whole story: a more accurate picture emerges when results, context and changes over time are considered together.
 
-https://bleumassawippi.com/rapports-et-memoires
+Read the 2025 annual report: https://bleumassawippi.com/reports-briefs
 
 #WaterQuality #BleuMassawippi #LakeMassawippi #LakeScience
 ```
@@ -669,7 +669,7 @@ https://bleumassawippi.com/rapports-et-memoires
 ```text
 FR — Une forte pluie peut changer rapidement l’apparence de l’eau, des rives et des tributaires. Si quelque chose attire votre attention, prenez simplement note du lieu, du moment et de ce que vous voyez. Si vous pouvez le faire en sécurité, prenez aussi une ou deux photos d’ensemble et de détail pour bien documenter votre observation.
 
-Vous pouvez nous écrire à info@bleumassawippi.com. Vos observations nous aident à poser les bonnes questions et à rester attentifs au territoire. Merci d’être nos yeux autour du lac.
+Vous pouvez nous écrire en tout temps à info@bleumassawippi.com. Vos observations nous aident à mieux comprendre ce qui se passe sur le lac et à suivre l’évolution des enjeux qui touchent sa santé. Votre regard sur le territoire est précieux — merci d’être nos yeux autour du lac.
 
 #ObservationCitoyenne #BleuMassawippi #LacMassawippi #BassinVersant
 
@@ -677,36 +677,40 @@ Vous pouvez nous écrire à info@bleumassawippi.com. Vos observations nous aiden
 
 EN — Heavy rain can quickly change the appearance of the water, shorelines and tributaries. If something catches your attention, simply note the location, time and what you observe. If it is safe to do so, take one or two overview and detail photos to document your observation clearly.
 
-You can write to us at info@bleumassawippi.com. Your observations help us ask the right questions and stay attentive to the watershed. Thank you for being our eyes around the lake.
+You can write to us anytime at info@bleumassawippi.com. Your observations help us better understand what is happening on the lake and follow the issues affecting its health. Your view of the watershed is valuable — thank you for being our eyes around the lake.
 
 #CommunityObservation #BleuMassawippi #LakeMassawippi #Watershed
 ```
 
-## Jeudi 30 juillet — Le Massawippi à travers vos yeux
+## Jeudi 30 juillet — Ma préférée… et la vôtre?
 
 **Thème :** Communauté
 **Format :** Appel éditorial · photo + souvenir, sans prix
 **Objectif :** Transformer l’écoute en participation structurée, sans lancer un concours prématuré.
-**CTA :** Partager votre regard
-**Visuel final :** Mosaïque douce de trois vues authentiques du Massawippi — lumière, rive, moment partagé — encadrée comme des photos reçues; titre manuscrit « À travers vos yeux ».
+**CTA :** Partager votre photo préférée
+**Visuel final :** Conserver fidèlement la photographie noir et blanc de Gaétan et la présenter comme un tirage patiné dans un album-souvenir sobre. Ajouter seulement dans la marge la note manuscrite bilingue « Ma préférée… et la vôtre? / My favourite… what’s yours? ».
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** info@bleumassawippi.com
+**Source de référence :** Photographie « Gaétan 2MG1194-5-6. (32494054303).jpg » — Gaétan, 7 mars 2017, licence CC BY-SA 2.0 : https://commons.wikimedia.org/wiki/File:Ga%C3%A9tan_2MG1194-5-6._(32494054303).jpg
 **Préparation :** Traiter chaque envoi comme confidentiel; demander une autorisation explicite distincte avant toute republication ou adaptation.
 
 ### Légende prête à programmer
 
 ```text
-FR — La lumière sur l’eau, un coin de rive, un moment en famille : chacun porte un regard différent sur le Massawippi, et nous aimerions découvrir le vôtre.
+FR — Voici l’une de nos images préférées du Massawippi : une vue en noir et blanc qui semble déjà avoir trouvé sa place dans un album de souvenirs.
 
-Envoyez une photo prise par vous et une courte phrase sur ce qu’elle représente à info@bleumassawippi.com, objet : Photo Massawippi. Dites-nous simplement si vous seriez à l’aise qu’elle soit publiée. Nous vous recontacterons toujours avant toute diffusion.
+Et la vôtre, quelle est-elle? Envoyez-nous une photo prise par vous et une courte phrase à info@bleumassawippi.com, objet : Photo Massawippi. Nous vous recontacterons toujours avant toute diffusion.
+
+Photo : Gaétan, 2017 — CC BY-SA 2.0.
 
 #VosRegards #BleuMassawippi #LacMassawippi #Communauté
 
 =========================================
 
-EN — The light on the water, a favourite stretch of shoreline, a family moment: everyone sees Massawippi a little differently, and we would love to discover your view.
+EN — Here is one of our favourite images of Massawippi: a black-and-white view that already feels at home in a scrapbook of memories.
 
-Send a photo you took and a short sentence about what it means to info@bleumassawippi.com, subject: Massawippi Photo. Simply tell us whether you would be comfortable having it shared. We will always contact you before publication.
+What is your favourite? Send us a photo you took and a short note at info@bleumassawippi.com, subject: Massawippi Photo. We will always contact you before sharing it.
+
+Photo: Gaétan, 2017 — CC BY-SA 2.0.
 
 #YourView #BleuMassawippi #LakeMassawippi #Community
 ```
@@ -725,25 +729,27 @@ Send a photo you took and a short sentence about what it means to info@bleumassa
 ### Légende prête à programmer
 
 ```text
-FR — Avant qu’un résultat apparaisse dans un rapport, chaque échantillon est prélevé selon un protocole précis.
+FR — Avant qu’un résultat apparaisse dans un rapport, chaque échantillon d’eau est prélevé selon un protocole précis, adapté à l’objectif et au milieu : lac, tributaire ou plage.
 
-1. Choisir le site et les paramètres selon l’objectif : lac, tributaire ou plage.
-2. Identifier la bouteille et consigner la date, le lieu et les observations.
-3. Prélever sans contaminer l’échantillon, le garder au frais et respecter les consignes du laboratoire.
+1. Choisir le site et les paramètres.
+2. Identifier le contenant, puis consigner la date, le lieu et les observations.
+3. Prélever sans contaminer l’échantillon d’eau, le garder au frais et respecter les consignes du laboratoire.
+4. Acheminer les échantillons au laboratoire le plus rapidement possible.
 
-Le protocole varie selon le lieu et l’objectif : on ne cherche pas les mêmes informations au centre du lac, dans un tributaire ou à une plage. Dans une prochaine publication, nous vous montrerons les gestes qui permettent de recueillir et de conserver un échantillon avec soin. Les résultats seront partagés seulement après leur validation, accompagnés du contexte nécessaire pour bien les comprendre.
+Les résultats seront partagés seulement après leur validation, accompagnés du contexte nécessaire pour bien les comprendre.
 
 #ScienceDuLac #BleuMassawippi #QualitéDeLEau #LacMassawippi #Tributaires
 
 =========================================
 
-EN — Before a result appears in a report, every sample is collected according to a specific protocol.
+EN — Before a result appears in a report, every water sample is collected according to a precise protocol suited to its purpose and setting: lake, tributary or beach.
 
-1. Select the site and parameters based on the purpose of the sampling: lake, tributary or beach.
-2. Label the bottle and record the date, location and field observations.
-3. Collect the sample without contaminating it, keep it cool and follow the laboratory’s handling instructions.
+1. Select the site and parameters.
+2. Identify the container, then record the date, location and observations.
+3. Collect the water sample without contaminating it, keep it cool and follow the laboratory’s instructions.
+4. Deliver the samples to the laboratory as quickly as possible.
 
-The protocol varies with the location and purpose: teams are not looking for the same information in the middle of the lake, in a tributary or at a beach. In an upcoming post, we will show the careful steps used to collect and preserve a sample. Results will be shared only after validation, together with the context needed to understand them.
+Results will be shared only after validation, together with the context needed to understand them.
 
 #LakeScience #BleuMassawippi #WaterQuality #LakeMassawippi #Tributaries
 ```
@@ -834,17 +840,13 @@ Historical credit: Associated Screen News Limited, BAnQ collection.
 ### Légende prête à programmer
 
 ```text
-FR — Les vacances de la construction se terminent. Une lumière, une rive, un moment calme : parfois, une seule image suffit pour garder un souvenir du Massawippi.
-
-Aujourd’hui, la photo raconte l’essentiel.
+FR — Les vacances de la construction se terminent. En une image, quel souvenir gardez-vous de votre Massawippi?
 
 #SouvenirDuLac #BleuMassawippi #LacMassawippi #Estrie
 
 =========================================
 
-EN — The construction holiday is coming to an end. A certain light, a shoreline, a quiet moment: sometimes one image is enough to hold onto a Massawippi memory.
-
-Today, the photograph tells the story.
+EN — The construction holiday is coming to an end. In one image, what memory will you keep of your Massawippi?
 
 #LakeMemory #BleuMassawippi #LakeMassawippi #EasternTownships
 ```
