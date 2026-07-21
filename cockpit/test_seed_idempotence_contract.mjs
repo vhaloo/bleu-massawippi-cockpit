@@ -41,9 +41,9 @@ assert.match(read("seed_content_notices.js"), /if \(existing\.exists\)[\s\S]*pre
 assert.match(read("seed_content_notices.js"), /Une version vue ne doit jamais être rouverte/);
 const contentNotices = JSON.parse(read("content_notices.json"));
 assert.equal(contentNotices.schemaVersion, 1);
-assert.equal(contentNotices.notices.length, 7);
+assert.equal(contentNotices.notices.length, 9);
 assert.ok(contentNotices.notices.every((item) => item.audienceRole === "director" && item.assigneeEmail === "dg@bleumassawippi.com"));
-for (const id of ["strategic-zeffy-recurring-gifts-v1", "internal-application-funding-nonmunicipal-v1", "internal-poetry-progress-v2"]) {
+for (const id of ["strategic-zeffy-recurring-gifts-v1", "internal-application-funding-nonmunicipal-v1", "internal-poetry-progress-v2", "internal-poetry-progress-v3", "internal-youth-drawing-toolkit-v1"]) {
   assert.ok(contentNotices.notices.some((item) => item.id === id), `La nouveauté ${id} doit être versionnée dans le manifeste.`);
 }
 console.log("Contrat d’idempotence des synchronisations : OK");
