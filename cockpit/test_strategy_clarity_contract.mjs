@@ -16,8 +16,8 @@ for (const marker of [
   'href="#projets-internes"',
   'href="#occasions-a-saisir"',
   ".strategy-mandate-heading > .section-feedback",
-  'data-brand-logo-target',
-  "Le lac au centre.",
+  'class="cockpit-product-brand"',
+  './assets/brand/cockpit-bleu-massawippi-lockup.svg',
   "La règle de diffusion reste sept publications par semaine, une par jour.",
   "✓ 2 · Texte approuvé",
   "🖼️ 4 · Visuel approuvé",
@@ -27,7 +27,9 @@ for (const marker of [
 assert.ok(!strategy.includes('class="wrap stats"'), "Le bandeau de métriques redondant ne doit pas réapparaître hors de la stratégie.");
 assert.ok(!strategy.includes("Observer.<br>Comprendre.<br>Agir."), "L’accueil ne doit plus utiliser l’ancien visuel éditorial générique.");
 assert.ok(!strategy.includes("publications principales<br>séquence de lancement"), "L’accueil doit présenter un outil durable, pas une séquence de 28 jours.");
-assert.match(cockpitUi, /querySelectorAll\("\[data-brand-logo-target\]"\)/, "Le vrai logo configuré doit alimenter le repère d’identité de l’accueil.");
+assert.ok(!strategy.includes("brand-lake") && !strategy.includes("data-brand-logo-target") && !strategy.includes("Le lac au centre."),
+  "L’ancien mélange entre le logo et la forme de lac ne doit pas réapparaître.");
+assert.ok(!cockpitUi.includes("installBrandLogo"), "Le logo produit local ne doit plus dépendre d’un téléchargement dynamique OneDrive.");
 
 assert.equal((strategy.match(/class="strategy-toc-links"[\s\S]*?<\/nav>/)?.[0].match(/<a /g) || []).length, 8,
   "Le sommaire stratégique doit offrir exactement huit repères stables.");
@@ -36,6 +38,13 @@ const asset = fs.readFileSync(assetUrl);
 assert.ok(asset.length > 20_000 && asset.length < 150_000, "L’atlas doit rester net et léger pour GitHub Pages.");
 assert.equal(asset.subarray(0, 4).toString("ascii"), "RIFF", "L’atlas doit être un WebP valide.");
 assert.equal(asset.subarray(8, 12).toString("ascii"), "WEBP", "L’atlas doit être un WebP valide.");
+
+for (const relative of [
+  "./assets/brand/logo-bleu-massawippi-2024.png",
+  "./assets/brand/cockpit-bleu-massawippi-lockup.svg",
+  "./assets/brand/cockpit-bleu-massawippi-icon-192.png",
+  "./assets/brand/cockpit-bleu-massawippi-icon-512.png"
+]) assert.ok(fs.existsSync(new URL(relative, import.meta.url)), `L’identité produit doit livrer ${relative}.`);
 
 for (const marker of [
   "Comment ça marche ?",

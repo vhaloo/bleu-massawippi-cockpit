@@ -35,18 +35,18 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260720-b34";
-import { createEventContextController } from "./event-context-data.js?v=20260720-b34";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260720-b34";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260720-b34";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260720-b34";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260720-b34";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260720-b34";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260720-b34";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260720-b34";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260720-b34";
-import { setupControlHints } from "./control-hints.js?v=20260720-b34";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260720-b34";
+} from "./firebase-client.js?v=20260721-b35";
+import { createEventContextController } from "./event-context-data.js?v=20260721-b35";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260721-b35";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260721-b35";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260721-b35";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260721-b35";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260721-b35";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260721-b35";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260721-b35";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260721-b35";
+import { setupControlHints } from "./control-hints.js?v=20260721-b35";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260721-b35";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -88,6 +88,7 @@ style.textContent = `
   button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #2ab6bb;outline-offset:3px}
   .cockpit-login-card { width: min(450px, 100%); padding: 30px; border: 1px solid rgba(255,255,255,.35); border-radius: 24px; color: #102f3f; background: #f8fcfc; box-shadow: 0 30px 70px rgba(0,0,0,.25); }
   .cockpit-login-card h2 { margin: 0 0 7px; color: #073a52; font-size: 2rem; letter-spacing: -.04em; }
+  .cockpit-login-product { display:block; width:min(100%,360px); height:auto; margin:0 auto 18px; padding:12px 14px; border:1px solid #d6e8ea; border-radius:18px; background:#f8fcfc; }
   .cockpit-login-card p { color: #54717d; }
   .cockpit-login-card label { display: grid; gap: 5px; margin-top: 13px; color: #315564; font-size: .82rem; font-weight: 800; }
   .cockpit-login-card input { min-height: 44px; padding: 0 12px; border: 1px solid #cfe3e6; border-radius: 10px; color: #102f3f; background: white; }
@@ -250,8 +251,6 @@ style.textContent = `
   .cockpit-media-tools { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; margin-top: 8px; }
   .cockpit-media-folder { display: inline-block; padding: 6px 9px; border: 1px solid #0b7895; border-radius: 999px; color: #0b6077; font-size: .68rem; font-weight: 850; text-decoration: none; }
   .cockpit-media-note { margin: 0; color: #6b858d; font-size: .65rem; }
-  .cockpit-brand-logo { display:block; width:clamp(115px,14vw,190px); height:auto; margin:0 0 14px; object-fit:contain; }
-  .mast .cockpit-brand-logo { display:inline-block; width:96px; margin:0 10px 0 0; vertical-align:middle; }
   .post.workflow-complete { box-shadow:0 0 0 2px rgba(33,134,109,.18); }
   .post.workflow-complete:after { position:absolute; top:10px; right:10px; z-index:2; padding:3px 7px; border-radius:999px; content:"✓ Terminé"; color:#155c4e; background:#dff4ea; font-size:.62rem; font-weight:900; }
   .ready { display:none !important; }
@@ -385,9 +384,6 @@ style.textContent = `
     .hero .lead { margin-bottom:18px; font-size:.96rem; line-height:1.5; }
     .hero .buttons { gap:8px; }
     .hero .button { min-height:44px; padding:10px 15px; }
-    .cockpit-brand-logo { width:145px; max-height:86px; margin-bottom:8px; object-position:left center; }
-    .lake { min-height:170px; border-radius:28px; }
-    .lake span { bottom:92px; }
     .section { padding-top:48px; }
     .heading { margin-bottom:17px; }
     .heading h2 { font-size:clamp(1.8rem,8.8vw,2.35rem); line-height:1; }
@@ -578,6 +574,7 @@ function buildLogin() {
   login.setAttribute("aria-describedby", "cockpit-login-description");
   login.innerHTML = `
     <form class="cockpit-login-card" id="cockpit-login-form">
+      <img class="cockpit-login-product" src="./assets/brand/cockpit-bleu-massawippi-lockup.svg" alt="Cockpit Bleu Massawippi">
       <p class="eyebrow">Bleu Massawippi · espace sécurisé</p>
       <h2 id="cockpit-login-title">Connexion</h2>
       <p id="cockpit-login-description">Accédez au cockpit de collaboration avec votre compte Firebase autorisé.</p>
@@ -2283,24 +2280,6 @@ function activateEventContext(eventId) {
   eventContextController.activate(eventId);
 }
 
-function installBrandLogo() {
-  const url = safeMediaUrl(state.mediaConfig?.logoUrl || "");
-  const targets = [...document.querySelectorAll("[data-brand-logo-target]")];
-  if (!url || !targets.length) return;
-  const parsed = new URL(url); parsed.searchParams.set("download", "1");
-  targets.forEach((target) => {
-    if (target.querySelector(".cockpit-brand-logo")) return;
-    const img = document.createElement("img");
-    img.className = "cockpit-brand-logo";
-    img.src = parsed.href;
-    img.alt = "Bleu Massawippi";
-    img.decoding = "async";
-    img.onload = () => target.classList.add("has-brand-logo");
-    img.onerror = () => img.remove();
-    target.prepend(img);
-  });
-}
-
 function updateSinglePostLayouts() {
   const plan = Array.isArray(globalThis.posts) ? globalThis.posts : [];
   document.querySelectorAll(".day-group .posts").forEach((grid) => {
@@ -3071,7 +3050,6 @@ async function applyProfile(profile) {
     document.querySelector("#cockpit-task-launch")?.remove();
   }
   addFooterCredit();
-  installBrandLogo();
   enhanceCards();
   enhanceSectionFeedback();
   setupFeedbackDictationEvents();
