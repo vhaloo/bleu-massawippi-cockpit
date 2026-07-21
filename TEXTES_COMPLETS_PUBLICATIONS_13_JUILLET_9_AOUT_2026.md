@@ -311,41 +311,45 @@ EN — Take a moment to appreciate what we are fortunate to protect: the lake, i
 #BlueMoment #BleuMassawippi #LakeMassawippi #EasternTownships
 ```
 
-## Mercredi 22 juillet — Ça semble propre… mais l’est-ce vraiment?
+## Mercredi 22 juillet — Doublez votre impact pour le lac
 
-**Thème :** Interaction
-**Format :** Vrai ou faux · deux cartes
-**Objectif :** Faire comprendre qu’un regard rapide ne remplace pas le lavage requis pour réduire le transport d’espèces exotiques envahissantes.
-**CTA :** Faire défiler pour vérifier les étapes
-**Visuel final :** Planche scolaire chaleureuse : une embarcation qui semble propre, un détail grossi des organismes invisibles à l’œil nu, puis les trois gestes « Nettoyer · Vider · Sécher ». Question manuscrite bilingue : « Ça semble propre… mais l’est-ce vraiment? / It looks clean… but is it really? ».
+**Thème :** Soutien
+**Format :** Photo réelle + note manuscrite 4:5 · appel bilingue
+**Objectif :** Inviter chaleureusement à devenir membre ou à faire un don, en précisant que le doublement par le fonds spécial vise uniquement la nouvelle adhésion de 100 $.
+**CTA :** Devenir membre ou faire un don
+**Visuel final :** Photographie réelle du lac fournie par l’association, conservée reconnaissable; carnet ivoire au premier plan avec le titre manuscrit bilingue « Doublez votre impact / Double your impact » et la précision « Nouvelle adhésion : 100 $ → 200 $ pour le lac ».
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Gouvernement du Québec — nettoyage des embarcations et prévention des EEE · https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
-**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+**Source de référence :** Documents internes SharePoint vérifiés le 21 juillet 2026 : Passation communication; Campagne 2026 FR; 20260304 - Campagne 2026 EN. Ces documents limitent le doublement à la contribution des nouveaux membres grâce à un fonds spécial. Liens Zeffy vérifiés : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+**Préparation :** Confirmer que le fonds spécial 2026 est toujours disponible, vérifier les deux formulaires Zeffy et programmer seulement après les validations du texte, du média et des liens.
 
 ### Légende prête à programmer
 
 ```text
-FR — Vrai ou faux? Une embarcation sans débris visible peut passer directement d’un plan d’eau à un autre.
+FR — 💙 Doublez votre impact pour le lac.
 
-Faux. Ne rien voir ne veut pas dire qu’aucun organisme n’est présent. Pour réduire le risque de transporter des espèces exotiques envahissantes (EEE), le lavage de tout ce qui a touché l’eau est essentiel. Il faut aussi vider l’eau retenue et sécher selon les consignes officielles : un simple coup d’œil ne remplace pas ces étapes.
+Cet été, chaque geste aide Bleu Massawippi à mieux suivre le lac et ses tributaires, à sensibiliser la communauté et à préparer les prochaines actions sur le terrain.
 
-Le guide à garder sous la main : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+Vous devenez membre pour la première fois? En choisissant l’option « Adhésion — Doublez votre impact » à 100 $, un fonds spécial porte cette nouvelle adhésion à 200 $ pour le lac.
 
-Envie de continuer à jouer? Testez vos connaissances du lac avec notre quiz bilingue de plus de 500 questions : https://bleumassawippi.com/quiz
+Vous préférez simplement faire un don? Le même formulaire permet aussi de contribuer librement, au montant qui vous convient. Merci d’avancer avec nous.
 
-#QuizDuLac #BleuMassawippi #EspècesEnvahissantes #NautismeResponsable
+Adhésion et don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LacMassawippi #DoublezVotreImpact #SoutenirLeLac
 
 =========================================
 
-EN — True or false? A boat with no visible debris can move directly from one body of water to another.
+EN — 💙 Double your impact for the lake.
 
-False. Seeing nothing does not mean no organisms are present. To reduce the risk of transporting invasive alien species, washing everything that has touched the water is essential. Retained water must also be drained and equipment dried according to official guidance: a visual check cannot replace those steps.
+This summer, every contribution helps Bleu Massawippi monitor the lake and its tributaries, engage the community and prepare the next actions in the field.
 
-Keep the official guide handy: https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+Are you becoming a member for the first time? When you choose the $100 “Membership — Double Your Impact” option, a special fund brings that new membership contribution to $200 for the lake.
 
-Want to keep playing? Test your knowledge of the lake with our bilingual quiz featuring more than 500 questions: https://bleumassawippi.com/quiz
+Would you rather make a donation? The same form also lets you contribute freely, in the amount that is right for you. Thank you for moving forward with us.
 
-#LakeQuiz #BleuMassawippi #InvasiveSpecies #ResponsibleBoating
+Membership and donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LakeMassawippi #DoubleYourImpact #SupportTheLake
 ```
 
 ## Archive éditoriale — Quelques minutes qui voyagent loin
@@ -649,41 +653,33 @@ https://bleumassawippi.com/rapports-et-memoires
 #WaterQuality #BleuMassawippi #LakeMassawippi #LakeScience
 ```
 
-## Mercredi 29 juillet — Votre impact prend racine
+## Mercredi 29 juillet — Après la pluie, vos observations comptent
 
-**Thème :** Soutien
-**Format :** Photo réelle + appel aux dons bilingue
-**Objectif :** Présenter avec chaleur ce que les dons rendent possible, sans culpabiliser et sans annoncer de contrepartie financière non confirmée.
-**CTA :** Soutenir Bleu Massawippi
-**Visuel final :** Photographie réelle, autorisée et évocatrice du lac ou d’un geste de terrain; une seule courte mention manuscrite : « Votre impact prend racine ».
+**Thème :** Actualité
+**Format :** Carrousel 3 gestes · après fortes pluies
+**Objectif :** Répondre au besoin de vigilance avec des comportements utiles, sans simuler une alerte officielle.
+**CTA :** Partager une observation
+**Visuel final :** Photo réelle d’un tributaire ou d’une rive après la pluie, tons naturels et non dramatiques; trois repères visuels discrets « lieu · moment · observation » sans simuler une alerte.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Lien de don Zeffy historique à revérifier avant programmation : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
-**Préparation :** Vérifier le formulaire de don, choisir une preuve visuelle autorisée et programmer seulement après les validations du texte, du média et du lien.
+**Source de référence :** https://bleumassawippi.com/accueil-1
+**Préparation :** Ne pas publier d’avis de baignade ou de cause présumée sans validation scientifique et administrative; orienter les questions vers le contact officiel.
 
 ### Légende prête à programmer
 
 ```text
-FR — Votre impact prend racine.
+FR — Une forte pluie peut changer rapidement l’apparence de l’eau, des rives et des tributaires. Si quelque chose attire votre attention, prenez simplement note du lieu, du moment et de ce que vous voyez. Si vous pouvez le faire en sécurité, prenez aussi une ou deux photos d’ensemble et de détail pour bien documenter votre observation.
 
-Protéger le lac Massawippi, c’est observer avec rigueur, expliquer avec clarté et agir avec constance. Votre don aide Bleu Massawippi à soutenir des actions concrètes : suivi du lac et de ses tributaires, sensibilisation, mobilisation citoyenne et préparation de projets utiles au bassin versant.
+Vous pouvez nous écrire à info@bleumassawippi.com. Vos observations nous aident à poser les bonnes questions et à rester attentifs au territoire. Merci d’être nos yeux autour du lac.
 
-Chaque contribution compte, à la mesure de chacun. Merci de faire partie des personnes qui prennent soin du lac avec nous.
-
-Faire un don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
-
-#BleuMassawippi #LacMassawippi #SoutenirLeLac #ChaqueGesteCompte
+#ObservationCitoyenne #BleuMassawippi #LacMassawippi #BassinVersant
 
 =========================================
 
-EN — Your impact takes root.
+EN — Heavy rain can quickly change the appearance of the water, shorelines and tributaries. If something catches your attention, simply note the location, time and what you observe. If it is safe to do so, take one or two overview and detail photos to document your observation clearly.
 
-Protecting Lake Massawippi means observing carefully, explaining clearly and acting consistently. Your donation helps Bleu Massawippi support concrete work: monitoring the lake and its tributaries, education, community involvement and the preparation of useful watershed projects.
+You can write to us at info@bleumassawippi.com. Your observations help us ask the right questions and stay attentive to the watershed. Thank you for being our eyes around the lake.
 
-Every contribution matters, at whatever level is right for you. Thank you for being among the people who care for the lake with us.
-
-Donate: https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
-
-#BleuMassawippi #LakeMassawippi #SupportTheLake #EveryActionCounts
+#CommunityObservation #BleuMassawippi #LakeMassawippi #Watershed
 ```
 
 ## Jeudi 30 juillet — Le Massawippi à travers vos yeux
@@ -1462,35 +1458,6 @@ Following its journey offers a new way to see the watershed: what slows and abso
 #Watershed #BleuMassawippi #LakeMassawippi #ThinkUpstream
 ```
 
-## Samedi 15 août — Après la pluie, vos observations comptent
-
-**Thème :** Actualité
-**Format :** Carrousel 3 gestes · après fortes pluies
-**Objectif :** Répondre au besoin de vigilance avec des comportements utiles, sans simuler une alerte officielle.
-**CTA :** Partager une observation
-**Visuel final :** Photo réelle d’un tributaire ou d’une rive après la pluie, tons naturels et non dramatiques; trois repères visuels discrets « lieu · moment · observation » sans simuler une alerte.
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/accueil-1
-**Préparation :** Ne pas publier d’avis de baignade ou de cause présumée sans validation scientifique et administrative; orienter les questions vers le contact officiel.
-
-### Légende prête à programmer
-
-```text
-FR — Une forte pluie peut changer rapidement l’apparence de l’eau, des rives et des tributaires. Si quelque chose attire votre attention, prenez simplement note du lieu, du moment et de ce que vous voyez. Si vous pouvez le faire en sécurité, prenez aussi une ou deux photos d’ensemble et de détail pour bien documenter votre observation.
-
-Vous pouvez nous écrire à info@bleumassawippi.com. Vos observations nous aident à poser les bonnes questions et à rester attentifs au territoire. Merci d’être nos yeux autour du lac.
-
-#ObservationCitoyenne #BleuMassawippi #LacMassawippi #BassinVersant
-
-=========================================
-
-EN — Heavy rain can quickly change the appearance of the water, shorelines and tributaries. If something catches your attention, simply note the location, time and what you observe. If it is safe to do so, take one or two overview and detail photos to document your observation clearly.
-
-You can write to us at info@bleumassawippi.com. Your observations help us ask the right questions and stay attentive to the watershed. Thank you for being our eyes around the lake.
-
-#CommunityObservation #BleuMassawippi #LakeMassawippi #Watershed
-```
-
 ## Dimanche 16 août — Votre essentiel avant de partir
 
 **Thème :** Interaction
@@ -1704,6 +1671,43 @@ This cover provides refuge for many invertebrates and, depending on the habitat,
 On your next walk, take time to notice this small world while leaving leaves, stones and animals where they are. Which detail sparks your curiosity?
 
 #BleuMassawippi #LakeMassawippi #LivingShoreline #LakeNature
+```
+
+## Dimanche 23 août — Ça semble propre… mais l’est-ce vraiment?
+
+**Thème :** Interaction
+**Format :** Vrai ou faux · deux cartes
+**Objectif :** Bonne idée interactive conservée et reprogrammée : rappeler avec chaleur que l’absence de débris visibles ne remplace pas le lavage, la vidange et le séchage recommandés.
+**CTA :** Faire défiler pour vérifier les étapes
+**Visuel final :** Planche scolaire chaleureuse : une embarcation qui semble propre, un détail grossi des organismes invisibles à l’œil nu, puis les trois gestes « Nettoyer · Vider · Sécher ». Question manuscrite bilingue : « Ça semble propre… mais l’est-ce vraiment? / It looks clean… but is it really? ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Gouvernement du Québec — nettoyage des embarcations et prévention des EEE · https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Vrai ou faux? Une embarcation sans débris visible peut passer directement d’un plan d’eau à un autre.
+
+Faux. Ne rien voir ne veut pas dire qu’aucun organisme n’est présent. Pour réduire le risque de transporter des espèces exotiques envahissantes (EEE), le lavage de tout ce qui a touché l’eau est essentiel. Il faut aussi vider l’eau retenue et sécher selon les consignes officielles : un simple coup d’œil ne remplace pas ces étapes.
+
+Le guide à garder sous la main : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+
+Envie de continuer à jouer? Testez vos connaissances du lac avec notre quiz bilingue de plus de 500 questions : https://bleumassawippi.com/quiz
+
+#QuizDuLac #BleuMassawippi #EspècesEnvahissantes #NautismeResponsable
+
+=========================================
+
+EN — True or false? A boat with no visible debris can move directly from one body of water to another.
+
+False. Seeing nothing does not mean no organisms are present. To reduce the risk of transporting invasive alien species, washing everything that has touched the water is essential. Retained water must also be drained and equipment dried according to official guidance: a visual check cannot replace those steps.
+
+Keep the official guide handy: https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+
+Want to keep playing? Test your knowledge of the lake with our bilingual quiz featuring more than 500 questions: https://bleumassawippi.com/quiz
+
+#LakeQuiz #BleuMassawippi #InvasiveSpecies #ResponsibleBoating
 ```
 
 ## Lundi 24 août — Le plongeon huard (Gavia immer), voix du lac
