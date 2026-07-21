@@ -96,16 +96,32 @@ const donationThanks = posts.find((post) => post.id === "don-20260807-merci-bila
 assert.equal(donationAppeal.parallelOperationalItem, false, "L’appel aux dons doit occuper seul le créneau quotidien prioritaire.");
 assert.equal(donationAppeal.calendarPriority, "donation-cadence");
 assert.equal(donationAppeal.replacesDailySlot, true);
-assert.deepEqual(posts.filter((post) => post.dateIso === "2026-07-29").map((post) => post.id), [donationAppeal.id], "Le 29 juillet doit être réservé à l’appel Zeffy.");
+assert.equal(donationAppeal.dateIso, "2026-07-22", "L’appel Zeffy doit occuper le mercredi 22 juillet.");
+assert.equal(donationAppeal.rescheduledFrom, "2026-07-29", "Le déplacement doit rester explicite sans renommer l’événement Firestore.");
+assert.deepEqual(activePosts.filter((post) => post.dateIso === "2026-07-22").map((post) => post.id), [donationAppeal.id], "Le 22 juillet actif doit être réservé à l’appel Zeffy.");
 assert.match(donationAppeal.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
+assert.match(donationAppeal.copy, /Adhésion — Doublez votre impact[\s\S]*100 \$[\s\S]*200 \$/i);
+assert.match(donationAppeal.copy, /new membership/i);
+assert.match(donationAppeal.copy, /\$100[\s\S]*\$200/i);
+assert.match(donationAppeal.copy, /zeffy\.com\/fr-CA\/ticketing\/42ba0194-3043-44a6-a194-b6e7e6b43007/);
+assert.match(donationAppeal.copy, /zeffy\.com\/en-CA\/ticketing\/42ba0194-3043-44a6-a194-b6e7e6b43007/);
+assert.ok(donationAppeal.copy.length <= 2200, "La légende bilingue complète doit respecter la limite Meta convenue.");
+assert.match(donationAppeal.source, /limitent le doublement à la contribution des nouveaux membres/i);
+assert.match(donationAppeal.fallback, /ne jamais laisser entendre que tous les dons libres sont doublés/i);
+assert.doesNotMatch(donationAppeal.copy, /(?:chaque|tous? les|every|all) (?:don|dons|donation|donations|contribution|contributions)[^\n]{0,80}(?:doubl|double)/i,
+  "La publication ne doit jamais prétendre que tous les dons libres sont doublés.");
 assert.equal(donationThanks.publicationBlocked, true, "Le remerciement doit rester bloqué tant que le montant réel n’est pas confirmé.");
 assert.equal(donationThanks.requiresConfirmedDonationAmount, true);
 assert.deepEqual(donationThanks.requiredPlaceholders, ["[DATE DE L’APPEL]", "[MONTANT NET CONFIRMÉ]", "[APPEAL DATE]", "[CONFIRMED NET AMOUNT]"]);
 assert.match(donationThanks.source, /Paiements filtré par date de paiement/i);
 assert.deepEqual(posts.filter((post) => post.dateIso === "2026-08-07").map((post) => post.id), [donationThanks.id], "Le 7 août doit être réservé au bilan Zeffy.");
 const displacedRainPost = posts.find((post) => post.id === "s3d4");
-assert.equal(displacedRainPost.dateIso, "2026-08-15");
-assert.equal(displacedRainPost.displacedBy, donationAppeal.id);
+assert.equal(displacedRainPost.dateIso, "2026-07-29", "Le post pluie doit retrouver son créneau initial maintenant libéré.");
+assert.deepEqual(activePosts.filter((post) => post.dateIso === "2026-07-29").map((post) => post.id), [displacedRainPost.id]);
+const displacedBoatCleaningPost = posts.find((post) => post.id === "alt-20260722");
+assert.equal(displacedBoatCleaningPost.dateIso, "2026-08-23", "Le post remplacé le 22 juillet doit être conservé et reprogrammé.");
+assert.equal(displacedBoatCleaningPost.archivedEditorial, undefined, "Le post déplacé ne doit pas devenir une archive.");
+assert.equal(displacedBoatCleaningPost.displacedBy, donationAppeal.id);
 const displacedWatershedPost = posts.find((post) => post.id === "s4d5");
 const displacedHeritagePost = posts.find((post) => post.id === "alt-20260807");
 assert.equal(displacedWatershedPost.dateIso, "2026-08-14");
@@ -135,7 +151,7 @@ assert.match(lexiconPost.copy, /cours d’eau qui en rejoint un autre/i);
 const firstFourWeeks = Object.groupBy(posts.filter((post) => post.w <= 4), (post) => post.date);
 assert.equal(Object.keys(firstFourWeeks).length, 28);
 assert.equal(Object.values(firstFourWeeks).filter((items) => items.length >= 2).length, 7);
-assert.ok(firstFourWeeks["Mercredi 29 juillet"].some((post) => post.id === donationAppeal.id));
+assert.ok(firstFourWeeks["Mercredi 22 juillet"].some((post) => post.id === donationAppeal.id));
 assert.ok(firstFourWeeks["Vendredi 7 août"].some((post) => post.id === donationThanks.id));
 const deferredBoatWash = posts.find((post) => post.id === "s4d1");
 assert.equal(deferredBoatWash.date, "Vendredi 21 août");
@@ -461,6 +477,13 @@ for (const id of ["s1d5", "s2d1b", "alt-20260722"]) {
   assert.match(quizPost.copy, /more than 500 questions/);
   assert.equal(quizPost.quizDestinationVersion, "bleumassawippi-quiz-v1-2026-07-17");
 }
+const matchedDonationMedia = editorialMedia.find((media) => media.id === "editorial-don-20260729-double-impact-v2");
+assert.ok(matchedDonationMedia, "Le nouveau visuel Zeffy doit être inscrit dans le manifeste éditorial.");
+assert.equal(matchedDonationMedia.eventId, donationAppeal.id);
+assert.match(matchedDonationMedia.note, /nouvelle adhésion de 100 dollars[\s\S]*fonds spécial/i);
+const matchedDonationPreview = path.join(root, "cockpit", "media-previews", "2026-07-22", "doublez-votre-impact-adhesion-v2-preview.webp");
+assert.ok(fs.existsSync(matchedDonationPreview), "L’aperçu WebP du nouveau visuel Zeffy doit être publié.");
+assert.ok(fs.statSync(matchedDonationPreview).size < 150_000, "L’aperçu Zeffy doit rester léger sur mobile.");
 assert.doesNotMatch(posts.find((post) => post.id === "s4d7").copy, /bleumassawippi\.com\/quiz/,
   "Un sondage qui mentionne éventuellement un quiz ne doit pas être transformé en publication quiz.");
 assert.equal((source.match(/data-internal-project-id=/g) || []).length, 15, "Le registre privé doit contenir les quinze projets internes documentés.");
