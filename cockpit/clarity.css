@@ -30,3 +30,24 @@ html[data-motion="on"] .cockpit-workflow-gate:not(:disabled):hover{transform:tra
 [data-theme="dark"] .cockpit-workflow-help summary{color:#d8edf0}
 [data-theme="dark"] .cockpit-workflow-help p{color:#c1d8dc}
 @media(max-width:700px){.cockpit-workflow{padding:11px}.cockpit-workflow h5{align-items:flex-start;flex-direction:column}.cockpit-workflow-path{white-space:normal}.cockpit-workflow-gates{grid-template-columns:repeat(3,minmax(0,1fr))}.cockpit-workflow-gate{min-height:78px;padding:28px 6px 7px;text-align:center}.cockpit-workflow-gate:before{top:7px;left:50%;transform:translateX(-50%)}.cockpit-workflow-gate b{font-size:.69rem}.cockpit-workflow-gate span{font-size:.63rem}.cockpit-workflow-actions button{width:100%;min-height:44px}}
+
+/* Historique admin chargé uniquement à la demande. */
+#cockpit-completed-task-history{margin:-8px 0 24px;border:1px solid #c9dfe2;border-radius:12px;background:rgba(255,255,255,.72)}
+#cockpit-completed-task-history>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;padding:9px 11px;color:#315564;font-size:.76rem;font-weight:850;cursor:pointer;list-style:none}
+#cockpit-completed-task-history>summary::-webkit-details-marker{display:none}
+#cockpit-completed-task-history>summary:after{content:"+";display:grid;place-items:center;width:25px;height:25px;border-radius:8px;color:#fff;background:#315564;font-size:1rem;line-height:1}
+#cockpit-completed-task-history[open]>summary:after{content:"−"}
+.cockpit-completed-task-body{padding:0 10px 11px;border-top:1px solid #dbe9eb}
+.cockpit-history-status{margin:9px 0;color:#67838d;font-size:.68rem;line-height:1.4}
+.cockpit-history-actions{display:flex;gap:8px;margin-top:10px}
+.cockpit-history-actions button{min-height:38px;padding:7px 10px;border:1px solid #5d8994;border-radius:9px;color:#234b5a;background:#fff;font-weight:800;cursor:pointer}
+.cockpit-history-actions button[hidden]{display:none}
+.cockpit-task-completed{opacity:.92;border-color:#b9d8cf;background:#f5fbf8}
+.cockpit-task-completed.comment-task{border-width:1px;border-color:#c9d8d2;background:#f7faf9;box-shadow:none}
+.cockpit-task-lock{display:inline-flex;align-items:center;min-height:30px;padding:4px 8px;color:#55716c;font-size:.64rem;font-weight:800}
+[data-theme="dark"] #cockpit-completed-task-history{border-color:#52727d;background:#152c36}
+[data-theme="dark"] #cockpit-completed-task-history>summary{color:#e9f8fa}
+[data-theme="dark"] .cockpit-completed-task-body{border-color:#496873}
+[data-theme="dark"] .cockpit-history-status{color:#bfd1d7}
+[data-theme="dark"] .cockpit-task-completed{color:#dffff3;background:#1e443b;border-color:#76c8aa}
+[data-theme="dark"] .cockpit-task-lock{color:#c8dadd}

@@ -89,8 +89,23 @@ assert.ok(volunteer.tasksAnnie.some((task) => /coordonn/i.test(task)));
 assert.ok(volunteer.tasksAnnie.some((task) => /consentement/i.test(task)));
 assert.equal(firstTuesday.choiceRequired, false, "La proposition retenue du mardi est verrouillée et ne demande plus d’arbitrage.");
 assert.equal(firstTuesday.optionGroup, null, "Une proposition verrouillée ne doit plus appartenir à un groupe de choix actif.");
-assert.equal(posts.filter((post) => !post.isAlternative).length, 30);
-assert.equal(posts.length, 60);
+assert.equal(posts.filter((post) => !post.isAlternative).length, 31);
+assert.equal(posts.length, 61);
+const poetryCall = posts.find((post) => post.id === "poesie-20260727-appel-aux-voix");
+const deferredJuly27Monitoring = posts.find((post) => post.id === "s3d1");
+assert.ok(poetryCall, "L’appel aux voix Au bord du bleu doit exister dans le calendrier.");
+assert.equal(poetryCall.dateIso, "2026-07-27");
+assert.equal(poetryCall.choiceRequired, false);
+assert.equal(poetryCall.replacesDailySlot, true);
+assert.match(poetryCall.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
+assert.match(poetryCall.copy, /https:\/\/forms\.office\.com\/r\/4A2xsMh7st/);
+assert.match(poetryCall.copy, /5 à 15 minutes/);
+assert.match(poetryCall.copy, /5 to 15 minutes/);
+assert.ok(poetryCall.copy.length <= 2200, "L’appel bilingue doit respecter la limite Meta convenue.");
+assert.deepEqual(activePosts.filter((post) => post.dateIso === "2026-07-27").map((post) => post.id), [poetryCall.id], "Le 27 juillet actif doit être réservé à l’appel aux voix.");
+assert.equal(deferredJuly27Monitoring.dateIso, "2026-08-15", "La publication scientifique déplacée doit rester dans le calendrier.");
+assert.equal(deferredJuly27Monitoring.rescheduledFrom, "2026-07-27");
+assert.equal(deferredJuly27Monitoring.displacedBy, poetryCall.id);
 const donationAppeal = posts.find((post) => post.id === "don-20260729-appel-soutien");
 const donationThanks = posts.find((post) => post.id === "don-20260807-merci-bilan");
 assert.equal(donationAppeal.parallelOperationalItem, false, "L’appel aux dons doit occuper seul le créneau quotidien prioritaire.");
@@ -392,7 +407,7 @@ assert.ok(editorialMedia.some((item) => /\.png$/.test(item.fileName)), "Le regis
 assert.ok(editorialMedia.some((item) => /\.mp4$/.test(item.fileName) && item.kind === "video"), "Le registre doit accepter les vidéos MP4 déclarées comme telles.");
 assert.doesNotMatch(JSON.stringify(editorialMedia), /sharepoint\.com|:\/g\/IQ/i);
 
-for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMedia", "button[data-dictate]", "data-add-post-calendar", "data-media-form", "cockpit-media-open-label", "cockpit-media-info", "Informations et actions", "cockpit-media-enlarge", "object-fit: contain", "setupMediaNavigation", "data-media-previous", "data-media-next", "glissez les images ou utilisez les flèches", "cockpit-date-elevator", "data-date-target", "requestDateElevatorUpdate", "data-workflow-stage", "workflowDirection", "aria-pressed=\"false\"", "Feu vert retiré; l’historique est conservé.", "id=\\\"cockpit-task-count\\\" data-task-count", "Mini-chat de l’événement", "data-resolve-comment", "Voir les messages traités", "comment-task", "data-editorial-decision", "Bonne idée — autre jour", "Ne pas retenir cet angle", "editorial-deferred", "data-comment-thread", "MutationObserver", "Connexion…", "bleu-massawippi-guide-collapsed", "data-guide-new-badge", "setOpportunityStage", "data-opportunity-stage", "bleu-massawippi-projects-collapsed", "setupInternalProjectPreference", "setupInternalProjectEvents", "renderInternalProjectStates", "data-internal-project-stage", "internalProjectUnsubscribe", "Valider le texte avec l’aval", "Le texte et le visuel peuvent avancer en parallèle", "syncResponsiveOffsets", "setAdminSidebarOpen", "--cockpit-session-height"]) {
+for (const token of ["SpeechRecognition", "webkitSpeechRecognition", "getUserMedia", "button[data-dictate]", "data-add-post-calendar", "data-media-form", "cockpit-media-open-label", "cockpit-media-info", "Informations et actions", "cockpit-media-enlarge", "object-fit: contain", "setupMediaNavigation", "data-media-previous", "data-media-next", "glissez les images ou utilisez les flèches", "cockpit-date-elevator", "data-date-target", "requestDateElevatorUpdate", "data-workflow-stage", "workflowDirection", "aria-pressed=\"false\"", "Feu vert retiré; l’historique est conservé.", "id=\"cockpit-task-count\" data-task-count", "Mini-chat de l’événement", "data-resolve-comment", "Voir les messages traités", "comment-task", "data-editorial-decision", "Bonne idée — autre jour", "Ne pas retenir cet angle", "editorial-deferred", "data-comment-thread", "MutationObserver", "Connexion…", "bleu-massawippi-guide-collapsed", "data-guide-new-badge", "setOpportunityStage", "data-opportunity-stage", "bleu-massawippi-projects-collapsed", "setupInternalProjectPreference", "setupInternalProjectEvents", "renderInternalProjectStates", "data-internal-project-stage", "internalProjectUnsubscribe", "Valider le texte avec l’aval", "Le texte et le visuel peuvent avancer en parallèle", "syncResponsiveOffsets", "setAdminSidebarOpen", "--cockpit-session-height"]) {
   assert.ok(ui.includes(token), `Le cockpit doit contenir le contrat ${token}.`);
 }
 for (const token of ["stateTimestampMillis", "actionTaskPriority", "data-task-target-type", "data-task-updated-at", "cockpit-task-priority", "data-media-updated-at", "dataset.workflowUpdatedAt", "dataset.editorialUpdatedAt", "cockpit-media-blocked", "Référence non diffusable"]) {
@@ -523,41 +538,50 @@ assert.match(photoProject, /data-internal-project-controls/);
 assert.doesNotMatch(source, /<section[^>]*id="photo"/,
   "La participation photo ne doit plus survivre comme section isolée hors des projets internes.");
 const poetryProject = source.match(/<details class="internal-project" id="internal-project-poesie-du-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
-assert.match(poetryProject, /Valentin Wittwe, directeur des communications de Bleu Massawippi/,
-  "La fiche poésie doit expliciter l’actif relationnel demandé par les communications.");
 assert.match(poetryProject, /réseau d’acteurs, de poètes, de slameurs et d’interprètes/,
   "Le réseau professionnel mobilisable doit être décrit sans réduire le projet à un appel public.");
 assert.match(poetryProject, /Au bord du bleu/);
 assert.match(poetryProject, /dimanche 30 août/i);
 assert.match(poetryProject, /13 h à 16 h/i);
-assert.match(poetryProject, /75 à 90 minutes/);
-assert.match(poetryProject, /6 à 10 voix/);
+assert.match(poetryProject, /programme public d’environ une à deux heures/i);
+assert.match(poetryProject, /Passages de 5 à 15 minutes/);
 assert.match(poetryProject, /partie engazonnée du parc Lôbadanaki/i);
 assert.match(poetryProject, /distincte de la bande riveraine fermée/i);
 assert.match(poetryProject, /Cible : 0 \$/);
 assert.match(poetryProject, /Plafond prudent : 250 \$ maximum/);
-assert.match(poetryProject, /Direction générale — environ 1 h 15 au total/);
+assert.match(poetryProject, /Direction générale — environ 1 h 10 au total/);
 assert.match(poetryProject, /Communications — environ 8 à 12 h au total/);
-assert.match(poetryProject, /affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v4\.webp/);
-assert.match(poetryProject, /affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v4\.png/);
+assert.match(poetryProject, /affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v5\.webp/);
+assert.match(poetryProject, /affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v5\.png/);
+assert.match(poetryProject, /Il s’agit d’une illustration, pas d’une photographie documentaire du site/,
+  "La V5 doit être décrite honnêtement comme une composition illustrée.");
+assert.match(poetryProject, /Partenaires et commandites — visibilité utile, indépendance préservée/);
+assert.match(poetryProject, /aucune visibilité ne donne un droit de regard sur la sélection artistique/i);
+assert.match(poetryProject, /ADDENDUM_VISUEL_PARTENAIRES_AU_BORD_DU_BLEU_V5\.md/);
 assert.match(poetryProject, /data-initial-stage="active" open/,
   "La fiche poésie en préparation avancée doit rester ouverte afin de rendre l’affiche immédiatement visible.");
-assert.match(poetryProject, /30 AOÛT · 13 H–16 H · LIEU À AUTORISER/);
-assert.match(poetryProject, /presque tout le plateau/i);
+assert.match(poetryProject, /30 AOÛT · 13 H–16 H · PARC LÔBADANAKI PRÉVU/);
+assert.match(poetryProject, /Feu vert acquis et premier appui concret/i);
+assert.match(poetryProject, /https:\/\/forms\.office\.com\/r\/4A2xsMh7st/);
 assert.match(poetryProject, /href="#poesie-du-lac-fiche-operationnelle"/);
 assert.doesNotMatch(poetryProject, /Je protège mon Massawippi|date de fin d’été|au coucher du soleil|concept-v1/,
   "La fiche poésie ne doit pas réintroduire le thème, le créneau ou l’affiche abandonnés.");
 assert.ok(poetryProject.indexOf("internal-project-poster") < poetryProject.indexOf("internal-project-capacity"),
   "L’affiche doit précéder le développement de la fiche afin d’être visible dès l’ouverture du projet.");
 for (const asset of [
-  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v4.webp",
-  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v4.png"
+  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v5.webp",
+  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v5.png",
+  "cockpit/assets/projects/poesie-du-lac/poesie-au-bord-du-bleu-lac-massawippi-photo-dji-0100-preview.webp"
 ]) assert.ok(fs.existsSync(path.join(root, asset)), `Le livrable poésie doit exister : ${asset}`);
-assert.ok(fs.statSync(path.join(root, "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v4.webp")).size < 150_000,
+assert.ok(fs.statSync(path.join(root, "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v5.webp")).size < 150_000,
   "L’aperçu WebP du projet poésie doit rester léger sur mobile.");
+assert.ok(fs.statSync(path.join(root, "cockpit/assets/projects/poesie-du-lac/poesie-au-bord-du-bleu-lac-massawippi-photo-dji-0100-preview.webp")).size < 150_000,
+  "L’aperçu de la photographie authentique doit rester léger sur mobile.");
 const youthProject = source.match(/<details class="internal-project" id="internal-project-concours-dessin-jeunesse"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
 assert.match(youthProject, /Le lac dans tes yeux — concours-exposition de dessin jeunesse/);
 assert.match(youthProject, /data-initial-stage="planned" open/);
+assert.match(youthProject, /REPORTÉ · AVRIL 2027/);
+assert.match(youthProject, /sans démarche auprès des écoles en 2026/i);
 assert.match(youthProject, /activité adaptable de 45 à 90 minutes/i);
 assert.match(youthProject, /Saint-Barthélemy et Ayer’s Cliff Elementary/);
 assert.match(youthProject, /Toutes les œuvres admissibles et autorisées/);

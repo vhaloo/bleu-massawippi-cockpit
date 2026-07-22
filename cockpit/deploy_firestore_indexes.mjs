@@ -25,7 +25,9 @@ const base = "https://firestore.googleapis.com/v1";
 function signature(index) {
   return JSON.stringify({
     queryScope: index.queryScope || "COLLECTION",
-    fields: (index.fields || []).map(({ fieldPath, order, arrayConfig }) => ({ fieldPath, order: order || "", arrayConfig: arrayConfig || "" }))
+    fields: (index.fields || [])
+      .filter(({ fieldPath }) => fieldPath !== "__name__")
+      .map(({ fieldPath, order, arrayConfig }) => ({ fieldPath, order: order || "", arrayConfig: arrayConfig || "" }))
   });
 }
 

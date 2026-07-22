@@ -4,7 +4,7 @@ import { dryRunSummary, isDryRun } from "./seed_utils.js";
 
 const allowedStages = new Set(["to_frame", "planned", "active", "blocked", "completed"]);
 const defaults = {
-  "lamproie-du-nord": "blocked",
+  "lamproie-du-nord": "active",
   "application-carte-vivante-lac": "to_frame",
   "parc-lobadanaki": "active",
   "bilan-sante-lac": "active",
@@ -14,7 +14,7 @@ const defaults = {
   "jeux-provinciaux-peche": "completed",
   "moules-zebrees-continuite": "blocked",
   "concours-dessin-jeunesse": "planned",
-  "poesie-du-lac": "to_frame",
+  "poesie-du-lac": "active",
   "fonds-environnemental-partenarial": "to_frame",
   "colloque-reseautage-associations": "to_frame",
   "concours-universitaire-bourse": "to_frame",

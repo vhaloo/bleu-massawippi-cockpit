@@ -12,8 +12,8 @@ const firebase = fs.readFileSync(path.join(root, "firebase-client.js"), "utf8");
 const health = fs.readFileSync(path.join(root, "client-health-ui.js"), "utf8");
 const deploy = fs.readFileSync(path.join(root, "..", ".github", "workflows", "deploy-pages.yml"), "utf8");
 
-const activityPosition = ui.indexOf('id=\\"cockpit-director-activity\\"');
-const taskPosition = ui.indexOf('id=\\"cockpit-task-heading\\"');
+const activityPosition = ui.indexOf('id="cockpit-director-activity"');
+const taskPosition = ui.indexOf('id="cockpit-task-heading"');
 const logPosition = ui.indexOf("Journal de modifications");
 assert.ok(activityPosition >= 0 && activityPosition < taskPosition && taskPosition < logPosition, "Le résumé doit précéder À accomplir et le journal.");
 assert.match(ui, /if \(profile\.role === "admin"\) \{[\s\S]*buildAdminSidebar\(\)/, "Le panneau doit rester réservé au rôle admin.");

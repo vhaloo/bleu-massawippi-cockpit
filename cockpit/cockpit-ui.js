@@ -35,18 +35,19 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260721-b36";
-import { createEventContextController } from "./event-context-data.js?v=20260721-b36";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260721-b36";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260721-b36";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260721-b36";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260721-b36";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260721-b36";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260721-b36";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260721-b36";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260721-b36";
-import { setupControlHints } from "./control-hints.js?v=20260721-b36";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260721-b36";
+} from "./firebase-client.js?v=20260722-b38";
+import { createEventContextController } from "./event-context-data.js?v=20260722-b38";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260722-b38";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260722-b38";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260722-b38";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260722-b38";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260722-b38";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260722-b38";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260722-b38";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260722-b38";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260722-b38";
+import { setupControlHints } from "./control-hints.js?v=20260722-b38";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260722-b38";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -705,8 +706,9 @@ function buildAdminSidebar() {
   sidebar.hidden = true;
   sidebar.setAttribute("inert", "");
   sidebar.setAttribute("aria-hidden", "true");
-  sidebar.innerHTML = "<section id=\"cockpit-director-activity\"></section><div id=\"cockpit-task-heading\"><h2>À accomplir</h2><span id=\"cockpit-task-count\" data-task-count>0</span></div><p class=\"cockpit-sidebar-note\">Les décisions et recommandations reçues de la direction restent ici jusqu’à leur validation ou leur achèvement forcé.</p><div id=\"cockpit-task-list\"></div><h2>Journal de modifications</h2><p class=\"cockpit-sidebar-note\">Lecture technique des changements synchronisés.</p><div id=\"cockpit-log-list\"></div><h2 style=\"margin-top:24px\">Rétroactions du cockpit</h2><p class=\"cockpit-sidebar-note\">Les avis déposés dans les sections et la boîte à idées.</p><div id=\"cockpit-feedback-list\"></div>";
+  sidebar.innerHTML = `<section id="cockpit-director-activity"></section><div id="cockpit-task-heading"><h2>À accomplir</h2><span id="cockpit-task-count" data-task-count>0</span></div><p class="cockpit-sidebar-note">Les décisions et recommandations reçues de la direction restent ici jusqu’à leur validation ou leur achèvement forcé.</p><div id="cockpit-task-list"></div>${completedTaskHistoryMarkup()}<h2>Journal de modifications</h2><p class="cockpit-sidebar-note">Lecture technique des changements synchronisés.</p><div id="cockpit-log-list"></div><h2 style="margin-top:24px">Rétroactions du cockpit</h2><p class="cockpit-sidebar-note">Les avis déposés dans les sections et la boîte à idées.</p><div id="cockpit-feedback-list"></div>`;
   document.body.appendChild(sidebar);
+  setupCompletedTaskHistory(sidebar, state.profile);
   const toggle = document.createElement("button");
   toggle.id = "cockpit-sidebar-toggle";
   toggle.type = "button";
@@ -863,6 +865,7 @@ function enhanceTaskEvents() {
       .then(() => {
         state.tasks = state.tasks.map((task) => task.id === taskId ? { ...task, status: "done" } : task);
         renderActionTasks(state.tasks);
+        invalidateCompletedTaskHistory({ reloadIfOpen:true });
         notifyViewUpdate("task-completed");
         toast("Tâche marquée comme complétée.");
       })
@@ -3097,6 +3100,7 @@ function applySignedOut(message = "") {
   state.internalProjectUnsubscribe = null;
   state.decisionUnsubscribe = null;
   state.tasks = [];
+  clearCompletedTaskHistory();
   clearPrivateContent();
   dispatchEvent(new CustomEvent("cockpit:session-ended"));
   document.body.classList.add("cockpit-locked");
