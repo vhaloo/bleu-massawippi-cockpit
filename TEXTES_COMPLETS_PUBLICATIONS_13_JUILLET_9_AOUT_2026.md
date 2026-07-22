@@ -560,9 +560,9 @@ Does your family have stories or photographs of the lake from that era?
 **Format :** Affiche 4:5 + appel bilingue aux candidatures
 **Objectif :** Inviter chaleureusement des voix expérimentées ou nouvelles à proposer une lecture pour la première rencontre de poésie, prose et slam de Bleu Massawippi.
 **CTA :** Proposer une lecture avant le 9 août
-**Visuel final :** Affiche originale Au bord du bleu, version 5 : lac Massawippi, carnet réaliste, lettrage manuscrit, date, horaire, parc prévu et échéance de candidature.
+**Visuel final :** Affiche bilingue unique Au bord du bleu, version 7 : vue du lac Massawippi, carnet réaliste, lettrage manuscrit, français et anglais réunis, date, horaire, parc prévu et échéance de candidature.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Formulaire public bilingue autonome : https://forms.office.com/r/4A2xsMh7st · projet interne Au bord du bleu · affiche originale version 5.
+**Source de référence :** Formulaire public bilingue autonome : https://forms.office.com/r/4A2xsMh7st · projet interne Au bord du bleu · affiche bilingue unique version 7.
 **Préparation :** Vérifier une dernière fois le formulaire public et l’affiche, confirmer les modalités municipales connues, puis programmer l’appel bilingue et répondre aux questions sans collecter de renseignements personnels dans les commentaires publics.
 
 ### Légende prête à programmer
