@@ -10,7 +10,7 @@ assert.deepEqual(links.map((match) => match[1]), [
   "internal-project-lamproie-du-nord"
 ], "Les trois raccourcis du portefeuille doivent rester explicitement routés.");
 assert.ok(source.includes("Candidatures et financement"), "Le raccourci externe doit décrire sa destination humaine.");
-assert.ok(source.includes("Priorité : vérifier l’entente et le financement"), "La priorité doit expliquer pourquoi elle est prioritaire.");
+assert.ok(source.includes("Entente signée · suivi financier et reddition"), "La priorité doit expliquer pourquoi elle est prioritaire.");
 
 const { document, window } = parseHTML(`<!doctype html><body>
   <nav>

@@ -18,6 +18,7 @@ const PLAN_MONTHS = new Map([
 function estimateTaskMinutes(task, role) {
   const text = String(task || "").toLocaleLowerCase("fr");
   if (/approuver|valider|choisir|signaler|prendre connaissance/.test(text)) return role === "director" ? 3 : 5;
+  if (/rencontrer|réunion|reunion|entretien institutionnel/.test(text)) return role === "director" ? 45 : 30;
   if (/confirmer|vérifier|lire|arbitrer/.test(text)) return role === "director" ? 5 : 10;
   if (/contacter|rendez-vous|partenaire|consentement|autorisation/.test(text)) return 15;
   if (/publier|programmer|répondre aux premiers commentaires/.test(text)) return 10;
@@ -319,6 +320,67 @@ Thank you for your trust. We will continue to show clearly what this momentum ma
   }
 ];
 
+const POETRY_CALL_POST = {
+  id: "poesie-20260727-appel-aux-voix",
+  w: 3,
+  date: "Lundi 27 juillet",
+  calendarTime: "12:00",
+  t: "Communauté",
+  tier: "Pilier",
+  title: "Au bord du bleu — appel aux voix",
+  format: "Affiche 4:5 + appel bilingue aux candidatures",
+  role: "Inviter chaleureusement des voix expérimentées ou nouvelles à proposer une lecture pour la première rencontre de poésie, prose et slam de Bleu Massawippi.",
+  cta: "Proposer une lecture avant le 9 août",
+  visual: "Affiche originale Au bord du bleu, version 5 : lac Massawippi, carnet réaliste, lettrage manuscrit, date, horaire, parc prévu et échéance de candidature.",
+  source: "Formulaire public bilingue autonome : https://forms.office.com/r/4A2xsMh7st · projet interne Au bord du bleu · affiche originale version 5.",
+  fallback: "Carrousel sobre composé de l’affiche, des informations essentielles et du lien vers le formulaire; ne jamais remplacer le formulaire par une candidature en commentaire public.",
+  kpi: "Candidatures admissibles / diversité des formes et des langues / clics vers le formulaire",
+  task: "Vérifier une dernière fois le formulaire public et l’affiche, confirmer les modalités municipales connues, puis programmer l’appel bilingue et répondre aux questions sans collecter de renseignements personnels dans les commentaires publics.",
+  copy: `FR — 🌊 APPEL AUX VOIX — AU BORD DU BLEU
+
+Le dimanche 30 août, de 13 h à 16 h, Bleu Massawippi vous invite au parc Lôbadanaki, au bord du lac Massawippi, pour une première rencontre de poésie, de prose et de slam.
+
+Protéger un lac, c’est aussi apprendre à l’aimer, à l’écouter et à lui faire une place dans nos imaginaires. Nous cherchons des voix inspirées par le Massawippi ou, plus largement, par les lacs, l’eau, les rives, le vivant, les mémoires et ce que ces paysages éveillent en nous.
+
+Votre texte peut déjà exister, être en cours ou être créé pour l’occasion. Chaque passage durera de 5 à 15 minutes. Les voix expérimentées comme les premières participations sont les bienvenues. Le programme public durera environ une à deux heures; les détails pratiques seront transmis aux personnes retenues.
+
+📝 Candidatures avant le dimanche 9 août à 23 h 59 : https://forms.office.com/r/4A2xsMh7st
+
+#AuBordDuBleu #BleuMassawippi #LacMassawippi #Poésie #Slam
+
+=========================================
+
+EN — 🌊 CALL FOR VOICES — AU BORD DU BLEU
+
+On Sunday, August 30, from 1 to 4 p.m., Bleu Massawippi invites you to Lôbadanaki Park, by Lake Massawippi, for a first gathering of poetry, prose and spoken word.
+
+Protecting a lake also means learning to love it, listen to it and make room for it in our imagination. We welcome voices inspired by Massawippi or, more broadly, by lakes, water, shores, living systems, memory and what these landscapes awaken in us.
+
+Your text may already exist, be in progress or be created for the occasion. Each passage will last 5 to 15 minutes. Experienced voices and first-time participants are equally welcome. The public program will last about one to two hours; practical details will be shared with selected participants.
+
+📝 Apply by Sunday, August 9 at 11:59 p.m.: https://forms.office.com/r/4A2xsMh7st
+
+#AuBordDuBleu #BleuMassawippi #LakeMassawippi #Poetry #SpokenWord`,
+  choiceRequired: false,
+  optionGroup: null,
+  optionLabel: null,
+  isAlternative: false,
+  decisionLocked: true,
+  parallelOperationalItem: false,
+  calendarPriority: "confirmed-project-launch",
+  replacesDailySlot: true,
+  tasksValentin: [
+    "Vérifier le formulaire public, l’affiche, le texte alternatif et les liens sur mobile et sur ordinateur.",
+    "Programmer la publication bilingue sur Facebook et Instagram, puis orienter les candidatures uniquement vers le formulaire.",
+    "Suivre les questions, préparer l’analyse des candidatures et proposer un plateau équilibré après la fermeture du 9 août."
+  ],
+  tasksAnnie: [
+    "Rencontrer la municipalité pour confirmer les exigences d’utilisation du parc Lôbadanaki, la zone autorisée, l’assurance, le son et le plan météo.",
+    "Valider les modalités finales qui seront transmises aux personnes retenues."
+  ],
+  taskOwnersVersion: "event-task-owners-2026-07-22-poetry-call-v1"
+};
+
 function buildAlternative(spec) {
   const nature = spec.t === "Nature";
   const heritage = spec.t === "Patrimoine";
@@ -346,6 +408,7 @@ export function applyPlanOverridesToPosts(posts) {
   DONATION_CADENCE_POSTS.forEach((post) => {
     if (!posts.some((item) => item.id === post.id)) posts.push({ ...post });
   });
+  if (!posts.some((post) => post.id === POETRY_CALL_POST.id)) posts.push({ ...POETRY_CALL_POST });
   const first = posts.find((post) => post.id === "s1d1");
   if (first) Object.assign(first, OPEN_HOUSE_POST, { decisionLocked: true });
   const moved = posts.find((post) => post.id === "s1d1b");
@@ -441,6 +504,19 @@ export function applyPlanOverridesToPosts(posts) {
     isAlternative: false,
     role: "Publication scientifique conservée et reprogrammée après l’ajustement du début des vacances de la construction; elle présente ensemble le suivi du lac et de ses tributaires."
   });
+  const deferredJuly27Monitoring = posts.find((post) => post.id === "s3d1");
+  if (deferredJuly27Monitoring) Object.assign(deferredJuly27Monitoring, {
+    w: 5,
+    date: "Samedi 15 août",
+    calendarTime: "11:00",
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    rescheduledFrom: "2026-07-27",
+    rescheduledReason: "Publication conservée et déplacée afin de réserver le lundi 27 juillet à l’appel confirmé pour Au bord du bleu.",
+    displacedBy: POETRY_CALL_POST.id,
+    role: "Publication scientifique conservée et reprogrammée : présenter avec exactitude les gestes de suivi du lac, sans diffuser de résultat récent non validé."
+  });
   ["s2d3", "s2d6", "s3d1b"].forEach((id) => {
     const rejected = posts.find((post) => post.id === id);
     if (rejected) Object.assign(rejected, {
@@ -504,7 +580,7 @@ export function applyPlanOverridesToPosts(posts) {
     const post = finalPosts.find((item) => item.id === id);
     if (post) Object.assign(post, placement);
   });
-  ["s1d3b", "alt-20260715", "s1d5", "s1d6", "s1d4", "s1d2", "s2d1b", "s1d7", "s2d1", "s2d2", "alt-20260722", "s2d4", "s2d5", "s2d7", "alt-20260726", "s3d1", "s3d2", "s3d4", "s3d3", "s3d7", "s4d1", "s4d1b", "alt-20260729", "alt-20260802", "lexique-20260830-tributaire", "don-20260729-appel-soutien", "don-20260807-merci-bilan"].forEach((id) => {
+  ["s1d3b", "alt-20260715", "s1d5", "s1d6", "s1d4", "s1d2", "s2d1b", "s1d7", "s2d1", "s2d2", "alt-20260722", "s2d4", "s2d5", "s2d7", "alt-20260726", "s3d1", "s3d2", "s3d4", "s3d3", "s3d7", "s4d1", "s4d1b", "alt-20260729", "alt-20260802", "lexique-20260830-tributaire", "don-20260729-appel-soutien", "don-20260807-merci-bilan", "poesie-20260727-appel-aux-voix"].forEach((id) => {
     const post = finalPosts.find((item) => item.id === id);
     if (post) Object.assign(post, { choiceRequired: false, optionGroup: null, optionLabel: null });
   });

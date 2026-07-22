@@ -35,7 +35,7 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260721-b36";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260722-b38";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -1299,13 +1299,58 @@ export async function completeActionTask(taskId, profile) {
 
 export function subscribeActionTasks(callback, onError) {
   requireConfigured();
-  const tasksQuery = query(collection(db, "tasks"), orderBy("createdAt", "desc"), limit(200));
+  // La file active ne relit plus l'historique complet à chaque ouverture du
+  // cockpit. Les tâches terminées ont leur propre lecteur paresseux ci-dessous.
+  const tasksQuery = query(collection(db, "tasks"), where("status", "==", "pending"), limit(200));
   return trackedOnSnapshot(
     "tasks",
     tasksQuery,
     (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
     onError
   );
+}
+
+/**
+ * Historique administrateur des tâches terminées.
+ *
+ * Lecture ponctuelle seulement : aucun listener, une petite page ordonnée par
+ * dernière modification et un curseur DocumentSnapshot. La direction ne peut
+ * pas appeler cette fonction et ne lit donc jamais l'historique de
+ * l'administration.
+ */
+export async function fetchCompletedActionTasksPage(profile, { cursor = null, pageSize = 8 } = {}) {
+  requireConfigured();
+  if (!profile?.uid || profile.role !== "admin") {
+    throw new Error("L’historique des tâches terminées est réservé à l’administration.");
+  }
+  const boundedPageSize = Math.max(1, Math.min(20, Number(pageSize) || 8));
+  const constraints = [
+    where("status", "==", "done"),
+    orderBy("updatedAt", "desc")
+  ];
+  if (cursor) constraints.push(startAfter(cursor));
+  // Un document de regard vers l'avant permet d'annoncer honnêtement la fin
+  // de la file. Il sera relu au début de la page suivante, soit au plus une
+  // lecture supplémentaire par action explicite « Charger la suite ».
+  constraints.push(limit(boundedPageSize + 1));
+  try {
+    const snapshot = await getDocs(query(collection(db, "tasks"), ...constraints));
+    diagnostics.deliveredDocuments += snapshot.size;
+    if (snapshot.metadata?.fromCache) diagnostics.deliveredFromCache += snapshot.size;
+    else diagnostics.lastServerSyncAt = new Date().toISOString();
+    emitDiagnostics();
+    const visibleDocuments = snapshot.docs.slice(0, boundedPageSize);
+    return {
+      items: visibleDocuments.map((item) => ({ id: item.id, ...item.data() })),
+      cursor: visibleDocuments.at(-1) || null,
+      hasMore: snapshot.docs.length > boundedPageSize,
+      readCount: snapshot.size,
+      source: snapshot.metadata?.fromCache ? "cache" : "server"
+    };
+  } catch (error) {
+    recordClientError(error);
+    throw error;
+  }
 }
 
 function personalActionSnapshotValue(item) {

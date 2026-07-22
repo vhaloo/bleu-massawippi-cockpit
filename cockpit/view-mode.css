@@ -822,6 +822,8 @@ html[data-theme="dark"] .vm-attention-actions button { color: #d9f4f6; border-co
 html[data-theme="dark"] .vm-attention-actions [data-vm-attention-seen] { color: #fff; border-color: #ba5b57; background: #8d3f3d; }
 html[data-theme="dark"] .vm-event,
 html[data-theme="dark"] .vm-message { border-bottom-color: #355965; }
+html[data-theme="dark"] .vm-event-date,
+html[data-theme="dark"] .vm-message span { color: #9bdeed; }
 html[data-theme="dark"] .vm-event.priority-urgent {
   color: #fff4f2;
   background: linear-gradient(100deg, #552f31 0%, #3b3034 64%, rgba(24, 59, 70, 0) 100%);
