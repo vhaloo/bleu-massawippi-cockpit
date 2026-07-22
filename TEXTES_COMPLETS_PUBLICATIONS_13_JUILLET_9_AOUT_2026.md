@@ -554,41 +554,45 @@ Does your family have stories or photographs of the lake from that era?
 #BleuMassawippi #LakeMassawippi #Heritage #LakeMemories
 ```
 
-## Lundi 27 juillet — Le suivi du lac et de ses tributaires se poursuit
+## Lundi 27 juillet — Au bord du bleu — appel aux voix
 
-**Thème :** Actualité
-**Format :** Photo terrain + carte en cours de suivi
-**Objectif :** Donner une actualité exacte même lorsque les résultats finaux ne sont pas publiables.
-**CTA :** Suivre les nouvelles du terrain
-**Visuel final :** Diptyque documentaire authentique montrant le suivi du lac et celui d’un tributaire : mains, carnet et instruments réellement utilisés, lumière douce et lieux non identifiables sans validation; titre manuscrit discret « Le lac et ses tributaires, suivis avec attention ».
+**Thème :** Communauté
+**Format :** Affiche 4:5 + appel bilingue aux candidatures
+**Objectif :** Inviter chaleureusement des voix expérimentées ou nouvelles à proposer une lecture pour la première rencontre de poésie, prose et slam de Bleu Massawippi.
+**CTA :** Proposer une lecture avant le 9 août
+**Visuel final :** Affiche originale Au bord du bleu, version 5 : lac Massawippi, carnet réaliste, lettrage manuscrit, date, horaire, parc prévu et échéance de candidature.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/rapports-et-memoires
-**Préparation :** Montrer des gestes réels de suivi sans publier de donnée récente avant la validation scientifique prévue.
+**Source de référence :** Formulaire public bilingue autonome : https://forms.office.com/r/4A2xsMh7st · projet interne Au bord du bleu · affiche originale version 5.
+**Préparation :** Vérifier une dernière fois le formulaire public et l’affiche, confirmer les modalités municipales connues, puis programmer l’appel bilingue et répondre aux questions sans collecter de renseignements personnels dans les commentaires publics.
 
 ### Légende prête à programmer
 
 ```text
-FR — Cet été, le suivi du lac Massawippi et de ses tributaires se poursuit.
+FR — 🌊 APPEL AUX VOIX — AU BORD DU BLEU
 
-On observe, on mesure, on échantillonne et on consigne. Chaque passage ajoute des données qui, comparées dans le temps, nous aideront à mieux comprendre l’évolution du lac et des cours d’eau qui l’alimentent.
+Le dimanche 30 août, de 13 h à 16 h, Bleu Massawippi vous invite au parc Lôbadanaki, au bord du lac Massawippi, pour une première rencontre de poésie, de prose et de slam.
 
-Le suivi est notre outil : c’est une façon rigoureuse de rester attentifs et de mieux orienter les décisions.
+Protéger un lac, c’est aussi apprendre à l’aimer, à l’écouter et à lui faire une place dans nos imaginaires. Nous cherchons des voix inspirées par le Massawippi ou, plus largement, par les lacs, l’eau, les rives, le vivant, les mémoires et ce que ces paysages éveillent en nous.
 
-Merci de suivre le lac et ses tributaires avec nous.
+Votre texte peut déjà exister, être en cours ou être créé pour l’occasion. Chaque passage durera de 5 à 15 minutes. Les voix expérimentées comme les premières participations sont les bienvenues. Le programme public durera environ une à deux heures; les détails pratiques seront transmis aux personnes retenues.
 
-#BilanDeSanté #BleuMassawippi #LacMassawippi #Tributaires #ScienceDuLac
+📝 Candidatures avant le dimanche 9 août à 23 h 59 : https://forms.office.com/r/4A2xsMh7st
+
+#AuBordDuBleu #BleuMassawippi #LacMassawippi #Poésie #Slam
 
 =========================================
 
-EN — This summer, monitoring continues across Lake Massawippi and its tributaries.
+EN — 🌊 CALL FOR VOICES — AU BORD DU BLEU
 
-Our field teams observe, measure, collect samples and keep careful records. Each visit adds to a body of data that, over time, helps us understand how the lake and the waterways that feed it are changing.
+On Sunday, August 30, from 1 to 4 p.m., Bleu Massawippi invites you to Lôbadanaki Park, by Lake Massawippi, for a first gathering of poetry, prose and spoken word.
 
-Regular monitoring helps us pay close attention to the watershed and make better-informed decisions.
+Protecting a lake also means learning to love it, listen to it and make room for it in our imagination. We welcome voices inspired by Massawippi or, more broadly, by lakes, water, shores, living systems, memory and what these landscapes awaken in us.
 
-Thank you for taking an interest in this work.
+Your text may already exist, be in progress or be created for the occasion. Each passage will last 5 to 15 minutes. Experienced voices and first-time participants are equally welcome. The public program will last about one to two hours; practical details will be shared with selected participants.
 
-#LakeHealth #BleuMassawippi #LakeMassawippi #Tributaries #LakeScience
+📝 Apply by Sunday, August 9 at 11:59 p.m.: https://forms.office.com/r/4A2xsMh7st
+
+#AuBordDuBleu #BleuMassawippi #LakeMassawippi #Poetry #SpokenWord
 ```
 
 ## Archive éditoriale — Vos questions nous guident
@@ -1458,6 +1462,43 @@ EN — Imagine a raindrop landing on a roof, road or lawn. It may reach a ditch,
 Following its journey offers a new way to see the watershed: what slows and absorbs water upstream also lends the lake a hand. The next time it rains, notice where the water chooses to travel.
 
 #Watershed #BleuMassawippi #LakeMassawippi #ThinkUpstream
+```
+
+## Samedi 15 août — Le suivi du lac et de ses tributaires se poursuit
+
+**Thème :** Actualité
+**Format :** Photo terrain + carte en cours de suivi
+**Objectif :** Publication scientifique conservée et reprogrammée : présenter avec exactitude les gestes de suivi du lac, sans diffuser de résultat récent non validé.
+**CTA :** Suivre les nouvelles du terrain
+**Visuel final :** Diptyque documentaire authentique montrant le suivi du lac et celui d’un tributaire : mains, carnet et instruments réellement utilisés, lumière douce et lieux non identifiables sans validation; titre manuscrit discret « Le lac et ses tributaires, suivis avec attention ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** https://bleumassawippi.com/rapports-et-memoires
+**Préparation :** Montrer des gestes réels de suivi sans publier de donnée récente avant la validation scientifique prévue.
+
+### Légende prête à programmer
+
+```text
+FR — Cet été, le suivi du lac Massawippi et de ses tributaires se poursuit.
+
+On observe, on mesure, on échantillonne et on consigne. Chaque passage ajoute des données qui, comparées dans le temps, nous aideront à mieux comprendre l’évolution du lac et des cours d’eau qui l’alimentent.
+
+Le suivi est notre outil : c’est une façon rigoureuse de rester attentifs et de mieux orienter les décisions.
+
+Merci de suivre le lac et ses tributaires avec nous.
+
+#BilanDeSanté #BleuMassawippi #LacMassawippi #Tributaires #ScienceDuLac
+
+=========================================
+
+EN — This summer, monitoring continues across Lake Massawippi and its tributaries.
+
+Our field teams observe, measure, collect samples and keep careful records. Each visit adds to a body of data that, over time, helps us understand how the lake and the waterways that feed it are changing.
+
+Regular monitoring helps us pay close attention to the watershed and make better-informed decisions.
+
+Thank you for taking an interest in this work.
+
+#LakeHealth #BleuMassawippi #LakeMassawippi #Tributaries #LakeScience
 ```
 
 ## Dimanche 16 août — Votre essentiel avant de partir
