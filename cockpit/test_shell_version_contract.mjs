@@ -47,7 +47,7 @@ assert.match(refresher, /bleu-massawippi-cockpit-shell-/, "La remise à neuf doi
 assert.match(refresher, /registration\.scope\.startsWith\(baseUrl\.href\)/, "La remise à neuf ne doit désinscrire que les workers de cette application.");
 assert.match(refresher, /destination\.searchParams\.set\("fresh"/, "La réouverture doit contourner le cache HTTP avec une URL unique.");
 assert.doesNotMatch(refresher, /indexedDB\.(deleteDatabase|databases)|localStorage\.clear|sessionStorage\.clear/, "La remise à neuf ne doit effacer ni session, ni préférences, ni cache Firestore.");
-for (const resource of ["firebase-config.js", "theme.js", "motion.js", "cockpit-ui.js", "section-navigation.js", "publication-editor-schema.mjs", "editor-studio.js", "control-hints.js", "event-context-data.js", "action-items-ui.js", "client-health-ui.js", "admin-lazy-data.js", "media-choice-ui.js", "task-progress-ui.js", "monthly-snapshot-state.js", "view-mode.js", "clarity.css"]) {
+for (const resource of ["firebase-config.js", "theme.js", "motion.js", "cockpit-ui.js", "section-navigation.js", "publication-editor-schema.mjs", "editor-studio.js", "control-hints.js", "event-context-data.js", "action-items-ui.js", "client-health-ui.js", "admin-lazy-data.js", "admin-activity-summary.js", "media-choice-ui.js", "task-progress-ui.js", "completed-task-history.js", "monthly-snapshot-state.js", "view-mode.js", "view-mode.css", "clarity.css"]) {
   assert.match(worker, new RegExp(resource.replace(".", "\\.")), `${resource} doit faire partie du shell hors ligne.`);
   assert.match(deploymentWorkflow, new RegExp(`cp cockpit/${resource.replace(".", "\\.")} public/`), `${resource} doit faire partie de l’artefact GitHub Pages.`);
 }
