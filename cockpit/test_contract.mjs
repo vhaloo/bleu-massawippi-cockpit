@@ -551,21 +551,18 @@ assert.match(poetryProject, /Cible : 0 \$/);
 assert.match(poetryProject, /Plafond prudent : 250 \$ maximum/);
 assert.match(poetryProject, /Direction générale — environ 1 h 10 au total/);
 assert.match(poetryProject, /Communications — environ 8 à 12 h au total/);
-assert.match(poetryProject, /internal-project-poster-pair/);
-assert.match(source, /\.internal-project-poster-pair \{ display:grid; grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/,
-  "Les deux affiches doivent être côte à côte sur ordinateur.");
-assert.match(source, /\.internal-project-poster-pair\{grid-template-columns:1fr\}/,
-  "Les deux affiches doivent s’empiler sur mobile.");
-assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v6-fr-apercu\.webp/);
-assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v6-fr\.png/);
-assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v6-en-apercu\.webp/);
-assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v6-en\.png/);
-assert.match(poetryProject, /Affiche française — photo réelle V6/);
-assert.match(poetryProject, /English poster — real photo V6/);
-assert.match(poetryProject, /v6-fr-apercu\.webp[^>]+loading="eager"[^>]+fetchpriority="high"/,
-  "L’aperçu français doit être chargé immédiatement.");
-assert.match(poetryProject, /v6-en-apercu\.webp[^>]+loading="eager"[^>]+fetchpriority="high"/,
-  "L’aperçu anglais doit être chargé immédiatement.");
+assert.match(poetryProject, /internal-project-poster-featured/);
+assert.doesNotMatch(poetryProject, /internal-project-poster-pair/,
+  "Le projet ne doit plus afficher deux affiches concurrentes.");
+assert.match(source, /\.internal-project-poster-featured \{ grid-template-columns:minmax\(260px,440px\) minmax\(0,1fr\)/,
+  "L’affiche unique doit disposer d’un espace lisible sur ordinateur.");
+assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v7-bilingue-apercu\.webp/);
+assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v7-bilingue\.png/);
+assert.match(poetryProject, /Affiche bilingue — photo réelle V7/);
+assert.match(poetryProject, /v7-bilingue-apercu\.webp[^>]+loading="eager"[^>]+fetchpriority="high"/,
+  "L’unique aperçu bilingue doit être chargé immédiatement.");
+assert.doesNotMatch(poetryProject, /v6-fr|v6-en|Affiche française|English poster/,
+  "Les affiches V6 doivent être conservées dans les fichiers sans rester visibles dans le cockpit.");
 assert.match(poetryProject, /Partenaires et commandites — visibilité utile, indépendance préservée/);
 assert.match(poetryProject, /aucune visibilité ne donne un droit de regard sur la sélection artistique/i);
 assert.match(poetryProject, /ADDENDUM_VISUEL_PARTENAIRES_AU_BORD_DU_BLEU_V5\.md/);
@@ -580,6 +577,8 @@ assert.doesNotMatch(poetryProject, /Je protège mon Massawippi|date de fin d’�
 assert.ok(poetryProject.indexOf("internal-project-poster") < poetryProject.indexOf("internal-project-capacity"),
   "L’affiche doit précéder le développement de la fiche afin d’être visible dès l’ouverture du projet.");
 for (const asset of [
+  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-photo-reelle-v7-bilingue-apercu.webp",
+  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-photo-reelle-v7-bilingue.png",
   "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-photo-reelle-v6-fr-apercu.webp",
   "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-photo-reelle-v6-fr.png",
   "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-photo-reelle-v6-en-apercu.webp",
@@ -587,10 +586,17 @@ for (const asset of [
   "cockpit/assets/projects/poesie-du-lac/poesie-au-bord-du-bleu-lac-massawippi-photo-dji-0100-preview.webp"
 ]) assert.ok(fs.existsSync(path.join(root, asset)), `Le livrable poésie doit exister : ${asset}`);
 for (const preview of [
-  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-photo-reelle-v6-fr-apercu.webp",
-  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-photo-reelle-v6-en-apercu.webp"
+  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-photo-reelle-v7-bilingue-apercu.webp"
 ]) assert.ok(fs.statSync(path.join(root, preview)).size < 180_000,
-  `L’aperçu bilingue du projet poésie doit rester léger sur mobile : ${preview}`);
+  `L’aperçu bilingue unique du projet poésie doit rester léger sur mobile : ${preview}`);
+const poetryMedia = editorialMedia.filter((media) => media.eventId === "poesie-20260727-appel-aux-voix");
+const activePoetryMedia = poetryMedia.filter((media) => media.archived !== true);
+assert.deepEqual(activePoetryMedia.map((media) => media.id), ["editorial-poesie-20260727-affiche-bilingue-v7"],
+  "Le post du 27 juillet doit proposer exactement une affiche bilingue active.");
+assert.deepEqual(
+  poetryMedia.filter((media) => media.archived === true).map((media) => media.id).sort(),
+  ["editorial-poesie-20260727-appel-v5", "editorial-poesie-20260727-lac-reel-dji0100"],
+  "Les deux anciens médias doivent rester enregistrés mais archivés.");
 assert.ok(fs.statSync(path.join(root, "cockpit/assets/projects/poesie-du-lac/poesie-au-bord-du-bleu-lac-massawippi-photo-dji-0100-preview.webp")).size < 150_000,
   "L’aperçu de la photographie authentique doit rester léger sur mobile.");
 const youthProject = source.match(/<details class="internal-project" id="internal-project-concours-dessin-jeunesse"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
