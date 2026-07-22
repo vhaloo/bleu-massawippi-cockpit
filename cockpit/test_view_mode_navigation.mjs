@@ -43,14 +43,39 @@ Object.assign(globalThis, {
 });
 const appBadgeCalls = [];
 let appBadgeClearCalls = 0;
+const systemNotifications = [];
+let notificationPermissionRequests = 0;
+const serviceWorkerListeners = new Map();
+const serviceWorkerRegistration = {
+  showNotification: async (title, options) => { systemNotifications.push({ title, options }); },
+  getNotifications: async () => []
+};
+const serviceWorker = {
+  ready: Promise.resolve(serviceWorkerRegistration),
+  addEventListener(type, handler) { serviceWorkerListeners.set(type, handler); },
+  removeEventListener(type, handler) { if (serviceWorkerListeners.get(type) === handler) serviceWorkerListeners.delete(type); },
+  dispatchMessage(data) { serviceWorkerListeners.get("message")?.({ data }); }
+};
+class TestNotification {
+  static permission = "default";
+  static async requestPermission() {
+    notificationPermissionRequests += 1;
+    TestNotification.permission = "granted";
+    return "granted";
+  }
+}
+globalThis.Notification = TestNotification;
 Object.defineProperty(globalThis, "navigator", {
   configurable: true,
   value: {
     onLine: true,
+    serviceWorker,
     setAppBadge: (...args) => { appBadgeCalls.push(args); return Promise.resolve(); },
     clearAppBadge: () => { appBadgeClearCalls += 1; return Promise.resolve(); }
   }
 });
+Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" });
+document.hasFocus = () => true;
 function setViewportWidth(width) {
   Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
   Object.defineProperty(globalThis, "innerWidth", { configurable: true, value: width });
@@ -177,6 +202,13 @@ assert.equal(attentionDot().hidden, false, "Une file personnelle jamais vue doit
 assert.ok(appBadgeCalls.length > 0, "L’application installée doit recevoir le badge lorsque l’API existe.");
 assert.ok(appBadgeCalls.every((args) => args.length === 0), "Le badge système doit être un point, jamais un nombre.");
 assert.match(document.querySelector("[data-vm-attention-title]").textContent, /Nouveautés à voir/);
+const systemNotificationToggle = document.querySelector("[data-vm-system-notification]");
+assert.ok(systemNotificationToggle, "Le réglage des alertes système doit être proposé sans listener Firestore supplémentaire.");
+systemNotificationToggle.click();
+await wait();
+assert.equal(notificationPermissionRequests, 1, "La permission système doit être demandée uniquement après le clic explicite.");
+assert.equal(systemNotificationToggle.getAttribute("aria-pressed"), "true");
+assert.ok(systemNotifications.some((entry) => entry.options.tag === "cockpit-notification-ready"), "Une confirmation discrète doit prouver que le canal système fonctionne.");
 document.querySelector("[data-vm-attention-seen]").click();
 assert.equal(attentionDot().hidden, true, "Le bouton manuel doit retirer immédiatement la notification.");
 assert.ok(appBadgeClearCalls > 0);
@@ -203,6 +235,24 @@ assert.equal(attentionDot().hidden, true, "Une nouveauté ne doit pas réappara�
 document.querySelector("[data-vm-attention-toggle]").click();
 assert.equal(attentionDot().hidden, false, "Réactiver les notifications doit révéler une décision réellement nouvelle.");
 document.querySelector("[data-vm-attention-seen]").click();
+
+// Une nouveauté reçue pendant que l’application est en arrière-plan réutilise
+// la file déjà chargée : une alerte sans compteur, sans nouvelle requête.
+Object.defineProperty(document, "visibilityState", { configurable: true, value: "hidden" });
+document.hasFocus = () => false;
+document.querySelector('[data-item-id="future-4"]').dataset.workflowUpdatedAt = "103";
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
+const attentionNotification = systemNotifications.findLast((entry) => entry.options.tag === "cockpit-attention");
+assert.ok(attentionNotification, "Une nouveauté personnelle en arrière-plan doit produire une notification système.");
+assert.match(attentionNotification.title, /nouveautés à voir/i);
+assert.match(attentionNotification.options.body, /décisions/i);
+assert.equal(attentionNotification.options.data.url, "./?notification=decisions");
+Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" });
+document.hasFocus = () => true;
+serviceWorker.dispatchMessage({ type: "cockpit-open-attention" });
+await wait();
+assert.ok(scrollCalls.some(({ element }) => element.id === "vm-panel-decision"), "Cliquer la notification doit ramener aux décisions personnelles.");
 
 // Toutes les cartes commencent compactes, dans les deux vues. L'en-tête agit
 // comme « Ouvrir », tous les sous-panneaux suivent et l'état reste local à

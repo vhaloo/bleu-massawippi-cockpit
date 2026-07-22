@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base href="../">
+  <title>QA — affiches bilingues Au bord du bleu</title>
+  <style>body{padding:20px}.qa-note{width:min(1280px,calc(100% - 20px));margin:0 auto 12px;color:#315564;font:700 14px/1.4 system-ui,sans-serif}</style>
+</head>
+<body>
+  <p class="qa-note">Aperçu de contrôle local — la grille doit avoir deux colonnes sur ordinateur et une colonne sur mobile.</p>
+  <main id="qa-project" class="wrap" aria-busy="true"></main>
+  <script type="module">
+    const response = await fetch(new URL("../../index.html", location.href));
+    const source = new DOMParser().parseFromString(await response.text(), "text/html");
+    const sourceStyle = source.querySelector("style")?.cloneNode(true);
+    const project = source.querySelector("#internal-project-poesie-du-lac")?.cloneNode(true);
+    if (sourceStyle) document.head.prepend(sourceStyle);
+    const host = document.querySelector("#qa-project");
+    if (!project) throw new Error("Projet Au bord du bleu introuvable dans la source.");
+    project.open = true;
+    host.append(project);
+    host.removeAttribute("aria-busy");
+  </script>
+</body>
+</html>

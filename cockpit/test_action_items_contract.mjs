@@ -112,6 +112,9 @@ assert.match(subscription, /setLocalState\(actionItemId, nextState\)[\s\S]*retai
 assert.match(actionUi, /cockpit:action-item-state-saved[\s\S]*setLocalState/);
 assert.match(view, /globalThis\.navigator\?\.setAppBadge\?\.\(\)/, "Le badge PWA doit être un simple point sans nombre.");
 assert.match(view, /globalThis\.navigator\?\.clearAppBadge/);
+assert.match(view, /showNotification/, "Les alertes système doivent être dérivées de la file déjà rendue.");
+assert.match(view, /data-vm-system-notification/, "L’autorisation des alertes système doit rester un choix explicite de l’utilisateur.");
+assert.match(view, /aucune lecture Firebase ne sera ajoutée/i);
 assert.doesNotMatch(view, /setAppBadge\?\.\(\s*\d+/, "L’indicateur ne doit jamais afficher un compteur.");
 assert.match(view, /bleu-massawippi-attention-v1/);
 assert.match(view, /decisionAttentionToken/);

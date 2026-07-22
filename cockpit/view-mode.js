@@ -58,7 +58,10 @@ const runtime = {
   attentionTokens: [],
   attentionSeenTokens: new Set(),
   attentionSignature: "",
-  attentionReviewTimer: 0
+  attentionReviewTimer: 0,
+  systemNotificationsEnabled: false,
+  lastNotifiedSignature: "",
+  systemNotificationInFlight: false
 };
 
 const icon = (name) => {
@@ -166,12 +169,14 @@ function readAttentionPreference(identity = runtime.identity) {
     const parsed = JSON.parse(localStorage.getItem(attentionStorageKey(identity)) || "null");
     return {
       enabled: parsed?.enabled !== false,
+      systemNotificationsEnabled: parsed?.systemNotificationsEnabled === true,
+      lastNotifiedSignature: typeof parsed?.lastNotifiedSignature === "string" ? parsed.lastNotifiedSignature : "",
       seenTokens: Array.isArray(parsed?.seenTokens)
         ? parsed.seenTokens.filter((token) => typeof token === "string").slice(0, ATTENTION_TOKEN_LIMIT)
         : []
     };
   } catch {
-    return { enabled: true, seenTokens: [] };
+    return { enabled: true, systemNotificationsEnabled: false, lastNotifiedSignature: "", seenTokens: [] };
   }
 }
 
@@ -179,6 +184,8 @@ function writeAttentionPreference() {
   try {
     localStorage.setItem(attentionStorageKey(), JSON.stringify({
       enabled: runtime.attentionEnabled,
+      systemNotificationsEnabled: runtime.systemNotificationsEnabled,
+      lastNotifiedSignature: runtime.lastNotifiedSignature,
       seenTokens: [...runtime.attentionSeenTokens].slice(0, ATTENTION_TOKEN_LIMIT)
     }));
   } catch { /* l'indicateur reste utilisable pendant la session */ }
@@ -187,6 +194,8 @@ function writeAttentionPreference() {
 function hydrateAttentionPreference(identity = runtime.identity) {
   const saved = readAttentionPreference(identity);
   runtime.attentionEnabled = saved.enabled;
+  runtime.systemNotificationsEnabled = saved.systemNotificationsEnabled;
+  runtime.lastNotifiedSignature = saved.lastNotifiedSignature;
   runtime.attentionSeenTokens = new Set(saved.seenTokens);
   runtime.attentionCurrent = false;
   runtime.attentionUnseen = false;
@@ -229,6 +238,119 @@ function updateAppAttentionBadge(active) {
   } catch { /* navigateur sans Badging API ou permission locale refusée */ }
 }
 
+function systemNotificationStatus() {
+  const supported = typeof globalThis.Notification !== "undefined"
+    && Boolean(globalThis.navigator?.serviceWorker?.ready);
+  return {
+    supported,
+    permission: supported ? String(globalThis.Notification.permission || "default") : "unsupported"
+  };
+}
+
+async function closeAttentionSystemNotifications() {
+  const { supported } = systemNotificationStatus();
+  if (!supported) return;
+  try {
+    const registration = await globalThis.navigator.serviceWorker.ready;
+    const notifications = await registration.getNotifications?.({ tag: "cockpit-attention" });
+    notifications?.forEach?.((notification) => notification.close?.());
+  } catch { /* le badge et le point rouge restent le repli fiable */ }
+}
+
+async function showSystemNotification({ title, body, tag = "cockpit-attention", data = {} }) {
+  const status = systemNotificationStatus();
+  if (!status.supported || status.permission !== "granted") return false;
+  try {
+    const registration = await globalThis.navigator.serviceWorker.ready;
+    await registration.showNotification(title, {
+      body,
+      tag,
+      renotify: false,
+      silent: true,
+      icon: "./assets/brand/cockpit-bleu-massawippi-icon-192.png",
+      badge: "./assets/brand/cockpit-bleu-massawippi-icon-192.png",
+      data: { url: "./?notification=decisions", ...data }
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function notifySystemOfNewAttention() {
+  const active = runtime.attentionEnabled && runtime.attentionCurrent && runtime.attentionUnseen;
+  const status = systemNotificationStatus();
+  const backgrounded = document.visibilityState === "hidden"
+    || (typeof document.hasFocus === "function" && !document.hasFocus());
+  if (!active || !runtime.systemNotificationsEnabled || status.permission !== "granted" || !backgrounded) return;
+  if (!runtime.attentionSignature || runtime.attentionSignature === runtime.lastNotifiedSignature || runtime.systemNotificationInFlight) return;
+  runtime.systemNotificationInFlight = true;
+  const body = runtime.identity.role === "admin"
+    ? "De nouvelles tâches attendent votre attention dans le cockpit."
+    : "De nouvelles décisions attendent votre regard dans le cockpit.";
+  try {
+    const shown = await showSystemNotification({
+      title: "Cockpit Bleu Massawippi — nouveautés à voir",
+      body,
+      data: { role: runtime.identity.role }
+    });
+    if (shown) {
+      runtime.lastNotifiedSignature = runtime.attentionSignature;
+      writeAttentionPreference();
+    }
+  } finally {
+    runtime.systemNotificationInFlight = false;
+  }
+}
+
+async function toggleSystemNotifications(control) {
+  const status = systemNotificationStatus();
+  if (!status.supported) {
+    announce("Les notifications système ne sont pas disponibles sur cet appareil. Le point rouge reste actif.");
+    return;
+  }
+  control?.setAttribute("aria-busy", "true");
+  if (control) control.disabled = true;
+  try {
+    let permission = status.permission;
+    if (permission === "default") permission = await globalThis.Notification.requestPermission();
+    if (permission !== "granted") {
+      runtime.systemNotificationsEnabled = false;
+      writeAttentionPreference();
+      updateAttentionSurfaces();
+      announce(permission === "denied"
+        ? "Les notifications système sont bloquées dans les réglages de cet appareil."
+        : "L’autorisation de notification n’a pas été accordée.");
+      return;
+    }
+    runtime.systemNotificationsEnabled = !runtime.systemNotificationsEnabled;
+    if (runtime.systemNotificationsEnabled) {
+      runtime.lastNotifiedSignature = runtime.attentionSignature;
+      writeAttentionPreference();
+      await showSystemNotification({
+        title: "Notifications du cockpit activées",
+        body: "Vous serez averti des prochaines nouveautés lorsque le cockpit est ouvert ou en arrière-plan.",
+        tag: "cockpit-notification-ready",
+        data: { kind: "confirmation" }
+      });
+    } else {
+      writeAttentionPreference();
+      await closeAttentionSystemNotifications();
+    }
+    updateAttentionSurfaces();
+    announce(runtime.systemNotificationsEnabled
+      ? "Notifications système activées sur cet appareil."
+      : "Notifications système désactivées sur cet appareil.");
+  } catch {
+    runtime.systemNotificationsEnabled = false;
+    writeAttentionPreference();
+    announce("Les notifications système n’ont pas pu être activées sur cet appareil. Le point rouge reste disponible.");
+  } finally {
+    control?.removeAttribute("aria-busy");
+    updateAttentionSurfaces();
+  }
+}
+
 function ensureAttentionControls() {
   const panel = document.querySelector("#vm-panel-decision");
   const body = panel?.querySelector(":scope > .vm-panel-body");
@@ -239,8 +361,8 @@ function ensureAttentionControls() {
     controls.className = "vm-attention-controls";
     controls.dataset.vmAttentionControls = "";
     controls.innerHTML = `
-      <span class="vm-attention-state"><i class="vm-attention-dot" data-vm-attention-dot hidden aria-hidden="true"></i><span><b data-vm-attention-title></b><small data-vm-attention-copy></small></span></span>
-      <span class="vm-attention-actions"><button type="button" data-vm-attention-seen>Tout marquer comme vu</button><button type="button" data-vm-attention-toggle aria-pressed="true"></button></span>`;
+      <span class="vm-attention-state"><i class="vm-attention-dot" data-vm-attention-dot hidden aria-hidden="true"></i><span><b data-vm-attention-title></b><small data-vm-attention-copy></small><small class="vm-system-notification-copy" data-vm-system-notification-copy></small></span></span>
+      <span class="vm-attention-actions"><button type="button" data-vm-attention-seen>Tout marquer comme vu</button><button type="button" data-vm-system-notification></button><button type="button" data-vm-attention-toggle aria-pressed="true"></button></span>`;
     body.before(controls);
   }
   return controls;
@@ -267,6 +389,15 @@ function updateAttentionSurfaces() {
   if (copy) copy.textContent = !runtime.attentionEnabled
     ? "Vos décisions restent disponibles normalement."
     : active ? "Un coup d’œil à votre file suffit pour retirer le point rouge." : "Le point rouge reviendra seulement lorsqu’une décision change ou s’ajoute.";
+  const systemCopy = controls.querySelector("[data-vm-system-notification-copy]");
+  const systemStatus = systemNotificationStatus();
+  if (systemCopy) systemCopy.textContent = !systemStatus.supported
+    ? "Le point rouge et le badge d’application restent disponibles sur ce navigateur."
+    : systemStatus.permission === "denied"
+      ? "Notifications système bloquées dans les réglages de cet appareil."
+      : runtime.systemNotificationsEnabled
+        ? "Zéro lecture en plus : notification système lorsque le cockpit est ouvert ou en arrière-plan."
+        : "Vous pouvez autoriser une notification système; aucune lecture Firebase ne sera ajoutée.";
   const seen = controls.querySelector("[data-vm-attention-seen]");
   if (seen) seen.hidden = !active;
   const toggle = controls.querySelector("[data-vm-attention-toggle]");
@@ -276,6 +407,18 @@ function updateAttentionSurfaces() {
     toggle.title = runtime.attentionEnabled
       ? "Désactiver les notifications de nouveauté uniquement sur cet appareil"
       : "Réactiver les notifications de nouveauté sur cet appareil";
+  }
+  const systemToggle = controls.querySelector("[data-vm-system-notification]");
+  if (systemToggle) {
+    systemToggle.hidden = !systemStatus.supported;
+    systemToggle.disabled = systemStatus.permission === "denied";
+    systemToggle.setAttribute("aria-pressed", String(runtime.systemNotificationsEnabled && systemStatus.permission === "granted"));
+    systemToggle.textContent = systemStatus.permission === "denied"
+      ? "Notifications système bloquées"
+      : runtime.systemNotificationsEnabled && systemStatus.permission === "granted"
+        ? "Notifications système activées"
+        : "Activer les notifications système";
+    systemToggle.title = "Autoriser une notification discrète lorsqu’une nouvelle décision arrive pendant que le cockpit est ouvert ou en arrière-plan.";
   }
 }
 
@@ -290,6 +433,7 @@ function markCurrentAttentionSeen({ announceChange = true } = {}) {
   runtime.attentionSeenTokens = new Set(merged);
   runtime.attentionUnseen = false;
   clearAttentionReview();
+  void closeAttentionSystemNotifications();
   writeAttentionPreference();
   updateAttentionSurfaces();
   if (announceChange) announce("Nouveautés marquées comme vues sur cet appareil.");
@@ -322,6 +466,7 @@ function syncAttentionSnapshot(decisions, { current = false } = {}) {
   runtime.attentionCurrent = Boolean(current);
   runtime.attentionUnseen = Boolean(current && tokens.some((token) => !runtime.attentionSeenTokens.has(token)));
   updateAttentionSurfaces();
+  void notifySystemOfNewAttention();
   scheduleAttentionReview();
 }
 
@@ -333,8 +478,29 @@ function toggleAttentionPreference() {
   clearAttentionReview();
   writeAttentionPreference();
   updateAttentionSurfaces();
+  if (!runtime.attentionEnabled) void closeAttentionSystemNotifications();
   scheduleAttentionReview();
   announce(runtime.attentionEnabled ? "Notifications de nouveauté activées sur cet appareil." : "Notifications de nouveauté désactivées sur cet appareil.");
+}
+
+async function openAttentionFromSystemNotification() {
+  if (!runtime.initialized) return;
+  applyMode("essential");
+  renderDashboard(runtime.options.now instanceof Date ? runtime.options.now : new Date());
+  await delay(0);
+  const panel = document.querySelector("#vm-panel-decision");
+  if (!panel) return;
+  panel.scrollIntoView?.({
+    behavior: globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? "auto" : "smooth",
+    block: "start"
+  });
+  try { panel.focus?.({ preventScroll: true }); } catch { panel.focus?.(); }
+  scheduleAttentionReview();
+}
+
+function attentionLaunchRequested() {
+  try { return new URLSearchParams(globalThis.location?.search || "").get("notification") === "decisions"; }
+  catch { return false; }
 }
 
 function decisionDockLabels(role = runtime.identity.role) {
@@ -361,7 +527,7 @@ function ensureStylesheet() {
   if (document.querySelector(`link[data-module="${MODULE_ID}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = new URL("./view-mode.css?v=20260722-b38", import.meta.url).href;
+  link.href = new URL("./view-mode.css?v=20260722-b39", import.meta.url).href;
   link.dataset.module = MODULE_ID;
   document.head.appendChild(link);
 }
@@ -1649,6 +1815,11 @@ function handleClick(event) {
     toggleAttentionPreference();
     return;
   }
+  const systemNotificationToggle = event.target.closest("[data-vm-system-notification]");
+  if (systemNotificationToggle) {
+    void toggleSystemNotifications(systemNotificationToggle);
+    return;
+  }
   const modeButton = event.target.closest("[data-view-mode]");
   if (modeButton && VALID_MODES.has(modeButton.dataset.viewMode)) {
     runtime.explicitMode = true;
@@ -1796,8 +1967,14 @@ export function init(options = {}) {
     if (document.visibilityState === "hidden") clearAttentionReview();
     else scheduleAttentionReview();
   });
+  if (globalThis.navigator?.serviceWorker?.addEventListener) {
+    listen(globalThis.navigator.serviceWorker, "message", (event) => {
+      if (event.data?.type === "cockpit-open-attention") void openAttentionFromSystemNotification();
+    });
+  }
 
   update();
+  if (attentionLaunchRequested()) setTimeout(() => void openAttentionFromSystemNotification(), 0);
 }
 
 /** Recalcule l'identité, le sélecteur et le tableau de bord à partir du DOM. */
