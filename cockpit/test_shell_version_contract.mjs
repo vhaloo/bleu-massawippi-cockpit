@@ -62,6 +62,8 @@ assert.match(worker, /key\.startsWith\(CACHE_PREFIX\) && key !== CACHE/, "La pur
 assert.match(worker, /event\.request\.method !== "GET"/, "Le cache ne doit jamais intercepter les écritures.");
 assert.match(worker, /shellRequest \? \{ cache:"no-store" \} : undefined/, "Les navigations et modules doivent contourner le cache HTTP périmé quand le réseau répond.");
 assert.match(worker, /postMessage\(\{ type:"cockpit-update-ready", release:RELEASE \}\)/, "Le nouveau worker doit prévenir les fenêtres déjà ouvertes.");
+assert.match(worker, /notificationclick/, "Le service worker doit ouvrir les décisions depuis une notification système.");
+assert.match(worker, /cockpit-open-attention/, "Une notification doit réutiliser la fenêtre installée lorsqu’elle est déjà ouverte.");
 
 const testScript = packageFile.scripts?.test || "";
 for (const script of ["test:shell", "test:motion-install", "test:control-hints", "test:monthly-snapshot", "test:resilience", "test:sync", "test:media", "test:view-mode", "test:action-items", "test:contract", "test:quality"]) {

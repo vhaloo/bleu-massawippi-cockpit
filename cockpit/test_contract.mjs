@@ -551,10 +551,21 @@ assert.match(poetryProject, /Cible : 0 \$/);
 assert.match(poetryProject, /Plafond prudent : 250 \$ maximum/);
 assert.match(poetryProject, /Direction générale — environ 1 h 10 au total/);
 assert.match(poetryProject, /Communications — environ 8 à 12 h au total/);
-assert.match(poetryProject, /affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v5\.webp/);
-assert.match(poetryProject, /affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v5\.png/);
-assert.match(poetryProject, /Il s’agit d’une illustration, pas d’une photographie documentaire du site/,
-  "La V5 doit être décrite honnêtement comme une composition illustrée.");
+assert.match(poetryProject, /internal-project-poster-pair/);
+assert.match(source, /\.internal-project-poster-pair \{ display:grid; grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/,
+  "Les deux affiches doivent être côte à côte sur ordinateur.");
+assert.match(source, /\.internal-project-poster-pair\{grid-template-columns:1fr\}/,
+  "Les deux affiches doivent s’empiler sur mobile.");
+assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v6-fr-apercu\.webp/);
+assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v6-fr\.png/);
+assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v6-en-apercu\.webp/);
+assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v6-en\.png/);
+assert.match(poetryProject, /Affiche française — photo réelle V6/);
+assert.match(poetryProject, /English poster — real photo V6/);
+assert.match(poetryProject, /v6-fr-apercu\.webp[^>]+loading="eager"[^>]+fetchpriority="high"/,
+  "L’aperçu français doit être chargé immédiatement.");
+assert.match(poetryProject, /v6-en-apercu\.webp[^>]+loading="eager"[^>]+fetchpriority="high"/,
+  "L’aperçu anglais doit être chargé immédiatement.");
 assert.match(poetryProject, /Partenaires et commandites — visibilité utile, indépendance préservée/);
 assert.match(poetryProject, /aucune visibilité ne donne un droit de regard sur la sélection artistique/i);
 assert.match(poetryProject, /ADDENDUM_VISUEL_PARTENAIRES_AU_BORD_DU_BLEU_V5\.md/);
@@ -569,12 +580,17 @@ assert.doesNotMatch(poetryProject, /Je protège mon Massawippi|date de fin d’�
 assert.ok(poetryProject.indexOf("internal-project-poster") < poetryProject.indexOf("internal-project-capacity"),
   "L’affiche doit précéder le développement de la fiche afin d’être visible dès l’ouverture du projet.");
 for (const asset of [
-  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v5.webp",
-  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v5.png",
+  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-photo-reelle-v6-fr-apercu.webp",
+  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-photo-reelle-v6-fr.png",
+  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-photo-reelle-v6-en-apercu.webp",
+  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-photo-reelle-v6-en.png",
   "cockpit/assets/projects/poesie-du-lac/poesie-au-bord-du-bleu-lac-massawippi-photo-dji-0100-preview.webp"
 ]) assert.ok(fs.existsSync(path.join(root, asset)), `Le livrable poésie doit exister : ${asset}`);
-assert.ok(fs.statSync(path.join(root, "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-lac-massawippi-30-aout-2026-v5.webp")).size < 150_000,
-  "L’aperçu WebP du projet poésie doit rester léger sur mobile.");
+for (const preview of [
+  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-photo-reelle-v6-fr-apercu.webp",
+  "cockpit/assets/projects/poesie-du-lac/affiche-au-bord-du-bleu-photo-reelle-v6-en-apercu.webp"
+]) assert.ok(fs.statSync(path.join(root, preview)).size < 180_000,
+  `L’aperçu bilingue du projet poésie doit rester léger sur mobile : ${preview}`);
 assert.ok(fs.statSync(path.join(root, "cockpit/assets/projects/poesie-du-lac/poesie-au-bord-du-bleu-lac-massawippi-photo-dji-0100-preview.webp")).size < 150_000,
   "L’aperçu de la photographie authentique doit rester léger sur mobile.");
 const youthProject = source.match(/<details class="internal-project" id="internal-project-concours-dessin-jeunesse"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
