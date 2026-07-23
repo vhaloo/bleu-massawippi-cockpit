@@ -35,19 +35,19 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260722-b40";
-import { createEventContextController } from "./event-context-data.js?v=20260722-b40";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260722-b40";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260722-b40";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260722-b40";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260722-b40";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260722-b40";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260722-b40";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260722-b40";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260722-b40";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260722-b40";
-import { setupControlHints } from "./control-hints.js?v=20260722-b40";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260722-b40";
+} from "./firebase-client.js?v=20260723-b41";
+import { createEventContextController } from "./event-context-data.js?v=20260723-b41";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260723-b41";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260723-b41";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260723-b41";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260723-b41";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260723-b41";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260723-b41";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260723-b41";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260723-b41";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260723-b41";
+import { setupControlHints } from "./control-hints.js?v=20260723-b41";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260723-b41";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -781,9 +781,10 @@ function renderActionTasks(tasks) {
 }
 
 function findTaskTarget(type, id) {
-  if (!id) return null;
-  if (type === "section") return document.getElementById(id);
-  return [...document.querySelectorAll("[data-item-id]")].find((node) => node.dataset.itemId === id) || document.getElementById(id);
+  const visibleId = visibleActionTaskTarget(type, id);
+  if (!visibleId) return null;
+  if (type === "section") return document.getElementById(visibleId);
+  return [...document.querySelectorAll("[data-item-id]")].find((node) => node.dataset.itemId === visibleId) || document.getElementById(visibleId);
 }
 
 function requestCalendarItemVisibility(itemId) {
@@ -875,6 +876,7 @@ function enhanceTaskEvents() {
 }
 
 const feedbackSectionLabels = {
+  cockpit: "Boîte à idées du cockpit",
   cap: "Le cap",
   cadence: "La cadence choisie",
   collaboration: "Le mode de collaboration",
@@ -910,7 +912,7 @@ function submitFeedbackForm(form) {
         status: "pending",
         title: `Rétroaction à intégrer — ${feedbackSectionLabels[sectionId] || sectionId}`,
         targetType: "section",
-        targetId: sectionId,
+        targetId: visibleActionTaskTarget("section", sectionId),
         targetLabel: feedbackSectionLabels[sectionId] || sectionId,
         message: `${message}\n\nLa rétroaction concerne une prochaine mouture; elle ne modifie pas le texte immédiatement.`
       });
