@@ -1,4 +1,4 @@
-import { setPersonalActionItemState, subscribePersonalActionItems } from "./firebase-client.js?v=20260723-b41";
+import { setPersonalActionItemState, subscribePersonalActionItems } from "./firebase-client.js?v=20260723-b42";
 
 let controller = null;
 let activeProfile = null;
@@ -22,11 +22,12 @@ function sourceNode() {
 function render(items, meta = {}) {
   const source = sourceNode();
   source.dataset.ready = "true";
+  source.dataset.uid = activeProfile?.uid || "";
   source.dataset.role = activeProfile?.role || "";
   source.dataset.hasMore = String(Boolean(meta.hasMore));
   source.dataset.loading = String(Boolean(meta.loading));
   source.dataset.error = String(meta.error || "").slice(0, 500);
-  source.innerHTML = (Array.isArray(items) ? items : []).map((item) => `<article data-action-item-id="${esc(item.id)}" data-action-assignee-role="${esc(item.assigneeRole || "")}" data-action-target-type="${esc(item.sourceType || "schedule")}" data-action-target="${esc(item.sourceId || "")}" data-action-media="${esc(item.mediaId || "")}" data-action-type="${esc(item.actionType || "")}" data-action-priority="${Number.isInteger(item.priorityKey) ? item.priorityKey : 9999}" data-action-date="${esc(item.eventDateIso || "9999-12-31")}" data-action-updated-at="${millis(item.updatedAt || item.createdAt)}"><b>${esc(item.title || "Décision à prendre")}</b><p>${esc(item.message || "")}</p></article>`).join("");
+  source.innerHTML = (Array.isArray(items) ? items : []).map((item) => `<article data-action-item-id="${esc(item.id)}" data-action-assignee-uid="${esc(item.assigneeUid || "")}" data-action-assignee-role="${esc(item.assigneeRole || "")}" data-action-target-type="${esc(item.sourceType || "schedule")}" data-action-target="${esc(item.sourceId || "")}" data-action-media="${esc(item.mediaId || "")}" data-action-type="${esc(item.actionType || "")}" data-action-priority="${Number.isInteger(item.priorityKey) ? item.priorityKey : 9999}" data-action-date="${esc(item.eventDateIso || "9999-12-31")}" data-action-updated-at="${millis(item.updatedAt || item.createdAt)}"><b>${esc(item.title || "Décision à prendre")}</b><p>${esc(item.message || "")}</p></article>`).join("");
   dispatchEvent(new CustomEvent("cockpit:action-items-updated", { detail: { count: items?.length || 0, ...meta } }));
 }
 

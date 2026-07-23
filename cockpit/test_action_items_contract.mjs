@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 import { actionTaskShouldRemain, buildTaskProgressPresentation, renderActionTaskCard, visibleActionTaskTarget } from "./task-progress-ui.js";
 
-const [client, cockpitUi, actionUi, view, rules, indexes, reconcile, contentNoticeSeed, feedbackProcessor] = await Promise.all([
+const [client, cockpitUi, actionUi, view, rules, indexes, reconcile, contentNoticeSeed, feedbackProcessor, notificationRecipient] = await Promise.all([
   readFile(new URL("./firebase-client.js", import.meta.url), "utf8"),
   readFile(new URL("./cockpit-ui.js", import.meta.url), "utf8"),
   readFile(new URL("./action-items-ui.js", import.meta.url), "utf8"),
@@ -12,7 +12,8 @@ const [client, cockpitUi, actionUi, view, rules, indexes, reconcile, contentNoti
   readFile(new URL("./firestore.indexes.json", import.meta.url), "utf8"),
   readFile(new URL("./reconcile_m0_libellule_action.js", import.meta.url), "utf8"),
   readFile(new URL("./seed_content_notices.js", import.meta.url), "utf8"),
-  readFile(new URL("./process_feedback_action.js", import.meta.url), "utf8")
+  readFile(new URL("./process_feedback_action.js", import.meta.url), "utf8"),
+  readFile(new URL("./notification-recipient.js", import.meta.url), "utf8")
 ]);
 
 const subscription = client.slice(client.indexOf("export function subscribePersonalActionItems"), client.indexOf("export async function updateCockpitFeedbackStatus"));
@@ -118,11 +119,15 @@ assert.match(view, /data-vm-system-notification/, "L’autorisation des alertes 
 assert.match(view, /aucune lecture Firebase ne sera ajoutée/i);
 assert.doesNotMatch(view, /setAppBadge\?\.\(\s*\d+/, "L’indicateur ne doit jamais afficher un compteur.");
 assert.match(view, /bleu-massawippi-attention-v1/);
-assert.match(view, /decisionAttentionToken/);
+assert.match(view, /notificationDecisionToken\(runtime\.identity, decision\)/);
 assert.match(view, /markCurrentAttentionSeen/);
 assert.match(view, /data-vm-attention-seen/);
 assert.match(view, /attentionDwellMs/);
 assert.doesNotMatch(actionUi, /setAppBadge|clearAppBadge/, "La file Firestore ne doit plus badger tous les éléments pending comme s’ils étaient nouveaux.");
+assert.match(actionUi, /data-action-assignee-uid/, "Le destinataire exact doit être propagé jusqu’au modèle DOM local.");
+assert.match(view, /notificationRecipientMatches\(identity, item\)/, "La vue doit revérifier le compte destinataire avant d’afficher ou de notifier.");
+assert.match(view, /notificationOwnerKey\(runtime\.identity\)/, "La pagination locale doit être isolée par compte, pas seulement par rôle.");
+assert.doesNotMatch(notificationRecipient, /firebase|onSnapshot|getDocs|fetch\(/i, "Le ciblage des notifications ne doit provoquer aucune lecture distante.");
 assert.match(actionUi, /cockpit:content-notice-seen[\s\S]*setPersonalActionItemState\(actionItemId, "done", activeProfile\)/,
   "Une nouveauté réellement consultée doit utiliser la mutation personnelle ciblée existante.");
 assert.match(actionUi, /item\.dataset\.actionType !== "content_notice"/,

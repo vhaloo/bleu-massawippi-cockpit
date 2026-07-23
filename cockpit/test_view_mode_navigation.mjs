@@ -208,7 +208,7 @@ systemNotificationToggle.click();
 await wait();
 assert.equal(notificationPermissionRequests, 1, "La permission système doit être demandée uniquement après le clic explicite.");
 assert.equal(systemNotificationToggle.getAttribute("aria-pressed"), "true");
-assert.ok(systemNotifications.some((entry) => entry.options.tag === "cockpit-notification-ready"), "Une confirmation discrète doit prouver que le canal système fonctionne.");
+assert.ok(systemNotifications.some((entry) => /^cockpit-notification-ready-/.test(entry.options.tag)), "Une confirmation discrète et propre au compte doit prouver que le canal système fonctionne.");
 document.querySelector("[data-vm-attention-seen]").click();
 assert.equal(attentionDot().hidden, true, "Le bouton manuel doit retirer immédiatement la notification.");
 assert.ok(appBadgeClearCalls > 0);
@@ -243,10 +243,10 @@ document.hasFocus = () => false;
 document.querySelector('[data-item-id="future-4"]').dataset.workflowUpdatedAt = "103";
 window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
 await wait();
-const attentionNotification = systemNotifications.findLast((entry) => entry.options.tag === "cockpit-attention");
+const attentionNotification = systemNotifications.findLast((entry) => /^cockpit-attention-/.test(entry.options.tag));
 assert.ok(attentionNotification, "Une nouveauté personnelle en arrière-plan doit produire une notification système.");
 assert.match(attentionNotification.title, /nouveautés à voir/i);
-assert.match(attentionNotification.options.body, /décisions/i);
+assert.match(attentionNotification.options.body, /actions personnelles/i);
 assert.equal(attentionNotification.options.data.url, "./?notification=decisions");
 Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" });
 document.hasFocus = () => true;
@@ -380,12 +380,20 @@ const actionSource = document.createElement("section");
 actionSource.id = "cockpit-action-item-source";
 actionSource.hidden = true;
 actionSource.dataset.hasMore = "true";
-actionSource.innerHTML = `<article data-action-item-id="media-direction-approval-alt" data-action-assignee-role="director" data-action-target-type="schedule" data-action-target="future-2" data-action-media="media-future-2" data-action-type="approve_text_then_media" data-action-priority="10" data-action-date="2026-07-16" data-action-updated-at="500"><b>Vérifier le visuel recommandé</b><p>Le texte demeure la première porte; le visuel vient ensuite.</p></article>
+actionSource.innerHTML = `<article data-action-item-id="media-direction-approval-alt" data-action-assignee-uid="annie" data-action-assignee-role="director" data-action-target-type="schedule" data-action-target="future-2" data-action-media="media-future-2" data-action-type="approve_text_then_media" data-action-priority="10" data-action-date="2026-07-16" data-action-updated-at="500"><b>Vérifier le visuel recommandé</b><p>Le texte demeure la première porte; le visuel vient ensuite.</p></article>
 <article data-action-item-id="content-notice-project-one-v1" data-action-assignee-role="director" data-action-target-type="internalProject" data-action-target="project-one" data-action-type="content_notice" data-action-priority="40" data-action-date="2026-07-14" data-action-updated-at="510"><b>Nouveau — Projet test</b><p>Vous pouvez simplement y jeter un coup d’œil.</p></article>`;
 document.body.appendChild(actionSource);
 window.dispatchEvent(new window.CustomEvent("cockpit:action-items-updated"));
 await wait();
 assert.match(document.querySelector(".vm-decisions").textContent, /Vérifier le visuel recommandé/);
+switchTestRole("direction-colleague", "director");
+await wait();
+assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Vérifier le visuel recommandé/,
+  "Une collègue ayant le même rôle ne doit pas recevoir l’action nominativement attribuée à Annie.");
+assert.match(document.querySelector(".vm-decisions").textContent, /Nouveau — Projet test/,
+  "Une action volontairement attribuée au rôle reste visible pour l’équipe concernée.");
+switchTestRole("annie", "director");
+await wait();
 const noticeControl = document.querySelector('.vm-decisions [data-vm-action-item-id="content-notice-project-one-v1"]');
 assert.ok(noticeControl, "Une nouveauté non quotidienne doit rejoindre la file personnelle de la direction.");
 const noticeCard = noticeControl.closest(".vm-event");
