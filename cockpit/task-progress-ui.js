@@ -50,6 +50,21 @@ export function workflowSyncIsUsable(sync = "server", { safeMode = false, offlin
   return sync === "server" || (sync === "cache" && (safeMode || offline));
 }
 
+/**
+ * Les rétroactions déposées depuis la boîte à idées générale utilisent
+ * historiquement l'identifiant logique « cockpit ». Il ne correspond toutefois
+ * à aucun élément du DOM. On le traduit vers la liste de rétroactions visible
+ * dans le panneau d'administration afin que les anciennes comme les nouvelles
+ * tâches conservent une destination ouvrable.
+ */
+export function visibleActionTaskTarget(type = "schedule", id = "") {
+  const targetType = String(type || "schedule").trim();
+  const targetId = String(id || "").trim();
+  return targetType === "section" && targetId === "cockpit"
+    ? "cockpit-feedback-list"
+    : targetId;
+}
+
 export function actionTaskEmptyMarkup(current = true) {
   return current
     ? '<p class="cockpit-task-empty">Aucune tâche en attente. Les décisions acceptées et les éléments marqués comme complétés disparaissent de cette liste.</p>'

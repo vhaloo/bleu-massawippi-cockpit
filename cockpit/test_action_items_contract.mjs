@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import vm from "node:vm";
-import { actionTaskShouldRemain, buildTaskProgressPresentation, renderActionTaskCard } from "./task-progress-ui.js";
+import { actionTaskShouldRemain, buildTaskProgressPresentation, renderActionTaskCard, visibleActionTaskTarget } from "./task-progress-ui.js";
 
-const [client, cockpitUi, actionUi, view, rules, indexes, reconcile, contentNoticeSeed] = await Promise.all([
+const [client, cockpitUi, actionUi, view, rules, indexes, reconcile, contentNoticeSeed, feedbackProcessor] = await Promise.all([
   readFile(new URL("./firebase-client.js", import.meta.url), "utf8"),
   readFile(new URL("./cockpit-ui.js", import.meta.url), "utf8"),
   readFile(new URL("./action-items-ui.js", import.meta.url), "utf8"),
@@ -11,7 +11,8 @@ const [client, cockpitUi, actionUi, view, rules, indexes, reconcile, contentNoti
   readFile(new URL("./firestore.rules", import.meta.url), "utf8"),
   readFile(new URL("./firestore.indexes.json", import.meta.url), "utf8"),
   readFile(new URL("./reconcile_m0_libellule_action.js", import.meta.url), "utf8"),
-  readFile(new URL("./seed_content_notices.js", import.meta.url), "utf8")
+  readFile(new URL("./seed_content_notices.js", import.meta.url), "utf8"),
+  readFile(new URL("./process_feedback_action.js", import.meta.url), "utf8")
 ]);
 
 const subscription = client.slice(client.indexOf("export function subscribePersonalActionItems"), client.indexOf("export async function updateCockpitFeedbackStatus"));
@@ -153,6 +154,12 @@ assert.equal(actionTaskShouldRemain({ id:"comment-comment-1", status:"pending", 
   "Une consigne traitée disparaît de la file sans supprimer son historique.");
 assert.equal(actionTaskShouldRemain({ id:"section-task", status:"pending", targetType:"section" }, { stage:"published" }), true,
   "La fin d'une publication ne doit jamais masquer une tâche de section indépendante.");
+assert.equal(visibleActionTaskTarget("section", "cockpit"), "cockpit-feedback-list",
+  "La boîte à idées générale doit ouvrir une cible réellement visible plutôt qu'un identifiant logique absent du DOM.");
+assert.equal(visibleActionTaskTarget("schedule", "s4d1"), "s4d1",
+  "Les destinations ordinaires doivent rester inchangées.");
+assert.match(cockpitUi, /targetId: visibleActionTaskTarget\("section", sectionId\)/,
+  "Les nouvelles rétroactions générales doivent enregistrer directement la destination visible.");
 const profileApplication = cockpitUi.slice(cockpitUi.indexOf("async function applyProfile"), cockpitUi.indexOf("function applySignedOut"));
 assert.match(profileApplication, /if \(profile\.role === "admin"\) \{[\s\S]*buildAdminSidebar\(\)[\s\S]*buildTaskWidget\(\)[\s\S]*subscribeActionTasks\(renderActionTasks/,
   "Le panneau À accomplir et sa souscription doivent rester réservés à Valentin (rôle admin).");
@@ -194,6 +201,19 @@ assert.match(contentNoticeSeed, /if \(existing\.exists\)[\s\S]*preserved \+= 1/,
   "Le semis versionné doit préserver une nouveauté déjà vue et ne jamais la rouvrir.");
 assert.match(contentNoticeSeed, /actionType: "content_notice"/);
 assert.match(contentNoticeSeed, /maximumReads/);
+
+assert.match(feedbackProcessor, /--confirm-integrated/,
+  "Le traitement d'une rétroaction doit exiger une confirmation explicite après son dry-run.");
+assert.match(feedbackProcessor, /process-feedback-\$\{feedbackId\}/,
+  "L'archive déterministe doit rendre le traitement idempotent.");
+assert.match(feedbackProcessor, /if \(alreadyIntegrated\)[\s\S]*noOp: true/,
+  "Une seconde exécution doit être une opération nulle.");
+assert.match(feedbackProcessor, /feedback\.updateTime\.isEqual\(currentFeedback\.updateTime\)/,
+  "Une rétroaction modifiée entre la lecture et l'écriture ne doit jamais être écrasée.");
+assert.match(feedbackProcessor, /transaction\.update\(refs\.feedback, feedbackAfter\)[\s\S]*transaction\.update\(refs\.task, taskAfter\)[\s\S]*transaction\.set\(refs\.archive/,
+  "La rétroaction, sa tâche et son archive doivent être réconciliées dans une seule transaction.");
+assert.match(feedbackProcessor, /targetType: "schedule"|targetType,/,
+  "La tâche traitée doit être reliée à la publication réellement créée.");
 
 assert.match(rules, /match \/actionItems\/\{actionItemId\}/);
 assert.match(rules, /resource\.data\.assigneeUid == request\.auth\.uid[\s\S]*resource\.data\.assigneeRole == userRole\(\)/);

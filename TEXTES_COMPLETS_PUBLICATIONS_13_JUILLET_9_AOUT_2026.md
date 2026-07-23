@@ -2000,3 +2000,40 @@ This is not yet a complete inventory of the watershed. Our internal data confirm
 
 #SpeciesProfile #BleuMassawippi #Watershed #Amphibians
 ```
+
+## Jeudi 3 septembre — Canot, kayak, planche : le lavage compte aussi
+
+**Thème :** Prévention
+**Format :** Photo réelle autorisée 4:5 ou affiche éducative simple · publication bilingue
+**Objectif :** Intégrer la recommandation de la direction du 23 juillet : rappeler chaleureusement que le lavage obligatoire avant la mise à l’eau concerne aussi les embarcations non motorisées, sans répéter les publications d’août.
+**CTA :** Garder les trois gestes en tête
+**Visuel final :** Privilégier une photographie réelle autorisée d’une embarcation non motorisée et de son équipement. Ajouter seulement un court lettrage manuscrit bilingue « Même sans moteur · No motor, same care ». Ne pas inventer le lieu ni montrer une personne identifiable sans consentement.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Régie intermunicipale du Parc régional Massawippi — lavage obligatoire et tarifs 2026 : https://www.lacmassawippi.ca/plage-massawippi/heures-douverture-et-tarifs/ · Gouvernement du Québec — nettoyage des embarcations et équipements : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Un canot, un kayak ou une planche à pagaie n’a pas de moteur… mais peut tout de même transporter de l’eau, de la boue, des fragments de plantes ou de minuscules organismes d’un plan d’eau à l’autre.
+
+Avant la mise à l’eau au lac Massawippi, le lavage est obligatoire pour les embarcations motorisées comme non motorisées. Pensons aussi aux pagaies, aux vestes de flottaison, aux cordes et à tout l’équipement qui a touché l’eau.
+
+Le bon réflexe tient en trois gestes : nettoyer, vider, sécher. Un petit arrêt qui aide à garder le plaisir de pagayer léger — ici comme au prochain lac.
+
+Information et tarifs 2026 : https://www.lacmassawippi.ca/plage-massawippi/heures-douverture-et-tarifs/
+
+#BleuMassawippi #LacMassawippi #Estrie
+
+=========================================
+
+EN — A canoe, kayak or paddleboard has no motor… but it can still carry water, mud, plant fragments or tiny organisms from one body of water to another.
+
+Before launching on Lake Massawippi, cleaning is required for both motorized and non-motorized watercraft. Remember paddles, life jackets, ropes and any equipment that has touched the water.
+
+Three simple steps: clean, drain, dry. A quick stop that helps keep paddling lighthearted — here and at the next lake.
+
+2026 information and fees: https://www.lacmassawippi.ca/plage-massawippi/heures-douverture-et-tarifs/
+
+#BleuMassawippi #LakeMassawippi #EasternTownships
+```
