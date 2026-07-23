@@ -1614,7 +1614,8 @@ function renderInternalProjectStates() {
     if (completed) archived += 1;
     card.classList.toggle("is-archived", completed);
     const label = card.querySelector("[data-internal-project-stage-label]");
-    if (label) label.textContent = internalProjectStageLabels[stage] || "À cadrer";
+    const deferredUntil = String(card.dataset.deferredUntil || "").trim();
+    if (label) label.textContent = stage === "planned" && deferredUntil ? `Reporté à ${deferredUntil}` : (internalProjectStageLabels[stage] || "À cadrer");
     const host = card.querySelector("[data-internal-project-controls]");
     if (!host) return;
     const buttons = Object.entries(internalProjectStageLabels).map(([value, text]) => `<button type="button" data-internal-project-stage="${value}" class="${stage === value ? "active" : ""}" aria-pressed="${stage === value}">${text}</button>`).join("");
@@ -1712,16 +1713,18 @@ function setupInternalProjectEvents() {
     button.disabled = true;
     setInternalProjectStage(stageCard.dataset.internalProjectId, stage, state.profile)
       .then(async () => {
-        await writeAuditLog("internal-project:" + stageCard.dataset.internalProjectId, "étape : " + stage, state.profile);
+        const deferredUntil = String(stageCard.dataset.deferredUntil || "").trim();
+        const isDeferred = stage === "planned" && Boolean(deferredUntil);
+        await writeAuditLog("internal-project:" + stageCard.dataset.internalProjectId, isDeferred ? `étape : planned · reporté à ${deferredUntil}` : "étape : " + stage, state.profile);
         await recordActionTask("internal-project-" + stageCard.dataset.internalProjectId, {
-          status: stage === "completed" ? "done" : "pending",
-          title: `${internalProjectStageLabels[stage] || "Suivi"} — ${title}`,
+          status: stage === "completed" || isDeferred ? "done" : "pending",
+          title: `${isDeferred ? `Reporté à ${deferredUntil}` : (internalProjectStageLabels[stage] || "Suivi")} — ${title}`,
           targetType: "section",
           targetId: stageCard.id,
           targetLabel: title,
-          message: stage === "blocked" ? "Une décision ou une ressource est requise. Ouvrir la fiche et traiter la prochaine action prioritaire." : "Ouvrir la fiche, vérifier la prochaine action et faire avancer le projet selon l’étape choisie."
+          message: isDeferred ? `Projet reporté à ${deferredUntil}; aucune action active avant la revue de reprise.` : (stage === "blocked" ? "Une décision ou une ressource est requise. Ouvrir la fiche et traiter la prochaine action prioritaire." : "Ouvrir la fiche, vérifier la prochaine action et faire avancer le projet selon l’étape choisie.")
         });
-        toast(stage === "completed" ? "Projet terminé et classé; son historique reste accessible." : "Étape du projet interne enregistrée.");
+        toast(isDeferred ? `Projet reporté à ${deferredUntil}; son historique reste accessible.` : (stage === "completed" ? "Projet terminé et classé; son historique reste accessible." : "Étape du projet interne enregistrée."));
       })
       .catch((error) => toast(error.message, true))
       .finally(() => { button.disabled = false; });

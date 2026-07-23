@@ -4,7 +4,7 @@ import { dryRunSummary, isDryRun } from "./seed_utils.js";
 
 const allowedStages = new Set(["to_frame", "planned", "active", "blocked", "completed"]);
 const defaults = {
-  "lamproie-du-nord": "active",
+  "lamproie-du-nord": "planned",
   "application-carte-vivante-lac": "to_frame",
   "parc-lobadanaki": "active",
   "bilan-sante-lac": "active",
