@@ -7,6 +7,8 @@
  * intact.
  */
 
+import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260723-b42";
+
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
 const MESSAGE_SEEN_PREFIX = "bleu-massawippi-message-seen-v1";
@@ -45,7 +47,7 @@ const runtime = {
   focusedCard: null,
   focusTimer: 0,
   navigationToken: 0,
-  queueRole: "",
+  queueOwner: "",
   queueVisibleCount: 0,
   contentNoticeTimer: 0,
   contentNoticeTarget: null,
@@ -108,9 +110,7 @@ function storageKeys(identity = runtime.identity) {
 }
 
 function identityStorageOwner(identity = runtime.identity) {
-  if (identity.uid) return `uid:${identity.uid}`;
-  if (identity.role) return `role:${identity.role}`;
-  return "device";
+  return notificationOwnerKey(identity);
 }
 
 function cardExpansionStorageKey(itemId, identity = runtime.identity) {
@@ -205,28 +205,6 @@ function hydrateAttentionPreference(identity = runtime.identity) {
   updateAppAttentionBadge(false);
 }
 
-function attentionHash(value) {
-  let hash = 2166136261;
-  for (const character of String(value || "")) {
-    hash ^= character.charCodeAt(0);
-    hash = Math.imul(hash, 16777619);
-  }
-  return (hash >>> 0).toString(36);
-}
-
-function decisionAttentionToken(decision) {
-  const owner = decision.actionItemId || decision.taskId || `${decision.targetType || "schedule"}:${decision.targetId || decision.id}`;
-  const version = Number(decision.updatedAt || 0);
-  const meaning = attentionHash([
-    decision.action || "",
-    decision.whyNow || "",
-    decision.mediaId || "",
-    decision.stage || "",
-    decision.date?.toISOString?.() || ""
-  ].join("|"));
-  return `${owner}:${version}:${meaning}`;
-}
-
 function updateAppAttentionBadge(active) {
   // L'API Badging affiche un simple indicateur lorsqu'elle est appelée sans
   // nombre. Elle est facultative : le point dans l'interface reste le repli.
@@ -252,12 +230,12 @@ async function closeAttentionSystemNotifications() {
   if (!supported) return;
   try {
     const registration = await globalThis.navigator.serviceWorker.ready;
-    const notifications = await registration.getNotifications?.({ tag: "cockpit-attention" });
+    const notifications = await registration.getNotifications?.({ tag: notificationSystemTag(runtime.identity) });
     notifications?.forEach?.((notification) => notification.close?.());
   } catch { /* le badge et le point rouge restent le repli fiable */ }
 }
 
-async function showSystemNotification({ title, body, tag = "cockpit-attention", data = {} }) {
+async function showSystemNotification({ title, body, tag = notificationSystemTag(runtime.identity), data = {} }) {
   const status = systemNotificationStatus();
   if (!status.supported || status.permission !== "granted") return false;
   try {
@@ -285,9 +263,7 @@ async function notifySystemOfNewAttention() {
   if (!active || !runtime.systemNotificationsEnabled || status.permission !== "granted" || !backgrounded) return;
   if (!runtime.attentionSignature || runtime.attentionSignature === runtime.lastNotifiedSignature || runtime.systemNotificationInFlight) return;
   runtime.systemNotificationInFlight = true;
-  const body = runtime.identity.role === "admin"
-    ? "De nouvelles tâches attendent votre attention dans le cockpit."
-    : "De nouvelles décisions attendent votre regard dans le cockpit.";
+  const body = "De nouvelles actions personnelles attendent votre attention dans le cockpit.";
   try {
     const shown = await showSystemNotification({
       title: "Cockpit Bleu Massawippi — nouveautés à voir",
@@ -330,7 +306,7 @@ async function toggleSystemNotifications(control) {
       await showSystemNotification({
         title: "Notifications du cockpit activées",
         body: "Vous serez averti des prochaines nouveautés lorsque le cockpit est ouvert ou en arrière-plan.",
-        tag: "cockpit-notification-ready",
+        tag: notificationSystemTag(runtime.identity, "notification-ready"),
         data: { kind: "confirmation" }
       });
     } else {
@@ -458,7 +434,7 @@ function scheduleAttentionReview() {
 }
 
 function syncAttentionSnapshot(decisions, { current = false } = {}) {
-  const tokens = current ? decisions.map(decisionAttentionToken) : [];
+  const tokens = current ? decisions.map((decision) => notificationDecisionToken(runtime.identity, decision)) : [];
   const signature = tokens.join("|");
   if (signature !== runtime.attentionSignature) clearAttentionReview();
   runtime.attentionSignature = signature;
@@ -527,7 +503,7 @@ function ensureStylesheet() {
   if (document.querySelector(`link[data-module="${MODULE_ID}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = new URL("./view-mode.css?v=20260723-b41", import.meta.url).href;
+  link.href = new URL("./view-mode.css?v=20260723-b42", import.meta.url).href;
   link.dataset.module = MODULE_ID;
   document.head.appendChild(link);
 }
@@ -662,7 +638,7 @@ function syncDecisionDockVisibility() {
   placeDecisionDockTab(tab, viewportWidth);
   const availableWidth = decisionDockAvailableWidth();
   const hasRoom = viewportWidth >= minWidth && availableWidth >= panelMinWidth;
-  const eligible = ["director", "admin"].includes(runtime.identity.role)
+  const eligible = Boolean(runtime.identity.uid || runtime.identity.role)
     && runtime.decisionDockHasItems
     && Boolean(panel)
     && decisionDockAnchorPassed(panel, threshold);
@@ -1212,10 +1188,11 @@ function pendingTaskModels(role = runtime.identity.role) {
   })).filter((task) => task.id && task.targetId && (!task.assigneeRole || task.assigneeRole === role));
 }
 
-function personalActionItemModels(role = runtime.identity.role) {
+function personalActionItemModels(identity = runtime.identity) {
   const source = document.querySelector("#cockpit-action-item-source");
   return [...(source?.querySelectorAll("[data-action-item-id]") || [])].map((item) => ({
     id: item.dataset.actionItemId || "",
+    assigneeUid: item.dataset.actionAssigneeUid || "",
     assigneeRole: normaliseRole(item.dataset.actionAssigneeRole || ""),
     targetType: item.dataset.actionTargetType || "schedule",
     targetId: item.dataset.actionTarget || "",
@@ -1226,7 +1203,7 @@ function personalActionItemModels(role = runtime.identity.role) {
     priorityKey: Number(item.dataset.actionPriority || 9999),
     eventDateIso: item.dataset.actionDate || "9999-12-31",
     updatedAt: dataMillis(item.dataset.actionUpdatedAt)
-  })).filter((item) => item.id && item.targetId && item.assigneeRole === role);
+  })).filter((item) => item.id && item.targetId && notificationRecipientMatches(identity, item));
 }
 
 function roleDecisionForEvent(event, role, tasks = []) {
@@ -1365,9 +1342,10 @@ function urgencyFor(decision, now) {
   return { rank: 2, dateValue: publicationTarget.valueOf(), className: "later" };
 }
 
-function roleDecisionModels(events, role, now) {
+function roleDecisionModels(events, identity, now) {
+  const role = identity.role;
   const tasks = role === "admin" ? pendingTaskModels(role) : [];
-  const personalActions = personalActionItemModels(role);
+  const personalActions = personalActionItemModels(identity);
   const personalEventIds = new Set(personalActions.filter((item) => {
     if (item.targetType !== "schedule") return false;
     const event = events.find((candidate) => candidate.id === item.targetId);
@@ -1628,10 +1606,11 @@ function renderDashboard(now = new Date()) {
   const cachedOfflineState = workflowSync === "cache"
     && (document.body.classList.contains("cockpit-safe-mode") || globalThis.navigator?.onLine === false);
   const decisionsAreCurrent = workflowSync === "server" || cachedOfflineState;
-  const allDecisions = decisionsAreCurrent ? roleDecisionModels(events, runtime.identity.role, now) : [];
+  const allDecisions = decisionsAreCurrent ? roleDecisionModels(events, runtime.identity, now) : [];
   const pageSize = queuePageSize();
-  if (runtime.queueRole !== runtime.identity.role) {
-    runtime.queueRole = runtime.identity.role;
+  const queueOwner = notificationOwnerKey(runtime.identity);
+  if (runtime.queueOwner !== queueOwner) {
+    runtime.queueOwner = queueOwner;
     runtime.queueVisibleCount = pageSize;
   }
   runtime.queueVisibleCount = Math.max(pageSize, runtime.queueVisibleCount || 0);
@@ -1793,7 +1772,7 @@ function refreshIdentity(detail = null) {
   const changed = next.uid !== runtime.identity.uid || next.role !== runtime.identity.role;
   runtime.identity = next;
   if (changed) {
-    runtime.queueRole = "";
+    runtime.queueOwner = "";
     runtime.queueVisibleCount = 0;
     runtime.decisionDockCollapsed = readDecisionDockPreference(next);
     runtime.decisionDockForcedOpen = false;
@@ -1930,7 +1909,7 @@ export function init(options = {}) {
   listen(window, "cockpit:session-ended", () => {
     runtime.identity = { uid: "", role: "" };
     runtime.explicitMode = false;
-    runtime.queueRole = "";
+    runtime.queueOwner = "";
     runtime.queueVisibleCount = 0;
     runtime.navigationToken += 1;
     clearContentNoticeDwell();
@@ -2014,7 +1993,7 @@ export function destroy() {
   runtime.observer = null;
   runtime.focusedCard = null;
   runtime.navigationToken += 1;
-  runtime.queueRole = "";
+  runtime.queueOwner = "";
   runtime.queueVisibleCount = 0;
   runtime.decisionDockForcedOpen = false;
   runtime.decisionDockHasItems = false;
