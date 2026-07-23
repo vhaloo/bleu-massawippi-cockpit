@@ -510,7 +510,7 @@ assert.ok(fs.statSync(matchedDonationPreview).size < 150_000, "L’aperçu Zeffy
 assert.doesNotMatch(posts.find((post) => post.id === "s4d7").copy, /bleumassawippi\.com\/quiz/,
   "Un sondage qui mentionne éventuellement un quiz ne doit pas être transformé en publication quiz.");
 assert.equal((source.match(/data-internal-project-id=/g) || []).length, 15, "Le registre privé doit contenir les quinze projets internes documentés.");
-assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-07-17-regards-photo-v4"/);
+assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-07-23-lamproie-2027-v1"/);
 const internalProjectIds = [...source.matchAll(/data-internal-project-id="([a-z0-9-]+)"/g)].map((match) => match[1]).sort();
 const internalProjectSeedIds = [...internalProjectSeed.matchAll(/^  "([a-z0-9-]+)": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm)].map((match) => match[1]).sort();
 assert.deepEqual(internalProjectSeedIds, internalProjectIds, "Les cartes et le seed des projets internes doivent utiliser exactement les mêmes identifiants.");
