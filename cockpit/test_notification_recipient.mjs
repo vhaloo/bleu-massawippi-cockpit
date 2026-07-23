@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import {
   notificationDecisionToken,
   notificationOwnerKey,
@@ -38,5 +39,9 @@ assert.notEqual(notificationSystemTag(annie), notificationSystemTag(directionCol
   "Les notifications du système d’exploitation doivent être isolées par compte.");
 assert.doesNotMatch(notificationSystemTag(annie), /uid-annie/,
   "Le tag système ne doit pas exposer l’identifiant du compte.");
+
+const pagesWorkflow = await readFile(new URL("../.github/workflows/deploy-pages.yml", import.meta.url), "utf8");
+assert.match(pagesWorkflow, /cp cockpit\/notification-recipient\.js public\//,
+  "Le module de ciblage personnel doit être inclus dans l’artefact GitHub Pages.");
 
 console.log("Notification recipient checks: exact account, role fallback, isolated seen state and OS tags passed.");
