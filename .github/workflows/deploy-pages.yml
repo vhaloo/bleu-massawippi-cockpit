@@ -94,6 +94,7 @@ jobs:
           cp cockpit/clarity.css public/
           cp cockpit/event-context-data.js public/
           cp cockpit/action-items-ui.js public/
+          cp cockpit/notification-recipient.js public/
           cp cockpit/client-health-ui.js public/
           cp cockpit/admin-lazy-data.js public/
           cp cockpit/admin-activity-summary.js public/
