@@ -35,19 +35,20 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260723-b42";
-import { createEventContextController } from "./event-context-data.js?v=20260723-b42";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260723-b42";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260723-b42";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260723-b42";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260723-b42";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260723-b42";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260723-b42";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260723-b42";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260723-b42";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260723-b42";
-import { setupControlHints } from "./control-hints.js?v=20260723-b42";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260723-b42";
+} from "./firebase-client.js?v=20260725-b43";
+import { createEventContextController } from "./event-context-data.js?v=20260725-b43";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260725-b43";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260725-b43";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260725-b43";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260725-b43";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260725-b43";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260725-b43";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260725-b43";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260725-b43";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260725-b43";
+import { setupControlHints } from "./control-hints.js?v=20260725-b43";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260725-b43";
+import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260725-b43";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -2993,6 +2994,7 @@ async function loadPrivateContent() {
     ? structuredClone(Array.isArray(globalThis.posts) ? globalThis.posts : [])
     : JSON.parse(JSON.stringify(Array.isArray(globalThis.posts) ? globalThis.posts : []));
   state.editorialSignature = "[]";
+  sortInternalProjectsByUrgency();
   decorateInternalProjectDocuments();
   setupCollapsibleNavigation();
   setupGuidePreference();
