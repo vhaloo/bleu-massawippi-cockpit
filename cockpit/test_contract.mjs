@@ -110,9 +110,14 @@ assert.match(poetryCall.copy, /5 à 15 minutes/);
 assert.match(poetryCall.copy, /5 to 15 minutes/);
 assert.ok(poetryCall.copy.length <= 2200, "L’appel bilingue doit respecter la limite Meta convenue.");
 assert.deepEqual(activePosts.filter((post) => post.dateIso === "2026-07-27").map((post) => post.id), [poetryCall.id], "Le 27 juillet actif doit être réservé à l’appel aux voix.");
-assert.equal(deferredJuly27Monitoring.dateIso, "2026-08-15", "La publication scientifique déplacée doit rester dans le calendrier.");
-assert.equal(deferredJuly27Monitoring.rescheduledFrom, "2026-07-27");
-assert.equal(deferredJuly27Monitoring.displacedBy, poetryCall.id);
+assert.equal(deferredJuly27Monitoring.dateIso, "2026-07-29", "La publication scientifique doit occuper le mercredi 29 juillet.");
+assert.equal(deferredJuly27Monitoring.originalDateIso, "2026-07-27", "La date d’origine doit rester consignée.");
+assert.equal(deferredJuly27Monitoring.rescheduledFrom, "2026-08-15", "Le créneau précédent doit rester traçable.");
+assert.deepEqual(deferredJuly27Monitoring.rescheduleHistory?.map(({ from, to }) => ({ from, to })), [
+  { from: "2026-07-27", to: "2026-08-15" },
+  { from: "2026-08-15", to: "2026-07-29" }
+]);
+assert.equal(deferredJuly27Monitoring.displacedBy, null);
 const donationAppeal = posts.find((post) => post.id === "don-20260729-appel-soutien");
 const donationThanks = posts.find((post) => post.id === "don-20260807-merci-bilan");
 assert.equal(donationAppeal.parallelOperationalItem, false, "L’appel aux dons doit occuper seul le créneau quotidien prioritaire.");
@@ -138,8 +143,11 @@ assert.deepEqual(donationThanks.requiredPlaceholders, ["[DATE DE L’APPEL]", "[
 assert.match(donationThanks.source, /Paiements filtré par date de paiement/i);
 assert.deepEqual(posts.filter((post) => post.dateIso === "2026-08-07").map((post) => post.id), [donationThanks.id], "Le 7 août doit être réservé au bilan Zeffy.");
 const displacedRainPost = posts.find((post) => post.id === "s3d4");
-assert.equal(displacedRainPost.dateIso, "2026-07-29", "Le post pluie doit retrouver son créneau initial maintenant libéré.");
-assert.deepEqual(activePosts.filter((post) => post.dateIso === "2026-07-29").map((post) => post.id), [displacedRainPost.id]);
+assert.equal(displacedRainPost.dateIso, "2026-08-15", "Le post pluie doit rester planifié dans le créneau libéré par la publication scientifique.");
+assert.equal(displacedRainPost.rescheduledFrom, "2026-07-29");
+assert.equal(displacedRainPost.displacedBy, deferredJuly27Monitoring.id);
+assert.deepEqual(activePosts.filter((post) => post.dateIso === "2026-07-29").map((post) => post.id), [deferredJuly27Monitoring.id]);
+assert.deepEqual(activePosts.filter((post) => post.dateIso === "2026-08-15").map((post) => post.id), [displacedRainPost.id]);
 const displacedBoatCleaningPost = posts.find((post) => post.id === "alt-20260722");
 assert.equal(displacedBoatCleaningPost.dateIso, "2026-08-23", "Le post remplacé le 22 juillet doit être conservé et reprogrammé.");
 assert.equal(displacedBoatCleaningPost.archivedEditorial, undefined, "Le post déplacé ne doit pas devenir une archive.");

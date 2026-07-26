@@ -506,16 +506,42 @@ export function applyPlanOverridesToPosts(posts) {
   });
   const deferredJuly27Monitoring = posts.find((post) => post.id === "s3d1");
   if (deferredJuly27Monitoring) Object.assign(deferredJuly27Monitoring, {
+    w: 3,
+    date: "Mercredi 29 juillet",
+    calendarTime: "12:00",
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    originalDateIso: "2026-07-27",
+    rescheduledFrom: "2026-08-15",
+    rescheduledReason: "Publication avancée au mercredi 29 juillet à la demande des communications; son déplacement temporaire du 27 juillet au 15 août demeure consigné dans l’historique de replanification.",
+    rescheduleHistory: [
+      {
+        from: "2026-07-27",
+        to: "2026-08-15",
+        reason: "Réserver le lundi 27 juillet à l’appel confirmé pour Au bord du bleu."
+      },
+      {
+        from: "2026-08-15",
+        to: "2026-07-29",
+        reason: "Placer le suivi du lac et de ses tributaires au mercredi 29 juillet selon la décision éditoriale du 26 juillet."
+      }
+    ],
+    displacedBy: null,
+    role: "Publication scientifique retenue pour le mercredi 29 juillet : présenter avec exactitude les gestes de suivi du lac et de ses tributaires, sans diffuser de résultat récent non validé."
+  });
+  const displacedRainPost = posts.find((post) => post.id === "s3d4");
+  if (displacedRainPost) Object.assign(displacedRainPost, {
     w: 5,
     date: "Samedi 15 août",
     calendarTime: "11:00",
     choiceRequired: false,
     optionGroup: null,
     optionLabel: null,
-    rescheduledFrom: "2026-07-27",
-    rescheduledReason: "Publication conservée et déplacée afin de réserver le lundi 27 juillet à l’appel confirmé pour Au bord du bleu.",
-    displacedBy: POETRY_CALL_POST.id,
-    role: "Publication scientifique conservée et reprogrammée : présenter avec exactitude les gestes de suivi du lac, sans diffuser de résultat récent non validé."
+    rescheduledFrom: "2026-07-29",
+    rescheduledReason: "Publication conservée et déplacée au créneau libéré du samedi 15 août afin de réserver le mercredi 29 juillet au suivi du lac et de ses tributaires.",
+    displacedBy: deferredJuly27Monitoring?.id || "s3d1",
+    role: "Publication citoyenne conservée et reprogrammée : inviter à documenter calmement une observation après la pluie, sans simuler une alerte."
   });
   ["s2d3", "s2d6", "s3d1b"].forEach((id) => {
     const rejected = posts.find((post) => post.id === id);
