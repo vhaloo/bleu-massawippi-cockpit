@@ -657,33 +657,41 @@ Read the 2025 annual report: https://bleumassawippi.com/reports-briefs
 #WaterQuality #BleuMassawippi #LakeMassawippi #LakeScience
 ```
 
-## Mercredi 29 juillet — Après la pluie, vos observations comptent
+## Mercredi 29 juillet — Le suivi du lac et de ses tributaires se poursuit
 
 **Thème :** Actualité
-**Format :** Carrousel 3 gestes · après fortes pluies
-**Objectif :** Répondre au besoin de vigilance avec des comportements utiles, sans simuler une alerte officielle.
-**CTA :** Partager une observation
-**Visuel final :** Photo réelle d’un tributaire ou d’une rive après la pluie, tons naturels et non dramatiques; trois repères visuels discrets « lieu · moment · observation » sans simuler une alerte.
+**Format :** Photo terrain + carte en cours de suivi
+**Objectif :** Publication scientifique retenue pour le mercredi 29 juillet : présenter avec exactitude les gestes de suivi du lac et de ses tributaires, sans diffuser de résultat récent non validé.
+**CTA :** Suivre les nouvelles du terrain
+**Visuel final :** Diptyque documentaire authentique montrant le suivi du lac et celui d’un tributaire : mains, carnet et instruments réellement utilisés, lumière douce et lieux non identifiables sans validation; titre manuscrit discret « Le lac et ses tributaires, suivis avec attention ».
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/accueil-1
-**Préparation :** Ne pas publier d’avis de baignade ou de cause présumée sans validation scientifique et administrative; orienter les questions vers le contact officiel.
+**Source de référence :** https://bleumassawippi.com/rapports-et-memoires
+**Préparation :** Montrer des gestes réels de suivi sans publier de donnée récente avant la validation scientifique prévue.
 
 ### Légende prête à programmer
 
 ```text
-FR — Une forte pluie peut changer rapidement l’apparence de l’eau, des rives et des tributaires. Si quelque chose attire votre attention, prenez simplement note du lieu, du moment et de ce que vous voyez. Si vous pouvez le faire en sécurité, prenez aussi une ou deux photos d’ensemble et de détail pour bien documenter votre observation.
+FR — Cet été, le suivi du lac Massawippi et de ses tributaires se poursuit.
 
-Vous pouvez nous écrire en tout temps à info@bleumassawippi.com. Vos observations nous aident à mieux comprendre ce qui se passe sur le lac et à suivre l’évolution des enjeux qui touchent sa santé. Votre regard sur le territoire est précieux — merci d’être nos yeux autour du lac.
+On observe, on mesure, on échantillonne et on consigne. Chaque passage ajoute des données qui, comparées dans le temps, nous aideront à mieux comprendre l’évolution du lac et des cours d’eau qui l’alimentent.
 
-#ObservationCitoyenne #BleuMassawippi #LacMassawippi #BassinVersant
+Le suivi est notre outil : c’est une façon rigoureuse de rester attentifs et de mieux orienter les décisions.
+
+Merci de suivre le lac et ses tributaires avec nous.
+
+#BilanDeSanté #BleuMassawippi #LacMassawippi #Tributaires #ScienceDuLac
 
 =========================================
 
-EN — Heavy rain can quickly change the appearance of the water, shorelines and tributaries. If something catches your attention, simply note the location, time and what you observe. If it is safe to do so, take one or two overview and detail photos to document your observation clearly.
+EN — This summer, monitoring continues across Lake Massawippi and its tributaries.
 
-You can write to us anytime at info@bleumassawippi.com. Your observations help us better understand what is happening on the lake and follow the issues affecting its health. Your view of the watershed is valuable — thank you for being our eyes around the lake.
+Our field teams observe, measure, collect samples and keep careful records. Each visit adds to a body of data that, over time, helps us understand how the lake and the waterways that feed it are changing.
 
-#CommunityObservation #BleuMassawippi #LakeMassawippi #Watershed
+Regular monitoring helps us pay close attention to the watershed and make better-informed decisions.
+
+Thank you for taking an interest in this work.
+
+#LakeHealth #BleuMassawippi #LakeMassawippi #Tributaries #LakeScience
 ```
 
 ## Jeudi 30 juillet — Ma préférée… et la vôtre?
@@ -1464,41 +1472,33 @@ Following its journey offers a new way to see the watershed: what slows and abso
 #Watershed #BleuMassawippi #LakeMassawippi #ThinkUpstream
 ```
 
-## Samedi 15 août — Le suivi du lac et de ses tributaires se poursuit
+## Samedi 15 août — Après la pluie, vos observations comptent
 
 **Thème :** Actualité
-**Format :** Photo terrain + carte en cours de suivi
-**Objectif :** Publication scientifique conservée et reprogrammée : présenter avec exactitude les gestes de suivi du lac, sans diffuser de résultat récent non validé.
-**CTA :** Suivre les nouvelles du terrain
-**Visuel final :** Diptyque documentaire authentique montrant le suivi du lac et celui d’un tributaire : mains, carnet et instruments réellement utilisés, lumière douce et lieux non identifiables sans validation; titre manuscrit discret « Le lac et ses tributaires, suivis avec attention ».
+**Format :** Carrousel 3 gestes · après fortes pluies
+**Objectif :** Publication citoyenne conservée et reprogrammée : inviter à documenter calmement une observation après la pluie, sans simuler une alerte.
+**CTA :** Partager une observation
+**Visuel final :** Photo réelle d’un tributaire ou d’une rive après la pluie, tons naturels et non dramatiques; trois repères visuels discrets « lieu · moment · observation » sans simuler une alerte.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/rapports-et-memoires
-**Préparation :** Montrer des gestes réels de suivi sans publier de donnée récente avant la validation scientifique prévue.
+**Source de référence :** https://bleumassawippi.com/accueil-1
+**Préparation :** Ne pas publier d’avis de baignade ou de cause présumée sans validation scientifique et administrative; orienter les questions vers le contact officiel.
 
 ### Légende prête à programmer
 
 ```text
-FR — Cet été, le suivi du lac Massawippi et de ses tributaires se poursuit.
+FR — Une forte pluie peut changer rapidement l’apparence de l’eau, des rives et des tributaires. Si quelque chose attire votre attention, prenez simplement note du lieu, du moment et de ce que vous voyez. Si vous pouvez le faire en sécurité, prenez aussi une ou deux photos d’ensemble et de détail pour bien documenter votre observation.
 
-On observe, on mesure, on échantillonne et on consigne. Chaque passage ajoute des données qui, comparées dans le temps, nous aideront à mieux comprendre l’évolution du lac et des cours d’eau qui l’alimentent.
+Vous pouvez nous écrire en tout temps à info@bleumassawippi.com. Vos observations nous aident à mieux comprendre ce qui se passe sur le lac et à suivre l’évolution des enjeux qui touchent sa santé. Votre regard sur le territoire est précieux — merci d’être nos yeux autour du lac.
 
-Le suivi est notre outil : c’est une façon rigoureuse de rester attentifs et de mieux orienter les décisions.
-
-Merci de suivre le lac et ses tributaires avec nous.
-
-#BilanDeSanté #BleuMassawippi #LacMassawippi #Tributaires #ScienceDuLac
+#ObservationCitoyenne #BleuMassawippi #LacMassawippi #BassinVersant
 
 =========================================
 
-EN — This summer, monitoring continues across Lake Massawippi and its tributaries.
+EN — Heavy rain can quickly change the appearance of the water, shorelines and tributaries. If something catches your attention, simply note the location, time and what you observe. If it is safe to do so, take one or two overview and detail photos to document your observation clearly.
 
-Our field teams observe, measure, collect samples and keep careful records. Each visit adds to a body of data that, over time, helps us understand how the lake and the waterways that feed it are changing.
+You can write to us anytime at info@bleumassawippi.com. Your observations help us better understand what is happening on the lake and follow the issues affecting its health. Your view of the watershed is valuable — thank you for being our eyes around the lake.
 
-Regular monitoring helps us pay close attention to the watershed and make better-informed decisions.
-
-Thank you for taking an interest in this work.
-
-#LakeHealth #BleuMassawippi #LakeMassawippi #Tributaries #LakeScience
+#CommunityObservation #BleuMassawippi #LakeMassawippi #Watershed
 ```
 
 ## Dimanche 16 août — Votre essentiel avant de partir
