@@ -586,6 +586,12 @@ assert.match(poetryProject, /data-initial-stage="active" open/,
 assert.match(poetryProject, /30 AOÛT · 13 H–16 H · PARC LÔBADANAKI PRÉVU/);
 assert.match(poetryProject, /Feu vert acquis et premier appui concret/i);
 assert.match(poetryProject, /https:\/\/forms\.office\.com\/r\/4A2xsMh7st/);
+assert.match(poetryProject, /Candidatures reçues/);
+assert.match(poetryProject, /forms\.cloud\.microsoft\/Pages\/DesignPageV2\.aspx\?origin=NeoPortalPage&amp;subpage=design&amp;id=[^\"]+&amp;analysis=true/,
+  "Le projet poésie doit donner accès aux réponses recueillies dans Microsoft Forms.");
+assert.match(poetryProject, /Voir les réponses ↗/);
+assert.equal((source.match(/class="internal-project-form-results"/g) || []).length, 1,
+  "Le raccourci vers les réponses doit apparaître une seule fois, dans le projet poésie.");
 assert.match(poetryProject, /href="#poesie-du-lac-fiche-operationnelle"/);
 assert.doesNotMatch(poetryProject, /Je protège mon Massawippi|date de fin d’été|au coucher du soleil|concept-v1/,
   "La fiche poésie ne doit pas réintroduire le thème, le créneau ou l’affiche abandonnés.");
