@@ -85,3 +85,11 @@ Le test du 11 juillet a reproduit l’attente infinie lorsque plusieurs anciens 
 Le cycle a intégré les cinq interventions actives de la direction : correction du protocole cyanobactéries, structure d’offre North Hatley/Ayer’s Cliff, remise à plat du bilan de santé 2026–2027, veille prudente sur les lésions de la barbotte brune et explication publique de la contribution volontaire Zeffy. Les faits transmis par la direction sont identifiés comme tels et les conclusions scientifiques demeurent limitées aux sources primaires consultées.
 
 La seconde lecture Firestore, incrémentale et bornée, n’a trouvé aucune nouvelle intervention avant la préparation du déploiement. Les clôtures sont simulées avant application et produisent une archive déterministe sans suppression. La suite complète réussit, avec 100 contrôles qualité sur 100 et 494 contrôles de contenu. L’inspection à 390 × 844 px a aussi permis de corriger un débordement horizontal global de 5 px. Point de retour : `2b170baf81e0e8a5dfee60f61096e4d3ef21f563`.
+
+## Deuxième passage éditorial du 28 juillet 2026
+
+Deux nouveaux commentaires de la direction ont été intégrés dans un worktree distinct, à partir du point de retour `05e246ded4e2a7a20cf2fae063d6e7675233c2ee`. Le clic « À développer » lié au projet poésie a été reconnu comme accidentel; la tâche était déjà fermée et aucun développement artificiel n’a été créé.
+
+Le projet « Au bord du bleu » comprend désormais un aide-mémoire pour la rencontre du 10 août avec la direction générale de North Hatley. Le projet d’application « Massawippi en partage » distingue clairement l’inspiration LakePulse de l’usage scientifique des données et conditionne toute approche universitaire à un cadrage et à une capacité de suivi réels.
+
+La seconde synchronisation Firestore a produit 14 lectures estimées et aucun nouveau document. La suite complète réussit avec 494 contrôles de contenu et 100 contrôles qualité; l’inspection à 1440 × 900 et 390 × 844 ne montre ni débordement horizontal ni erreur navigateur. Point de retour : `05e246ded4e2a7a20cf2fae063d6e7675233c2ee`.
