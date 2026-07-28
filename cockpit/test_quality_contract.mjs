@@ -24,6 +24,7 @@ const files = {
   indexDeploy: read("cockpit/deploy_firestore_indexes.mjs"),
   internalProjectSeed: read("cockpit/seed_internal_project_states.js"),
   editorialMediaManifest: read("cockpit/editorial_media_manifest.json"),
+  scienceWatch: read("Rapports/VEILLE_SCIENTIFIQUE_BARBOTTE_BRUNE_2026-07-28.md"),
   workflow: read(".github/workflows/deploy-pages.yml"),
   viewMode: exists("cockpit/view-mode.js") ? read("cockpit/view-mode.js") : "",
   viewStyle: exists("cockpit/view-mode.css") ? read("cockpit/view-mode.css") : ""
@@ -202,6 +203,31 @@ critical("DATA-012", "Le visuel Secchi réel remplace les illustrations sans dé
 critical("DATA-007", "Projets internes suivis, bornés et synchronisés localement", /setInternalProjectStage/.test(files.client) && /subscribeInternalProjectStates/.test(files.client) && /internalProjectStates[\s\S]{0,220}limit\((?:50|100)\)/.test(files.client) && /readRecent\("opportunityStates"\)/.test(files.adminSync) && /readRecent\("internalProjectStates"\)/.test(files.adminSync), "Les deux registres doivent apparaître dans le résumé local et le nouvel abonnement ne doit pas croître sans borne.");
 critical("DATA-008", "Initialisation des projets internes idempotente", /if \(existing\.exists\)[\s\S]{0,160}preserved \+= 1[\s\S]{0,100}continue/.test(files.internalProjectSeed), "Un nouveau déploiement ne doit jamais écraser une étape déjà choisie.");
 critical("DATA-009", "Interface des projets internes branchée et nettoyée", /setupInternalProjectEvents/.test(files.ui) && /renderInternalProjectStates/.test(files.ui) && /subscribeInternalProjectStates/.test(files.ui) && /internalProjectUnsubscribe\?\.\(\)/.test(files.ui), "Le registre doit écouter les états en direct et désabonner sa lecture à la déconnexion.");
+critical("EDIT-001", "Le protocole cyanobactéries n’invente plus une cadence",
+  /Il ne prescrit ni sept sites ni deux visites par jour/.test(files.source)
+    && !/L’ancien protocole volontaire demandait sept sites deux fois par jour/.test(files.source)
+    && /Gestion%20cyanobact%C3%A9rie\.docx\?web=1/.test(files.source)
+    && /cogesaf\.qc\.ca\/sentinelle-des-lacs/.test(files.source),
+  "La fiche doit distinguer le protocole source, le guide terrain et la cadence encore à décider.");
+critical("EDIT-002", "L’information Zeffy est exacte et réutilisable en français et en anglais",
+  /Contribution proposée par Zeffy/.test(files.source)
+    && /ni une taxe ni des frais obligatoires/.test(files.source)
+    && /choisir <strong>0&nbsp;\$<\/strong>/.test(files.source)
+    && /Optional Zeffy contribution/.test(files.source),
+  "La contribution Zeffy doit rester décrite comme distincte, volontaire et modifiable jusqu’à 0 $. ");
+critical("EDIT-003", "La veille sur la barbotte brune reste sourcée et prudente",
+  /ne documentent pas ce cancer transmissible au lac Massawippi/.test(files.source)
+    && /aucun cas au lac Massawippi n’a été trouvé dans les sources examinées/.test(files.scienceWatch)
+    && /ne permet pas d’affirmer que le lac Massawippi est exempt/.test(files.scienceWatch)
+    && /nature\.com\/articles\/s41586-026-10828-6/.test(files.scienceWatch)
+    && /usgs\.gov\/publications\/melanoma/.test(files.scienceWatch),
+  "Le cockpit ne doit conclure ni à une présence ni à une absence sans donnée primaire.");
+critical("EDIT-004", "Le bilan 2027 distingue coûts, livrables et scénarios d’équipe",
+  /Qui paie quoi — à rétablir/.test(files.source)
+    && /biologiste à temps plein/.test(files.source)
+    && /stagiaires d’été avec une personne cheffe d’équipe/.test(files.source)
+    && /inclut explicitement le rapport final/.test(files.source),
+  "Le commentaire de la direction doit devenir un plan de décision vérifiable, pas une conclusion contractuelle non confirmée.");
 
 const failedCritical = results.filter((item) => item.severity === "CRITIQUE" && !item.pass);
 const failedWarnings = results.filter((item) => item.severity === "AVERTISSEMENT" && !item.pass);
