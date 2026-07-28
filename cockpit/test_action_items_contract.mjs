@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 import { actionTaskShouldRemain, buildTaskProgressPresentation, renderActionTaskCard, visibleActionTaskTarget } from "./task-progress-ui.js";
 
-const [client, cockpitUi, actionUi, view, rules, indexes, reconcile, contentNoticeSeed, feedbackProcessor, notificationRecipient] = await Promise.all([
+const [client, cockpitUi, actionUi, view, rules, indexes, reconcile, contentNoticeSeed, feedbackProcessor, sectionFeedbackProcessor, notificationRecipient] = await Promise.all([
   readFile(new URL("./firebase-client.js", import.meta.url), "utf8"),
   readFile(new URL("./cockpit-ui.js", import.meta.url), "utf8"),
   readFile(new URL("./action-items-ui.js", import.meta.url), "utf8"),
@@ -13,6 +13,7 @@ const [client, cockpitUi, actionUi, view, rules, indexes, reconcile, contentNoti
   readFile(new URL("./reconcile_m0_libellule_action.js", import.meta.url), "utf8"),
   readFile(new URL("./seed_content_notices.js", import.meta.url), "utf8"),
   readFile(new URL("./process_feedback_action.js", import.meta.url), "utf8"),
+  readFile(new URL("./process_section_feedback_action.js", import.meta.url), "utf8"),
   readFile(new URL("./notification-recipient.js", import.meta.url), "utf8")
 ]);
 
@@ -219,6 +220,18 @@ assert.match(feedbackProcessor, /transaction\.update\(refs\.feedback, feedbackAf
   "La rétroaction, sa tâche et son archive doivent être réconciliées dans une seule transaction.");
 assert.match(feedbackProcessor, /targetType: "schedule"|targetType,/,
   "La tâche traitée doit être reliée à la publication réellement créée.");
+assert.match(sectionFeedbackProcessor, /--confirm-integrated/,
+  "Une rétroaction de section doit exiger une confirmation explicite après son dry-run.");
+assert.match(sectionFeedbackProcessor, /process-section-feedback-\$\{feedbackId\}/,
+  "L’archive déterministe doit rendre la clôture de section idempotente.");
+assert.match(sectionFeedbackProcessor, /source\.includes\(`id=/,
+  "La section éditoriale doit exister localement avant de classer la rétroaction.");
+assert.match(sectionFeedbackProcessor, /feedback\.updateTime\.isEqual\(currentFeedback\.updateTime\)/,
+  "Une nouvelle intervention de la direction doit bloquer la transaction plutôt que d’être écrasée.");
+assert.match(sectionFeedbackProcessor, /transaction\.update\(refs\.feedback, feedbackAfter\)[\s\S]*transaction\.set\(refs\.archive/,
+  "La rétroaction et sa preuve d’archive doivent être écrites atomiquement.");
+assert.doesNotMatch(sectionFeedbackProcessor, /delete\(/,
+  "Le traitement éditorial ne doit supprimer aucune donnée.");
 
 assert.match(rules, /match \/actionItems\/\{actionItemId\}/);
 assert.match(rules, /resource\.data\.assigneeUid == request\.auth\.uid[\s\S]*resource\.data\.assigneeRole == userRole\(\)/);

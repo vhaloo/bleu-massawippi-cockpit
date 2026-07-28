@@ -79,3 +79,9 @@ Le test du 11 juillet a reproduit l’attente infinie lorsque plusieurs anciens 
 - La configuration Web Firebase est publique par conception; elle ne donne aucun privilège administrateur. La sécurité repose sur Auth et les règles. Toute vraie clé privée ou clé de service exposée doit être révoquée, remplacée et retirée de l’historique.
 - Ne jamais remplacer une photo fournie par une image générée si l’architecture ou l’identité du lieu n’est pas strictement préservée.
 - Vérification d’authentification du 10 juillet : le compte administrateur Valentin répond correctement via Firebase Auth; le mot de passe local associé à l’adresse de la direction générale est refusé par Firebase et devra être réinitialisé avant un test de parcours Annie.
+
+## Cycle éditorial du 28 juillet 2026
+
+Le cycle a intégré les cinq interventions actives de la direction : correction du protocole cyanobactéries, structure d’offre North Hatley/Ayer’s Cliff, remise à plat du bilan de santé 2026–2027, veille prudente sur les lésions de la barbotte brune et explication publique de la contribution volontaire Zeffy. Les faits transmis par la direction sont identifiés comme tels et les conclusions scientifiques demeurent limitées aux sources primaires consultées.
+
+La seconde lecture Firestore, incrémentale et bornée, n’a trouvé aucune nouvelle intervention avant la préparation du déploiement. Les clôtures sont simulées avant application et produisent une archive déterministe sans suppression. La suite complète réussit, avec 100 contrôles qualité sur 100 et 494 contrôles de contenu. L’inspection à 390 × 844 px a aussi permis de corriger un débordement horizontal global de 5 px. Point de retour : `2b170baf81e0e8a5dfee60f61096e4d3ef21f563`.
