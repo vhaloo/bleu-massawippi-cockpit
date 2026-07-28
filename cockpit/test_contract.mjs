@@ -528,6 +528,19 @@ assert.match(source, /Jeux provinciaux de pêche — événement terminé[\s\S]{
   "La fiche des Jeux provinciaux de pêche doit annoncer clairement sa clôture.");
 assert.match(internalProjectSeed, /"jeux-provinciaux-peche": "completed"/,
   "Le seed ne doit jamais recréer les Jeux provinciaux de pêche comme projet actif ou bloqué.");
+const applicationProject = source.match(/<details class="internal-project urgent" id="internal-project-application-carte-vivante-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
+assert.match(applicationProject, /application-reference-lakepulse/);
+assert.match(applicationProject, /dernière date de prélèvement au 11 juillet 2017/,
+  "L’observation transmise par la direction doit rester attribuée à la fiche consultée.");
+assert.match(applicationProject, /source, sa date, sa fréquence de mise à jour et son niveau de fraîcheur/,
+  "La piste LakePulse doit produire un garde-fou explicite sur la fraîcheur des données.");
+assert.match(applicationProject, /ne doivent pas servir directement à la recherche scientifique/,
+  "Le cockpit ne doit pas présenter les résultats de diffusion de LakePulse comme des données scientifiques actuelles.");
+assert.match(applicationProject, /Yannick Huot/);
+assert.match(applicationProject, /https:\/\/lakepulse\.ca\/lakeportal\/fr\//);
+assert.match(applicationProject, /usherbrooke\.ca\/geomatique\/departement\/personnel\/personnel-enseignant\/yannick-huot/);
+assert.match(applicationProject, /Prendre contact seulement après un premier cadrage, un intérêt municipal et une piste de financement/,
+  "La référence universitaire doit demeurer une piste conditionnelle, pas un partenariat annoncé.");
 const fundProject = source.match(/<details class="internal-project" id="internal-project-fonds-environnemental"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
 assert.match(fundProject, /fonds-environnemental-partenarial/);
 assert.match(fundProject, /Environnement en actions/);
@@ -585,6 +598,14 @@ assert.match(poetryProject, /data-initial-stage="active" open/,
   "La fiche poésie en préparation avancée doit rester ouverte afin de rendre l’affiche immédiatement visible.");
 assert.match(poetryProject, /30 AOÛT · 13 H–16 H · PARC LÔBADANAKI PRÉVU/);
 assert.match(poetryProject, /Feu vert acquis et premier appui concret/i);
+assert.match(poetryProject, /poesie-rencontre-north-hatley-2026-08-10/);
+assert.match(poetryProject, /Le 10 août, la direction rencontre la direction générale de North Hatley/,
+  "La date et l’interlocutrice de la rencontre doivent être visibles dans la prochaine action.");
+for (const meetingTopic of ["Lieu et autorité", "Horaire et logistique", "Météo et décision", "Collaboration et visibilité"]) {
+  assert.match(poetryProject, new RegExp(meetingTopic), `L’aide-mémoire municipal doit couvrir : ${meetingTopic}.`);
+}
+assert.match(poetryProject, /consigner chaque décision, le responsable, l’échéance et le plan B/,
+  "La rencontre doit se conclure par des décisions actionnables et traçables.");
 assert.match(poetryProject, /https:\/\/forms\.office\.com\/r\/4A2xsMh7st/);
 assert.match(poetryProject, /Candidatures reçues/);
 assert.match(poetryProject, /forms\.cloud\.microsoft\/Pages\/DesignPageV2\.aspx\?origin=NeoPortalPage&amp;subpage=design&amp;id=[^\"]+&amp;analysis=true/,
