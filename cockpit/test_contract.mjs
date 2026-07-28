@@ -20,6 +20,7 @@ const firestoreRules = fs.readFileSync(path.join(here, "firestore.rules"), "utf8
 const privateContentSeed = fs.readFileSync(path.join(here, "seed_private_content.js"), "utf8");
 const internalProjectSeed = fs.readFileSync(path.join(here, "seed_internal_project_states.js"), "utf8");
 const adminSync = fs.readFileSync(path.join(here, "admin_sync.js"), "utf8");
+const meetingBriefBuilder = fs.readFileSync(path.join(root, "tools", "build_poetry_meeting_brief.py"), "utf8");
 const mediaSeedSources = ["seed_nature_media_links.js", "seed_editorial_media_links.js", "seed_historical_media_links.js"].map((file) => ({
   file,
   source: fs.readFileSync(path.join(here, file), "utf8")
@@ -602,10 +603,21 @@ assert.match(poetryProject, /poesie-rencontre-north-hatley-2026-08-10/);
 assert.match(poetryProject, /Le 10 août, la direction rencontre la direction générale de North Hatley/,
   "La date et l’interlocutrice de la rencontre doivent être visibles dans la prochaine action.");
 for (const meetingTopic of ["Lieu et autorité", "Horaire et logistique", "Météo et décision", "Collaboration et visibilité"]) {
-  assert.match(poetryProject, new RegExp(meetingTopic), `L’aide-mémoire municipal doit couvrir : ${meetingTopic}.`);
+  assert.match(meetingBriefBuilder, new RegExp(meetingTopic), `Le PDF municipal doit couvrir : ${meetingTopic}.`);
 }
-assert.match(poetryProject, /consigner chaque décision, le responsable, l’échéance et le plan B/,
-  "La rencontre doit se conclure par des décisions actionnables et traçables.");
+assert.doesNotMatch(poetryProject, /<details[^>]+id="poesie-rencontre-north-hatley-2026-08-10"/,
+  "L’aide-mémoire ne doit plus occuper un long encart dans la fiche du projet.");
+assert.match(poetryProject, /Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10\.pdf/);
+assert.match(poetryProject, /Aide-mémoire — rencontre du 10 août/);
+assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 10,
+  "Les dix ressources du projet poésie doivent être présentées sous forme de cartes homogènes.");
+assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 10,
+  "Chaque carte documentaire doit annoncer clairement son type.");
+assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 9,
+  "Chaque ressource spécialisée doit proposer un bouton d’ouverture explicite.");
+const meetingBriefPdf = path.join(root, "cockpit", "project-documents", "Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10.pdf");
+assert.ok(fs.existsSync(meetingBriefPdf), "Le PDF d’aide-mémoire doit être publié avec le cockpit.");
+assert.ok(fs.statSync(meetingBriefPdf).size > 50_000, "Le PDF d’aide-mémoire doit contenir sa mise en page et le logo.");
 assert.match(poetryProject, /https:\/\/forms\.office\.com\/r\/4A2xsMh7st/);
 assert.match(poetryProject, /Candidatures reçues/);
 assert.match(poetryProject, /forms\.cloud\.microsoft\/Pages\/DesignPageV2\.aspx\?origin=NeoPortalPage&amp;subpage=design&amp;id=[^\"]+&amp;analysis=true/,
@@ -729,4 +741,4 @@ assert.match(natureMediaSeed, /archived: item\.archived === true/,
 const mainPostCount = posts.filter((post) => !post.isAlternative).length;
 const postsPerDay = posts.reduce((counts, post) => counts.set(post.dateIso, (counts.get(post.dateIso) || 0) + 1), new Map());
 const pairedDayCount = [...postsPerDay.values()].filter((count) => count > 1).length;
-console.log(JSON.stringify({ passed: true, mainPosts: mainPostCount, totalPosts: posts.length, pairedDays: pairedDayCount, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 15, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 494 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: mainPostCount, totalPosts: posts.length, pairedDays: pairedDayCount, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 15, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 499 }, null, 2));
