@@ -48,9 +48,12 @@ assert.match(client, /adminOverrideApprovesText[\s\S]{0,260}effectiveTextApprove
 assert.match(client, /subscribeMediaDecisions[\s\S]*?limit\(80\)/);
 assert.doesNotMatch(client + ui, /alt-20260715|nature-alt-20260715-libellule/, "Le code générique ne doit pas fabriquer une approbation spéciale pour la libellule.");
 
-assert.match(mediaUi, /hasStructuredChoice \? agreementIds\.includes\(row\.id\) : legacySelected/);
+assert.match(mediaUi, /hasStructuredChoice \? \(directionSelected \|\| agreementIds\.includes\(row\.id\)\) : legacySelected/,
+  "Le choix de la direction doit être présenté comme le visuel final sans effacer le choix des communications.");
 assert.match(ui, /Recommandé par les communications/);
 assert.match(ui, /Choisi par la direction générale/);
+assert.match(ui, /Préférence des communications différente · décision de la direction retenue/);
+assert.doesNotMatch(ui, /Choix différents — harmonisation requise/);
 assert.match(ui, /directionMediaReady/);
 assert.match(ui, /const publicationReady = contentDone && mediaDone/,
   "Un choix visuel anticipé ne doit jamais suffire à autoriser la publication sans le texte.");

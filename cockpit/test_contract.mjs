@@ -49,7 +49,7 @@ for (const post of posts) {
 }
 assert.deepEqual(
   Object.fromEntries(posts.filter((post) => post.archivedEditorial === true).map((post) => [post.id, post.dateIso])),
-  { s1d1b: "2026-07-13", s2d3: "2026-07-22", s2d6: "2026-07-26", s3d1b: "2026-07-27" },
+  { s1d1b: "2026-07-13", s2d3: "2026-07-22", s2d6: "2026-07-26", s3d1b: "2026-07-27", "alt-20260810": "2026-08-10" },
   "Les archives éditoriales doivent conserver leur date d’origine pour rester modifiables sous les règles Firestore."
 );
 for (const post of activePosts.filter((post) => post.dateIso >= "2026-07-22")) {
@@ -159,11 +159,16 @@ assert.equal(displacedBoatCleaningPost.displacedBy, donationAppeal.id);
 const displacedWatershedPost = posts.find((post) => post.id === "s4d5");
 const displacedHeritagePost = posts.find((post) => post.id === "alt-20260807");
 assert.equal(displacedWatershedPost.dateIso, "2026-08-14");
-assert.equal(displacedHeritagePost.dateIso, "2026-08-14");
-assert.equal(displacedWatershedPost.optionGroup, "20260814");
-assert.equal(displacedHeritagePost.optionGroup, "20260814");
-assert.equal(displacedWatershedPost.optionLabel, "Option A — Le voyage d’une goutte de pluie");
-assert.equal(displacedHeritagePost.optionLabel, "Option B — Ayer’s Cliff sur une carte postale ancienne");
+assert.equal(displacedHeritagePost.dateIso, "2026-09-02");
+assert.equal(displacedWatershedPost.optionGroup, null);
+assert.equal(displacedHeritagePost.optionGroup, null);
+assert.equal(displacedWatershedPost.choiceRequired, false);
+assert.equal(displacedHeritagePost.choiceRequired, false);
+const rejectedNorthHatley = posts.find((post) => post.id === "alt-20260810");
+assert.equal(rejectedNorthHatley.date, "Archive éditoriale");
+assert.equal(rejectedNorthHatley.archivedEditorial, true);
+assert.equal(rejectedNorthHatley.archived, true);
+assert.equal(activePosts.some((post) => post.id === rejectedNorthHatley.id), false, "Un angle écarté doit rester archivé sans revenir dans le calendrier actif.");
 const bullheadPost = posts.find((post) => post.id === "barbotte-20260730-signalement");
 assert.ok(bullheadPost, "Le signalement de la barbotte demandé par la direction doit devenir une publication complète.");
 assert.equal(bullheadPost.dateIso, "2026-07-30");
@@ -464,8 +469,8 @@ for (const token of ["stateTimestampMillis", "actionTaskPriority", "data-task-ta
 for (const token of ["roleDecisionForEvent", "roleDecisionModels", "pendingTaskModels", "mediaUpdatedAfterWorkflow", "Pourquoi maintenant", "left.urgency.rank", "Nouvelle consigne de la direction", "Texte prêt pour votre validation"]) {
   assert.ok(viewMode.includes(token), `La vue essentielle doit prioriser les décisions avec ${token}.`);
 }
-assert.match(viewMode, /if \(role === "admin" && latestTask && !event\.complete\)/,
-  "Une tâche transmise par la direction doit apparaître seulement dans la file des communications et ne jamais ressusciter une publication terminée.");
+assert.match(viewMode, /if \(role === "admin" && latestTask && !event\.complete && !event\.setAside\)/,
+  "Une tâche transmise par la direction doit apparaître seulement dans la file des communications et ne jamais ressusciter une publication terminée ou écartée.");
 assert.match(viewMode, /if \(role === "director"\)[\s\S]{0,3200}if \(role === "admin"\)/,
   "Les décisions de la direction et des communications doivent rester séparées par rôle.");
 assert.match(viewMode, /event\.media\.latestUpdate > event\.workflowUpdatedAt/,

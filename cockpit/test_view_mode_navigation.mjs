@@ -16,9 +16,9 @@ const { document, window } = parseHTML(`<!doctype html><html lang="fr"><head></h
     </section>
   </main>
   <aside id="cockpit-sidebar"><div id="cockpit-task-list">
-    <article class="cockpit-task-item" data-task-id="admin-task" data-task-assignee-role="admin" data-task-target-type="schedule" data-task-target="future-2" data-task-updated-at="200">
+    <article class="cockpit-task-item" data-task-id="admin-task" data-task-assignee-role="admin" data-task-target-type="schedule" data-task-target="future-4" data-task-updated-at="200">
       <b>Action réservée aux communications</b><p>Ne doit jamais apparaître pour la direction.</p>
-      <button data-open-task="admin-task" data-task-target-type="schedule" data-task-target="future-2">Ouvrir</button>
+      <button data-open-task="admin-task" data-task-target-type="schedule" data-task-target="future-4">Ouvrir</button>
     </article>
   </div></aside>
   <div id="cockpit-announcer" aria-live="polite"></div>
@@ -359,13 +359,20 @@ assert.match(document.querySelector(".vm-queue-end").textContent, /toutes vos d�
   document.body.dataset.workflowSync = "server";
   window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
   await wait();
-  const completedAdminCard = document.querySelector('[data-item-id="future-2"]');
+  const completedAdminCard = document.querySelector('[data-item-id="future-4"]');
   completedAdminCard.dataset.workflowStage = "scheduled";
   completedAdminCard.dataset.workflowUpdatedAt = "300";
   document.querySelector('[data-task-id="admin-task"]').dataset.taskUpdatedAt = "400";
   await wait();
-  assert.equal(document.querySelector('.vm-decisions [data-vm-target="future-2"]'), null,
+  assert.equal(document.querySelector('.vm-decisions [data-vm-target="future-4"]'), null,
     "Même une ancienne tâche techniquement plus récente ne doit pas ressusciter un événement terminé.");
+  completedAdminCard.dataset.workflowStage = "content_review";
+  completedAdminCard.classList.add("editorial-rejected");
+  window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+  await wait();
+  assert.equal(document.querySelector('.vm-decisions [data-vm-target="future-4"]'), null,
+    "Une ancienne tâche technique ne doit jamais ressusciter un angle éditorial écarté et archivé.");
+  completedAdminCard.classList.remove("editorial-rejected");
   completedAdminCard.dataset.workflowStage = "content_review";
   completedAdminCard.dataset.workflowUpdatedAt = "100";
   switchTestRole("annie", "director");
@@ -465,12 +472,13 @@ decisionPanel.getBoundingClientRect = () => ({ top: 140, bottom: 640, left: 0, r
 window.dispatchEvent(new window.Event("scroll"));
 assert.equal(dock.classList.contains("is-visible"), false, "La file flottante doit se réintégrer au tableau au retour vers le haut.");
 assert.equal(dockTab.classList.contains("is-visible"), false, "La languette doit aussi disparaître lorsque le tableau principal est revenu à l’écran.");
-completedAdminCard.dataset.workflowStage = "published";
+const completedActionCard = document.querySelector('[data-item-id="future-2"]');
+completedActionCard.dataset.workflowStage = "published";
 window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
 await wait();
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Vérifier le visuel recommandé/,
   "Une action personnelle encore pending dans Firestore doit être élaguée dès que la publication est terminée.");
-completedAdminCard.dataset.workflowStage = "content_review";
+completedActionCard.dataset.workflowStage = "content_review";
 window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
 await wait();
 const mediaAction = document.querySelector('.vm-decisions [data-vm-target="future-2"][data-vm-media="media-future-2"]');

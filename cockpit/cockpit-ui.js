@@ -35,20 +35,20 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260725-b43";
-import { createEventContextController } from "./event-context-data.js?v=20260725-b43";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260725-b43";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260725-b43";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260725-b43";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260725-b43";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260725-b43";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260725-b43";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260725-b43";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260725-b43";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260725-b43";
-import { setupControlHints } from "./control-hints.js?v=20260725-b43";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260725-b43";
-import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260725-b43";
+} from "./firebase-client.js?v=20260729-b44";
+import { createEventContextController } from "./event-context-data.js?v=20260729-b44";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260729-b44";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260729-b44";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260729-b44";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260729-b44";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260729-b44";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260729-b44";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260729-b44";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260729-b44";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260729-b44";
+import { setupControlHints } from "./control-hints.js?v=20260729-b44";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260729-b44";
+import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260729-b44";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -2050,12 +2050,12 @@ function renderMediaForCard(card) {
       choice.communicationsSelected ? `<span class="cockpit-media-role-badge communications">✓ Recommandé par les communications</span>` : "",
       choice.directionSelected ? `<span class="cockpit-media-role-badge direction">✓ Choisi par la direction générale · visuel prêt</span>` : "",
       choice.agreementSelected ? `<span class="cockpit-media-role-badge agreement">${agreementPresentation.badge}</span>` : choice.sameRoleChoice ? `<span class="cockpit-media-role-badge agreement">✓ Même visuel choisi par les deux rôles</span>` : "",
-      choice.divergent && (choice.communicationsSelected || choice.directionSelected) ? `<span class="cockpit-media-role-badge divergence">Choix différents — harmonisation requise</span>` : "",
+      choice.divergent && choice.directionSelected ? `<span class="cockpit-media-role-badge direction">Préférence des communications différente · décision de la direction retenue</span>` : "",
       choice.legacySelected ? `<span class="cockpit-media-role-badge">Choix hérité à confirmer — acteur non attribué</span>` : ""
     ].join("");
     const canOverride = !isBlocked && myChoiceSelected && !choice.agreementSelected && (role === "admin" || (role === "director" && textApproved));
     const mediaUpdatedAt = stateTimestampMillis(row.updatedAt || row.createdAt);
-    return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}${choice.communicationsSelected ? " is-recommended" : ""}${choice.directionSelected ? " is-direction-selected" : ""}${choice.divergent ? " is-divergent" : ""}${isBlocked ? " is-blocked" : ""}" data-media-id="${esc(row.id)}" data-media-stage="${esc(row.stage || "reference")}" data-media-updated-at="${mediaUpdatedAt}" data-media-selected-final="${String(isFinal)}" data-media-communications-selected="${String(choice.communicationsSelected)}" data-media-direction-selected="${String(choice.directionSelected)}">
+    return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}${choice.communicationsSelected ? " is-recommended" : ""}${choice.directionSelected ? " is-direction-selected" : ""}${choice.divergent && !choice.directionSelected ? " is-divergent" : ""}${isBlocked ? " is-blocked" : ""}" data-media-id="${esc(row.id)}" data-media-stage="${esc(row.stage || "reference")}" data-media-updated-at="${mediaUpdatedAt}" data-media-selected-final="${String(isFinal)}" data-media-communications-selected="${String(choice.communicationsSelected)}" data-media-direction-selected="${String(choice.directionSelected)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
       ${["director","admin"].includes(role) && !isBlocked ? `<button type="button" class="cockpit-media-image-choice${imageChoiceClass}" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}" aria-label="${esc(imageChoiceLabel)} — ${esc(row.label || "média")}">${esc(imageChoiceLabel)}</button>` : isBlocked ? `<span class="cockpit-media-image-status">Référence seulement</span>` : ""}
       <details class="cockpit-media-info" open><summary><span>Informations et actions</span><small class="cockpit-media-info-status ${isFinal ? "is-final" : ""}">${infoStatus}</small></summary><div class="cockpit-media-info-body">
