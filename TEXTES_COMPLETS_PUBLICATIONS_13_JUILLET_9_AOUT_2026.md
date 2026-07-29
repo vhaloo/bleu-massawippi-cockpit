@@ -1393,11 +1393,11 @@ Every response helps us understand what matters to you and prepare content that 
 #BleuMassawippi #LakeMassawippi #ThankYou #Community
 ```
 
-## Mardi 11 août — North Hatley, un été d’autrefois
+## Archive éditoriale — North Hatley, un été d’autrefois
 
 **Thème :** Patrimoine
 **Format :** Carte postale panoramique documentée · publication bilingue
-**Objectif :** Explorer l’image de North Hatley comme lieu de villégiature au début du XXe siècle, sans transformer le titre publicitaire de la carte en preuve historique suffisante.
+**Objectif :** Explorer l’image de North Hatley comme lieu de villégiature au début du XXe siècle, sans transformer le titre publicitaire de la carte en preuve historique suffisante. Angle écarté par la direction le 29 juillet 2026; conservé dans les archives éditoriales sans suppression.
 **CTA :** Partager un souvenir du lac
 **Visuel final :** Carte postale panoramique historique présentée au complet dans un album ouvert que des mains consultent; texture, bordure, date approximative et crédit préservés, avec la question « Quel souvenir vous revient? ».
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
@@ -1482,35 +1482,6 @@ In the field, every observation, sample and measurement adds a data point. Repea
 Thank you to everyone who makes this patient work possible, season after season.
 
 #BleuMassawippi #LakeMassawippi #LakeScience #BehindTheScenes
-```
-
-## Vendredi 14 août — Ayer’s Cliff sur une carte postale ancienne
-
-**Thème :** Patrimoine
-**Format :** Carte postale historique commentée · publication bilingue
-**Objectif :** Faire appel à la mémoire locale pour documenter prudemment une vue d’Ayer’s Cliff datée entre environ 1914 et 1940.
-**CTA :** Observer les détails d’autrefois
-**Visuel final :** Carte postale ancienne présentée entière, bordure et inscriptions conservées; carrousel optionnel avec deux détails agrandis, question « Reconnaissez-vous ce lieu? » et crédit complet sur la dernière carte.
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Domaine public · entre environ 1914 et 1940 · collection BAnQ 2637704 / Wikimedia Commons · https://commons.wikimedia.org/wiki/File:Ayers_Cliff,_Que._(BAnQ_2637704).jpg
-**Préparation :** Vérifier la légende, le crédit, la licence et les limites historiques avant de préparer l’image et les deux validations.
-
-### Légende prête à programmer
-
-```text
-FR — Petite promenade dans l’Ayer’s Cliff d’autrefois. Cette carte postale, datée entre environ 1914 et 1940, nous laisse observer un paysage familier sous un autre jour.
-
-Les bâtiments, la rue et les aménagements visibles deviennent des repères pour comparer doucement le village d’hier et celui d’aujourd’hui. La fourchette de dates sera précisée si une source plus complète est retrouvée.
-
-#Patrimoine #BleuMassawippi #AyersCliff #MémoireLocale
-
-=========================================
-
-EN — A short walk through Ayer’s Cliff of years past. Dating from roughly 1914 to 1940, this postcard lets us see a familiar landscape in a different light.
-
-The buildings, street and visible features offer reference points for gently comparing yesterday’s village with today’s. The date range will be refined if a more complete source is found.
-
-#Heritage #BleuMassawippi #AyersCliff #LocalMemory
 ```
 
 ## Vendredi 14 août — Le voyage d’une goutte de pluie
@@ -2069,6 +2040,35 @@ EN — This is our starting point for a new series about frogs, treefrogs and to
 This is not yet a complete inventory of the watershed. Our internal data confirm at least the pickerel frog, without disclosing sensitive locations. Before each profile, we will verify the local observation, identification and source. Then we will discover one species at a time: its call, habitat and role.
 
 #SpeciesProfile #BleuMassawippi #Watershed #Amphibians
+```
+
+## Mercredi 2 septembre — Ayer’s Cliff sur une carte postale ancienne
+
+**Thème :** Patrimoine
+**Format :** Carte postale historique commentée · publication bilingue
+**Objectif :** Faire appel à la mémoire locale pour documenter prudemment une vue d’Ayer’s Cliff datée entre environ 1914 et 1940.
+**CTA :** Observer les détails d’autrefois
+**Visuel final :** Carte postale ancienne présentée entière, bordure et inscriptions conservées; carrousel optionnel avec deux détails agrandis, question « Reconnaissez-vous ce lieu? » et crédit complet sur la dernière carte.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Domaine public · entre environ 1914 et 1940 · collection BAnQ 2637704 / Wikimedia Commons · https://commons.wikimedia.org/wiki/File:Ayers_Cliff,_Que._(BAnQ_2637704).jpg
+**Préparation :** Vérifier la légende, le crédit, la licence et les limites historiques avant de préparer l’image et les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Petite promenade dans l’Ayer’s Cliff d’autrefois. Cette carte postale, datée entre environ 1914 et 1940, nous laisse observer un paysage familier sous un autre jour.
+
+Les bâtiments, la rue et les aménagements visibles deviennent des repères pour comparer doucement le village d’hier et celui d’aujourd’hui. La fourchette de dates sera précisée si une source plus complète est retrouvée.
+
+#Patrimoine #BleuMassawippi #AyersCliff #MémoireLocale
+
+=========================================
+
+EN — A short walk through Ayer’s Cliff of years past. Dating from roughly 1914 to 1940, this postcard lets us see a familiar landscape in a different light.
+
+The buildings, street and visible features offer reference points for gently comparing yesterday’s village with today’s. The date range will be refined if a more complete source is found.
+
+#Heritage #BleuMassawippi #AyersCliff #LocalMemory
 ```
 
 ## Jeudi 3 septembre — Canot, kayak, planche : le lavage compte aussi
