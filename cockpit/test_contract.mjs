@@ -35,7 +35,7 @@ const postsJson = source.match(/var posts=(\[[\s\S]*?\]);\s*var meta=/)?.[1];
 assert.ok(postsJson, "Le tableau des publications source doit rester lisible.");
 const posts = applyPlanOverridesToPosts(JSON.parse(postsJson));
 const activePosts = posts.filter((post) => post.archivedEditorial !== true);
-const activeMedia = [...historicalMedia, ...natureMedia, ...editorialMedia].filter((media) => media.archived !== true && media.publicationBlocked !== true && media.stage !== "archived" && media.stage !== "reference");
+const plannedMedia = [...historicalMedia, ...natureMedia, ...editorialMedia].filter((media) => media.archived !== true && media.stage !== "archived" && media.stage !== "reference");
 assert.ok(activePosts.every((post) => /^2026-\d{2}-\d{2}$/.test(post.dateIso || "")), "Chaque publication active doit avoir une date ISO canonique.");
 assert.ok(posts.every((post) => /^2026-\d{2}-\d{2}$/.test(post.dateIso || "")), "Chaque document planifié ou archivé envoyé à Firestore doit conserver une date ISO canonique.");
 for (const post of posts) {
@@ -49,11 +49,11 @@ for (const post of posts) {
 }
 assert.deepEqual(
   Object.fromEntries(posts.filter((post) => post.archivedEditorial === true).map((post) => [post.id, post.dateIso])),
-  { s2d3: "2026-07-22", s2d6: "2026-07-26", s3d1b: "2026-07-27" },
+  { s1d1b: "2026-07-13", s2d3: "2026-07-22", s2d6: "2026-07-26", s3d1b: "2026-07-27" },
   "Les archives éditoriales doivent conserver leur date d’origine pour rester modifiables sous les règles Firestore."
 );
 for (const post of activePosts.filter((post) => post.dateIso >= "2026-07-22")) {
-  assert.ok(activeMedia.some((media) => media.eventId === post.id), `La publication future ${post.id} doit avoir au moins une proposition média explicite.`);
+  assert.ok(plannedMedia.some((media) => media.eventId === post.id), `La publication future ${post.id} doit avoir au moins une proposition média explicite, même si sa diffusion exige encore une validation.`);
 }
 assert.deepEqual(
   activePosts.map((post) => post.dateIso),
@@ -75,9 +75,12 @@ assert.match(first.copy, /Cette semaine, une personne de l’équipe sera au loc
 assert.doesNotMatch(first.copy, /Ce n’est pas une activité|disponibilités changeront chaque semaine/i);
 assert.equal(first.choiceRequired, false);
 assert.equal(first.date, "Lundi 13 juillet");
-assert.equal(moved.date, "Lundi 10 août");
-assert.equal(moved.w, 5);
-assert.equal(volunteer.date, "Mardi 11 août");
+assert.equal(moved.date, "Archive éditoriale");
+assert.equal(moved.dateIso, "2026-07-13");
+assert.equal(moved.w, 98);
+assert.equal(moved.archivedEditorial, true);
+assert.equal(moved.archived, true);
+assert.equal(volunteer.date, "Mercredi 12 août");
 assert.equal(volunteer.w, 5);
 assert.equal(volunteer.coordinationLevel, "high");
 assert.equal(volunteer.requiresHumanConsent, true);
@@ -90,8 +93,8 @@ assert.ok(volunteer.tasksAnnie.some((task) => /coordonn/i.test(task)));
 assert.ok(volunteer.tasksAnnie.some((task) => /consentement/i.test(task)));
 assert.equal(firstTuesday.choiceRequired, false, "La proposition retenue du mardi est verrouillée et ne demande plus d’arbitrage.");
 assert.equal(firstTuesday.optionGroup, null, "Une proposition verrouillée ne doit plus appartenir à un groupe de choix actif.");
-assert.equal(posts.filter((post) => !post.isAlternative).length, 31);
-assert.equal(posts.length, 62);
+assert.equal(posts.filter((post) => !post.isAlternative).length, 33);
+assert.equal(posts.length, 64);
 const nonMotorizedWash = posts.find((post) => post.id === "lavage-20260903-sans-moteur");
 assert.ok(nonMotorizedWash, "La recommandation du 23 juillet sur les embarcations non motorisées doit devenir une publication planifiée.");
 assert.equal(nonMotorizedWash.dateIso, "2026-09-03");
@@ -161,6 +164,35 @@ assert.equal(displacedWatershedPost.optionGroup, "20260814");
 assert.equal(displacedHeritagePost.optionGroup, "20260814");
 assert.equal(displacedWatershedPost.optionLabel, "Option A — Le voyage d’une goutte de pluie");
 assert.equal(displacedHeritagePost.optionLabel, "Option B — Ayer’s Cliff sur une carte postale ancienne");
+const bullheadPost = posts.find((post) => post.id === "barbotte-20260730-signalement");
+assert.ok(bullheadPost, "Le signalement de la barbotte demandé par la direction doit devenir une publication complète.");
+assert.equal(bullheadPost.dateIso, "2026-07-30");
+assert.match(bullheadPost.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
+assert.match(bullheadPost.copy, /date[\s\S]*secteur[\s\S]*photo[\s\S]*info@bleumassawippi\.com/i);
+assert.doesNotMatch(bullheadPost.copy, /cancer|maladie|lésion|tumeur|disease|lesion|tumou?r/i,
+  "L’appel doit s’en tenir au signalement du poisson, sans angle sanitaire inventé.");
+assert.ok(bullheadPost.copy.length <= 2200);
+const poetryReminder = posts.find((post) => post.id === "poesie-20260803-rappel-candidatures");
+assert.ok(poetryReminder, "Le rappel Au bord du bleu doit rester planifié.");
+assert.equal(poetryReminder.dateIso, "2026-08-03");
+assert.equal(poetryReminder.doNotShiftForBrownBullhead, true);
+assert.match(poetryReminder.copy, /https:\/\/forms\.office\.com\/r\/4A2xsMh7st/);
+assert.ok(poetryReminder.copy.length <= 2200);
+const wetlandPost = posts.find((post) => post.id === "s4d4");
+assert.equal(wetlandPost.title, "Ici, l’eau prend son temps");
+assert.match(wetlandPost.copy, /milieux humides ralentissent sa circulation/i);
+assert.doesNotMatch(wetlandPost.copy + wetlandPost.visual, /trois alliés|station de lavage|jeu visuel|photographie réelle|dépôt des sédiments|habitat/i,
+  "La nouvelle approche doit rester centrée sur un seul milieu humide et un seul mécanisme.");
+const wetlandMedia = editorialMedia.filter((media) => media.eventId === "s4d4" && media.stage !== "archived" && media.archived !== true);
+assert.deepEqual(wetlandMedia.map((media) => media.id), ["editorial-s4d4-wetland-school-chart-v6"],
+  "Une seule proposition illustrée doit rester active pour le milieu humide.");
+assert.match(wetlandMedia[0].rightsStatus, /illustration originale/i);
+const waterLilyMedia = editorialMedia.find((media) => media.id === "editorial-alt-20260805-water-lily-real-v3");
+assert.match(waterLilyMedia.note, /n’est pas présentée comme ayant été prise au lac Massawippi/i);
+const monitoringMedia = editorialMedia.filter((media) => media.eventId === "s1d2" && media.stage !== "archived");
+assert.equal(monitoringMedia.length, 2);
+assert.ok(monitoringMedia.every((media) => media.publicationBlocked === true && /consentement à confirmer/i.test(media.rightsStatus)),
+  "Les photographies de terrain restent visibles pour préparation, mais bloquées jusqu’à confirmation des droits.");
 const samplingPost = posts.find((post) => post.id === "s3d5");
 assert.match(samplingPost.title, /prélèvement/i, "Le retour sur les résultats doit devenir une explication concrète du prélèvement.");
 assert.match(samplingPost.copy, /lac, tributaire ou plage/i);
@@ -741,4 +773,4 @@ assert.match(natureMediaSeed, /archived: item\.archived === true/,
 const mainPostCount = posts.filter((post) => !post.isAlternative).length;
 const postsPerDay = posts.reduce((counts, post) => counts.set(post.dateIso, (counts.get(post.dateIso) || 0) + 1), new Map());
 const pairedDayCount = [...postsPerDay.values()].filter((count) => count > 1).length;
-console.log(JSON.stringify({ passed: true, mainPosts: mainPostCount, totalPosts: posts.length, pairedDays: pairedDayCount, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 15, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 499 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: mainPostCount, totalPosts: posts.length, pairedDays: pairedDayCount, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 15, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 520 }, null, 2));
