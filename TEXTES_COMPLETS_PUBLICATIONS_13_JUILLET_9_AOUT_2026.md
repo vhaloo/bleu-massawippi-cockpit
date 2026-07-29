@@ -1,6 +1,6 @@
 # Textes complets finalisés — Cockpit Communication Bleu Massawippi
 
-**Calendrier actif :** à partir du lundi 13 juillet 2026; la réserve éditoriale est actuellement planifiée jusqu’au mardi 1er septembre 2026.
+**Calendrier actif :** une publication par jour du lundi 13 juillet au dimanche 13 septembre 2026, sans trou ni doublon actif.
 **Usage :** textes bilingues prêts à programmer sur Facebook et Instagram, séparés par la ligne réglementaire du plan.
 **Voix :** chaleureuse, invitante et curieuse; les précautions techniques demeurent dans les notes de préparation plutôt que dans le message public.
 **Langues :** le français est rédigé d’abord avec naturel; l’anglais en est une adaptation fidèle au sens et au ton, jamais une traduction mot à mot.
@@ -797,7 +797,44 @@ Photo: Gaétan, 2017 — CC BY-SA 2.0.
 #YourView #BleuMassawippi #LakeMassawippi #Community
 ```
 
-## Samedi 1er août — Avant le résultat, il y a un prélèvement
+## Samedi 1er août — Ça semble propre… mais l’est-ce vraiment?
+
+**Thème :** Interaction
+**Format :** Vrai ou faux · deux cartes
+**Objectif :** Bonne idée interactive conservée et reprogrammée : rappeler avec chaleur que l’absence de débris visibles ne remplace pas le lavage, la vidange et le séchage recommandés.
+**CTA :** Faire défiler pour vérifier les étapes
+**Visuel final :** Planche scolaire chaleureuse : une embarcation qui semble propre, un détail grossi des organismes invisibles à l’œil nu, puis les trois gestes « Nettoyer · Vider · Sécher ». Question manuscrite bilingue : « Ça semble propre… mais l’est-ce vraiment? / It looks clean… but is it really? ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Gouvernement du Québec — nettoyage des embarcations et prévention des EEE · https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Vrai ou faux? Une embarcation sans débris visible peut passer directement d’un plan d’eau à un autre.
+
+Faux. Ne rien voir ne veut pas dire qu’aucun organisme n’est présent. Pour réduire le risque de transporter des espèces exotiques envahissantes (EEE), le lavage de tout ce qui a touché l’eau est essentiel. Il faut aussi vider l’eau retenue et sécher selon les consignes officielles : un simple coup d’œil ne remplace pas ces étapes.
+
+Le guide à garder sous la main : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+
+Envie de continuer à jouer? Testez vos connaissances du lac avec notre quiz bilingue de plus de 500 questions : https://bleumassawippi.com/quiz
+
+#QuizDuLac #BleuMassawippi #EspècesEnvahissantes #NautismeResponsable
+
+=========================================
+
+EN — True or false? A boat with no visible debris can move directly from one body of water to another.
+
+False. Seeing nothing does not mean no organisms are present. To reduce the risk of transporting invasive alien species, washing everything that has touched the water is essential. Retained water must also be drained and equipment dried according to official guidance: a visual check cannot replace those steps.
+
+Keep the official guide handy: https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+
+Want to keep playing? Test your knowledge of the lake with our bilingual quiz featuring more than 500 questions: https://bleumassawippi.com/quiz
+
+#LakeQuiz #BleuMassawippi #InvasiveSpecies #ResponsibleBoating
+```
+
+## Dimanche 2 août — Avant le résultat, il y a un prélèvement
 
 **Thème :** Science
 **Format :** Carrousel · trois questions à poser à un chiffre
@@ -836,7 +873,40 @@ Results will be shared only after validation, together with the context needed t
 #LakeScience #BleuMassawippi #WaterQuality #LakeMassawippi #Tributaries
 ```
 
-## Samedi 1er août — Quatre repères pour mieux lire le lac
+## Lundi 3 août — Au bord du bleu — il est encore temps de proposer votre voix
+
+**Thème :** Communauté
+**Format :** Affiche bilingue unique + rappel court
+**Objectif :** Rappeler chaleureusement l’appel aux voix pendant qu’il reste assez de temps pour proposer un texte déjà écrit ou en préparation.
+**CTA :** Proposer une lecture avant le 9 août
+**Visuel final :** Affiche bilingue unique Au bord du bleu, version 7 : vue du lac Massawippi, carnet réaliste, lettrage manuscrit, français et anglais réunis, date, horaire, parc prévu et échéance de candidature.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Formulaire public bilingue autonome : https://forms.office.com/r/4A2xsMh7st · projet interne Au bord du bleu · affiche bilingue unique version 7.
+**Préparation :** Vérifier que le formulaire demeure ouvert et que les renseignements de l’affiche n’ont pas changé, puis programmer ce rappel sans modifier la publication principale.
+
+### Légende prête à programmer
+
+```text
+FR — Un poème déjà écrit, un texte en chantier ou quelques pages que vous aimeriez faire entendre au bord du lac? Il est encore temps de proposer votre voix pour Au bord du bleu.
+
+Le dimanche 30 août, de 13 h à 16 h, Bleu Massawippi réunira poésie, prose et slam au parc Lôbadanaki, au bord du lac Massawippi. Chaque passage durera de 5 à 15 minutes; les voix expérimentées comme les premières participations sont les bienvenues.
+
+📝 Candidatures avant le dimanche 9 août à 23 h 59 : https://forms.office.com/r/4A2xsMh7st
+
+#AuBordDuBleu #BleuMassawippi #LacMassawippi #Poésie #Slam
+
+=========================================
+
+EN — A finished poem, a work in progress or a few pages you would love to share by the lake? There is still time to offer your voice for Au bord du bleu.
+
+On Sunday, August 30, from 1 to 4 p.m., Bleu Massawippi will bring together poetry, prose and spoken word at Lôbadanaki Park, by Lake Massawippi. Each reading will last 5 to 15 minutes; experienced voices and first-time participants are equally welcome.
+
+📝 Apply by Sunday, August 9 at 11:59 p.m.: https://forms.office.com/r/4A2xsMh7st
+
+#AuBordDuBleu #BleuMassawippi #LakeMassawippi #Poetry #SpokenWord
+```
+
+## Mardi 4 août — Quatre repères pour mieux lire le lac
 
 **Thème :** Interaction
 **Format :** Sondage quatre choix
@@ -875,7 +945,36 @@ We will explain them one at a time, always with their context and limitations.
 #ScienceForEveryone #BleuMassawippi #LakeMassawippi #WaterQuality
 ```
 
-## Dimanche 2 août — North Hatley vu d’en haut, hier et aujourd’hui
+## Archive éditoriale — Une halte aux chutes de Massawippi, vers 1865
+
+**Thème :** Patrimoine
+**Format :** Photographie historique documentée · publication bilingue
+**Objectif :** Relier la mémoire industrielle de la rivière à l’histoire du bassin versant sans confondre la rivière et le lac. Angle écarté par la direction le 29 juillet 2026; conservé dans les archives éditoriales sans suppression.
+**CTA :** Découvrir un autre visage du bassin
+**Visuel final :** Photographie historique complète des chutes et du moulin, posée sur fond d’archive; petite ligne cartographique situant « rivière Massawippi » et date « vers 1865 », sans altérer ni coloriser la scène; crédit lisible.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Domaine public · vers 1865 · Musée McCord Stewart, Archives photographiques Notman, cote MP-1982.157 / Wikimedia Commons · https://commons.wikimedia.org/wiki/File:Chute_de_Massawippi_et_moulin_a_scie_1865.jpg
+**Préparation :** Vérifier la légende, le crédit, la licence et les limites historiques avant de préparer l’image et les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Cette photographie nous emmène aux chutes de la rivière Massawippi vers 1865, auprès d’un moulin à scie et des personnes qui vivaient ou travaillaient dans ce paysage.
+
+Nous sommes ici sur la rivière Massawippi, et non au bord du lac : un autre visage du même bassin versant, où l’eau, le travail et les déplacements ont longtemps façonné la vie locale.
+
+#Patrimoine #BleuMassawippi #RivièreMassawippi #HistoireLocale
+
+=========================================
+
+EN — This photograph takes us to the falls of the Massawippi River around 1865, near a sawmill and the people who lived or worked in this landscape.
+
+This is the Massawippi River rather than the lakeshore: another face of the same watershed, where water, work and travel long shaped local life.
+
+#Heritage #BleuMassawippi #MassawippiRiver #LocalHistory
+```
+
+## Mercredi 5 août — North Hatley vu d’en haut, hier et aujourd’hui
 
 **Thème :** Patrimoine
 **Format :** Carrousel 2 photos réelles · vue historique puis vue drone de 2024
@@ -908,422 +1007,7 @@ Historical credit: Associated Screen News Limited, BAnQ collection.
 #Heritage #BleuMassawippi #NorthHatley #LocalMemory
 ```
 
-## Dimanche 2 août — Une image pour garder le souvenir
-
-**Thème :** Communauté
-**Format :** Photo plein cadre · légende très courte · aucun appel à commenter
-**Objectif :** Chercher l’émotion demandée par la direction avec une personne réelle et une phrase forte.
-**CTA :** Garder ce souvenir
-**Visuel final :** Une seule photographie réelle, forte et autorisée du Massawippi, plein cadre 4:5, sans collage, question ni long texte; privilégier un instant d’été qui évoque naturellement un souvenir et ajouter, au besoin, seulement la courte note manuscrite « Un souvenir du lac ».
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Commission de la construction du Québec — vacances d’été 2026 du 19 juillet au 1er août : https://www.ccq.org/fr-CA/avantages-sociaux/dates-conges-vacances · photographie réelle de l’association, droits à documenter.
-**Préparation :** Choisir une seule photographie réelle, forte et autorisée qui évoque un souvenir d’été au Massawippi; conserver la légende très courte et ne demander ni commentaire ni photo au public.
-
-### Légende prête à programmer
-
-```text
-FR — Les vacances de la construction se terminent. En une image, quel souvenir gardez-vous de votre Massawippi?
-
-#SouvenirDuLac #BleuMassawippi #LacMassawippi #Estrie
-
-=========================================
-
-EN — The construction holiday is coming to an end. In one image, what memory will you keep of your Massawippi?
-
-#LakeMemory #BleuMassawippi #LakeMassawippi #EasternTownships
-```
-
-## Lundi 3 août — Au bord du bleu — il est encore temps de proposer votre voix
-
-**Thème :** Communauté
-**Format :** Affiche bilingue unique + rappel court
-**Objectif :** Rappeler chaleureusement l’appel aux voix pendant qu’il reste assez de temps pour proposer un texte déjà écrit ou en préparation.
-**CTA :** Proposer une lecture avant le 9 août
-**Visuel final :** Affiche bilingue unique Au bord du bleu, version 7 : vue du lac Massawippi, carnet réaliste, lettrage manuscrit, français et anglais réunis, date, horaire, parc prévu et échéance de candidature.
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Formulaire public bilingue autonome : https://forms.office.com/r/4A2xsMh7st · projet interne Au bord du bleu · affiche bilingue unique version 7.
-**Préparation :** Vérifier que le formulaire demeure ouvert et que les renseignements de l’affiche n’ont pas changé, puis programmer ce rappel sans modifier la publication principale.
-
-### Légende prête à programmer
-
-```text
-FR — Un poème déjà écrit, un texte en chantier ou quelques pages que vous aimeriez faire entendre au bord du lac? Il est encore temps de proposer votre voix pour Au bord du bleu.
-
-Le dimanche 30 août, de 13 h à 16 h, Bleu Massawippi réunira poésie, prose et slam au parc Lôbadanaki, au bord du lac Massawippi. Chaque passage durera de 5 à 15 minutes; les voix expérimentées comme les premières participations sont les bienvenues.
-
-📝 Candidatures avant le dimanche 9 août à 23 h 59 : https://forms.office.com/r/4A2xsMh7st
-
-#AuBordDuBleu #BleuMassawippi #LacMassawippi #Poésie #Slam
-
-=========================================
-
-EN — A finished poem, a work in progress or a few pages you would love to share by the lake? There is still time to offer your voice for Au bord du bleu.
-
-On Sunday, August 30, from 1 to 4 p.m., Bleu Massawippi will bring together poetry, prose and spoken word at Lôbadanaki Park, by Lake Massawippi. Each reading will last 5 to 15 minutes; experienced voices and first-time participants are equally welcome.
-
-📝 Apply by Sunday, August 9 at 11:59 p.m.: https://forms.office.com/r/4A2xsMh7st
-
-#AuBordDuBleu #BleuMassawippi #LakeMassawippi #Poetry #SpokenWord
-```
-
-## Lundi 3 août — Cinq réflexes doux pour le lac
-
-**Thème :** Communauté
-**Format :** Carrousel 6 cartes · une couverture + cinq habitudes
-**Objectif :** Faire émerger les gestes réalistes plutôt que demander un engagement abstrait.
-**CTA :** Enregistrer les cinq réflexes
-**Visuel final :** Carrousel lumineux en six cartes, une idée par carte, avec pictogramme doux et verbes manuscrits blancs : végétaliser · absorber · ramasser · réduire · nettoyer; aucune injonction culpabilisante.
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Gouvernement du Québec — protection des rives et nettoyage des embarcations : https://www.environnement.gouv.qc.ca/eau/rives/ et https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
-**Préparation :** Vérifier chaque geste dans les recommandations gouvernementales, distinguer les habitudes riveraines des gestes nautiques et éviter toute promesse d’impact chiffré.
-
-### Légende prête à programmer
-
-```text
-FR — Prendre soin du lac peut se glisser dans des habitudes très simples.
-
-1 — Laisser une bande de végétation donner un coup de main au bord de l’eau.
-2 — Diriger l’eau de pluie vers une surface qui peut l’absorber plutôt que vers le lac.
-3 — Ramasser les déchets et les déjections animales avant qu’ils ne voyagent avec la pluie.
-4 — Éviter d’utiliser des engrais chimiques ou des pesticides près du lac et des cours d’eau.
-5 — Avant de changer de plan d’eau, inspecter, vider, nettoyer et sécher l’embarcation et l’équipement.
-
-Cinq réflexes réalistes, à adopter là où ils s’appliquent, sans chercher la perfection.
-
-#ChaqueGesteCompte #BleuMassawippi #LacMassawippi #Prévention #BassinVersant
-
-=========================================
-
-EN — Caring for the lake can become part of very simple habits.
-
-1 — Let a strip of vegetation lend a hand along the water’s edge.
-2 — Direct rainwater toward a surface that can absorb it rather than toward the lake.
-3 — Pick up litter and pet waste before rain can carry them away.
-4 — Avoid chemical fertilizers and pesticides near the lake and waterways.
-5 — Before moving between bodies of water, inspect, drain, clean and dry your boat and equipment.
-
-Five realistic habits to use where they apply, without aiming for perfection.
-
-#EveryActionCounts #BleuMassawippi #LakeMassawippi #Prevention #Watershed
-```
-
-## Mardi 4 août — Les petits gestes derrière les grandes décisions
-
-**Thème :** Coulisses
-**Format :** Photo coulisses + légende très courte
-**Objectif :** Montrer une preuve concrète de travail sans reprendre le ton humoristique de la mini-BD.
-**CTA :** Découvrir les coulisses
-**Visuel final :** Gros plan documentaire sur un carnet, une mesure et un outil préparé, avec une main en action et une lumière chaleureuse; titre « Les détails qui comptent ».
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/rapports-et-memoires
-**Préparation :** Identifier l’objet et son rôle sans révéler un lieu sensible ni afficher de donnée non approuvée.
-
-### Légende prête à programmer
-
-```text
-FR — Un carnet ouvert, une mesure bien notée, un outil préparé avec soin : dans les coulisses, ces petits détails montrent le soin consacré au suivi du lac.
-
-Derrière chacun, il y a des personnes qui observent, reviennent et prennent le temps de bien faire les choses. Aujourd’hui, on vous emmène un peu avec nous sur le terrain.
-
-#Coulisses #BleuMassawippi #LacMassawippi #ScienceDuLac
-
-=========================================
-
-EN — An open notebook, a clearly recorded measurement, a carefully prepared tool: these behind-the-scenes details show how much care goes into monitoring the lake.
-
-They reflect the work of people who observe, return to the same sites and take the time to get things right. Today, we’re bringing you along for a glimpse of a day in the field.
-
-#BehindTheScenes #BleuMassawippi #LakeMassawippi #LakeScience
-```
-
-## Archive éditoriale — Une halte aux chutes de Massawippi, vers 1865
-
-**Thème :** Patrimoine
-**Format :** Photographie historique documentée · publication bilingue
-**Objectif :** Relier la mémoire industrielle de la rivière à l’histoire du bassin versant sans confondre la rivière et le lac. Angle écarté par la direction le 29 juillet 2026; conservé dans les archives éditoriales sans suppression.
-**CTA :** Découvrir un autre visage du bassin
-**Visuel final :** Photographie historique complète des chutes et du moulin, posée sur fond d’archive; petite ligne cartographique situant « rivière Massawippi » et date « vers 1865 », sans altérer ni coloriser la scène; crédit lisible.
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Domaine public · vers 1865 · Musée McCord Stewart, Archives photographiques Notman, cote MP-1982.157 / Wikimedia Commons · https://commons.wikimedia.org/wiki/File:Chute_de_Massawippi_et_moulin_a_scie_1865.jpg
-**Préparation :** Vérifier la légende, le crédit, la licence et les limites historiques avant de préparer l’image et les deux validations.
-
-### Légende prête à programmer
-
-```text
-FR — Cette photographie nous emmène aux chutes de la rivière Massawippi vers 1865, auprès d’un moulin à scie et des personnes qui vivaient ou travaillaient dans ce paysage.
-
-Nous sommes ici sur la rivière Massawippi, et non au bord du lac : un autre visage du même bassin versant, où l’eau, le travail et les déplacements ont longtemps façonné la vie locale.
-
-#Patrimoine #BleuMassawippi #RivièreMassawippi #HistoireLocale
-
-=========================================
-
-EN — This photograph takes us to the falls of the Massawippi River around 1865, near a sawmill and the people who lived or worked in this landscape.
-
-This is the Massawippi River rather than the lakeshore: another face of the same watershed, where water, work and travel long shaped local life.
-
-#Heritage #BleuMassawippi #MassawippiRiver #LocalHistory
-```
-
-## Mercredi 5 août — Le terrain nous aide à décider juste
-
-**Thème :** Coulisses
-**Format :** Carrousel coulisses · outils, bottes, cahier, rive
-**Objectif :** Montrer les coulisses sans publier sur l’équipe interne.
-**CTA :** Découvrir ou soutenir le suivi
-**Visuel final :** Photo terrain authentique montrant une personne de profil ou de dos qui observe et consigne, paysage du lac ouvert derrière; mise en page sobre « Observer · comprendre · agir ».
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/accueil-1
-**Préparation :** Utiliser uniquement des photos de terrain autorisées; limiter l’appel au soutien à cette publication de la quinzaine.
-
-### Légende prête à programmer
-
-```text
-FR — Avant d’agir, il faut d’abord comprendre ce qui se passe. C’est pourquoi nous retournons sur le terrain : nous observons, mesurons, comparons et suivons l’évolution du lac dans le temps.
-
-Ce travail patient aide Bleu Massawippi à mieux comprendre le lac et à agir avec justesse. Merci à toutes les personnes qui rendent ce suivi possible, par leur temps, leur confiance ou leur soutien.
-
-En savoir plus ou soutenir le travail : https://bleumassawippi.com/accueil-1
-
-#Coulisses #BleuMassawippi #LacMassawippi #SoutenirLeLac
-
-=========================================
-
-EN — Before taking action, we first need to understand what is happening. That is why we return to the field: to observe, measure, compare and follow how the lake changes over time.
-
-This patient work helps Bleu Massawippi understand the lake and make sound decisions. Thank you to everyone whose time, trust or support makes this monitoring possible.
-
-Learn more or support our work: https://bleumassawippi.com/home-1
-
-#BehindTheScenes #BleuMassawippi #LakeMassawippi #SupportTheLake
-```
-
-## Jeudi 6 août — Ici, l’eau prend son temps
-
-**Thème :** Créatif
-**Format :** Jeu visuel / carrousel d’observation
-**Objectif :** Mettre l’attention au service de l’éducation par un jeu visuel léger.
-**CTA :** Suivre le chemin de l’eau
-**Visuel final :** Planche scolaire vintage 4:5 dessinée à la main : une seule coupe continue entre la terre, le milieu humide et le lac. De courtes flèches bleues montrent seulement le ralentissement de l’eau. Titre bilingue minimal : « Ici, l’eau prend son temps. / Here, water slows down. »
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Gouvernement du Québec — Biodiversité du Québec : les milieux humides ralentissent la circulation de l’eau. https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/biodiversite/biodiversite-quebec
-**Préparation :** Vérifier la lisibilité bilingue de la planche sur mobile. Garder le post centré sur un seul milieu et un seul rôle : ralentir la circulation de l’eau.
-
-### Légende prête à programmer
-
-```text
-FR — Entre la terre et le lac, il existe des endroits où l’eau prend son temps. Les milieux humides ralentissent sa circulation avant qu’elle poursuive son chemin dans le bassin versant.
-
-Ce rôle est discret, mais essentiel. La prochaine fois que vous passez près d’un milieu humide, prenez un moment pour suivre l’eau du regard : d’où vient-elle, et où va-t-elle ensuite?
-
-#BleuMassawippi #LacMassawippi #MilieuxHumides #BassinVersant
-
-=========================================
-
-EN — Between land and lake, there are places where water takes its time. Wetlands slow its movement before it continues through the watershed.
-
-This role is easy to miss, but essential. Next time you pass a wetland, take a moment to follow the water: where does it come from, and where does it go next?
-
-#BleuMassawippi #LakeMassawippi #Wetlands #Watershed
-```
-
-## Jeudi 6 août — Le nénuphar, un petit habitat à la surface
-
-**Thème :** Nature
-**Format :** Illustration aquarelle-encre 4:5
-**Objectif :** Présenter une plante aquatique familière sans généraliser son rôle ni encourager la cueillette.
-**CTA :** Découvrir son rôle dans le milieu
-**Visuel final :** Photographie réelle et autorisée d’un nénuphar blanc dans son milieu, recadrée sobrement au format 4:5 sans texte ni élément généré.
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** National Park Service — les plantes aquatiques offrent ombre, abri et couvert à la faune des étangs : https://home.nps.gov/keaq/learn/nature/pond-ecosystem.htm · Photographie de Nymphaea odorata par Thomas G. Barnes, U.S. Fish and Wildlife Service, domaine public : https://commons.wikimedia.org/wiki/File:Nymphaea_odorata_fragrant_water_lily_flower.jpg
-**Préparation :** Utiliser la photographie réelle et correctement créditée. Si une photographie confirmée du bassin du Massawippi devient disponible avant la programmation, la privilégier; sinon, indiquer clairement que l’image de référence n’a pas été prise au lac Massawippi.
-
-### Légende prête à programmer
-
-```text
-FR — Le nénuphar n’est pas seulement une belle fleur à la surface. Enraciné dans les fonds peu profonds, il fait partie de la végétation aquatique qui structure les zones littorales.
-
-Ses feuilles créent de l’ombre et du couvert; autour de ses tiges et de ses parties submergées, de petits organismes trouvent aussi des surfaces et des abris. Sa fleur relie enfin le lac aux insectes qui la visitent.
-
-Cette capsule présente le rôle général des nénuphars dans un herbier aquatique. La photographie montre un nénuphar blanc et n’a pas été prise au lac Massawippi.
-
-#ZoomNature #BleuMassawippi #PlantesAquatiques #LacMassawippi
-
-=========================================
-
-EN — A water lily is more than a beautiful flower at the surface. Rooted in shallow water, it is part of the aquatic vegetation that structures shoreline habitats.
-
-Its leaves create shade and cover; around its stems and submerged parts, small organisms also find surfaces and shelter. Its flower connects the lake with the insects that visit it.
-
-This feature explains the general role of water lilies in an aquatic plant bed. The photograph shows a white water lily and was not taken at Lake Massawippi.
-
-#NatureZoom #BleuMassawippi #AquaticPlants #LakeMassawippi
-```
-
-## Vendredi 7 août — Merci de faire grandir l’élan autour du lac
-
-**Thème :** Gratitude
-**Format :** Photo réelle + bilan de dons bilingue
-**Objectif :** Remercier avec précision et transparence le vendredi de la semaine suivant l’appel, en utilisant uniquement le montant net réellement confirmé.
-**CTA :** Remercier et montrer la suite
-**Visuel final :** Photographie réelle et autorisée du lac ou d’une action concrète; courte mention manuscrite « Merci d’être là pour le lac ».
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Zeffy — rapport Paiements filtré par date de paiement, statut Réussi et formulaire; exclure remboursements, litiges et paiements hors ligne non reçus.
-**Préparation :** Remplacer les deux champs entre crochets par des données Zeffy vérifiées, faire relire le contexte et ne programmer qu’après disparition complète des champs temporaires.
-
-### Légende prête à programmer
-
-```text
-FR — Merci d’être là pour le lac.
-
-Depuis notre appel du [DATE DE L’APPEL], votre générosité a permis de réunir [MONTANT NET CONFIRMÉ] pour soutenir le travail de Bleu Massawippi.
-
-Derrière ce résultat, il y a des personnes qui choisissent d’agir à leur mesure. Chaque contribution nourrit un effort collectif : mieux suivre le lac, mieux partager les connaissances et mieux préparer les actions à venir.
-
-Merci pour votre confiance.
-
-#BleuMassawippi #LacMassawippi #Merci #SoutenirLeLac
-
-=========================================
-
-EN — Thank you for being there for the lake.
-
-Since our appeal on [APPEAL DATE], your generosity has raised [CONFIRMED NET AMOUNT] to support Bleu Massawippi’s work.
-
-Behind this result are people choosing to act in ways that are right for them. Every contribution strengthens a shared effort: monitoring the lake, sharing knowledge and preparing the actions ahead.
-
-Thank you for your trust.
-
-#BleuMassawippi #LakeMassawippi #ThankYou #SupportTheLake
-```
-
-## Samedi 8 août — Partager le lac en trois réflexes
-
-**Thème :** Prévention
-**Format :** Mini-BD sobre · trois cases
-**Objectif :** Résumer la cohabitation par des gestes simples plutôt que par un ton moralisateur.
-**CTA :** Garder ces trois réflexes
-**Visuel final :** Mini-BD douce en trois cases illustrant des usages partagés : ralentir au bon moment, repartir avec ses effets, saluer et laisser de l’espace; titre « Trois réflexes pour partager le lac ».
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
-**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
-
-### Légende prête à programmer
-
-```text
-FR — Autour du lac, chacun vit le lieu à sa façon : en bateau, en se baignant, en pêchant, en marchant ou en profitant du silence.
-
-Pour que ce coin de nature reste agréable pour tout le monde, trois petits gestes font une grande différence : ralentir quand c’est nécessaire, minimiser son impact — pas de déchets, pas de traces — et respecter autant les lieux que les personnes. Des attentions simples qui permettent à chacun de savourer pleinement la beauté du lac.
-
-#PlaisirPartagé #BleuMassawippi #Civisme #LacMassawippi
-
-=========================================
-
-EN — Around the lake, everyone enjoys the setting in their own way: boating, swimming, fishing, walking or simply taking in the quiet.
-
-To keep this natural place enjoyable for everyone, three small actions make a real difference: slow down when needed, minimize your impact — no waste, no trace — and respect both the setting and the people around you. Simple courtesies that let everyone fully enjoy the lake’s beauty.
-
-#SharedEnjoyment #BleuMassawippi #Courtesy #LakeMassawippi
-```
-
-## Samedi 8 août — Sur l’eau, le plaisir se partage
-
-**Thème :** Humour
-**Format :** Photo réelle + micro-conseil plaisancier
-**Objectif :** Faire sourire tout en gardant un message de coexistence sur l’eau.
-**CTA :** Garder l’œil ouvert
-**Visuel final :** Illustration panoramique lumineuse de plusieurs usages cohabitant avec beaucoup d’espace — baignade, pagaie, pêche, petite embarcation — et trajectoires douces; titre « Le plaisir se partage ».
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/laccessible/en
-**Préparation :** Employer un ton léger sans caricaturer les usagers; privilégier une image calme, dégagée et crédible.
-
-### Légende prête à programmer
-
-```text
-FR — Le meilleur radar sur le lac? Celui qui remarque les rives, les baigneurs, les embarcations plus lentes, les pêcheurs, les planches à pagaie — et les moments où ralentir rend la sortie plus agréable pour tout le monde.
-
-Merci à toutes les personnes qui gardent l’œil ouvert et font de la place au plaisir des autres.
-
-#PlaisirPartagé #BleuMassawippi #NautismeResponsable #LacMassawippi
-
-=========================================
-
-EN — The best radar on the lake? The kind that notices shorelines, swimmers, slower boats, anglers and paddlers — and knows when it’s time to slow down so everyone can enjoy the day.
-
-Thank you to everyone who keeps an eye out and leaves room for others to enjoy the water.
-
-#SharedEnjoyment #BleuMassawippi #ResponsibleBoating #LakeMassawippi
-```
-
-## Dimanche 9 août — 15 secondes sur le terrain avec nous
-
-**Thème :** Coulisses
-**Format :** Mini-documentaire vertical · cinq plans réels
-**Objectif :** Offrir le format week-end en montrant un vrai rythme de travail, pas une démonstration artificielle.
-**CTA :** Entrer dans les coulisses
-**Visuel final :** Vidéo verticale de 15 secondes, cinq plans réels très courts : préparer, marcher vers le site, observer, noter, ranger; son naturel si exploitable, sous-titres FR/EN et conclusion « Merci de nous accompagner ».
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/rapports-et-memoires
-**Préparation :** Monter cinq plans réels, garder les instruments lisibles et ne pas afficher de résultat non validé à l’écran.
-
-### Légende prête à programmer
-
-```text
-FR — Préparer, observer, mesurer, noter, recommencer : voici une journée de terrain résumée en 15 secondes.
-
-Les gestes paraissent simples, mais c’est leur régularité et le soin qu’on y met qui transforment les observations en connaissances utiles. Merci de vous intéresser à ce travail souvent discret; on est heureux de vous en montrer les coulisses.
-
-#Terrain #BleuMassawippi #LacMassawippi #ScienceDuLac
-
-=========================================
-
-EN — Prepare, observe, measure, record and begin again: here is a field day in 15 seconds.
-
-The actions may look simple, but their consistency and the care behind them turn observations into useful knowledge. Thank you for taking an interest in this often quiet work; we are glad to show you behind the scenes.
-
-#Fieldwork #BleuMassawippi #LakeMassawippi #LakeScience
-```
-
-## Dimanche 9 août — Quatre coulisses à découvrir
-
-**Thème :** Communauté
-**Format :** Sondage quatre options
-**Objectif :** Faire choisir les prochaines coulisses plutôt que supposer ce qui intéresse le public.
-**CTA :** Entrer dans les coulisses
-**Visuel final :** Grille de quatre vignettes accueillantes : sortie terrain, lecture de données, création d’une publication, montage d’un projet; mots manuscrits très lisibles, photographies authentiques ou illustrations cohérentes, titre « Entrez dans les coulisses ».
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
-**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
-
-### Légende prête à programmer
-
-```text
-FR — Bleu Massawippi, c’est aussi tout ce qui se construit en coulisses, loin de ce qu’on voit dans notre fil d’actualité.
-
-A — Préparer une sortie sur le terrain.
-B — Lire et contextualiser des données.
-C — Transformer un sujet en publication accessible.
-D — Monter un projet avec des partenaires.
-
-Au fil des prochaines capsules, nous ouvrirons ces quatre portes pour montrer le travail, les personnes et les choix qui se trouvent derrière les actions.
-
-#Coulisses #BleuMassawippi #LacMassawippi #VieDeLAssociation
-
-=========================================
-
-EN — Bleu Massawippi is also everything being built behind the scenes, far from what appears in our social media feed.
-
-A — Preparing a field outing.
-B — Reading and contextualizing data.
-C — Turning a topic into an accessible post.
-D — Building a project with partners.
-
-In upcoming features, we will open these four doors and show the work, people and choices behind the actions.
-
-#BehindTheScenes #BleuMassawippi #LakeMassawippi #AssociationLife
-```
-
-## Lundi 10 août — À vous de choisir la suite
+## Jeudi 6 août — À vous de choisir la suite
 
 **Thème :** Humour
 **Format :** Récapitulatif graphique + question au public
@@ -1364,94 +1048,44 @@ Reply A, B, C or D. Your choice will help us plan what comes next.
 #BleuMassawippi #LakeMassawippi #Community #YourChoice
 ```
 
-## Lundi 10 août — Merci de faire vivre la conversation
+## Vendredi 7 août — Merci de faire grandir l’élan autour du lac
 
-**Thème :** Humanité
-**Format :** Carrousel de remerciement · quatre images réelles
-**Objectif :** Clore le mois par la gratitude et l’écoute, sans transformer le bilan en tableau de performance.
-**CTA :** Nous dire ce que vous voulez voir ensuite
-**Visuel final :** Carrousel de gratitude : beaux détails du lac, coulisse de terrain et capture anonymisée d’échanges communautaires; dernière carte « Merci de faire vivre la conversation ».
+**Thème :** Gratitude
+**Format :** Photo réelle + bilan de dons bilingue
+**Objectif :** Remercier avec précision et transparence le vendredi de la semaine suivant l’appel, en utilisant uniquement le montant net réellement confirmé.
+**CTA :** Remercier et montrer la suite
+**Visuel final :** Photographie réelle et autorisée du lac ou d’une action concrète; courte mention manuscrite « Merci d’être là pour le lac ».
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Archives de la campagne — droits documentés
-**Préparation :** Choisir les images les plus représentatives et ne publier aucun chiffre interne sans contexte et validation.
+**Source de référence :** Zeffy — rapport Paiements filtré par date de paiement, statut Réussi et formulaire; exclure remboursements, litiges et paiements hors ligne non reçus.
+**Préparation :** Remplacer les deux champs entre crochets par des données Zeffy vérifiées, faire relire le contexte et ne programmer qu’après disparition complète des champs temporaires.
 
 ### Légende prête à programmer
 
 ```text
-FR — Merci d’avoir regardé, questionné, partagé et pris le temps de penser au Massawippi avec nous.
+FR — Merci d’être là pour le lac.
 
-Chaque réaction nous aide à mieux comprendre ce qui vous intéresse et à préparer des contenus plus utiles, plus proches de vos questions. Quel moment ou quel sujet aimeriez-vous retrouver dans la suite? Nous avons envie de vous lire.
+Depuis notre appel du [DATE DE L’APPEL], votre générosité a permis de réunir [MONTANT NET CONFIRMÉ] pour soutenir le travail de Bleu Massawippi.
 
-#BleuMassawippi #LacMassawippi #Merci #Communauté
+Derrière ce résultat, il y a des personnes qui choisissent d’agir à leur mesure. Chaque contribution nourrit un effort collectif : mieux suivre le lac, mieux partager les connaissances et mieux préparer les actions à venir.
 
-=========================================
+Merci pour votre confiance.
 
-EN — Thank you for watching, asking questions, sharing and taking time to think about Massawippi with us.
-
-Every response helps us understand what matters to you and prepare content that is more useful and closer to your questions. Which moment or topic would you like us to revisit? We would love to hear from you.
-
-#BleuMassawippi #LakeMassawippi #ThankYou #Community
-```
-
-## Archive éditoriale — North Hatley, un été d’autrefois
-
-**Thème :** Patrimoine
-**Format :** Carte postale panoramique documentée · publication bilingue
-**Objectif :** Explorer l’image de North Hatley comme lieu de villégiature au début du XXe siècle, sans transformer le titre publicitaire de la carte en preuve historique suffisante. Angle écarté par la direction le 29 juillet 2026; conservé dans les archives éditoriales sans suppression.
-**CTA :** Partager un souvenir du lac
-**Visuel final :** Carte postale panoramique historique présentée au complet dans un album ouvert que des mains consultent; texture, bordure, date approximative et crédit préservés, avec la question « Quel souvenir vous revient? ».
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Domaine public · entre environ 1905 et 1940 · collection BAnQ 3730812 / Wikimedia Commons · https://commons.wikimedia.org/wiki/File:Famous_Summer_Resort,_North_Hatley,_Que.,_Canada_(BAnQ_3730812).jpg
-**Préparation :** Vérifier la légende, le crédit, la licence et les limites historiques avant de préparer l’image et les deux validations.
-
-### Légende prête à programmer
-
-```text
-FR — Cette carte ancienne nous invite à retrouver un été d’autrefois à North Hatley. Elle est datée dans une large fourchette, entre environ 1905 et 1940, et nous offre un point de départ pour regarder, comparer et nous souvenir ensemble.
-
-Quel lieu, quelle habitude de vacances ou quelle histoire de famille cette image vous rappelle-t-elle?
-
-#BleuMassawippi #LacMassawippi #NorthHatley #MémoireDuLac
+#BleuMassawippi #LacMassawippi #Merci #SoutenirLeLac
 
 =========================================
 
-EN — This historical card invites us into a summer from another time in North Hatley. Dated within a broad range, roughly 1905 to 1940, it offers a starting point for observing, comparing and remembering together.
+EN — Thank you for being there for the lake.
 
-What place, summer tradition or family story does this image bring to mind?
+Since our appeal on [APPEAL DATE], your generosity has raised [CONFIRMED NET AMOUNT] to support Bleu Massawippi’s work.
 
-#BleuMassawippi #LakeMassawippi #NorthHatley #LakeMemories
+Behind this result are people choosing to act in ways that are right for them. Every contribution strengthens a shared effort: monitoring the lake, sharing knowledge and preparing the actions ahead.
+
+Thank you for your trust.
+
+#BleuMassawippi #LakeMassawippi #ThankYou #SupportTheLake
 ```
 
-## Mercredi 12 août — Pourquoi nous nous impliquons pour le Massawippi
-
-**Thème :** Humanité
-**Format :** Carrousel humain · une courte phrase par membre du conseil d’administration
-**Objectif :** Ouvrir la série de portraits du conseil d’administration par une présentation humaine de Denis Petitclerc, dans ses propres mots et avec des photographies authentiques.
-**CTA :** Rencontrer les personnes derrière la mission
-**Visuel final :** Carrousel chaleureux avec une couverture manuscrite « Pourquoi nous nous impliquons », puis un portrait autorisé et une seule courte citation par personne; possibilité d’une carte typographique sans visage; aucun montage ne doit laisser croire que les personnes ont été photographiées ensemble.
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/benevolat
-**Préparation :** Obtenir de Denis une courte citation, son accord sur le texte, le choix des deux photographies et son consentement de diffusion avant de finaliser le visuel et la publication.
-
-### Légende prête à programmer
-
-```text
-FR — Derrière les orientations de Bleu Massawippi, il y a des personnes qui donnent du temps, de l’expérience et une attention sincère au lac. Nous leur avons posé une seule question : pourquoi avez-vous choisi de vous impliquer pour le Massawippi?
-
-Ce carrousel rassemble leurs réponses, dans leurs mots, avec leur accord. Une façon simple de rencontrer le conseil d’administration et de comprendre les raisons humaines qui font avancer la mission.
-
-#BleuMassawippi #ConseilDAdministration #LacMassawippi #Communauté
-
-=========================================
-
-EN — Behind Bleu Massawippi’s direction are people who contribute time, experience and genuine care for the lake. We asked them one question: why did you choose to get involved for Massawippi?
-
-This carousel brings together their answers, in their own words and with their consent. It is a simple way to meet the board of directors and understand the human reasons that move the mission forward.
-
-#BleuMassawippi #BoardOfDirectors #LakeMassawippi #Community
-```
-
-## Jeudi 13 août — Suivre le lac et ses tributaires pour mieux comprendre
+## Samedi 8 août — Suivre le lac et ses tributaires pour mieux comprendre
 
 **Thème :** Humanité
 **Format :** Reel sonore 12–15 s · écoute du terrain
@@ -1484,7 +1118,7 @@ Thank you to everyone who makes this patient work possible, season after season.
 #BleuMassawippi #LakeMassawippi #LakeScience #BehindTheScenes
 ```
 
-## Vendredi 14 août — Le voyage d’une goutte de pluie
+## Dimanche 9 août — Le voyage d’une goutte de pluie
 
 **Thème :** Coulisses
 **Format :** Photo de tributaire / bassin versant + récit court
@@ -1513,7 +1147,94 @@ Following its journey offers a new way to see the watershed: what slows and abso
 #Watershed #BleuMassawippi #LakeMassawippi #ThinkUpstream
 ```
 
-## Samedi 15 août — Après la pluie, vos observations comptent
+## Archive éditoriale — North Hatley, un été d’autrefois
+
+**Thème :** Patrimoine
+**Format :** Carte postale panoramique documentée · publication bilingue
+**Objectif :** Explorer l’image de North Hatley comme lieu de villégiature au début du XXe siècle, sans transformer le titre publicitaire de la carte en preuve historique suffisante. Angle écarté par la direction le 29 juillet 2026; conservé dans les archives éditoriales sans suppression.
+**CTA :** Partager un souvenir du lac
+**Visuel final :** Carte postale panoramique historique présentée au complet dans un album ouvert que des mains consultent; texture, bordure, date approximative et crédit préservés, avec la question « Quel souvenir vous revient? ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Domaine public · entre environ 1905 et 1940 · collection BAnQ 3730812 / Wikimedia Commons · https://commons.wikimedia.org/wiki/File:Famous_Summer_Resort,_North_Hatley,_Que.,_Canada_(BAnQ_3730812).jpg
+**Préparation :** Vérifier la légende, le crédit, la licence et les limites historiques avant de préparer l’image et les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Cette carte ancienne nous invite à retrouver un été d’autrefois à North Hatley. Elle est datée dans une large fourchette, entre environ 1905 et 1940, et nous offre un point de départ pour regarder, comparer et nous souvenir ensemble.
+
+Quel lieu, quelle habitude de vacances ou quelle histoire de famille cette image vous rappelle-t-elle?
+
+#BleuMassawippi #LacMassawippi #NorthHatley #MémoireDuLac
+
+=========================================
+
+EN — This historical card invites us into a summer from another time in North Hatley. Dated within a broad range, roughly 1905 to 1940, it offers a starting point for observing, comparing and remembering together.
+
+What place, summer tradition or family story does this image bring to mind?
+
+#BleuMassawippi #LakeMassawippi #NorthHatley #LakeMemories
+```
+
+## Lundi 10 août — Votre journée en bleu
+
+**Thème :** Communauté
+**Format :** Photo réelle + question ouverte
+**Objectif :** Bonne idée conservée et reprogrammée après arbitrage; accueillir une photo, une image, un emoji ou quelques mots pour raconter une journée au lac.
+**CTA :** Partager votre regard
+**Visuel final :** Conserver la photo réelle déjà appréciée dans OneDrive, avec le mot BLEU dessiné sur l’eau et un petit cœur blanc discret à côté. Ajouter seulement une invitation discrète « Et votre journée? » sans simuler de témoignage.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
+**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Si vous deviez raconter votre journée près du Massawippi avec une photo, une image, un emoji ou quelques mots, que choisiriez-vous?
+
+Partagez votre regard en commentaire. Une eau calme, un ciel changeant, un moment en famille, un simple 💙 : toutes les façons de raconter le lac sont les bienvenues. Si une personne apparaît sur votre photo, assurez-vous d’avoir son accord avant de la publier.
+
+#RegardBleu #BleuMassawippi #LacMassawippi #Communauté
+
+=========================================
+
+EN — If you could tell the story of your day near Massawippi with a photo, an image, an emoji or a few words, what would you choose?
+
+Share your perspective in the comments. Calm water, a changing sky, family time or a simple 💙: every way of telling the lake’s story is welcome. If someone appears in your photo, please make sure you have their permission before posting it.
+
+#BluePerspective #BleuMassawippi #LakeMassawippi #Community
+```
+
+## Mardi 11 août — Avant la prochaine mise à l’eau, le rituel complet
+
+**Thème :** Créatif
+**Format :** Mini-BD avant / après · remorque et embarcation
+**Objectif :** Publication de prévention conservée et espacée de plus de cinq semaines après le rappel du 14 juillet; présenter le rituel complet avant un changement de plan d’eau sans répéter la publication déjà programmée.
+**CTA :** Garder le rituel en tête
+**Visuel final :** Mini-BD 4:5 en deux scènes très lisibles et chaleureuses : « avant », remorque et embarcation avec boue et fragments végétaux crédibles; « après », débris retirés, eau vidée, lavage effectué et séchage amorcé. Titre manuscrit blanc « Le rituel complet »; aucun organisme inventé ni ton réprobateur.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Gouvernement du Québec — nettoyage des embarcations et prévention des espèces aquatiques exotiques envahissantes : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+**Préparation :** Produire une mini-BD avant/après parfaitement lisible sur mobile : avant, remorque et embarcation avec boue et fragments végétaux visibles; après, débris retirés, eau vidée, équipement nettoyé puis laissé à sécher. Ne pas représenter ni nommer une espèce précise sans référence visuelle validée.
+
+### Légende prête à programmer
+
+```text
+FR — Une sortie sur l’eau commence bien avant la mise à l’eau. Quand une embarcation change de plan d’eau, prenons le temps de retirer les débris visibles, vider l’eau retenue, nettoyer l’embarcation, la remorque et l’équipement, puis laisser sécher selon les recommandations officielles.
+
+Ces gestes forment un seul rituel, simple à garder en tête et utile d’un lac à l’autre. Ensuite, toute la place revient au plaisir d’être sur l’eau.
+
+#MiniBD #BleuMassawippi #Prévention #NautismeResponsable #LacMassawippi
+
+=========================================
+
+EN — A day on the water begins well before launch. When a boat moves between bodies of water, take time to remove visible debris, drain retained water, clean the boat, trailer and equipment, then let everything dry according to official guidance.
+
+Together, these actions form one simple routine worth remembering from one lake to the next. Then all the attention can return to enjoying the water.
+
+#MiniComic #BleuMassawippi #Prevention #ResponsibleBoating #LakeMassawippi
+```
+
+## Mercredi 12 août — Après la pluie, vos observations comptent
 
 **Thème :** Actualité
 **Format :** Carrousel 3 gestes · après fortes pluies
@@ -1542,33 +1263,120 @@ You can write to us anytime at info@bleumassawippi.com. Your observations help u
 #CommunityObservation #BleuMassawippi #LakeMassawippi #Watershed
 ```
 
-## Dimanche 16 août — Votre essentiel avant de partir
+## Jeudi 13 août — Ayer’s Cliff sur une carte postale ancienne
 
-**Thème :** Interaction
-**Format :** Question illustrée
-**Objectif :** Bonne idée conservée et reprogrammée à la suite de l’arbitrage du 13 juillet; faire émerger les habitudes utiles de la communauté sans répéter une checklist réglementaire.
-**CTA :** Partager votre essentiel
-**Visuel final :** Nature morte vivante près du quai : VFI, gourde, chapeau et petit sac réutilisable, avec une main qui ajoute son propre essentiel. Garder un espace clair pour la question « Et vous, qu’apportez-vous? ».
+**Thème :** Patrimoine
+**Format :** Carte postale historique commentée · publication bilingue
+**Objectif :** Faire appel à la mémoire locale pour documenter prudemment une vue d’Ayer’s Cliff datée entre environ 1914 et 1940.
+**CTA :** Observer les détails d’autrefois
+**Visuel final :** Carte postale ancienne présentée entière, bordure et inscriptions conservées; carrousel optionnel avec deux détails agrandis, question « Reconnaissez-vous ce lieu? » et crédit complet sur la dernière carte.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
-**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+**Source de référence :** Domaine public · entre environ 1914 et 1940 · collection BAnQ 2637704 / Wikimedia Commons · https://commons.wikimedia.org/wiki/File:Ayers_Cliff,_Que._(BAnQ_2637704).jpg
+**Préparation :** Vérifier la légende, le crédit, la licence et les limites historiques avant de préparer l’image et les deux validations.
 
 ### Légende prête à programmer
 
 ```text
-FR — Avant une sortie sur le Massawippi, il y a toujours un petit geste ou un essentiel qui fait toute la différence. Quel objet ou quelle habitude vous accompagne toujours : un vêtement de flottaison bien ajusté, une gourde, un sac pour ramasser nos déchets… ou autre chose?
+FR — Petite promenade dans l’Ayer’s Cliff d’autrefois. Cette carte postale, datée entre environ 1914 et 1940, nous laisse observer un paysage familier sous un autre jour.
 
-Partagez votre essentiel en commentaire. Votre idée pourrait rendre la prochaine sortie de quelqu’un encore plus agréable.
+Les bâtiments, la rue et les aménagements visibles deviennent des repères pour comparer doucement le village d’hier et celui d’aujourd’hui. La fourchette de dates sera précisée si une source plus complète est retrouvée.
 
-#BleuMassawippi #LacMassawippi #PlaisirSurLeau #Communauté
+#Patrimoine #BleuMassawippi #AyersCliff #MémoireLocale
 
 =========================================
 
-EN — Before an outing on Massawippi, one small action or essential item can make all the difference. What item or routine always comes with you: a properly fitted PFD, a water bottle, a bag for collecting our waste—or something else?
+EN — A short walk through Ayer’s Cliff of years past. Dating from roughly 1914 to 1940, this postcard lets us see a familiar landscape in a different light.
 
-Share your essential in the comments. Your idea might make someone else’s next outing even better.
+The buildings, street and visible features offer reference points for gently comparing yesterday’s village with today’s. The date range will be refined if a more complete source is found.
 
-#BleuMassawippi #LakeMassawippi #EnjoyTheLake #Community
+#Heritage #BleuMassawippi #AyersCliff #LocalMemory
+```
+
+## Vendredi 14 août — Une image pour garder le souvenir
+
+**Thème :** Communauté
+**Format :** Photo plein cadre · légende très courte · aucun appel à commenter
+**Objectif :** Chercher l’émotion demandée par la direction avec une personne réelle et une phrase forte.
+**CTA :** Garder ce souvenir
+**Visuel final :** Une seule photographie réelle, forte et autorisée du Massawippi, plein cadre 4:5, sans collage, question ni long texte; privilégier un instant d’été qui évoque naturellement un souvenir et ajouter, au besoin, seulement la courte note manuscrite « Un souvenir du lac ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Commission de la construction du Québec — vacances d’été 2026 du 19 juillet au 1er août : https://www.ccq.org/fr-CA/avantages-sociaux/dates-conges-vacances · photographie réelle de l’association, droits à documenter.
+**Préparation :** Choisir une seule photographie réelle, forte et autorisée qui évoque un souvenir d’été au Massawippi; conserver la légende très courte et ne demander ni commentaire ni photo au public.
+
+### Légende prête à programmer
+
+```text
+FR — Les vacances de la construction se terminent. En une image, quel souvenir gardez-vous de votre Massawippi?
+
+#SouvenirDuLac #BleuMassawippi #LacMassawippi #Estrie
+
+=========================================
+
+EN — The construction holiday is coming to an end. In one image, what memory will you keep of your Massawippi?
+
+#LakeMemory #BleuMassawippi #LakeMassawippi #EasternTownships
+```
+
+## Samedi 15 août — Les petits gestes derrière les grandes décisions
+
+**Thème :** Coulisses
+**Format :** Photo coulisses + légende très courte
+**Objectif :** Montrer une preuve concrète de travail sans reprendre le ton humoristique de la mini-BD.
+**CTA :** Découvrir les coulisses
+**Visuel final :** Gros plan documentaire sur un carnet, une mesure et un outil préparé, avec une main en action et une lumière chaleureuse; titre « Les détails qui comptent ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** https://bleumassawippi.com/rapports-et-memoires
+**Préparation :** Identifier l’objet et son rôle sans révéler un lieu sensible ni afficher de donnée non approuvée.
+
+### Légende prête à programmer
+
+```text
+FR — Un carnet ouvert, une mesure bien notée, un outil préparé avec soin : dans les coulisses, ces petits détails montrent le soin consacré au suivi du lac.
+
+Derrière chacun, il y a des personnes qui observent, reviennent et prennent le temps de bien faire les choses. Aujourd’hui, on vous emmène un peu avec nous sur le terrain.
+
+#Coulisses #BleuMassawippi #LacMassawippi #ScienceDuLac
+
+=========================================
+
+EN — An open notebook, a clearly recorded measurement, a carefully prepared tool: these behind-the-scenes details show how much care goes into monitoring the lake.
+
+They reflect the work of people who observe, return to the same sites and take the time to get things right. Today, we’re bringing you along for a glimpse of a day in the field.
+
+#BehindTheScenes #BleuMassawippi #LakeMassawippi #LakeScience
+```
+
+## Dimanche 16 août — Le nénuphar, un petit habitat à la surface
+
+**Thème :** Nature
+**Format :** Illustration aquarelle-encre 4:5
+**Objectif :** Présenter une plante aquatique familière sans généraliser son rôle ni encourager la cueillette.
+**CTA :** Découvrir son rôle dans le milieu
+**Visuel final :** Photographie réelle et autorisée d’un nénuphar blanc dans son milieu, recadrée sobrement au format 4:5 sans texte ni élément généré.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** National Park Service — les plantes aquatiques offrent ombre, abri et couvert à la faune des étangs : https://home.nps.gov/keaq/learn/nature/pond-ecosystem.htm · Photographie de Nymphaea odorata par Thomas G. Barnes, U.S. Fish and Wildlife Service, domaine public : https://commons.wikimedia.org/wiki/File:Nymphaea_odorata_fragrant_water_lily_flower.jpg
+**Préparation :** Utiliser la photographie réelle et correctement créditée. Si une photographie confirmée du bassin du Massawippi devient disponible avant la programmation, la privilégier; sinon, indiquer clairement que l’image de référence n’a pas été prise au lac Massawippi.
+
+### Légende prête à programmer
+
+```text
+FR — Le nénuphar n’est pas seulement une belle fleur à la surface. Enraciné dans les fonds peu profonds, il fait partie de la végétation aquatique qui structure les zones littorales.
+
+Ses feuilles créent de l’ombre et du couvert; autour de ses tiges et de ses parties submergées, de petits organismes trouvent aussi des surfaces et des abris. Sa fleur relie enfin le lac aux insectes qui la visitent.
+
+Cette capsule présente le rôle général des nénuphars dans un herbier aquatique. La photographie montre un nénuphar blanc et n’a pas été prise au lac Massawippi.
+
+#ZoomNature #BleuMassawippi #PlantesAquatiques #LacMassawippi
+
+=========================================
+
+EN — A water lily is more than a beautiful flower at the surface. Rooted in shallow water, it is part of the aquatic vegetation that structures shoreline habitats.
+
+Its leaves create shade and cover; around its stems and submerged parts, small organisms also find surfaces and shelter. Its flower connects the lake with the insects that visit it.
+
+This feature explains the general role of water lilies in an aquatic plant bed. The photograph shows a white water lily and was not taken at Lake Massawippi.
+
+#NatureZoom #BleuMassawippi #AquaticPlants #LakeMassawippi
 ```
 
 ## Lundi 17 août — Trois informations pour mieux connaître le lac
@@ -1600,33 +1408,45 @@ Observation shows what is visible today. Measurement provides a precise referenc
 #BleuMassawippi #LakeMassawippi #AccessibleScience #WaterQuality
 ```
 
-## Mardi 18 août — Votre journée en bleu
+## Mardi 18 août — Cinq réflexes doux pour le lac
 
 **Thème :** Communauté
-**Format :** Photo réelle + question ouverte
-**Objectif :** Bonne idée conservée et reprogrammée après arbitrage; accueillir une photo, une image, un emoji ou quelques mots pour raconter une journée au lac.
-**CTA :** Partager votre regard
-**Visuel final :** Conserver la photo réelle déjà appréciée dans OneDrive, avec le mot BLEU dessiné sur l’eau et un petit cœur blanc discret à côté. Ajouter seulement une invitation discrète « Et votre journée? » sans simuler de témoignage.
+**Format :** Carrousel 6 cartes · une couverture + cinq habitudes
+**Objectif :** Faire émerger les gestes réalistes plutôt que demander un engagement abstrait.
+**CTA :** Enregistrer les cinq réflexes
+**Visuel final :** Carrousel lumineux en six cartes, une idée par carte, avec pictogramme doux et verbes manuscrits blancs : végétaliser · absorber · ramasser · réduire · nettoyer; aucune injonction culpabilisante.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
-**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+**Source de référence :** Gouvernement du Québec — protection des rives et nettoyage des embarcations : https://www.environnement.gouv.qc.ca/eau/rives/ et https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+**Préparation :** Vérifier chaque geste dans les recommandations gouvernementales, distinguer les habitudes riveraines des gestes nautiques et éviter toute promesse d’impact chiffré.
 
 ### Légende prête à programmer
 
 ```text
-FR — Si vous deviez raconter votre journée près du Massawippi avec une photo, une image, un emoji ou quelques mots, que choisiriez-vous?
+FR — Prendre soin du lac peut se glisser dans des habitudes très simples.
 
-Partagez votre regard en commentaire. Une eau calme, un ciel changeant, un moment en famille, un simple 💙 : toutes les façons de raconter le lac sont les bienvenues. Si une personne apparaît sur votre photo, assurez-vous d’avoir son accord avant de la publier.
+1 — Laisser une bande de végétation donner un coup de main au bord de l’eau.
+2 — Diriger l’eau de pluie vers une surface qui peut l’absorber plutôt que vers le lac.
+3 — Ramasser les déchets et les déjections animales avant qu’ils ne voyagent avec la pluie.
+4 — Éviter d’utiliser des engrais chimiques ou des pesticides près du lac et des cours d’eau.
+5 — Avant de changer de plan d’eau, inspecter, vider, nettoyer et sécher l’embarcation et l’équipement.
 
-#RegardBleu #BleuMassawippi #LacMassawippi #Communauté
+Cinq réflexes réalistes, à adopter là où ils s’appliquent, sans chercher la perfection.
+
+#ChaqueGesteCompte #BleuMassawippi #LacMassawippi #Prévention #BassinVersant
 
 =========================================
 
-EN — If you could tell the story of your day near Massawippi with a photo, an image, an emoji or a few words, what would you choose?
+EN — Caring for the lake can become part of very simple habits.
 
-Share your perspective in the comments. Calm water, a changing sky, family time or a simple 💙: every way of telling the lake’s story is welcome. If someone appears in your photo, please make sure you have their permission before posting it.
+1 — Let a strip of vegetation lend a hand along the water’s edge.
+2 — Direct rainwater toward a surface that can absorb it rather than toward the lake.
+3 — Pick up litter and pet waste before rain can carry them away.
+4 — Avoid chemical fertilizers and pesticides near the lake and waterways.
+5 — Before moving between bodies of water, inspect, drain, clean and dry your boat and equipment.
 
-#BluePerspective #BleuMassawippi #LakeMassawippi #Community
+Five realistic habits to use where they apply, without aiming for perfection.
+
+#EveryActionCounts #BleuMassawippi #LakeMassawippi #Prevention #Watershed
 ```
 
 ## Mercredi 19 août — Iris versicolore : la beauté d’un milieu essentiel
@@ -1662,66 +1482,66 @@ A lovely way to remember an iris is to photograph it where it grows while keepin
 #NatureZoom #BleuMassawippi #BlueFlagIris #LakeMassawippi
 ```
 
-## Jeudi 20 août — Vos souvenirs font vivre le lac
-
-**Thème :** Interaction
-**Format :** Photo archive ou paysage + invitation à raconter
-**Objectif :** Bonne idée conservée et reprogrammée après l’arbitrage du 13 juillet afin de libérer le samedi pour la publication communautaire retenue.
-**CTA :** Raconter un souvenir
-**Visuel final :** Photo de mains qui ouvrent un album ou tiennent une image autorisée du lac devant le paysage actuel. Suggérer une chaleur intergénérationnelle sans exiger de visage identifiable; titre « Vos souvenirs font vivre le lac ».
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Archives Bleu Massawippi — droits documentés
-**Préparation :** Afficher le crédit et le contexte disponibles; ne reprendre aucun commentaire en publication future sans accord explicite.
-
-### Légende prête à programmer
-
-```text
-FR — Le Massawippi vit dans ses paysages, mais aussi dans les souvenirs que nous y créons.
-
-Quelle expérience aimeriez-vous transmettre à une personne qui ne connaît pas encore le lac : une première baignade, un matin brumeux, une sortie en famille, un moment de silence?
-
-Racontez-nous ce souvenir en commentaire. Merci de nous aider à faire entendre la voix de toute la communauté.
-
-#BleuMassawippi #MémoireDuLac #LacMassawippi #Estrie
-
-=========================================
-
-EN — Massawippi lives in its landscapes, but also in the memories we create there.
-
-What experience would you share with someone who has not yet discovered the lake: a first swim, a misty morning, a family outing, a quiet moment?
-
-Tell us about it in the comments. Thank you for helping us share the voice of the whole community.
-
-#BleuMassawippi #LakeMemories #LakeMassawippi #EasternTownships
-```
-
-## Vendredi 21 août — Avant la prochaine mise à l’eau, le rituel complet
+## Jeudi 20 août — Ici, l’eau prend son temps
 
 **Thème :** Créatif
-**Format :** Mini-BD avant / après · remorque et embarcation
-**Objectif :** Publication de prévention conservée et espacée de plus de cinq semaines après le rappel du 14 juillet; présenter le rituel complet avant un changement de plan d’eau sans répéter la publication déjà programmée.
-**CTA :** Garder le rituel en tête
-**Visuel final :** Mini-BD 4:5 en deux scènes très lisibles et chaleureuses : « avant », remorque et embarcation avec boue et fragments végétaux crédibles; « après », débris retirés, eau vidée, lavage effectué et séchage amorcé. Titre manuscrit blanc « Le rituel complet »; aucun organisme inventé ni ton réprobateur.
+**Format :** Jeu visuel / carrousel d’observation
+**Objectif :** Mettre l’attention au service de l’éducation par un jeu visuel léger.
+**CTA :** Suivre le chemin de l’eau
+**Visuel final :** Planche scolaire vintage 4:5 dessinée à la main : une seule coupe continue entre la terre, le milieu humide et le lac. De courtes flèches bleues montrent seulement le ralentissement de l’eau. Titre bilingue minimal : « Ici, l’eau prend son temps. / Here, water slows down. »
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Gouvernement du Québec — nettoyage des embarcations et prévention des espèces aquatiques exotiques envahissantes : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
-**Préparation :** Produire une mini-BD avant/après parfaitement lisible sur mobile : avant, remorque et embarcation avec boue et fragments végétaux visibles; après, débris retirés, eau vidée, équipement nettoyé puis laissé à sécher. Ne pas représenter ni nommer une espèce précise sans référence visuelle validée.
+**Source de référence :** Gouvernement du Québec — Biodiversité du Québec : les milieux humides ralentissent la circulation de l’eau. https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/biodiversite/biodiversite-quebec
+**Préparation :** Vérifier la lisibilité bilingue de la planche sur mobile. Garder le post centré sur un seul milieu et un seul rôle : ralentir la circulation de l’eau.
 
 ### Légende prête à programmer
 
 ```text
-FR — Une sortie sur l’eau commence bien avant la mise à l’eau. Quand une embarcation change de plan d’eau, prenons le temps de retirer les débris visibles, vider l’eau retenue, nettoyer l’embarcation, la remorque et l’équipement, puis laisser sécher selon les recommandations officielles.
+FR — Entre la terre et le lac, il existe des endroits où l’eau prend son temps. Les milieux humides ralentissent sa circulation avant qu’elle poursuive son chemin dans le bassin versant.
 
-Ces gestes forment un seul rituel, simple à garder en tête et utile d’un lac à l’autre. Ensuite, toute la place revient au plaisir d’être sur l’eau.
+Ce rôle est discret, mais essentiel. La prochaine fois que vous passez près d’un milieu humide, prenez un moment pour suivre l’eau du regard : d’où vient-elle, et où va-t-elle ensuite?
 
-#MiniBD #BleuMassawippi #Prévention #NautismeResponsable #LacMassawippi
+#BleuMassawippi #LacMassawippi #MilieuxHumides #BassinVersant
 
 =========================================
 
-EN — A day on the water begins well before launch. When a boat moves between bodies of water, take time to remove visible debris, drain retained water, clean the boat, trailer and equipment, then let everything dry according to official guidance.
+EN — Between land and lake, there are places where water takes its time. Wetlands slow its movement before it continues through the watershed.
 
-Together, these actions form one simple routine worth remembering from one lake to the next. Then all the attention can return to enjoying the water.
+This role is easy to miss, but essential. Next time you pass a wetland, take a moment to follow the water: where does it come from, and where does it go next?
 
-#MiniComic #BleuMassawippi #Prevention #ResponsibleBoating #LakeMassawippi
+#BleuMassawippi #LakeMassawippi #Wetlands #Watershed
+```
+
+## Vendredi 21 août — Le terrain nous aide à décider juste
+
+**Thème :** Coulisses
+**Format :** Carrousel coulisses · outils, bottes, cahier, rive
+**Objectif :** Montrer les coulisses sans publier sur l’équipe interne.
+**CTA :** Découvrir ou soutenir le suivi
+**Visuel final :** Photo terrain authentique montrant une personne de profil ou de dos qui observe et consigne, paysage du lac ouvert derrière; mise en page sobre « Observer · comprendre · agir ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** https://bleumassawippi.com/accueil-1
+**Préparation :** Utiliser uniquement des photos de terrain autorisées; limiter l’appel au soutien à cette publication de la quinzaine.
+
+### Légende prête à programmer
+
+```text
+FR — Avant d’agir, il faut d’abord comprendre ce qui se passe. C’est pourquoi nous retournons sur le terrain : nous observons, mesurons, comparons et suivons l’évolution du lac dans le temps.
+
+Ce travail patient aide Bleu Massawippi à mieux comprendre le lac et à agir avec justesse. Merci à toutes les personnes qui rendent ce suivi possible, par leur temps, leur confiance ou leur soutien.
+
+En savoir plus ou soutenir le travail : https://bleumassawippi.com/accueil-1
+
+#Coulisses #BleuMassawippi #LacMassawippi #SoutenirLeLac
+
+=========================================
+
+EN — Before taking action, we first need to understand what is happening. That is why we return to the field: to observe, measure, compare and follow how the lake changes over time.
+
+This patient work helps Bleu Massawippi understand the lake and make sound decisions. Thank you to everyone whose time, trust or support makes this monitoring possible.
+
+Learn more or support our work: https://bleumassawippi.com/home-1
+
+#BehindTheScenes #BleuMassawippi #LakeMassawippi #SupportTheLake
 ```
 
 ## Samedi 22 août — Qu’est-ce qui se cache sous nos pas?
@@ -1757,41 +1577,33 @@ On your next walk, take time to notice this small world while leaving leaves, st
 #BleuMassawippi #LakeMassawippi #LivingShoreline #LakeNature
 ```
 
-## Dimanche 23 août — Ça semble propre… mais l’est-ce vraiment?
+## Dimanche 23 août — Sur l’eau, le plaisir se partage
 
-**Thème :** Interaction
-**Format :** Vrai ou faux · deux cartes
-**Objectif :** Bonne idée interactive conservée et reprogrammée : rappeler avec chaleur que l’absence de débris visibles ne remplace pas le lavage, la vidange et le séchage recommandés.
-**CTA :** Faire défiler pour vérifier les étapes
-**Visuel final :** Planche scolaire chaleureuse : une embarcation qui semble propre, un détail grossi des organismes invisibles à l’œil nu, puis les trois gestes « Nettoyer · Vider · Sécher ». Question manuscrite bilingue : « Ça semble propre… mais l’est-ce vraiment? / It looks clean… but is it really? ».
+**Thème :** Humour
+**Format :** Photo réelle + micro-conseil plaisancier
+**Objectif :** Faire sourire tout en gardant un message de coexistence sur l’eau.
+**CTA :** Garder l’œil ouvert
+**Visuel final :** Illustration panoramique lumineuse de plusieurs usages cohabitant avec beaucoup d’espace — baignade, pagaie, pêche, petite embarcation — et trajectoires douces; titre « Le plaisir se partage ».
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Gouvernement du Québec — nettoyage des embarcations et prévention des EEE · https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
-**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+**Source de référence :** https://bleumassawippi.com/laccessible/en
+**Préparation :** Employer un ton léger sans caricaturer les usagers; privilégier une image calme, dégagée et crédible.
 
 ### Légende prête à programmer
 
 ```text
-FR — Vrai ou faux? Une embarcation sans débris visible peut passer directement d’un plan d’eau à un autre.
+FR — Le meilleur radar sur le lac? Celui qui remarque les rives, les baigneurs, les embarcations plus lentes, les pêcheurs, les planches à pagaie — et les moments où ralentir rend la sortie plus agréable pour tout le monde.
 
-Faux. Ne rien voir ne veut pas dire qu’aucun organisme n’est présent. Pour réduire le risque de transporter des espèces exotiques envahissantes (EEE), le lavage de tout ce qui a touché l’eau est essentiel. Il faut aussi vider l’eau retenue et sécher selon les consignes officielles : un simple coup d’œil ne remplace pas ces étapes.
+Merci à toutes les personnes qui gardent l’œil ouvert et font de la place au plaisir des autres.
 
-Le guide à garder sous la main : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
-
-Envie de continuer à jouer? Testez vos connaissances du lac avec notre quiz bilingue de plus de 500 questions : https://bleumassawippi.com/quiz
-
-#QuizDuLac #BleuMassawippi #EspècesEnvahissantes #NautismeResponsable
+#PlaisirPartagé #BleuMassawippi #NautismeResponsable #LacMassawippi
 
 =========================================
 
-EN — True or false? A boat with no visible debris can move directly from one body of water to another.
+EN — The best radar on the lake? The kind that notices shorelines, swimmers, slower boats, anglers and paddlers — and knows when it’s time to slow down so everyone can enjoy the day.
 
-False. Seeing nothing does not mean no organisms are present. To reduce the risk of transporting invasive alien species, washing everything that has touched the water is essential. Retained water must also be drained and equipment dried according to official guidance: a visual check cannot replace those steps.
+Thank you to everyone who keeps an eye out and leaves room for others to enjoy the water.
 
-Keep the official guide handy: https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
-
-Want to keep playing? Test your knowledge of the lake with our bilingual quiz featuring more than 500 questions: https://bleumassawippi.com/quiz
-
-#LakeQuiz #BleuMassawippi #InvasiveSpecies #ResponsibleBoating
+#SharedEnjoyment #BleuMassawippi #ResponsibleBoating #LakeMassawippi
 ```
 
 ## Lundi 24 août — Le plongeon huard (Gavia immer), voix du lac
@@ -1951,6 +1763,39 @@ One does not replace the other: community observations help us ask better questi
 #LakeScience #CommunityObservation #BleuMassawippi #LakeMassawippi
 ```
 
+## Samedi 29 août — Vos souvenirs font vivre le lac
+
+**Thème :** Interaction
+**Format :** Photo archive ou paysage + invitation à raconter
+**Objectif :** Bonne idée conservée et reprogrammée après l’arbitrage du 13 juillet afin de libérer le samedi pour la publication communautaire retenue.
+**CTA :** Raconter un souvenir
+**Visuel final :** Photo de mains qui ouvrent un album ou tiennent une image autorisée du lac devant le paysage actuel. Suggérer une chaleur intergénérationnelle sans exiger de visage identifiable; titre « Vos souvenirs font vivre le lac ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Archives Bleu Massawippi — droits documentés
+**Préparation :** Afficher le crédit et le contexte disponibles; ne reprendre aucun commentaire en publication future sans accord explicite.
+
+### Légende prête à programmer
+
+```text
+FR — Le Massawippi vit dans ses paysages, mais aussi dans les souvenirs que nous y créons.
+
+Quelle expérience aimeriez-vous transmettre à une personne qui ne connaît pas encore le lac : une première baignade, un matin brumeux, une sortie en famille, un moment de silence?
+
+Racontez-nous ce souvenir en commentaire. Merci de nous aider à faire entendre la voix de toute la communauté.
+
+#BleuMassawippi #MémoireDuLac #LacMassawippi #Estrie
+
+=========================================
+
+EN — Massawippi lives in its landscapes, but also in the memories we create there.
+
+What experience would you share with someone who has not yet discovered the lake: a first swim, a misty morning, a family outing, a quiet moment?
+
+Tell us about it in the comments. Thank you for helping us share the voice of the whole community.
+
+#BleuMassawippi #LakeMemories #LakeMassawippi #EasternTownships
+```
+
 ## Dimanche 30 août — Le mot du lac : tributaire
 
 **Thème :** Éducation
@@ -2013,7 +1858,36 @@ This feature presents the general role of cattails in a marsh. Before connecting
 #NatureZoom #BleuMassawippi #Wetlands #Watershed
 ```
 
-## Mardi 1er septembre — Les voix à documenter autour du bassin
+## Mardi 1er septembre — 15 secondes sur le terrain avec nous
+
+**Thème :** Coulisses
+**Format :** Mini-documentaire vertical · cinq plans réels
+**Objectif :** Offrir le format week-end en montrant un vrai rythme de travail, pas une démonstration artificielle.
+**CTA :** Entrer dans les coulisses
+**Visuel final :** Vidéo verticale de 15 secondes, cinq plans réels très courts : préparer, marcher vers le site, observer, noter, ranger; son naturel si exploitable, sous-titres FR/EN et conclusion « Merci de nous accompagner ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** https://bleumassawippi.com/rapports-et-memoires
+**Préparation :** Monter cinq plans réels, garder les instruments lisibles et ne pas afficher de résultat non validé à l’écran.
+
+### Légende prête à programmer
+
+```text
+FR — Préparer, observer, mesurer, noter, recommencer : voici une journée de terrain résumée en 15 secondes.
+
+Les gestes paraissent simples, mais c’est leur régularité et le soin qu’on y met qui transforment les observations en connaissances utiles. Merci de vous intéresser à ce travail souvent discret; on est heureux de vous en montrer les coulisses.
+
+#Terrain #BleuMassawippi #LacMassawippi #ScienceDuLac
+
+=========================================
+
+EN — Prepare, observe, measure, record and begin again: here is a field day in 15 seconds.
+
+The actions may look simple, but their consistency and the care behind them turn observations into useful knowledge. Thank you for taking an interest in this often quiet work; we are glad to show you behind the scenes.
+
+#Fieldwork #BleuMassawippi #LakeMassawippi #LakeScience
+```
+
+## Mercredi 2 septembre — Les voix à documenter autour du bassin
 
 **Thème :** Nature
 **Format :** Affiche-série naturaliste 4:5 · point de départ à valider
@@ -2040,35 +1914,6 @@ EN — This is our starting point for a new series about frogs, treefrogs and to
 This is not yet a complete inventory of the watershed. Our internal data confirm at least the pickerel frog, without disclosing sensitive locations. Before each profile, we will verify the local observation, identification and source. Then we will discover one species at a time: its call, habitat and role.
 
 #SpeciesProfile #BleuMassawippi #Watershed #Amphibians
-```
-
-## Mercredi 2 septembre — Ayer’s Cliff sur une carte postale ancienne
-
-**Thème :** Patrimoine
-**Format :** Carte postale historique commentée · publication bilingue
-**Objectif :** Faire appel à la mémoire locale pour documenter prudemment une vue d’Ayer’s Cliff datée entre environ 1914 et 1940.
-**CTA :** Observer les détails d’autrefois
-**Visuel final :** Carte postale ancienne présentée entière, bordure et inscriptions conservées; carrousel optionnel avec deux détails agrandis, question « Reconnaissez-vous ce lieu? » et crédit complet sur la dernière carte.
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Domaine public · entre environ 1914 et 1940 · collection BAnQ 2637704 / Wikimedia Commons · https://commons.wikimedia.org/wiki/File:Ayers_Cliff,_Que._(BAnQ_2637704).jpg
-**Préparation :** Vérifier la légende, le crédit, la licence et les limites historiques avant de préparer l’image et les deux validations.
-
-### Légende prête à programmer
-
-```text
-FR — Petite promenade dans l’Ayer’s Cliff d’autrefois. Cette carte postale, datée entre environ 1914 et 1940, nous laisse observer un paysage familier sous un autre jour.
-
-Les bâtiments, la rue et les aménagements visibles deviennent des repères pour comparer doucement le village d’hier et celui d’aujourd’hui. La fourchette de dates sera précisée si une source plus complète est retrouvée.
-
-#Patrimoine #BleuMassawippi #AyersCliff #MémoireLocale
-
-=========================================
-
-EN — A short walk through Ayer’s Cliff of years past. Dating from roughly 1914 to 1940, this postcard lets us see a familiar landscape in a different light.
-
-The buildings, street and visible features offer reference points for gently comparing yesterday’s village with today’s. The date range will be refined if a more complete source is found.
-
-#Heritage #BleuMassawippi #AyersCliff #LocalMemory
 ```
 
 ## Jeudi 3 septembre — Canot, kayak, planche : le lavage compte aussi
@@ -2106,4 +1951,346 @@ Three simple steps: clean, drain, dry. A quick stop that helps keep paddling lig
 2026 information and fees: https://www.lacmassawippi.ca/plage-massawippi/heures-douverture-et-tarifs/
 
 #BleuMassawippi #LakeMassawippi #EasternTownships
+```
+
+## Vendredi 4 septembre — Votre essentiel avant de partir
+
+**Thème :** Interaction
+**Format :** Question illustrée
+**Objectif :** Bonne idée conservée et reprogrammée à la suite de l’arbitrage du 13 juillet; faire émerger les habitudes utiles de la communauté sans répéter une checklist réglementaire.
+**CTA :** Partager votre essentiel
+**Visuel final :** Nature morte vivante près du quai : VFI, gourde, chapeau et petit sac réutilisable, avec une main qui ajoute son propre essentiel. Garder un espace clair pour la question « Et vous, qu’apportez-vous? ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
+**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Avant une sortie sur le Massawippi, il y a toujours un petit geste ou un essentiel qui fait toute la différence. Quel objet ou quelle habitude vous accompagne toujours : un vêtement de flottaison bien ajusté, une gourde, un sac pour ramasser nos déchets… ou autre chose?
+
+Partagez votre essentiel en commentaire. Votre idée pourrait rendre la prochaine sortie de quelqu’un encore plus agréable.
+
+#BleuMassawippi #LacMassawippi #PlaisirSurLeau #Communauté
+
+=========================================
+
+EN — Before an outing on Massawippi, one small action or essential item can make all the difference. What item or routine always comes with you: a properly fitted PFD, a water bottle, a bag for collecting our waste—or something else?
+
+Share your essential in the comments. Your idea might make someone else’s next outing even better.
+
+#BleuMassawippi #LakeMassawippi #EnjoyTheLake #Community
+```
+
+## Samedi 5 septembre — Merci de faire vivre la conversation
+
+**Thème :** Humanité
+**Format :** Carrousel de remerciement · quatre images réelles
+**Objectif :** Clore le mois par la gratitude et l’écoute, sans transformer le bilan en tableau de performance.
+**CTA :** Nous dire ce que vous voulez voir ensuite
+**Visuel final :** Carrousel de gratitude : beaux détails du lac, coulisse de terrain et capture anonymisée d’échanges communautaires; dernière carte « Merci de faire vivre la conversation ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Archives de la campagne — droits documentés
+**Préparation :** Choisir les images les plus représentatives et ne publier aucun chiffre interne sans contexte et validation.
+
+### Légende prête à programmer
+
+```text
+FR — Merci d’avoir regardé, questionné, partagé et pris le temps de penser au Massawippi avec nous.
+
+Chaque réaction nous aide à mieux comprendre ce qui vous intéresse et à préparer des contenus plus utiles, plus proches de vos questions. Quel moment ou quel sujet aimeriez-vous retrouver dans la suite? Nous avons envie de vous lire.
+
+#BleuMassawippi #LacMassawippi #Merci #Communauté
+
+=========================================
+
+EN — Thank you for watching, asking questions, sharing and taking time to think about Massawippi with us.
+
+Every response helps us understand what matters to you and prepare content that is more useful and closer to your questions. Which moment or topic would you like us to revisit? We would love to hear from you.
+
+#BleuMassawippi #LakeMassawippi #ThankYou #Community
+```
+
+## Dimanche 6 septembre — Partager le lac en trois réflexes
+
+**Thème :** Prévention
+**Format :** Mini-BD sobre · trois cases
+**Objectif :** Résumer la cohabitation par des gestes simples plutôt que par un ton moralisateur.
+**CTA :** Garder ces trois réflexes
+**Visuel final :** Mini-BD douce en trois cases illustrant des usages partagés : ralentir au bon moment, repartir avec ses effets, saluer et laisser de l’espace; titre « Trois réflexes pour partager le lac ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
+**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Autour du lac, chacun vit le lieu à sa façon : en bateau, en se baignant, en pêchant, en marchant ou en profitant du silence.
+
+Pour que ce coin de nature reste agréable pour tout le monde, trois petits gestes font une grande différence : ralentir quand c’est nécessaire, minimiser son impact — pas de déchets, pas de traces — et respecter autant les lieux que les personnes. Des attentions simples qui permettent à chacun de savourer pleinement la beauté du lac.
+
+#PlaisirPartagé #BleuMassawippi #Civisme #LacMassawippi
+
+=========================================
+
+EN — Around the lake, everyone enjoys the setting in their own way: boating, swimming, fishing, walking or simply taking in the quiet.
+
+To keep this natural place enjoyable for everyone, three small actions make a real difference: slow down when needed, minimize your impact — no waste, no trace — and respect both the setting and the people around you. Simple courtesies that let everyone fully enjoy the lake’s beauty.
+
+#SharedEnjoyment #BleuMassawippi #Courtesy #LakeMassawippi
+```
+
+## Lundi 7 septembre — Quatre coulisses à découvrir
+
+**Thème :** Communauté
+**Format :** Sondage quatre options
+**Objectif :** Faire choisir les prochaines coulisses plutôt que supposer ce qui intéresse le public.
+**CTA :** Entrer dans les coulisses
+**Visuel final :** Grille de quatre vignettes accueillantes : sortie terrain, lecture de données, création d’une publication, montage d’un projet; mots manuscrits très lisibles, photographies authentiques ou illustrations cohérentes, titre « Entrez dans les coulisses ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
+**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Bleu Massawippi, c’est aussi tout ce qui se construit en coulisses, loin de ce qu’on voit dans notre fil d’actualité.
+
+A — Préparer une sortie sur le terrain.
+B — Lire et contextualiser des données.
+C — Transformer un sujet en publication accessible.
+D — Monter un projet avec des partenaires.
+
+Au fil des prochaines capsules, nous ouvrirons ces quatre portes pour montrer le travail, les personnes et les choix qui se trouvent derrière les actions.
+
+#Coulisses #BleuMassawippi #LacMassawippi #VieDeLAssociation
+
+=========================================
+
+EN — Bleu Massawippi is also everything being built behind the scenes, far from what appears in our social media feed.
+
+A — Preparing a field outing.
+B — Reading and contextualizing data.
+C — Turning a topic into an accessible post.
+D — Building a project with partners.
+
+In upcoming features, we will open these four doors and show the work, people and choices behind the actions.
+
+#BehindTheScenes #BleuMassawippi #LakeMassawippi #AssociationLife
+```
+
+## Mardi 8 septembre — Pourquoi nous nous impliquons pour le Massawippi
+
+**Thème :** Humanité
+**Format :** Carrousel humain · une courte phrase par membre du conseil d’administration
+**Objectif :** Ouvrir la série de portraits du conseil d’administration par une présentation humaine de Denis Petitclerc, dans ses propres mots et avec des photographies authentiques.
+**CTA :** Rencontrer les personnes derrière la mission
+**Visuel final :** Carrousel chaleureux avec une couverture manuscrite « Pourquoi nous nous impliquons », puis un portrait autorisé et une seule courte citation par personne; possibilité d’une carte typographique sans visage; aucun montage ne doit laisser croire que les personnes ont été photographiées ensemble.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** https://bleumassawippi.com/benevolat
+**Préparation :** Obtenir de Denis une courte citation, son accord sur le texte, le choix des deux photographies et son consentement de diffusion avant de finaliser le visuel et la publication.
+
+### Légende prête à programmer
+
+```text
+FR — Derrière les orientations de Bleu Massawippi, il y a des personnes qui donnent du temps, de l’expérience et une attention sincère au lac. Nous leur avons posé une seule question : pourquoi avez-vous choisi de vous impliquer pour le Massawippi?
+
+Ce carrousel rassemble leurs réponses, dans leurs mots, avec leur accord. Une façon simple de rencontrer le conseil d’administration et de comprendre les raisons humaines qui font avancer la mission.
+
+#BleuMassawippi #ConseilDAdministration #LacMassawippi #Communauté
+
+=========================================
+
+EN — Behind Bleu Massawippi’s direction are people who contribute time, experience and genuine care for the lake. We asked them one question: why did you choose to get involved for Massawippi?
+
+This carousel brings together their answers, in their own words and with their consent. It is a simple way to meet the board of directors and understand the human reasons that move the mission forward.
+
+#BleuMassawippi #BoardOfDirectors #LakeMassawippi #Community
+```
+
+## Mercredi 9 septembre — Un geste qui reste près du lac
+
+**Thème :** Soutien
+**Format :** Photographie réelle + appel bilingue
+**Objectif :** Inviter chaleureusement à soutenir la mission sans promesse de doublement ni pression, avec un lien distinct pour chaque langue.
+**CTA :** Soutenir Bleu Massawippi
+**Visuel final :** Photographie réelle du lac présentée comme un souvenir familier; le paysage demeure intact et le message reste court, humain et lisible sur mobile.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Campagne Zeffy officielle de Bleu Massawippi : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+**Préparation :** Vérifier les deux liens Zeffy, confirmer la disponibilité de la campagne et programmer seulement après les validations du texte et du média.
+
+### Légende prête à programmer
+
+```text
+FR — Un lac que l’on aime mérite une attention qui dure. 💙
+
+En devenant membre ou en faisant un don à Bleu Massawippi, vous soutenez une mission concrète : mieux connaître le lac et ses tributaires, partager des repères accessibles et préparer des actions utiles avec la communauté.
+
+Chaque contribution compte, à la mesure de chacun. Merci de garder le Massawippi près du cœur.
+
+Adhésion ou don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LacMassawippi #SoutenirLeLac
+
+=========================================
+
+EN — A lake we love deserves lasting care. 💙
+
+By becoming a member or donating to Bleu Massawippi, you support a practical mission: understanding the lake and its tributaries, sharing accessible knowledge and preparing useful action with the community.
+
+Every contribution matters, in the way that is right for each person. Thank you for keeping Massawippi close to heart.
+
+Membership or donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LakeMassawippi #SupportTheLake
+```
+
+## Jeudi 10 septembre — Une feuille entre l’eau et la lumière
+
+**Thème :** Nature
+**Format :** Photographie réelle naturaliste 4:5
+**Objectif :** Offrir une pause d’observation simple autour d’une plante aquatique sans identification locale non vérifiée ni consigne professorale.
+**CTA :** Regarder les détails
+**Visuel final :** Photographie réelle de nénuphar blanc du domaine public, recadrée mécaniquement; aucune affirmation que la photo vient du lac Massawippi.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Thomas G. Barnes, U.S. Fish and Wildlife Service — domaine public; photographie non présentée comme prise au lac Massawippi.
+**Préparation :** Conserver la provenance exacte de la photographie, vérifier la nuance naturaliste et préparer un texte alternatif bilingue.
+
+### Légende prête à programmer
+
+```text
+FR — À la surface, une feuille flotte entre l’eau et la lumière. Autour d’elle, les reflets changent, une ombre se dessine et le moindre mouvement devient visible.
+
+Ces petits détails n’ont pas besoin d’être cueillis pour être découverts. Prenons simplement le temps de regarder : qu’est-ce qui attire votre œil en premier?
+
+Photo documentaire; elle n’est pas présentée comme ayant été prise au lac Massawippi.
+
+#BleuMassawippi #LacMassawippi #CuriositéNature
+
+=========================================
+
+EN — At the surface, a leaf floats between water and light. Reflections shift around it, a patch of shade appears and the smallest movement becomes visible.
+
+These details do not need to be picked to be discovered. Let’s simply take time to look: what catches your eye first?
+
+Documentary photograph; it is not presented as having been taken at Lake Massawippi.
+
+#BleuMassawippi #LakeMassawippi #NatureCuriosity
+```
+
+## Vendredi 11 septembre — Merci d’avancer avec nous
+
+**Thème :** Gratitude
+**Format :** Photographie réelle + bilan bilingue
+**Objectif :** Remercier avec transparence après l’appel du 9 septembre en utilisant uniquement un montant net confirmé.
+**CTA :** Partager le résultat avec gratitude
+**Visuel final :** Photographie aérienne réelle du lac Massawippi, sans modification documentaire; une courte mention manuscrite peut être ajoutée après validation.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Zeffy — rapport Paiements filtré depuis le 9 septembre 2026; exclure remboursements, litiges et paiements non reçus.
+**Préparation :** Remplacer tous les champs temporaires par des données Zeffy vérifiées et lever le blocage seulement après double vérification.
+
+### Légende prête à programmer
+
+```text
+FR — Merci d’avancer avec nous. 💙
+
+Depuis notre appel du 9 septembre, votre générosité a permis de réunir [MONTANT NET CONFIRMÉ] pour soutenir la mission de Bleu Massawippi.
+
+Derrière ce résultat, il y a des personnes qui choisissent d’agir à leur mesure. Chaque contribution aide à mieux connaître le lac, à partager l’information et à préparer la suite avec soin.
+
+Merci pour votre confiance.
+
+#BleuMassawippi #LacMassawippi #Merci
+
+=========================================
+
+EN — Thank you for moving forward with us. 💙
+
+Since our September 9 appeal, your generosity has raised [CONFIRMED NET AMOUNT] to support Bleu Massawippi’s mission.
+
+Behind this result are people choosing to act in ways that are right for them. Every contribution helps us better understand the lake, share information and prepare the next steps with care.
+
+Thank you for your trust.
+
+#BleuMassawippi #LakeMassawippi #ThankYou
+```
+
+## Samedi 12 septembre — Une photo peut réveiller toute une histoire
+
+**Thème :** Patrimoine
+**Format :** Photographie d’archive + invitation bilingue
+**Objectif :** Inviter la communauté à signaler des archives familiales sans réclamer de cession publique ni reproduire un témoignage sans accord.
+**CTA :** Nous écrire avant de partager
+**Visuel final :** Photographie historique réelle présentée dans un album-souvenir; conserver le crédit, la date approximative et les limites documentaires.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Photographie de Gaétan, 7 mars 2017, licence CC BY-SA 2.0; composition d’album déjà documentée dans le cockpit.
+**Préparation :** Vérifier le crédit de l’image et préparer une méthode simple pour recevoir une copie et ses renseignements sans publier automatiquement.
+
+### Légende prête à programmer
+
+```text
+FR — Une vieille photo peut réveiller un lieu, une voix ou une histoire que l’on croyait oubliée.
+
+Votre famille conserve-t-elle une image du lac Massawippi, de ses villages, de ses rives ou de la rivière? Écrivez-nous avant de la partager publiquement. Nous pourrons prendre le temps de noter la date, le lieu, les personnes, le crédit et les conditions d’utilisation.
+
+Chaque détail vérifiable aide à garder la mémoire du territoire bien vivante.
+
+#BleuMassawippi #LacMassawippi #MémoireDuLac
+
+=========================================
+
+EN — An old photograph can bring back a place, a voice or a story we thought had been forgotten.
+
+Does your family have an image of Lake Massawippi, its villages, shorelines or river? Write to us before sharing it publicly. Together, we can record the date, place, people, credit and conditions of use.
+
+Every verifiable detail helps keep the region’s memory alive.
+
+#BleuMassawippi #LakeMassawippi #LakeMemories
+```
+
+## Dimanche 13 septembre — Quiz du lac : les trois gestes qui voyagent bien
+
+**Thème :** Interaction
+**Format :** Quiz illustré bilingue 4:5
+**Objectif :** Réactiver un repère de prévention sous forme de jeu bref et orienter vers le quiz bilingue de Bleu Massawippi.
+**CTA :** Répondre puis continuer le quiz
+**Visuel final :** Planche scolaire vintage déjà documentée montrant nettoyer, vider et sécher; aucune situation locale ni infraction inventée.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Gouvernement du Québec — nettoyage des embarcations; quiz bilingue Bleu Massawippi : https://bleumassawippi.com/quiz
+**Préparation :** Vérifier le lien du quiz et la formulation des trois gestes, puis programmer après validation.
+
+### Légende prête à programmer
+
+```text
+FR — Petit quiz du dimanche. 👀
+
+Après une sortie, quels gestes doivent aussi s’appliquer aux pagaies, cordes, vestes de flottaison et autres équipements qui ont touché l’eau?
+
+A — Nettoyer
+B — Vider
+C — Sécher
+D — Les trois
+
+Réponse : D. Les petits équipements voyagent eux aussi d’un plan d’eau à l’autre.
+
+Envie de continuer? Plus de 500 questions bilingues vous attendent : https://bleumassawippi.com/quiz
+
+#BleuMassawippi #LacMassawippi #QuizDuLac
+
+=========================================
+
+EN — A little Sunday quiz. 👀
+
+After an outing, which actions should also apply to paddles, ropes, life jackets and other equipment that touched the water?
+
+A — Clean
+B — Drain
+C — Dry
+D — All three
+
+Answer: D. Small equipment also travels from one body of water to another.
+
+Want to keep playing? More than 500 bilingual questions await: https://bleumassawippi.com/quiz
+
+#BleuMassawippi #LakeMassawippi #LakeQuiz
 ```

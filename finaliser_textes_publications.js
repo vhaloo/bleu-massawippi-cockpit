@@ -389,7 +389,7 @@ function renderMarkdown(posts) {
   const headings = [
     "# Textes complets finalisés — Cockpit Communication Bleu Massawippi",
     "",
-    "**Calendrier actif :** à partir du lundi 13 juillet 2026; la réserve éditoriale est actuellement planifiée jusqu’au mardi 1er septembre 2026.",
+    "**Calendrier actif :** une publication par jour du lundi 13 juillet au dimanche 13 septembre 2026, sans trou ni doublon actif.",
     "**Usage :** textes bilingues prêts à programmer sur Facebook et Instagram, séparés par la ligne réglementaire du plan.",
     "**Voix :** chaleureuse, invitante et curieuse; les précautions techniques demeurent dans les notes de préparation plutôt que dans le message public.",
     "**Langues :** le français est rédigé d’abord avec naturel; l’anglais en est une adaptation fidèle au sens et au ton, jamais une traduction mot à mot.",

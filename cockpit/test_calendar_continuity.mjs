@@ -1,0 +1,51 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { applyPlanOverridesToPosts } from "./plan-overrides.js";
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const source = fs.readFileSync(path.resolve(here, "..", "index.html"), "utf8");
+const postsJson = source.match(/var posts=(\[[\s\S]*?\]);\s*var meta=/)?.[1];
+assert.ok(postsJson, "Le calendrier source doit rester lisible.");
+
+const posts = applyPlanOverridesToPosts(JSON.parse(postsJson));
+const start = "2026-07-29";
+const end = "2026-09-13";
+const horizon = posts.filter((post) => post.archivedEditorial !== true && post.dateIso >= start && post.dateIso <= end);
+const byDate = Object.groupBy(horizon, (post) => post.dateIso);
+const expectedDates = [];
+for (const cursor = new Date(`${start}T12:00:00Z`); cursor <= new Date(`${end}T12:00:00Z`); cursor.setUTCDate(cursor.getUTCDate() + 1)) {
+  expectedDates.push(cursor.toISOString().slice(0, 10));
+}
+
+assert.equal(horizon.length, 47, "La période demandée doit contenir 47 publications actives.");
+assert.deepEqual(Object.keys(byDate).sort(), expectedDates, "Aucune date du 29 juillet au 13 septembre ne doit être vide.");
+assert.ok(Object.values(byDate).every((items) => items.length === 1), "Chaque journée doit contenir exactement une publication active.");
+assert.ok(horizon.every((post) => post.choiceRequired !== true && !post.optionGroup), "Les anciens choix séparés doivent devenir des dates autonomes.");
+
+const manifests = ["historical_media_manifest.json", "nature_media_manifest.json", "editorial_media_manifest.json"]
+  .flatMap((file) => JSON.parse(fs.readFileSync(path.join(here, file), "utf8")))
+  .filter((media) => media.archived !== true && media.stage !== "archived" && media.stage !== "reference");
+for (const post of horizon) {
+  assert.ok(manifests.some((media) => media.eventId === post.id), `Un média explicite doit être prévu pour ${post.id}.`);
+}
+
+const newIds = [
+  "don-20260909-appel-soutien",
+  "nature-20260910-feuille-surface",
+  "don-20260911-merci-bilan",
+  "archives-20260912-vos-images",
+  "quiz-20260913-trois-gestes"
+];
+for (const id of newIds) {
+  const post = horizon.find((item) => item.id === id);
+  assert.ok(post, `La nouvelle publication ${id} doit être planifiée.`);
+  assert.match(post.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
+  assert.ok(post.copy.length <= 2200);
+  const media = manifests.filter((item) => item.eventId === id);
+  assert.equal(media.length, 1);
+  assert.ok(media[0].previewUrl, `L’aperçu réel de ${id} doit être disponible sur mobile.`);
+}
+
+console.log(JSON.stringify({ passed: true, start, end, days: expectedDates.length, publications: horizon.length, gaps: 0, duplicates: 0, newPosts: newIds.length }, null, 2));

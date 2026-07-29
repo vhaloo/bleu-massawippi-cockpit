@@ -329,6 +329,320 @@ Thank you for your trust.
   }
 ];
 
+const CONTINUITY_POSTS = [
+  {
+    id: "don-20260909-appel-soutien",
+    w: 9,
+    date: "Mercredi 9 septembre",
+    calendarTime: "12:00",
+    t: "Soutien",
+    tier: "Pilier",
+    title: "Un geste qui reste près du lac",
+    format: "Photographie réelle + appel bilingue",
+    role: "Inviter chaleureusement à soutenir la mission sans promesse de doublement ni pression, avec un lien distinct pour chaque langue.",
+    cta: "Soutenir Bleu Massawippi",
+    visual: "Photographie réelle du lac présentée comme un souvenir familier; le paysage demeure intact et le message reste court, humain et lisible sur mobile.",
+    source: "Campagne Zeffy officielle de Bleu Massawippi : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007",
+    fallback: "Photographie réelle du lac sans texte ajouté; vérifier que les deux formulaires Zeffy sont actifs avant programmation.",
+    kpi: "Clics vers Zeffy / adhésions et dons confirmés",
+    task: "Vérifier les deux liens Zeffy, confirmer la disponibilité de la campagne et programmer seulement après les validations du texte et du média.",
+    copy: `FR — Un lac que l’on aime mérite une attention qui dure. 💙
+
+En devenant membre ou en faisant un don à Bleu Massawippi, vous soutenez une mission concrète : mieux connaître le lac et ses tributaires, partager des repères accessibles et préparer des actions utiles avec la communauté.
+
+Chaque contribution compte, à la mesure de chacun. Merci de garder le Massawippi près du cœur.
+
+Adhésion ou don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LacMassawippi #SoutenirLeLac
+
+=========================================
+
+EN — A lake we love deserves lasting care. 💙
+
+By becoming a member or donating to Bleu Massawippi, you support a practical mission: understanding the lake and its tributaries, sharing accessible knowledge and preparing useful action with the community.
+
+Every contribution matters, in the way that is right for each person. Thank you for keeping Massawippi close to heart.
+
+Membership or donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LakeMassawippi #SupportTheLake`,
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    isAlternative: false,
+    tasksValentin: [
+      "Vérifier séparément les formulaires Zeffy français et anglais et confirmer qu’ils sont toujours actifs.",
+      "Vérifier le crédit de la photographie réelle, le texte alternatif et la lisibilité 4:5 sur mobile.",
+      "Finaliser la légende FR / EN, soumettre les validations et programmer seulement après les feux verts requis."
+    ],
+    tasksAnnie: [
+      "Confirmer que l’appel reflète correctement la mission et approuver le texte et le média."
+    ],
+    taskOwnersVersion: "event-task-owners-2026-07-29-continuity-v1"
+  },
+  {
+    id: "nature-20260910-feuille-surface",
+    w: 9,
+    date: "Jeudi 10 septembre",
+    calendarTime: "12:00",
+    t: "Nature",
+    tier: "Passerelle",
+    title: "Une feuille entre l’eau et la lumière",
+    format: "Photographie réelle naturaliste 4:5",
+    role: "Offrir une pause d’observation simple autour d’une plante aquatique sans identification locale non vérifiée ni consigne professorale.",
+    cta: "Regarder les détails",
+    visual: "Photographie réelle de nénuphar blanc du domaine public, recadrée mécaniquement; aucune affirmation que la photo vient du lac Massawippi.",
+    source: "Thomas G. Barnes, U.S. Fish and Wildlife Service — domaine public; photographie non présentée comme prise au lac Massawippi.",
+    fallback: "Gros plan réel d’une feuille flottante dont le crédit et les droits sont confirmés.",
+    kpi: "Enregistrements / commentaires d’observation",
+    task: "Conserver la provenance exacte de la photographie, vérifier la nuance naturaliste et préparer un texte alternatif bilingue.",
+    copy: `FR — À la surface, une feuille flotte entre l’eau et la lumière. Autour d’elle, les reflets changent, une ombre se dessine et le moindre mouvement devient visible.
+
+Ces petits détails n’ont pas besoin d’être cueillis pour être découverts. Prenons simplement le temps de regarder : qu’est-ce qui attire votre œil en premier?
+
+Photo documentaire; elle n’est pas présentée comme ayant été prise au lac Massawippi.
+
+#BleuMassawippi #LacMassawippi #CuriositéNature
+
+=========================================
+
+EN — At the surface, a leaf floats between water and light. Reflections shift around it, a patch of shade appears and the smallest movement becomes visible.
+
+These details do not need to be picked to be discovered. Let’s simply take time to look: what catches your eye first?
+
+Documentary photograph; it is not presented as having been taken at Lake Massawippi.
+
+#BleuMassawippi #LakeMassawippi #NatureCuriosity`,
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    isAlternative: false,
+    tasksValentin: [
+      "Conserver le crédit du domaine public et vérifier que la légende ne suggère aucune provenance locale.",
+      "Préparer le recadrage 4:5, le texte alternatif bilingue et la lisibilité mobile.",
+      "Soumettre les validations puis programmer la publication."
+    ],
+    tasksAnnie: [
+      "Valider l’angle de découverte et signaler seulement un enjeu institutionnel ou naturaliste à corriger."
+    ],
+    taskOwnersVersion: "event-task-owners-2026-07-29-continuity-v1"
+  },
+  {
+    id: "don-20260911-merci-bilan",
+    w: 9,
+    date: "Vendredi 11 septembre",
+    calendarTime: "12:00",
+    t: "Gratitude",
+    tier: "Pilier",
+    title: "Merci d’avancer avec nous",
+    format: "Photographie réelle + bilan bilingue",
+    role: "Remercier avec transparence après l’appel du 9 septembre en utilisant uniquement un montant net confirmé.",
+    cta: "Partager le résultat avec gratitude",
+    visual: "Photographie aérienne réelle du lac Massawippi, sans modification documentaire; une courte mention manuscrite peut être ajoutée après validation.",
+    source: "Zeffy — rapport Paiements filtré depuis le 9 septembre 2026; exclure remboursements, litiges et paiements non reçus.",
+    fallback: "Si le montant n’est pas confirmé, reporter ce bilan et utiliser une publication de réserve; ne jamais diffuser les champs temporaires.",
+    kpi: "Montant net confirmé / donateurs remerciés / partages",
+    task: "Remplacer tous les champs temporaires par des données Zeffy vérifiées et lever le blocage seulement après double vérification.",
+    copy: `FR — Merci d’avancer avec nous. 💙
+
+Depuis notre appel du 9 septembre, votre générosité a permis de réunir [MONTANT NET CONFIRMÉ] pour soutenir la mission de Bleu Massawippi.
+
+Derrière ce résultat, il y a des personnes qui choisissent d’agir à leur mesure. Chaque contribution aide à mieux connaître le lac, à partager l’information et à préparer la suite avec soin.
+
+Merci pour votre confiance.
+
+#BleuMassawippi #LacMassawippi #Merci
+
+=========================================
+
+EN — Thank you for moving forward with us. 💙
+
+Since our September 9 appeal, your generosity has raised [CONFIRMED NET AMOUNT] to support Bleu Massawippi’s mission.
+
+Behind this result are people choosing to act in ways that are right for them. Every contribution helps us better understand the lake, share information and prepare the next steps with care.
+
+Thank you for your trust.
+
+#BleuMassawippi #LakeMassawippi #ThankYou`,
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    isAlternative: false,
+    publicationBlocked: true,
+    requiresConfirmedDonationAmount: true,
+    requiredPlaceholders: ["[MONTANT NET CONFIRMÉ]", "[CONFIRMED NET AMOUNT]"],
+    tasksValentin: [
+      "Filtrer le rapport Zeffy depuis le 9 septembre et conserver uniquement les transactions réussies réellement reçues.",
+      "Remplacer les deux champs temporaires, documenter le montant net et vérifier qu’aucun crochet ne subsiste.",
+      "Finaliser le média, soumettre les validations et programmer seulement après la levée du blocage."
+    ],
+    tasksAnnie: [
+      "Confirmer le montant net et approuver le texte et le média avant diffusion."
+    ],
+    taskOwnersVersion: "event-task-owners-2026-07-29-continuity-v1"
+  },
+  {
+    id: "archives-20260912-vos-images",
+    w: 9,
+    date: "Samedi 12 septembre",
+    calendarTime: "11:00",
+    t: "Patrimoine",
+    tier: "Passerelle",
+    title: "Une photo peut réveiller toute une histoire",
+    format: "Photographie d’archive + invitation bilingue",
+    role: "Inviter la communauté à signaler des archives familiales sans réclamer de cession publique ni reproduire un témoignage sans accord.",
+    cta: "Nous écrire avant de partager",
+    visual: "Photographie historique réelle présentée dans un album-souvenir; conserver le crédit, la date approximative et les limites documentaires.",
+    source: "Photographie de Gaétan, 7 mars 2017, licence CC BY-SA 2.0; composition d’album déjà documentée dans le cockpit.",
+    fallback: "Photographie d’archive créditée au complet, sans colorisation ni détail inventé.",
+    kpi: "Messages reçus / archives proposées / renseignements vérifiables",
+    task: "Vérifier le crédit de l’image et préparer une méthode simple pour recevoir une copie et ses renseignements sans publier automatiquement.",
+    copy: `FR — Une vieille photo peut réveiller un lieu, une voix ou une histoire que l’on croyait oubliée.
+
+Votre famille conserve-t-elle une image du lac Massawippi, de ses villages, de ses rives ou de la rivière? Écrivez-nous avant de la partager publiquement. Nous pourrons prendre le temps de noter la date, le lieu, les personnes, le crédit et les conditions d’utilisation.
+
+Chaque détail vérifiable aide à garder la mémoire du territoire bien vivante.
+
+#BleuMassawippi #LacMassawippi #MémoireDuLac
+
+=========================================
+
+EN — An old photograph can bring back a place, a voice or a story we thought had been forgotten.
+
+Does your family have an image of Lake Massawippi, its villages, shorelines or river? Write to us before sharing it publicly. Together, we can record the date, place, people, credit and conditions of use.
+
+Every verifiable detail helps keep the region’s memory alive.
+
+#BleuMassawippi #LakeMassawippi #LakeMemories`,
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    isAlternative: false,
+    tasksValentin: [
+      "Vérifier la licence, le crédit et la légende de la photographie utilisée.",
+      "Préparer un texte alternatif bilingue et une réponse-type privée pour recueillir les renseignements d’une archive proposée.",
+      "Soumettre les validations puis programmer sans reprendre une archive ou un témoignage sans accord."
+    ],
+    tasksAnnie: [
+      "Confirmer que la méthode de collecte protège les personnes, les droits et les renseignements sensibles."
+    ],
+    taskOwnersVersion: "event-task-owners-2026-07-29-continuity-v1"
+  },
+  {
+    id: "quiz-20260913-trois-gestes",
+    w: 9,
+    date: "Dimanche 13 septembre",
+    calendarTime: "11:00",
+    t: "Interaction",
+    tier: "Passerelle",
+    title: "Quiz du lac : les trois gestes qui voyagent bien",
+    format: "Quiz illustré bilingue 4:5",
+    role: "Réactiver un repère de prévention sous forme de jeu bref et orienter vers le quiz bilingue de Bleu Massawippi.",
+    cta: "Répondre puis continuer le quiz",
+    visual: "Planche scolaire vintage déjà documentée montrant nettoyer, vider et sécher; aucune situation locale ni infraction inventée.",
+    source: "Gouvernement du Québec — nettoyage des embarcations; quiz bilingue Bleu Massawippi : https://bleumassawippi.com/quiz",
+    fallback: "Carte-question typographique avec la réponse dans la légende et le lien du quiz.",
+    kpi: "Réponses / clics vers le quiz / enregistrements",
+    task: "Vérifier le lien du quiz et la formulation des trois gestes, puis programmer après validation.",
+    copy: `FR — Petit quiz du dimanche. 👀
+
+Après une sortie, quels gestes doivent aussi s’appliquer aux pagaies, cordes, vestes de flottaison et autres équipements qui ont touché l’eau?
+
+A — Nettoyer
+B — Vider
+C — Sécher
+D — Les trois
+
+Réponse : D. Les petits équipements voyagent eux aussi d’un plan d’eau à l’autre.
+
+Envie de continuer? Plus de 500 questions bilingues vous attendent : https://bleumassawippi.com/quiz
+
+#BleuMassawippi #LacMassawippi #QuizDuLac
+
+=========================================
+
+EN — A little Sunday quiz. 👀
+
+After an outing, which actions should also apply to paddles, ropes, life jackets and other equipment that touched the water?
+
+A — Clean
+B — Drain
+C — Dry
+D — All three
+
+Answer: D. Small equipment also travels from one body of water to another.
+
+Want to keep playing? More than 500 bilingual questions await: https://bleumassawippi.com/quiz
+
+#BleuMassawippi #LakeMassawippi #LakeQuiz`,
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    isAlternative: false,
+    contentVariant: "quiz",
+    tasksValentin: [
+      "Vérifier la source gouvernementale et le lien du quiz bilingue.",
+      "Vérifier le visuel, la réponse, le texte alternatif et la lisibilité mobile.",
+      "Soumettre les validations puis programmer la publication."
+    ],
+    tasksAnnie: [
+      "Valider que le rappel est exact, accueillant et adapté au contexte institutionnel."
+    ],
+    taskOwnersVersion: "event-task-owners-2026-07-29-continuity-v1"
+  }
+];
+
+const CONTINUITY_CALENDAR_ASSIGNMENTS = [
+  ["s3d1", 3, "Mercredi 29 juillet", "2026-07-29"],
+  ["barbotte-20260730-signalement", 3, "Jeudi 30 juillet", "2026-07-30"],
+  ["s3d3", 3, "Vendredi 31 juillet", "2026-07-31"],
+  ["alt-20260722", 3, "Samedi 1er août", "2026-08-01"],
+  ["s3d5", 3, "Dimanche 2 août", "2026-08-02"],
+  ["poesie-20260803-rappel-candidatures", 4, "Lundi 3 août", "2026-08-03"],
+  ["alt-20260731", 4, "Mardi 4 août", "2026-08-04"],
+  ["alt-20260801", 4, "Mercredi 5 août", "2026-08-05"],
+  ["s4d7", 4, "Jeudi 6 août", "2026-08-06"],
+  ["don-20260807-merci-bilan", 4, "Vendredi 7 août", "2026-08-07"],
+  ["s1d2", 4, "Samedi 8 août", "2026-08-08"],
+  ["s4d5", 4, "Dimanche 9 août", "2026-08-09"],
+  ["alt-20260717", 5, "Lundi 10 août", "2026-08-10"],
+  ["s4d1", 5, "Mardi 11 août", "2026-08-11"],
+  ["s3d4", 5, "Mercredi 12 août", "2026-08-12"],
+  ["alt-20260807", 5, "Jeudi 13 août", "2026-08-13"],
+  ["s3d6", 5, "Vendredi 14 août", "2026-08-14"],
+  ["s4d1b", 5, "Samedi 15 août", "2026-08-15"],
+  ["alt-20260805", 5, "Dimanche 16 août", "2026-08-16"],
+  ["alt-20260716", 6, "Lundi 17 août", "2026-08-17"],
+  ["s3d7", 6, "Mardi 18 août", "2026-08-18"],
+  ["s2d1", 6, "Mercredi 19 août", "2026-08-19"],
+  ["s4d4", 6, "Jeudi 20 août", "2026-08-20"],
+  ["s4d3", 6, "Vendredi 21 août", "2026-08-21"],
+  ["alt-20260718", 6, "Samedi 22 août", "2026-08-22"],
+  ["s4d2", 6, "Dimanche 23 août", "2026-08-23"],
+  ["alt-20260721", 7, "Lundi 24 août", "2026-08-24"],
+  ["alt-20260723", 7, "Mardi 25 août", "2026-08-25"],
+  ["alt-20260724", 7, "Mercredi 26 août", "2026-08-26"],
+  ["alt-20260725", 7, "Jeudi 27 août", "2026-08-27"],
+  ["alt-20260728", 7, "Vendredi 28 août", "2026-08-28"],
+  ["s1d7", 7, "Samedi 29 août", "2026-08-29"],
+  ["lexique-20260830-tributaire", 7, "Dimanche 30 août", "2026-08-30"],
+  ["alt-20260729", 8, "Lundi 31 août", "2026-08-31"],
+  ["s4d6", 8, "Mardi 1er septembre", "2026-09-01"],
+  ["alt-20260802", 8, "Mercredi 2 septembre", "2026-09-02"],
+  ["lavage-20260903-sans-moteur", 8, "Jeudi 3 septembre", "2026-09-03"],
+  ["alt-20260714", 8, "Vendredi 4 septembre", "2026-09-04"],
+  ["s4d7b", 8, "Samedi 5 septembre", "2026-09-05"],
+  ["alt-20260806", 8, "Dimanche 6 septembre", "2026-09-06"],
+  ["alt-20260808", 9, "Lundi 7 septembre", "2026-09-07"],
+  ["s1d3", 9, "Mardi 8 septembre", "2026-09-08"],
+  ["don-20260909-appel-soutien", 9, "Mercredi 9 septembre", "2026-09-09"],
+  ["nature-20260910-feuille-surface", 9, "Jeudi 10 septembre", "2026-09-10"],
+  ["don-20260911-merci-bilan", 9, "Vendredi 11 septembre", "2026-09-11"],
+  ["archives-20260912-vos-images", 9, "Samedi 12 septembre", "2026-09-12"],
+  ["quiz-20260913-trois-gestes", 9, "Dimanche 13 septembre", "2026-09-13"]
+];
+
 const POETRY_CALL_POST = {
   id: "poesie-20260727-appel-aux-voix",
   w: 3,
@@ -501,6 +815,9 @@ export function applyPlanOverridesToPosts(posts) {
   if (!Array.isArray(posts)) return posts;
   if (!posts.some((post) => post.id === TRIBUTARY_LEXICON_POST.id)) posts.push({ ...TRIBUTARY_LEXICON_POST });
   DONATION_CADENCE_POSTS.forEach((post) => {
+    if (!posts.some((item) => item.id === post.id)) posts.push({ ...post });
+  });
+  CONTINUITY_POSTS.forEach((post) => {
     if (!posts.some((item) => item.id === post.id)) posts.push({ ...post });
   });
   if (!posts.some((post) => post.id === POETRY_CALL_POST.id)) posts.push({ ...POETRY_CALL_POST });
@@ -757,6 +1074,28 @@ export function applyPlanOverridesToPosts(posts) {
     const post = finalPosts.find((item) => item.id === id);
     if (post) Object.assign(post, { choiceRequired: false, optionGroup: null, optionLabel: null });
   });
+  const continuityReason = "Calendrier continu du 29 juillet au 13 septembre 2026 : rapprocher les contenus les plus avancés, séparer les anciens choix en dates distinctes et ne laisser aucune journée vide.";
+  CONTINUITY_CALENDAR_ASSIGNMENTS.forEach(([id, w, date, dateIso]) => {
+    const post = finalPosts.find((item) => item.id === id);
+    if (!post) return;
+    const from = planDateIsoFromLabel(post.date);
+    const history = Array.isArray(post.rescheduleHistory) ? [...post.rescheduleHistory] : [];
+    if (from && from !== dateIso && !history.some((entry) => entry?.from === from && entry?.to === dateIso && entry?.reason === continuityReason)) {
+      history.push({ from, to: dateIso, reason: continuityReason });
+    }
+    Object.assign(post, {
+      w,
+      date,
+      choiceRequired: false,
+      optionGroup: null,
+      optionLabel: null,
+      ...(from && from !== dateIso ? {
+        rescheduledFrom: from,
+        rescheduledReason: continuityReason,
+        rescheduleHistory: history
+      } : {})
+    });
+  });
   finalPosts.forEach((post) => {
     ensureHumanInterviewCoordination(post);
     const dateIso = planDateIsoFromLabel(post.date) || ARCHIVED_DATE_ISO.get(post.id);
@@ -798,7 +1137,7 @@ export function preparePlanScript(script, posts) {
   );
   output = output.replace(
     /(var meta=\{[\s\S]*?\};)/,
-    "$1meta[5]=[\"Semaine 5 · Réserve éditoriale\",\"10 au 16 août\"];meta[6]=[\"Semaine 6 · Réserve éditoriale\",\"17 au 23 août\"];meta[7]=[\"Semaine 7 · Réserve éditoriale\",\"24 au 30 août\"];meta[8]=[\"Semaine 8 · Réserve éditoriale\",\"31 août au 6 septembre\"];"
+    "$1meta[5]=[\"Semaine 5 · Cadence éditoriale\",\"10 au 16 août\"];meta[6]=[\"Semaine 6 · Cadence éditoriale\",\"17 au 23 août\"];meta[7]=[\"Semaine 7 · Cadence éditoriale\",\"24 au 30 août\"];meta[8]=[\"Semaine 8 · Cadence éditoriale\",\"31 août au 6 septembre\"];meta[9]=[\"Semaine 9 · Cadence éditoriale\",\"7 au 13 septembre\"];"
   );
   return output;
 }
