@@ -12,7 +12,7 @@
   <main id="qa-project" class="wrap" aria-busy="true"></main>
   <script type="module">
     if (new URLSearchParams(location.search).get("theme") === "dark") document.documentElement.dataset.theme = "dark";
-    const response = await fetch(new URL("../../index.html?qa=20260729-b44", location.href));
+    const response = await fetch(new URL("../../index.html?qa=20260729-b45", location.href));
     const source = new DOMParser().parseFromString(await response.text(), "text/html");
     const sourceStyle = source.querySelector("style")?.cloneNode(true);
     const project = source.querySelector("#internal-project-poesie-du-lac")?.cloneNode(true);

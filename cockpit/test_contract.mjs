@@ -60,10 +60,44 @@ assert.deepEqual(
   [...activePosts].map((post) => post.dateIso).sort(),
   "Le calendrier doit rester trié chronologiquement après tous les déplacements."
 );
-for (const week of [1,2,3,4,5,6,7,8]) {
+for (const week of [1,2,3,4,5,6,7,8,9]) {
   const dates = [...new Set(activePosts.filter((post) => post.w === week).map((post) => post.dateIso))];
   assert.deepEqual(dates, [...dates].sort(), `La semaine ${week} doit suivre l’ordre réel des dates.`);
 }
+const continuityStart = new Date("2026-07-13T12:00:00Z");
+const continuityEnd = new Date("2026-09-13T12:00:00Z");
+const expectedContinuityDates = [];
+for (const cursor = new Date(continuityStart); cursor <= continuityEnd; cursor.setUTCDate(cursor.getUTCDate() + 1)) {
+  expectedContinuityDates.push(cursor.toISOString().slice(0, 10));
+}
+const activePostsByDate = Object.groupBy(activePosts, (post) => post.dateIso);
+assert.deepEqual(Object.keys(activePostsByDate).sort(), expectedContinuityDates,
+  "Le calendrier actif doit couvrir chaque journée du 13 juillet au 13 septembre sans trou.");
+assert.ok(Object.values(activePostsByDate).every((items) => items.length === 1),
+  "Chaque journée du calendrier continu doit afficher exactement une publication active.");
+assert.equal(activePosts.length, 63, "Les neuf semaines continues doivent contenir 63 publications actives.");
+const continuityPostIds = [
+  "don-20260909-appel-soutien",
+  "nature-20260910-feuille-surface",
+  "don-20260911-merci-bilan",
+  "archives-20260912-vos-images",
+  "quiz-20260913-trois-gestes"
+];
+for (const id of continuityPostIds) {
+  const post = activePosts.find((item) => item.id === id);
+  assert.ok(post, `La publication de continuité ${id} doit exister.`);
+  assert.match(post.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/,
+    `La publication de continuité ${id} doit être bilingue.`);
+  assert.ok(post.copy.length <= 2200, `La publication de continuité ${id} doit respecter la limite Meta.`);
+  const media = editorialMedia.filter((item) => item.eventId === id && item.stage !== "archived" && item.archived !== true);
+  assert.equal(media.length, 1, `La publication de continuité ${id} doit avoir un média actif clair.`);
+  assert.ok(media[0].previewUrl, `Le média de ${id} doit afficher un vrai aperçu mobile.`);
+  assert.ok(media[0].reuseMediaId, `Le média de ${id} doit réutiliser un fichier déjà hébergé sans copie inutile.`);
+}
+const septemberThankYou = activePosts.find((post) => post.id === "don-20260911-merci-bilan");
+assert.equal(septemberThankYou.publicationBlocked, true, "Le bilan du 11 septembre doit rester bloqué tant que le montant n’est pas confirmé.");
+assert.deepEqual(septemberThankYou.requiredPlaceholders, ["[MONTANT NET CONFIRMÉ]", "[CONFIRMED NET AMOUNT]"]);
+assert.match(activePosts.find((post) => post.id === "quiz-20260913-trois-gestes").copy, /https:\/\/bleumassawippi\.com\/quiz/);
 const first = posts.find((post) => post.id === "s1d1");
 const moved = posts.find((post) => post.id === "s1d1b");
 const volunteer = posts.find((post) => post.id === "s1d3");
@@ -80,8 +114,8 @@ assert.equal(moved.dateIso, "2026-07-13");
 assert.equal(moved.w, 98);
 assert.equal(moved.archivedEditorial, true);
 assert.equal(moved.archived, true);
-assert.equal(volunteer.date, "Mercredi 12 août");
-assert.equal(volunteer.w, 5);
+assert.equal(volunteer.date, "Mardi 8 septembre");
+assert.equal(volunteer.w, 9);
 assert.equal(volunteer.coordinationLevel, "high");
 assert.equal(volunteer.requiresHumanConsent, true);
 assert.equal(volunteer.requiresContactOwnership, true);
@@ -93,8 +127,8 @@ assert.ok(volunteer.tasksAnnie.some((task) => /coordonn/i.test(task)));
 assert.ok(volunteer.tasksAnnie.some((task) => /consentement/i.test(task)));
 assert.equal(firstTuesday.choiceRequired, false, "La proposition retenue du mardi est verrouillée et ne demande plus d’arbitrage.");
 assert.equal(firstTuesday.optionGroup, null, "Une proposition verrouillée ne doit plus appartenir à un groupe de choix actif.");
-assert.equal(posts.filter((post) => !post.isAlternative).length, 33);
-assert.equal(posts.length, 64);
+assert.equal(posts.filter((post) => !post.isAlternative).length, 38);
+assert.equal(posts.length, 69);
 const nonMotorizedWash = posts.find((post) => post.id === "lavage-20260903-sans-moteur");
 assert.ok(nonMotorizedWash, "La recommandation du 23 juillet sur les embarcations non motorisées doit devenir une publication planifiée.");
 assert.equal(nonMotorizedWash.dateIso, "2026-09-03");
@@ -147,19 +181,19 @@ assert.deepEqual(donationThanks.requiredPlaceholders, ["[DATE DE L’APPEL]", "[
 assert.match(donationThanks.source, /Paiements filtré par date de paiement/i);
 assert.deepEqual(posts.filter((post) => post.dateIso === "2026-08-07").map((post) => post.id), [donationThanks.id], "Le 7 août doit être réservé au bilan Zeffy.");
 const displacedRainPost = posts.find((post) => post.id === "s3d4");
-assert.equal(displacedRainPost.dateIso, "2026-08-15", "Le post pluie doit rester planifié dans le créneau libéré par la publication scientifique.");
-assert.equal(displacedRainPost.rescheduledFrom, "2026-07-29");
+assert.equal(displacedRainPost.dateIso, "2026-08-12", "Le post pluie doit occuper un créneau unique dans le calendrier continu.");
+assert.equal(displacedRainPost.rescheduledFrom, "2026-08-15");
 assert.equal(displacedRainPost.displacedBy, deferredJuly27Monitoring.id);
 assert.deepEqual(activePosts.filter((post) => post.dateIso === "2026-07-29").map((post) => post.id), [deferredJuly27Monitoring.id]);
-assert.deepEqual(activePosts.filter((post) => post.dateIso === "2026-08-15").map((post) => post.id), [displacedRainPost.id]);
+assert.deepEqual(activePosts.filter((post) => post.dateIso === "2026-08-12").map((post) => post.id), [displacedRainPost.id]);
 const displacedBoatCleaningPost = posts.find((post) => post.id === "alt-20260722");
-assert.equal(displacedBoatCleaningPost.dateIso, "2026-08-23", "Le post remplacé le 22 juillet doit être conservé et reprogrammé.");
+assert.equal(displacedBoatCleaningPost.dateIso, "2026-08-01", "Le post remplacé le 22 juillet doit être conservé et rapproché dans le premier trou disponible.");
 assert.equal(displacedBoatCleaningPost.archivedEditorial, undefined, "Le post déplacé ne doit pas devenir une archive.");
 assert.equal(displacedBoatCleaningPost.displacedBy, donationAppeal.id);
 const displacedWatershedPost = posts.find((post) => post.id === "s4d5");
 const displacedHeritagePost = posts.find((post) => post.id === "alt-20260807");
-assert.equal(displacedWatershedPost.dateIso, "2026-08-14");
-assert.equal(displacedHeritagePost.dateIso, "2026-09-02");
+assert.equal(displacedWatershedPost.dateIso, "2026-08-09");
+assert.equal(displacedHeritagePost.dateIso, "2026-08-13");
 assert.equal(displacedWatershedPost.optionGroup, null);
 assert.equal(displacedHeritagePost.optionGroup, null);
 assert.equal(displacedWatershedPost.choiceRequired, false);
@@ -224,13 +258,13 @@ const lexiconPost = posts.find((post) => post.id === "lexique-20260830-tributair
 assert.match(lexiconPost.copy, /cours d’eau qui en rejoint un autre/i);
 const firstFourWeeks = Object.groupBy(posts.filter((post) => post.w <= 4), (post) => post.date);
 assert.equal(Object.keys(firstFourWeeks).length, 28);
-assert.equal(Object.values(firstFourWeeks).filter((items) => items.length >= 2).length, 6,
-  "L’archivage de l’angle des chutes de Massawippi retire proprement une paire du calendrier actif.");
+assert.equal(Object.values(firstFourWeeks).filter((items) => items.length >= 2).length, 0,
+  "Chaque date des quatre premières semaines doit désormais contenir une seule publication active.");
 assert.ok(firstFourWeeks["Mercredi 22 juillet"].some((post) => post.id === donationAppeal.id));
 assert.ok(firstFourWeeks["Vendredi 7 août"].some((post) => post.id === donationThanks.id));
 const deferredBoatWash = posts.find((post) => post.id === "s4d1");
-assert.equal(deferredBoatWash.date, "Vendredi 21 août");
-assert.equal(deferredBoatWash.w, 6);
+assert.equal(deferredBoatWash.date, "Mardi 11 août");
+assert.equal(deferredBoatWash.w, 5);
 assert.match(deferredBoatWash.title, /rituel complet/i);
 assert.match(deferredBoatWash.copy, /retirer les débris visibles, vider l’eau retenue, nettoyer/i);
 assert.doesNotMatch(deferredBoatWash.source, /ccq\.org/i);
@@ -242,8 +276,8 @@ assert.equal(sundayHeritage.date, "Dimanche 19 juillet");
 assert.equal(sundayHeritage.w, 1);
 assert.match(sundayHeritage.title, /Massawippi vu en 1859/i);
 const deferredMonitoring = posts.find((post) => post.id === "s1d2");
-assert.equal(deferredMonitoring.date, "Jeudi 13 août");
-assert.equal(deferredMonitoring.w, 5);
+assert.equal(deferredMonitoring.date, "Samedi 8 août");
+assert.equal(deferredMonitoring.w, 4);
 assert.match(deferredMonitoring.title, /lac et ses tributaires/i);
 assert.match(deferredMonitoring.copy, /chaque observation, prélèvement et mesure ajoute une donnée/i);
 assert.doesNotMatch(deferredMonitoring.copy, /un repère/i);
@@ -264,7 +298,7 @@ assert.doesNotMatch(deferredBlueMinute.copy, /Juste un instant pour regarder/);
 assert.match(deferredBlueMinute.copy, /#InstantBleu/);
 assert.doesNotMatch(`${deferredBlueMinute.title}\n${deferredBlueMinute.visual}\n${deferredBlueMinute.copy}`, /Juste une minute|Une minute bleue|#MinuteBleue/i);
 assert.doesNotMatch(saturdayCommunity.copy, /Nous avons envie de découvrir ce qui fait vivre votre lien/i);
-assert.equal(deferredMemories.date, "Jeudi 20 août", "La capsule souvenirs doit rester conservée à une autre date.");
+assert.equal(deferredMemories.date, "Samedi 29 août", "La capsule souvenirs doit rester conservée à une autre date.");
 assert.equal(deferredShoreLife.date, "Samedi 22 août", "La biodiversité sous les feuilles doit rester conservée à une autre date.");
 const frogSeries = posts.find((post) => post.id === "alt-20260802");
 assert.match(frogSeries.title, /voix à documenter autour du bassin/i);
@@ -274,7 +308,7 @@ assert.match(frogSeries.visual, /Ne pas présenter l’affiche comme un inventai
 const decidedFirstTwoWeeks = Object.groupBy(posts.filter((post) => post.w <= 2), (post) => post.date);
 assert.equal(Object.keys(decidedFirstTwoWeeks).length, 14, "Les deux semaines arbitrées doivent conserver une publication par jour.");
 assert.ok(Object.values(decidedFirstTwoWeeks).every((items) => items.length === 1), "Chaque journée déjà arbitrée doit afficher une seule publication retenue.");
-assert.equal(posts.filter((post) => post.t === "Nature").length, 9);
+assert.equal(posts.filter((post) => post.t === "Nature").length, 10);
 assert.equal(FUTURE_EDITORIAL_IDS.length, 56, "Les 56 publications futures doivent recevoir la voix éditoriale révisée.");
 assert.equal(new Set(FUTURE_EDITORIAL_IDS).size, 56, "Chaque publication future doit avoir un seul remplacement éditorial.");
 assert.ok(!FUTURE_EDITORIAL_IDS.includes("s1d1"), "La publication du 13 juillet doit rester intacte.");
@@ -781,7 +815,12 @@ assert.match(natureMediaSeed, /publicationBlocked: item\.publicationBlocked === 
   "Le seed nature doit reconstruire le blocage éditorial d’une référence non diffusable.");
 assert.match(natureMediaSeed, /archived: item\.archived === true/,
   "Le seed nature doit garder les anciennes variantes hors des propositions actives lors d’une reconstruction.");
+const editorialMediaSeed = mediaSeedSources.find(({ file }) => file === "seed_editorial_media_links.js").source;
+assert.match(editorialMediaSeed, /item\.reuseMediaId/,
+  "Le seed éditorial doit pouvoir réutiliser explicitement un fichier SharePoint déjà hébergé.");
+assert.match(editorialMediaSeed, /reusedUrls\.has\(item\.reuseMediaId\)/,
+  "Les lectures de médias source réutilisés doivent être mises en cache dans le même lot.");
 const mainPostCount = posts.filter((post) => !post.isAlternative).length;
-const postsPerDay = posts.reduce((counts, post) => counts.set(post.dateIso, (counts.get(post.dateIso) || 0) + 1), new Map());
+const postsPerDay = activePosts.reduce((counts, post) => counts.set(post.dateIso, (counts.get(post.dateIso) || 0) + 1), new Map());
 const pairedDayCount = [...postsPerDay.values()].filter((count) => count > 1).length;
-console.log(JSON.stringify({ passed: true, mainPosts: mainPostCount, totalPosts: posts.length, pairedDays: pairedDayCount, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 15, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 520 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: mainPostCount, totalPosts: posts.length, activePairedDays: pairedDayCount, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 15, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 540 }, null, 2));
