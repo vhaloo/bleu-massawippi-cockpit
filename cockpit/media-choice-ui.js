@@ -12,16 +12,20 @@ export function buildMediaChoiceModel(hasStructuredChoice, decision, row, latest
     overrideActorRole: hasStructuredChoice ? (decision?.override?.actorRole || "") : "",
     sameRoleChoice: communicationsSelected && directionSelected,
     divergent: decision?.agreement?.status === "divergent",
+    directionFinal: directionSelected,
     legacySelected,
-    finalSelected: hasStructuredChoice ? agreementIds.includes(row.id) : legacySelected
+    // La direction garde le dernier mot éditorial. Son choix devient donc le
+    // visuel final affiché, sans effacer ni réécrire la recommandation distincte
+    // des communications. L'accord structuré reste disponible dans l'historique.
+    finalSelected: hasStructuredChoice ? (directionSelected || agreementIds.includes(row.id)) : legacySelected
   };
 }
 
 export function mediaImageChoicePresentation(choice, role, myChoiceSelected) {
   if (choice.agreementSelected) return { label: "✓ Visuel retenu", className: " is-agreed" };
   if (choice.sameRoleChoice) return { label: "✓ Choix commun", className: " is-agreed" };
+  if (choice.directionSelected && role === "admin") return { label: "✓ Retenu par la direction", className: " is-agreed" };
   if (myChoiceSelected) return { label: "✓ Mon choix — retirer", className: " is-selected" };
-  if (role === "admin" && choice.directionSelected) return { label: "Choisi par la direction · choisir aussi", className: " is-role-choice" };
   if (role === "director" && choice.communicationsSelected) return { label: "Recommandé · choisir ce visuel", className: " is-role-choice" };
   return { label: "Choisir ce visuel", className: "" };
 }
