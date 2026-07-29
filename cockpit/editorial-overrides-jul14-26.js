@@ -31,12 +31,12 @@ Thank you to everyone who already makes these steps part of their routine. Follo
     title: "Votre essentiel avant de partir",
     cta: "Partager votre essentiel",
     copy: bilingual(
-      `Les belles sorties ont souvent un petit secret de préparation. Avant de partir sur le Massawippi, quel objet ou quelle habitude vous accompagne toujours : un vêtement de flottaison bien ajusté, une gourde, un sac pour rapporter vos déchets… ou autre chose?
+      `Avant une sortie sur le Massawippi, il y a toujours un petit geste ou un essentiel qui fait toute la différence. Quel objet ou quelle habitude vous accompagne toujours : un vêtement de flottaison bien ajusté, une gourde, un sac pour ramasser nos déchets… ou autre chose?
 
 Partagez votre essentiel en commentaire. Votre idée pourrait rendre la prochaine sortie de quelqu’un encore plus agréable.
 
 #BleuMassawippi #LacMassawippi #PlaisirSurLeau #Communauté`,
-      `Great outings often begin with one small preparation habit. Before heading onto Massawippi, what item or routine always comes with you: a properly fitted PFD, a water bottle, a bag to carry your waste home—or something else?
+      `Before an outing on Massawippi, one small action or essential item can make all the difference. What item or routine always comes with you: a properly fitted PFD, a water bottle, a bag for collecting our waste—or something else?
 
 Share your essential in the comments. Your idea might make someone else’s next outing even better.
 
@@ -109,17 +109,17 @@ Have you ever seen this tool in action?
     visual: "Carrousel de trois cartes : vraies mains tenant un disque de Secchi au bord de l’eau; disque descendant sous la surface; schéma simple « visible / moins visible = repère de transparence ». Montrer la personne et le travail de terrain."
   },
   "alt-20260716": {
-    title: "Trois regards pour mieux connaître le lac",
+    title: "Trois informations pour mieux connaître le lac",
     cta: "Garder ce repère",
     copy: bilingual(
       `Connaître un lac, c’est un peu comme apprendre à connaître un voisin : une seule rencontre ne raconte pas toute son histoire.
 
-Observer montre ce qui est visible aujourd’hui. Mesurer donne un repère précis. Comparer les résultats au fil du temps aide à voir comment ce repère évolue. Réunis, ces trois regards construisent un portrait plus juste du Massawippi et nous aident à choisir des actions utiles.
+Observer montre ce qui est visible aujourd’hui. Mesurer donne un repère précis. Comparer les résultats au fil du temps aide à voir comment ce repère évolue. Réunies, ces trois informations construisent un portrait plus juste du Massawippi et nous aident à choisir des actions utiles.
 
 #BleuMassawippi #LacMassawippi #ScienceAccessible #QualitéDeLEau`,
       `Getting to know a lake is a little like getting to know a neighbour: one meeting cannot tell the whole story.
 
-Observation shows what is visible today. Measurement provides a precise reference point. Comparing results over time helps reveal how that reference point changes. Together, these three perspectives build a more accurate picture of Massawippi and help us choose useful actions.
+Observation shows what is visible today. Measurement provides a precise reference point. Comparing results over time helps reveal how that reference point changes. Together, these three pieces of information build a more accurate picture of Massawippi and help us choose useful actions.
 
 #BleuMassawippi #LakeMassawippi #AccessibleScience #WaterQuality`
     ),
@@ -153,7 +153,7 @@ Share your perspective in the comments. Calm water, a changing sky, family time 
 
 #BluePerspective #BleuMassawippi #LakeMassawippi #Community`
     ),
-    visual: "Conserver la photo réelle déjà appréciée dans OneDrive, avec le mot BLEU dessiné sur l’eau. Ajouter seulement une invitation discrète « Et votre journée? » sans simuler de témoignage."
+    visual: "Conserver la photo réelle déjà appréciée dans OneDrive, avec le mot BLEU dessiné sur l’eau et un petit cœur blanc discret à côté. Ajouter seulement une invitation discrète « Et votre journée? » sans simuler de témoignage."
   },
   s1d7: {
     title: "Vos souvenirs font vivre le lac",
@@ -246,18 +246,18 @@ Which detail catches your eye first?
     cta: "Regarder la fleur et tout son milieu",
     source: "Gouvernement du Québec — emblème floral et importance de l’eau et des milieux humides : https://www.quebec.ca/gouvernement/portrait-quebec/drapeau-symboles-nationaux/emblemes/iris-versicolore · Gouvernement du Québec — fonctions écologiques des milieux humides : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/forets/protection-forets/territoires-forestiers-proteges/milieux-humides-interet",
     copy: bilingual(
-      `Difficile de détourner le regard de l’iris versicolore. Ses nuances de violet, de bleu et de jaune en font une présence saisissante — et l’emblème floral du Québec.
+      `L’iris versicolore attire d’abord le regard par ses nuances de violet, de bleu et de jaune. Emblème floral du Québec, il nous invite aussi à découvrir le milieu vivant qui l’accueille.
 
-Mais cette fleur nous invite surtout à voir plus grand qu’elle. Elle pousse dans des milieux humides et riverains dont l’équilibre contribue à la qualité de l’eau, à la stabilisation des rives et à une biodiversité riche. Admirer l’iris, c’est aussi reconnaître la valeur du milieu vivant qui l’accueille.
+Cette plante fréquente les milieux humides et les rives. Avec les autres végétaux de ces habitats, elle fait partie d’un ensemble qui offre abri et nourriture à de nombreuses espèces, contribue à retenir les sols et accompagne naturellement les mouvements de l’eau.
 
-Si vous en observez un, profitez-en avec les yeux et la caméra, sans le cueillir ni révéler un emplacement sensible.
+Une belle façon de garder le souvenir d’un iris est de le photographier là où il pousse, en laissant son emplacement précis discret.
 
 #ZoomNature #BleuMassawippi #IrisVersicolore #LacMassawippi`,
-      `It is hard to look away from a blue flag iris. Its violet, blue and yellow colours make it a striking presence—and Quebec’s floral emblem.
+      `A blue flag iris first catches the eye with its violet, blue and yellow colours. Quebec’s floral emblem, it also invites us to discover the living habitat around it.
 
-Yet this flower mainly invites us to see beyond the bloom itself. It grows in wetlands and shoreline habitats whose balance supports water quality, shoreline stability and rich biodiversity. Admiring the iris also means recognizing the value of the living habitat around it.
+This plant is found in wetlands and along shorelines. Together with the other vegetation in these habitats, it is part of a community that offers food and shelter to many species, helps hold soil in place and lives with the natural movement of water.
 
-If you spot one, enjoy it with your eyes and camera, without picking it or revealing a sensitive location.
+A lovely way to remember an iris is to photograph it where it grows while keeping its precise location discreet.
 
 #NatureZoom #BleuMassawippi #BlueFlagIris #LakeMassawippi`
     ),

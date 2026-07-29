@@ -5,8 +5,11 @@ import { FieldValue, getFirestore } from "firebase-admin/firestore";
 const argument = (name) => process.argv.find((value) => value.startsWith(`--${name}=`))?.slice(name.length + 3) || "";
 const commentId = argument("comment-id");
 const taskId = argument("task-id");
+const resolution = argument("resolution") || "integrated";
+const resolutionNote = argument("note").trim().slice(0, 500);
 const apply = process.argv.includes("--apply");
 if (!/^[A-Za-z0-9_-]{3,160}$/.test(commentId) || !/^[A-Za-z0-9_-]{3,180}$/.test(taskId)) throw new Error("Identifiants de commentaire et de tâche requis.");
+if (!["integrated", "superseded"].includes(resolution)) throw new Error("Résolution attendue : integrated ou superseded.");
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) throw new Error("Compte de service local requis.");
 
 const app = getApps()[0] || initializeApp({ credential: applicationDefault() });
@@ -23,7 +26,7 @@ if (archive.exists || (comment.data().resolved === true && task.data().status ==
   console.log(JSON.stringify({ noOp: true, commentId, taskId }, null, 2));
   await deleteApp(app);
 } else {
-  console.log(JSON.stringify({ mode: apply ? "apply" : "dry-run", commentId, taskId, sectionId: comment.data().sectionId || "", taskTarget: task.data().targetId || "", commentPreview: String(comment.data().comment || "").slice(0, 240) }, null, 2));
+  console.log(JSON.stringify({ mode: apply ? "apply" : "dry-run", commentId, taskId, resolution, resolutionNote, sectionId: comment.data().sectionId || "", taskTarget: task.data().targetId || "", commentPreview: String(comment.data().comment || "").slice(0, 240) }, null, 2));
   if (apply) {
     await db.runTransaction(async (transaction) => {
       const [currentComment, currentTask, currentArchive] = await Promise.all([transaction.get(refs.comment), transaction.get(refs.task), transaction.get(refs.archive)]);
@@ -32,9 +35,12 @@ if (archive.exists || (comment.data().resolved === true && task.data().status ==
       const now = FieldValue.serverTimestamp();
       transaction.update(refs.comment, { resolved: true, resolvedAt: now, resolvedBy: actor.uid, resolvedByLabel: actorLabel, updatedAt: now, updatedBy: actor.uid });
       transaction.update(refs.task, { status: "done", updatedAt: now, updatedBy: actor.uid });
-      transaction.set(refs.archive, { entityType: "comment", entityId: commentId, action: "commentaire traité après intégration du contenu", before: { comment: currentComment.data(), task: currentTask.data() }, after: { comment: { resolved: true, resolvedByLabel: actorLabel }, task: { status: "done" } }, actorUid: actor.uid, actorLabel, createdAt: now });
+      const action = resolution === "superseded"
+        ? "commentaire classé après décision éditoriale plus récente"
+        : "commentaire traité après intégration du contenu";
+      transaction.set(refs.archive, { entityType: "comment", entityId: commentId, action, resolution, resolutionNote, before: { comment: currentComment.data(), task: currentTask.data() }, after: { comment: { resolved: true, resolvedByLabel: actorLabel }, task: { status: "done" } }, actorUid: actor.uid, actorLabel, createdAt: now });
     });
-    console.log("Commentaire et tâche classés atomiquement après intégration.");
+    console.log(resolution === "superseded" ? "Commentaire et tâche classés comme remplacés par une décision plus récente." : "Commentaire et tâche classés atomiquement après intégration.");
   }
   await deleteApp(app);
 }

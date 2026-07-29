@@ -5,6 +5,7 @@ const OPEN_HOUSE_MAP_URL = "https://www.google.com/maps/search/?api=1&query=Egli
 
 const PLAN_YEAR = 2026;
 const ARCHIVED_DATE_ISO = new Map([
+  ["s1d1b", "2026-07-13"],
   ["s2d3", "2026-07-22"],
   ["s2d6", "2026-07-26"],
   ["s3d1b", "2026-07-27"]
@@ -95,21 +96,27 @@ const VOLUNTEER_INTERVIEW_POST = {
   isAlternative: false,
   coordinationLevel: "high",
   coordinationLabel: "Préparation requise · conseil d’administration ou bénévolat, courtes entrevues, consentements et portraits",
-  role: "Humaniser l’association en donnant la parole aux personnes qui s’impliquent, en commençant par un portrait collectif du conseil d’administration, puis en ouvrant la série au bénévolat.",
-  task: "Recueillir une courte phrase authentique et un consentement pour chaque personne avant de finaliser le carrousel ou de scinder la série en plusieurs portraits.",
+  title: "Denis Petitclerc — une voix du conseil",
+  format: "Portrait documentaire · citation authentique + deux photographies réelles",
+  cta: "Rencontrer une personne derrière la mission",
+  visual: "À finaliser seulement après réception d’une courte citation authentique de Denis Petitclerc et de son consentement : citation en lettrage manuscrit avec sa signature, portrait réel à droite et seconde photographie réelle en action sous le portrait. Aucun visage, propos ni signature généré.",
+  role: "Ouvrir la série de portraits du conseil d’administration par une présentation humaine de Denis Petitclerc, dans ses propres mots et avec des photographies authentiques.",
+  task: "Obtenir de Denis une courte citation, son accord sur le texte, le choix des deux photographies et son consentement de diffusion avant de finaliser le visuel et la publication.",
+  publicationBlocked: true,
+  blockedReason: "En attente de la citation authentique, du choix des photographies et du consentement de Denis Petitclerc.",
   tasksValentin: [
     "Préparer une question unique, chaleureuse et facile à répondre : « Pourquoi avez-vous choisi de vous impliquer pour le Massawippi? ».",
-    "Proposer un carrousel avec une couverture, puis une carte sobre par membre du conseil; si le carrousel devient trop long, le scinder en une courte série cohérente.",
-    "Planifier les courtes réponses écrites ou entrevues et les portraits; prévoir une solution typographique si une personne ne souhaite pas montrer son visage.",
-    "Obtenir et classer le consentement de diffusion pour chaque nom, citation et image avant toute publication.",
-    "Adapter les citations en FR / EN sans changer leur sens, produire le carrousel et soumettre le texte puis les visuels aux validations."
+    "Présélectionner dans les archives deux photographies réelles de Denis — un portrait et une image en action — sans les publier avant confirmation.",
+    "Préparer la mise en page demandée : courte citation manuscrite et signature, portrait à droite, seconde photographie en dessous.",
+    "Obtenir et classer le consentement de diffusion pour le nom, la citation, la signature et les deux images.",
+    "Adapter la citation en FR / EN sans changer son sens, produire le visuel et soumettre le texte puis le média aux validations."
   ],
   tasksAnnie: [
-    "Confirmer la liste actuelle des membres du conseil d’administration, leur titre public et l’ordre de présentation.",
-    "Désigner clairement qui prend le premier contact avec chaque personne — direction générale ou communications — puis confirmer la personne responsable de coordonner les réponses, les portraits et les relances.",
-    "Faire ou autoriser l’introduction institutionnelle, transmettre la question et confirmer la disponibilité de chaque personne.",
-    "Valider que chaque citation respecte bien la pensée de son auteur et que les informations institutionnelles sont exactes.",
-    "Décider si la première publication présente tout le conseil ou si la série commence par deux ou trois portraits, puis se poursuit."
+    "Confirmer le rôle public de Denis Petitclerc et que ce portrait ouvre bien la série.",
+    "Confirmer qui prend le premier contact avec Denis et coordonne la citation, les photographies et les relances.",
+    "Transmettre la question, obtenir la courte réponse de Denis et confirmer sa disponibilité.",
+    "Valider que la citation respecte sa pensée et que les informations institutionnelles sont exactes.",
+    "Confirmer explicitement son accord pour la citation, la signature et les deux photographies avant diffusion."
   ],
   taskOwnersVersion: "event-task-owners-2026-07-17-board-portrait-v4"
 };
@@ -122,12 +129,12 @@ const HUMAN_INTERVIEW_DIRECTION_TASKS = [
 ];
 
 function isHumanInterviewPost(post) {
-  const text = [post?.title, post?.format, post?.role, post?.task, post?.coordinationLabel]
+  const text = [post?.title, post?.format, post?.role, post?.task, post?.visual, post?.coordinationLabel]
     .filter(Boolean)
     .join(" ")
     .toLocaleLowerCase("fr");
   if (/\b(?:entrevue|interview)\b/.test(text)) return true;
-  return /\bportrait\b/.test(text) && /\b(?:bénévol|membre|conseil|personne|équipe|témoignage|citation)\b/.test(text);
+  return /\bportraits?\b/.test(text) && /\b(?:bénévol|membre|conseil|personne|équipe|témoignage|citation)\b/.test(text);
 }
 
 function ensureHumanInterviewCoordination(post) {
@@ -281,7 +288,7 @@ Depuis notre appel du [DATE DE L’APPEL], votre générosité a permis de réun
 
 Derrière ce résultat, il y a des personnes qui choisissent d’agir à leur mesure. Chaque contribution nourrit un effort collectif : mieux suivre le lac, mieux partager les connaissances et mieux préparer les actions à venir.
 
-Merci pour votre confiance. Nous continuerons à vous montrer clairement ce que cet élan rend possible.
+Merci pour votre confiance.
 
 #BleuMassawippi #LacMassawippi #Merci #SoutenirLeLac
 
@@ -293,7 +300,7 @@ Since our appeal on [APPEAL DATE], your generosity has raised [CONFIRMED NET AMO
 
 Behind this result are people choosing to act in ways that are right for them. Every contribution strengthens a shared effort: monitoring the lake, sharing knowledge and preparing the actions ahead.
 
-Thank you for your trust. We will continue to show clearly what this momentum makes possible.
+Thank you for your trust.
 
 #BleuMassawippi #LakeMassawippi #ThankYou #SupportTheLake`,
     choiceRequired: false,
@@ -381,6 +388,92 @@ Your text may already exist, be in progress or be created for the occasion. Each
   taskOwnersVersion: "event-task-owners-2026-07-22-poetry-call-v1"
 };
 
+const POETRY_REMINDER_POST = {
+  ...POETRY_CALL_POST,
+  id: "poesie-20260803-rappel-candidatures",
+  w: 4,
+  date: "Lundi 3 août",
+  calendarTime: "12:00",
+  title: "Au bord du bleu — il est encore temps de proposer votre voix",
+  format: "Affiche bilingue unique + rappel court",
+  role: "Rappeler chaleureusement l’appel aux voix pendant qu’il reste assez de temps pour proposer un texte déjà écrit ou en préparation.",
+  cta: "Proposer une lecture avant le 9 août",
+  task: "Vérifier que le formulaire demeure ouvert et que les renseignements de l’affiche n’ont pas changé, puis programmer ce rappel sans modifier la publication principale.",
+  copy: `FR — Un poème déjà écrit, un texte en chantier ou quelques pages que vous aimeriez faire entendre au bord du lac? Il est encore temps de proposer votre voix pour Au bord du bleu.\n\nLe dimanche 30 août, de 13 h à 16 h, Bleu Massawippi réunira poésie, prose et slam au parc Lôbadanaki, au bord du lac Massawippi. Chaque passage durera de 5 à 15 minutes; les voix expérimentées comme les premières participations sont les bienvenues.\n\n📝 Candidatures avant le dimanche 9 août à 23 h 59 : https://forms.office.com/r/4A2xsMh7st\n\n#AuBordDuBleu #BleuMassawippi #LacMassawippi #Poésie #Slam\n\n=========================================\n\nEN — A finished poem, a work in progress or a few pages you would love to share by the lake? There is still time to offer your voice for Au bord du bleu.\n\nOn Sunday, August 30, from 1 to 4 p.m., Bleu Massawippi will bring together poetry, prose and spoken word at Lôbadanaki Park, by Lake Massawippi. Each reading will last 5 to 15 minutes; experienced voices and first-time participants are equally welcome.\n\n📝 Apply by Sunday, August 9 at 11:59 p.m.: https://forms.office.com/r/4A2xsMh7st\n\n#AuBordDuBleu #BleuMassawippi #LakeMassawippi #Poetry #SpokenWord`,
+  parallelOperationalItem: true,
+  replacesDailySlot: false,
+  calendarPriority: "confirmed-project-reminder",
+  doNotShiftForBrownBullhead: true,
+  tasksValentin: [
+    "Vérifier que le formulaire est ouvert, que l’affiche et son texte alternatif sont toujours exacts et que le lien fonctionne sur mobile.",
+    "Programmer le rappel bilingue sur Facebook et Instagram, puis suivre les questions jusqu’à la fermeture du 9 août."
+  ],
+  tasksAnnie: [
+    "Signaler seulement si une modalité municipale confirmée exige de corriger le rappel avant sa programmation."
+  ],
+  taskOwnersVersion: "event-task-owners-2026-07-29-poetry-reminder-v1"
+};
+
+const BROWN_BULLHEAD_REPORT_POST = {
+  id: "barbotte-20260730-signalement",
+  w: 3,
+  date: "Jeudi 30 juillet",
+  calendarTime: "12:00",
+  t: "Communauté",
+  tier: "Pilier",
+  title: "Avez-vous vu une barbotte dans le lac Massawippi?",
+  format: "Affiche naturaliste bilingue 4:5 · appel au signalement",
+  role: "Inviter simplement les personnes qui fréquentent le lac à partager une observation de barbotte brune afin de mieux documenter sa présence.",
+  cta: "Partager une observation",
+  visual: "Affiche naturaliste chaleureuse sur papier ivoire, fondée sur une illustration fidèle de barbotte brune du domaine public; question manuscrite bilingue et trois repères très lisibles : date, secteur, photo.",
+  source: "Gouvernement du Québec — Barbotte brune (Ameiurus nebulosus) : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/animaux-sauvages-quebec/fiches-especes-fauniques/barbotte-brune · illustration de Duane Raver, U.S. Fish and Wildlife Service, domaine public : https://commons.wikimedia.org/wiki/File:Brown_bullhead_fish_ameiurus_nebulosus.jpg",
+  fallback: "Illustration fidèle du poisson avec la seule question bilingue et les mots date, secteur et photo; aucune affirmation sur une observation locale précise.",
+  kpi: "Observations reçues avec date / secteur documenté / photos exploitables avec permission",
+  task: "Vérifier les coordonnées de réception, publier l’appel bilingue après validation et consigner chaque observation sans diffuser d’adresse privée ni de renseignement personnel.",
+  copy: `FR — Avez-vous déjà vu ou capturé une barbotte brune dans le lac Massawippi?
+
+Nous aimerions mieux documenter sa présence dans le lac. Si vous en observez une au cours d’une sortie ou d’une prise, écrivez-nous à info@bleumassawippi.com en indiquant, si possible :
+
+• la date;
+• le secteur approximatif du lac;
+• une photo.
+
+Une courte note suffit. Merci de nous aider à rassembler ces observations autour du Massawippi.
+
+#BleuMassawippi #LacMassawippi #BarbotteBrune #ObservationCitoyenne
+
+=========================================
+
+EN — Have you ever seen or caught a brown bullhead in Lake Massawippi?
+
+We would like to better document its presence in the lake. If you see one during an outing or catch, please write to info@bleumassawippi.com and include, if possible:
+
+• the date;
+• the approximate area of the lake;
+• a photo.
+
+A short note is all it takes. Thank you for helping us gather observations from around Massawippi.
+
+#BleuMassawippi #LakeMassawippi #BrownBullhead #CommunityObservation`,
+  choiceRequired: false,
+  optionGroup: null,
+  optionLabel: null,
+  isAlternative: false,
+  decisionLocked: true,
+  calendarPriority: "direction-feedback",
+  replacesDailySlot: true,
+  tasksValentin: [
+    "Vérifier l’adresse de réception, le crédit du visuel, le texte alternatif et la lisibilité mobile.",
+    "Programmer la publication bilingue sur Facebook et Instagram après les deux validations.",
+    "Consigner les observations reçues avec leur date, leur secteur approximatif et leur photo, sans publier de renseignement personnel."
+  ],
+  tasksAnnie: [
+    "Approuver le texte et le visuel, puis confirmer l’adresse à utiliser pour recevoir les observations.",
+    "Si plusieurs signalements concordants sont reçus, déterminer avec les communications s’il convient de les transmettre aux interlocuteurs scientifiques ou ministériels appropriés."
+  ],
+  taskOwnersVersion: "event-task-owners-2026-07-29-brown-bullhead-v1"
+};
+
 function buildAlternative(spec) {
   const nature = spec.t === "Nature";
   const heritage = spec.t === "Patrimoine";
@@ -409,20 +502,24 @@ export function applyPlanOverridesToPosts(posts) {
     if (!posts.some((item) => item.id === post.id)) posts.push({ ...post });
   });
   if (!posts.some((post) => post.id === POETRY_CALL_POST.id)) posts.push({ ...POETRY_CALL_POST });
+  if (!posts.some((post) => post.id === POETRY_REMINDER_POST.id)) posts.push({ ...POETRY_REMINDER_POST });
+  if (!posts.some((post) => post.id === BROWN_BULLHEAD_REPORT_POST.id)) posts.push({ ...BROWN_BULLHEAD_REPORT_POST });
   const first = posts.find((post) => post.id === "s1d1");
   if (first) Object.assign(first, OPEN_HOUSE_POST, { decisionLocked: true });
   const moved = posts.find((post) => post.id === "s1d1b");
   if (moved) {
     Object.assign(moved, {
-      w: 5,
-      date: "Lundi 10 août",
+      w: 98,
+      date: "Archive éditoriale",
+      archivedEditorial: true,
+      archived: true,
       t: "Nature",
       tier: "Passerelle",
       choiceRequired: false,
       optionGroup: null,
       optionLabel: null,
       isAlternative: true,
-      role: "Contenu nature déplacé du premier lundi afin de préserver la variété et de maintenir une réserve éditoriale pour la cadence permanente."
+      role: "Sujet déjà traité selon la direction le 29 juillet 2026; conservé dans l’historique et retiré du calendrier actif sans suppression."
     });
   }
   const volunteer = posts.find((post) => post.id === "s1d3");
@@ -566,6 +663,40 @@ export function applyPlanOverridesToPosts(posts) {
     if (!posts.some((post) => post.id === spec.id)) posts.push(buildAlternative(spec));
   }
   const finalPosts = applyEditorialCopyOverrides(posts);
+  const shiftedForBrownBullhead = new Map([
+    ["2026-07-30", { date: "Vendredi 31 juillet", w: 3, to: "2026-07-31" }],
+    ["2026-07-31", { date: "Samedi 1er août", w: 3, to: "2026-08-01" }],
+    ["2026-08-01", { date: "Dimanche 2 août", w: 3, to: "2026-08-02" }],
+    ["2026-08-02", { date: "Lundi 3 août", w: 4, to: "2026-08-03" }],
+    ["2026-08-03", { date: "Mardi 4 août", w: 4, to: "2026-08-04" }],
+    ["2026-08-04", { date: "Mercredi 5 août", w: 4, to: "2026-08-05" }],
+    ["2026-08-05", { date: "Jeudi 6 août", w: 4, to: "2026-08-06" }],
+    ["2026-08-06", { date: "Samedi 8 août", w: 4, to: "2026-08-08" }],
+    ["2026-08-07", { date: "Samedi 8 août", w: 4, to: "2026-08-08" }],
+    ["2026-08-08", { date: "Dimanche 9 août", w: 4, to: "2026-08-09" }],
+    ["2026-08-09", { date: "Lundi 10 août", w: 5, to: "2026-08-10" }],
+    ["2026-08-10", { date: "Mardi 11 août", w: 5, to: "2026-08-11" }],
+    ["2026-08-11", { date: "Mercredi 12 août", w: 5, to: "2026-08-12" }]
+  ]);
+  finalPosts.forEach((post) => {
+    if (post.id === BROWN_BULLHEAD_REPORT_POST.id || post.archivedEditorial || post.doNotShiftForBrownBullhead || post.calendarPriority === "donation-cadence") return;
+    const from = planDateIsoFromLabel(post.date);
+    const placement = shiftedForBrownBullhead.get(from);
+    if (!placement) return;
+    const reason = "Créneau décalé d’une journée pour intégrer l’appel au signalement de la barbotte demandé par la direction, sans retirer la publication déjà prévue.";
+    const history = Array.isArray(post.rescheduleHistory) ? [...post.rescheduleHistory] : [];
+    if (!history.some((entry) => entry?.from === from && entry?.to === placement.to && entry?.reason === reason)) {
+      history.push({ from, to: placement.to, reason });
+    }
+    Object.assign(post, {
+      date: placement.date,
+      w: placement.w,
+      rescheduledFrom: from,
+      rescheduledReason: reason,
+      displacedBy: BROWN_BULLHEAD_REPORT_POST.id,
+      rescheduleHistory: history
+    });
+  });
   const reprogrammed = {
     "alt-20260722": { w: 6, date: "Dimanche 23 août", rescheduledFrom: "2026-07-22", rescheduledReason: "Bonne idée conservée et déplacée pour réserver le mercredi 22 juillet à l’appel Zeffy; la publication de prévention garde son texte, ses commentaires, ses médias et ses validations existants.", displacedBy: "don-20260729-appel-soutien", role: "Bonne idée interactive conservée et reprogrammée : rappeler avec chaleur que l’absence de débris visibles ne remplace pas le lavage, la vidange et le séchage recommandés." },
     "alt-20260721": { w: 7, date: "Lundi 24 août", role: "Bonne idée conservée et reprogrammée après arbitrage; capsule nature à produire avec une photographie réelle correctement identifiée." },
