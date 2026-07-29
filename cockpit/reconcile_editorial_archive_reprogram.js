@@ -17,6 +17,16 @@ const actorLabel = String(actor.displayLabel || "Direction des communications").
 
 const operations = [
   {
+    eventId: "alt-20260804",
+    taskId: "editorial-alt-20260804",
+    archiveId: "editorial-archive-alt-20260804-20260729",
+    expectedDecision: "rejected",
+    nextDecision: "rejected",
+    targetLabel: "Archive éditoriale · Une halte aux chutes de Massawippi, vers 1865",
+    action: "angle éditorial rejeté classé sans suppression",
+    completionReason: "Angle écarté par la direction et conservé dans les archives éditoriales; aucune publication ne sera programmée sans nouvelle discussion."
+  },
+  {
     eventId: "alt-20260810",
     taskId: "editorial-alt-20260810",
     archiveId: "editorial-archive-alt-20260810-20260729",

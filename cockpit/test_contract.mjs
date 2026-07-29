@@ -49,7 +49,7 @@ for (const post of posts) {
 }
 assert.deepEqual(
   Object.fromEntries(posts.filter((post) => post.archivedEditorial === true).map((post) => [post.id, post.dateIso])),
-  { s1d1b: "2026-07-13", s2d3: "2026-07-22", s2d6: "2026-07-26", s3d1b: "2026-07-27", "alt-20260810": "2026-08-10" },
+  { s1d1b: "2026-07-13", s2d3: "2026-07-22", s2d6: "2026-07-26", s3d1b: "2026-07-27", "alt-20260804": "2026-08-04", "alt-20260810": "2026-08-10" },
   "Les archives éditoriales doivent conserver leur date d’origine pour rester modifiables sous les règles Firestore."
 );
 for (const post of activePosts.filter((post) => post.dateIso >= "2026-07-22")) {
@@ -169,6 +169,11 @@ assert.equal(rejectedNorthHatley.date, "Archive éditoriale");
 assert.equal(rejectedNorthHatley.archivedEditorial, true);
 assert.equal(rejectedNorthHatley.archived, true);
 assert.equal(activePosts.some((post) => post.id === rejectedNorthHatley.id), false, "Un angle écarté doit rester archivé sans revenir dans le calendrier actif.");
+const rejectedMassawippiFalls = posts.find((post) => post.id === "alt-20260804");
+assert.equal(rejectedMassawippiFalls.date, "Archive éditoriale");
+assert.equal(rejectedMassawippiFalls.archivedEditorial, true);
+assert.equal(rejectedMassawippiFalls.archived, true);
+assert.equal(activePosts.some((post) => post.id === rejectedMassawippiFalls.id), false, "Tous les angles écartés doivent quitter le calendrier actif sans être supprimés.");
 const bullheadPost = posts.find((post) => post.id === "barbotte-20260730-signalement");
 assert.ok(bullheadPost, "Le signalement de la barbotte demandé par la direction doit devenir une publication complète.");
 assert.equal(bullheadPost.dateIso, "2026-07-30");
@@ -219,7 +224,8 @@ const lexiconPost = posts.find((post) => post.id === "lexique-20260830-tributair
 assert.match(lexiconPost.copy, /cours d’eau qui en rejoint un autre/i);
 const firstFourWeeks = Object.groupBy(posts.filter((post) => post.w <= 4), (post) => post.date);
 assert.equal(Object.keys(firstFourWeeks).length, 28);
-assert.equal(Object.values(firstFourWeeks).filter((items) => items.length >= 2).length, 7);
+assert.equal(Object.values(firstFourWeeks).filter((items) => items.length >= 2).length, 6,
+  "L’archivage de l’angle des chutes de Massawippi retire proprement une paire du calendrier actif.");
 assert.ok(firstFourWeeks["Mercredi 22 juillet"].some((post) => post.id === donationAppeal.id));
 assert.ok(firstFourWeeks["Vendredi 7 août"].some((post) => post.id === donationThanks.id));
 const deferredBoatWash = posts.find((post) => post.id === "s4d1");
