@@ -1036,6 +1036,35 @@ They reflect the work of people who observe, return to the same sites and take t
 #BehindTheScenes #BleuMassawippi #LakeMassawippi #LakeScience
 ```
 
+## Archive éditoriale — Une halte aux chutes de Massawippi, vers 1865
+
+**Thème :** Patrimoine
+**Format :** Photographie historique documentée · publication bilingue
+**Objectif :** Relier la mémoire industrielle de la rivière à l’histoire du bassin versant sans confondre la rivière et le lac. Angle écarté par la direction le 29 juillet 2026; conservé dans les archives éditoriales sans suppression.
+**CTA :** Découvrir un autre visage du bassin
+**Visuel final :** Photographie historique complète des chutes et du moulin, posée sur fond d’archive; petite ligne cartographique situant « rivière Massawippi » et date « vers 1865 », sans altérer ni coloriser la scène; crédit lisible.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Domaine public · vers 1865 · Musée McCord Stewart, Archives photographiques Notman, cote MP-1982.157 / Wikimedia Commons · https://commons.wikimedia.org/wiki/File:Chute_de_Massawippi_et_moulin_a_scie_1865.jpg
+**Préparation :** Vérifier la légende, le crédit, la licence et les limites historiques avant de préparer l’image et les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Cette photographie nous emmène aux chutes de la rivière Massawippi vers 1865, auprès d’un moulin à scie et des personnes qui vivaient ou travaillaient dans ce paysage.
+
+Nous sommes ici sur la rivière Massawippi, et non au bord du lac : un autre visage du même bassin versant, où l’eau, le travail et les déplacements ont longtemps façonné la vie locale.
+
+#Patrimoine #BleuMassawippi #RivièreMassawippi #HistoireLocale
+
+=========================================
+
+EN — This photograph takes us to the falls of the Massawippi River around 1865, near a sawmill and the people who lived or worked in this landscape.
+
+This is the Massawippi River rather than the lakeshore: another face of the same watershed, where water, work and travel long shaped local life.
+
+#Heritage #BleuMassawippi #MassawippiRiver #LocalHistory
+```
+
 ## Mercredi 5 août — Le terrain nous aide à décider juste
 
 **Thème :** Coulisses
@@ -1067,35 +1096,6 @@ This patient work helps Bleu Massawippi understand the lake and make sound decis
 Learn more or support our work: https://bleumassawippi.com/home-1
 
 #BehindTheScenes #BleuMassawippi #LakeMassawippi #SupportTheLake
-```
-
-## Mercredi 5 août — Une halte aux chutes de Massawippi, vers 1865
-
-**Thème :** Patrimoine
-**Format :** Photographie historique documentée · publication bilingue
-**Objectif :** Relier la mémoire industrielle de la rivière à l’histoire du bassin versant sans confondre la rivière et le lac.
-**CTA :** Découvrir un autre visage du bassin
-**Visuel final :** Photographie historique complète des chutes et du moulin, posée sur fond d’archive; petite ligne cartographique situant « rivière Massawippi » et date « vers 1865 », sans altérer ni coloriser la scène; crédit lisible.
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Domaine public · vers 1865 · Musée McCord Stewart, Archives photographiques Notman, cote MP-1982.157 / Wikimedia Commons · https://commons.wikimedia.org/wiki/File:Chute_de_Massawippi_et_moulin_a_scie_1865.jpg
-**Préparation :** Vérifier la légende, le crédit, la licence et les limites historiques avant de préparer l’image et les deux validations.
-
-### Légende prête à programmer
-
-```text
-FR — Cette photographie nous emmène aux chutes de la rivière Massawippi vers 1865, auprès d’un moulin à scie et des personnes qui vivaient ou travaillaient dans ce paysage.
-
-Nous sommes ici sur la rivière Massawippi, et non au bord du lac : un autre visage du même bassin versant, où l’eau, le travail et les déplacements ont longtemps façonné la vie locale.
-
-#Patrimoine #BleuMassawippi #RivièreMassawippi #HistoireLocale
-
-=========================================
-
-EN — This photograph takes us to the falls of the Massawippi River around 1865, near a sawmill and the people who lived or worked in this landscape.
-
-This is the Massawippi River rather than the lakeshore: another face of the same watershed, where water, work and travel long shaped local life.
-
-#Heritage #BleuMassawippi #MassawippiRiver #LocalHistory
 ```
 
 ## Jeudi 6 août — Ici, l’eau prend son temps

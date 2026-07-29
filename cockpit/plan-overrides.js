@@ -9,6 +9,7 @@ const ARCHIVED_DATE_ISO = new Map([
   ["s2d3", "2026-07-22"],
   ["s2d6", "2026-07-26"],
   ["s3d1b", "2026-07-27"],
+  ["alt-20260804", "2026-08-04"],
   ["alt-20260810", "2026-08-10"]
 ]);
 const PLAN_MONTHS = new Map([
@@ -738,16 +739,19 @@ export function applyPlanOverridesToPosts(posts) {
     const post = finalPosts.find((item) => item.id === id);
     if (post) Object.assign(post, placement);
   });
-  const rejectedNorthHatley = finalPosts.find((item) => item.id === "alt-20260810");
-  if (rejectedNorthHatley) Object.assign(rejectedNorthHatley, {
-    w: 98,
-    date: "Archive éditoriale",
-    archivedEditorial: true,
-    archived: true,
-    choiceRequired: false,
-    optionGroup: null,
-    optionLabel: null,
-    role: `${rejectedNorthHatley.role || ""} Angle écarté par la direction le 29 juillet 2026; conservé dans les archives éditoriales sans suppression.`.trim()
+  ["alt-20260804", "alt-20260810"].forEach((id) => {
+    const rejected = finalPosts.find((item) => item.id === id);
+    if (!rejected) return;
+    Object.assign(rejected, {
+      w: 98,
+      date: "Archive éditoriale",
+      archivedEditorial: true,
+      archived: true,
+      choiceRequired: false,
+      optionGroup: null,
+      optionLabel: null,
+      role: `${rejected.role || ""} Angle écarté par la direction le 29 juillet 2026; conservé dans les archives éditoriales sans suppression.`.trim()
+    });
   });
   ["s1d3b", "alt-20260715", "s1d5", "s1d6", "s1d4", "s1d2", "s2d1b", "s1d7", "s2d1", "s2d2", "alt-20260722", "s2d4", "s2d5", "s2d7", "alt-20260726", "s3d1", "s3d2", "s3d4", "s3d3", "s3d7", "s4d1", "s4d1b", "alt-20260729", "alt-20260802", "lexique-20260830-tributaire", "don-20260729-appel-soutien", "don-20260807-merci-bilan", "poesie-20260727-appel-aux-voix"].forEach((id) => {
     const post = finalPosts.find((item) => item.id === id);
