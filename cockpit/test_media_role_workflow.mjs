@@ -64,9 +64,23 @@ assert.match(ui, /Validé par override motivé/);
 assert.doesNotMatch(ui, /Validé avec aval/,
   "Le libellé générique ne doit pas inventer un aval externe non structuré.");
 assert.match(ui, /cockpit-media-image-choice/, "Le choix média doit aussi être accessible directement sur l’image.");
+assert.match(ui, /myChoiceSelected \? "Retirer mon choix" : "Choisir ce visuel"/,
+  "Les communications doivent pouvoir retirer puis reprendre leur propre choix média.");
+assert.match(ui, /const selected = mediaDecisionButton\.getAttribute\("aria-pressed"\) !== "true"/,
+  "Le même contrôle média doit alterner choix et retrait sans suppression d’historique.");
 assert.match(ui, /details class="cockpit-media-info" open/, "Les actions média doivent être ouvertes par défaut.");
 assert.match(mediaUi, /synchronizeMediaInfoPanels/, "Les panneaux média d’un même événement doivent rester synchronisés.");
 assert.match(ui, /state\.profile\?\.role === "admin"\)/, "La porte Terminer doit être autorisée seulement aux communications.");
+assert.match(ui, /configureGate\(contentGate, contentDone, true, "content_approved", "content_review", "Texte"/,
+  "Le feu texte doit pouvoir être coché puis décoché vers la révision.");
+assert.match(ui, /configureGate\(publicationGate, publicationDone, publicationReady, "published", "final_approved", "Terminé", state\.profile\?\.role === "admin"\)/,
+  "Les communications doivent pouvoir terminer puis rouvrir une publication.");
+assert.match(ui, /"media_in_progress","media_review","media_changes_requested"/,
+  "Le feu texte doit rester vert pendant toutes les étapes média postérieures à son approbation.");
+assert.match(client, /workflowStage === "final_approved"[\s\S]{0,90}nextWorkflowStage = "media_review"/,
+  "Retirer un accord média final doit rouvrir l’étape visuelle.");
+assert.match(client, /\["scheduled", "published"\]\.includes\(workflowStage\)[\s\S]{0,220}profile\.role !== "admin"[\s\S]{0,220}nextWorkflowStage = "media_changes_requested"/,
+  "Les communications doivent pouvoir rouvrir un visuel après programmation tout en conservant l’historique.");
 assert.doesNotMatch(ui, /data-select-final-media=/, "Le contrôle global hérité ne doit plus être rendu par le nouveau client.");
 assert.match(ui, /Votre session demeure connectée/);
 assert.doesNotMatch(ui.slice(ui.indexOf("observeAuth")), /applyProfile\(profile\)[\s\S]{0,300}logOut\(/, "Une panne de données après authentification ne doit pas fermer la session.");
@@ -83,6 +97,8 @@ assert.doesNotMatch(rules, /request\.resource\.data\.direction\.status != 'selec
   "La règle doit accepter une préférence direction avant la porte texte.");
 assert.match(rules, /publicationBlocked[\s\S]*?== false/);
 assert.match(rules, /request\.resource\.data\.stage in \['scheduled', 'published'\][\s\S]*?isAdmin\(\)/, "Terminer doit être réservé aux communications dans les règles.");
+assert.match(rules, /allow update: if isEditor\(\)[\s\S]{0,420}\(isAdmin\(\)[\s\S]{0,240}resource\.data\.stage in \['scheduled', 'published'\]/,
+  "Les règles doivent autoriser les communications à rouvrir un événement terminé.");
 assert.match(rules, /function validMediaDecision\(data\)[\s\S]*validMediaAgreement\(data\)[\s\S]*mediaWorkflowMatchesAgreement\(data\)/,
   "Toute décision média doit imposer le même état dérivé dans workflowStates au sein de la mutation atomique.");
 assert.match(rules, /match \/mediaDecisions\/\{eventId\}[\s\S]*allow update: if isEditor\(\)[\s\S]*validMediaDecisionEnvelope\(request\.resource\.data\)[\s\S]*mediaWorkflowMatchesAgreement\(request\.resource\.data\)/,

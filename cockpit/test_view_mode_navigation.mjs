@@ -627,6 +627,14 @@ assert.equal(pastCard.querySelector("details.cockpit-media").hasAttribute("open"
 assert.equal(pastCard.dataset.testFocused, "true");
 assert.match(document.querySelector("#cockpit-announcer").textContent, /Élément ouvert : Publication passée/i);
 
+// Une vue essentielle ou un ancien cache PWA peut rendre la carte sans le
+// bouton du passé. La navigation doit rester fonctionnelle et ne jamais tenter
+// d'appeler click() sur un contrôle absent.
+const pastToggle = document.querySelector("#past-toggle");
+pastToggle.remove();
+assert.equal(await viewMode.navigateToEntity({ type: "schedule", id: "past" }), true);
+document.querySelector("#calendrier").insertBefore(pastToggle, document.querySelector("#posts"));
+
 // Une carte virtuellement masquée est révélée sans retirer son statut métier.
 assert.equal(await viewMode.navigateToEntity({ type: "schedule", id: "future-2", mediaId: "media-future-2" }), true);
 const hiddenCard = document.querySelector('[data-item-id="future-2"]');
