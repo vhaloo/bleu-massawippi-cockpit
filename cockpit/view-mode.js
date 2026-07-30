@@ -7,7 +7,7 @@
  * intact.
  */
 
-import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260729-b45";
+import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260730-b46";
 
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
@@ -503,7 +503,7 @@ function ensureStylesheet() {
   if (document.querySelector(`link[data-module="${MODULE_ID}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = new URL("./view-mode.css?v=20260729-b45", import.meta.url).href;
+  link.href = new URL("./view-mode.css?v=20260730-b46", import.meta.url).href;
   link.dataset.module = MODULE_ID;
   document.head.appendChild(link);
 }
@@ -896,7 +896,10 @@ function prepareCalendarTarget(id) {
   const eventDate = inferDate(item?.dateIso || item?.date || "");
   if (eventDate && dayStart(eventDate) < dayStart(new Date())) {
     const pastToggle = document.querySelector("#past-toggle");
-    if (pastToggle?.dataset.active !== "true") pastToggle.click();
+    // Certaines vues essentielles et certains anciens caches PWA n'exposent
+    // pas le contrôle du passé. Son absence ne doit jamais interrompre
+    // l'ouverture d'une carte qui est déjà rendue dans le DOM.
+    if (pastToggle && pastToggle.dataset.active !== "true") pastToggle.click();
   }
 }
 

@@ -210,12 +210,16 @@ assert.equal(rejectedMassawippiFalls.archived, true);
 assert.equal(activePosts.some((post) => post.id === rejectedMassawippiFalls.id), false, "Tous les angles écartés doivent quitter le calendrier actif sans être supprimés.");
 const bullheadPost = posts.find((post) => post.id === "barbotte-20260730-signalement");
 assert.ok(bullheadPost, "Le signalement de la barbotte demandé par la direction doit devenir une publication complète.");
-assert.equal(bullheadPost.dateIso, "2026-07-30");
+assert.equal(bullheadPost.dateIso, "2026-08-06", "La barbote non validée doit être reportée d’au moins une semaine sans quitter le calendrier.");
 assert.match(bullheadPost.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
 assert.match(bullheadPost.copy, /date[\s\S]*secteur[\s\S]*photo[\s\S]*info@bleumassawippi\.com/i);
 assert.doesNotMatch(bullheadPost.copy, /cancer|maladie|lésion|tumeur|disease|lesion|tumou?r/i,
   "L’appel doit s’en tenir au signalement du poisson, sans angle sanitaire inventé.");
 assert.ok(bullheadPost.copy.length <= 2200);
+const approvedCommunityChoice = posts.find((post) => post.id === "s4d7");
+assert.equal(approvedCommunityChoice.dateIso, "2026-07-30", "Le post entièrement approuvé par les deux rôles doit remplacer la barbote aujourd’hui.");
+assert.deepEqual(activePosts.filter((post) => post.dateIso === "2026-07-30").map((post) => post.id), [approvedCommunityChoice.id]);
+assert.deepEqual(activePosts.filter((post) => post.dateIso === "2026-08-06").map((post) => post.id), [bullheadPost.id]);
 const poetryReminder = posts.find((post) => post.id === "poesie-20260803-rappel-candidatures");
 assert.ok(poetryReminder, "Le rappel Au bord du bleu doit rester planifié.");
 assert.equal(poetryReminder.dateIso, "2026-08-03");
@@ -254,6 +258,16 @@ assert.match(fiveHabitsPost.copy, /5 —/);
 const boardPortrait = posts.find((post) => post.id === "s1d3");
 assert.match(boardPortrait.title, /Pourquoi nous nous impliquons/i);
 assert.ok(boardPortrait.tasksAnnie.length >= 4);
+const denisTemporaryMedia = editorialMedia.find((media) => media.id === "editorial-s1d3-denis-temporaire-photo-citation-v1");
+assert.ok(denisTemporaryMedia, "La proposition temporaire de Denis doit être reliée au portrait du conseil.");
+assert.match(denisTemporaryMedia.fileName, /denis-petitclerc-temporaire/i,
+  "Le caractère temporaire doit être visible dans le nom du fichier, jamais ajouté à l’image.");
+assert.match(denisTemporaryMedia.label, /temporaire/i,
+  "Le caractère temporaire doit être visible dans le cockpit.");
+assert.equal(denisTemporaryMedia.publicationBlocked, true,
+  "La photographie temporaire ne doit pas pouvoir être choisie avant consentement et confirmation des droits.");
+assert.match(denisTemporaryMedia.note, /citation publique authentique[\s\S]*consentement explicite/i);
+assert.match(denisTemporaryMedia.previewUrl, /\/media-previews\/2026-09-08\/denis-petitclerc-temporaire-photo-argentique-citation-v1-preview\.webp$/);
 const lexiconPost = posts.find((post) => post.id === "lexique-20260830-tributaire");
 assert.match(lexiconPost.copy, /cours d’eau qui en rejoint un autre/i);
 const firstFourWeeks = Object.groupBy(posts.filter((post) => post.w <= 4), (post) => post.date);

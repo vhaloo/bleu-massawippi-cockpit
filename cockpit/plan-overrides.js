@@ -595,14 +595,14 @@ Want to keep playing? More than 500 bilingual questions await: https://bleumassa
 
 const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["s3d1", 3, "Mercredi 29 juillet", "2026-07-29"],
-  ["barbotte-20260730-signalement", 3, "Jeudi 30 juillet", "2026-07-30"],
+  ["s4d7", 3, "Jeudi 30 juillet", "2026-07-30"],
   ["s3d3", 3, "Vendredi 31 juillet", "2026-07-31"],
   ["alt-20260722", 3, "Samedi 1er août", "2026-08-01"],
   ["s3d5", 3, "Dimanche 2 août", "2026-08-02"],
   ["poesie-20260803-rappel-candidatures", 4, "Lundi 3 août", "2026-08-03"],
   ["alt-20260731", 4, "Mardi 4 août", "2026-08-04"],
   ["alt-20260801", 4, "Mercredi 5 août", "2026-08-05"],
-  ["s4d7", 4, "Jeudi 6 août", "2026-08-06"],
+  ["barbotte-20260730-signalement", 4, "Jeudi 6 août", "2026-08-06"],
   ["don-20260807-merci-bilan", 4, "Vendredi 7 août", "2026-08-07"],
   ["s1d2", 4, "Samedi 8 août", "2026-08-08"],
   ["s4d5", 4, "Dimanche 9 août", "2026-08-09"],

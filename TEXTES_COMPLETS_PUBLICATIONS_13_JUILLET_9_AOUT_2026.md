@@ -723,45 +723,45 @@ Thank you for taking an interest in this work.
 #LakeHealth #BleuMassawippi #LakeMassawippi #Tributaries #LakeScience
 ```
 
-## Jeudi 30 juillet — Avez-vous vu une barbotte dans le lac Massawippi?
+## Jeudi 30 juillet — À vous de choisir la suite
 
-**Thème :** Communauté
-**Format :** Affiche naturaliste bilingue 4:5 · appel au signalement
-**Objectif :** Inviter simplement les personnes qui fréquentent le lac à partager une observation de barbotte brune afin de mieux documenter sa présence.
-**CTA :** Partager une observation
-**Visuel final :** Affiche naturaliste chaleureuse sur papier ivoire, fondée sur une illustration fidèle de barbotte brune du domaine public; question manuscrite bilingue et trois repères très lisibles : date, secteur, photo.
+**Thème :** Humour
+**Format :** Récapitulatif graphique + question au public
+**Objectif :** Clore le cycle et transformer le mois en apprentissage concret.
+**CTA :** Voter A, B, C ou D
+**Visuel final :** Mosaïque récapitulative de quatre vignettes reconnaissables — science, nature, quiz, terrain — avec lettres A à D; visages ou commentaires seulement si autorisés.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Gouvernement du Québec — Barbotte brune (Ameiurus nebulosus) : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/animaux-sauvages-quebec/fiches-especes-fauniques/barbotte-brune · illustration de Duane Raver, U.S. Fish and Wildlife Service, domaine public : https://commons.wikimedia.org/wiki/File:Brown_bullhead_fish_ameiurus_nebulosus.jpg
-**Préparation :** Vérifier les coordonnées de réception, publier l’appel bilingue après validation et consigner chaque observation sans diffuser d’adresse privée ni de renseignement personnel.
+**Source de référence :** Résultats du mois dans Meta Business Suite — lecture interne
+**Préparation :** Après publication, comparer portée, enregistrements, commentaires utiles et clics sans publier de donnée interne non contextualisée.
 
 ### Légende prête à programmer
 
 ```text
-FR — Avez-vous déjà vu ou capturé une barbotte brune dans le lac Massawippi?
+FR — Pendant quatre semaines, nous avons parlé du Massawippi par la science, la nature, les gestes du quotidien et vos commentaires. Merci d’avoir fait vivre la conversation avec nous.
 
-Nous aimerions mieux documenter sa présence dans le lac. Si vous en observez une au cours d’une sortie ou d’une prise, écrivez-nous à info@bleumassawippi.com en indiquant, si possible :
+Qu’aimeriez-vous revoir bientôt?
+A — Une capsule science
+B — Un zoom nature
+C — Un quiz
+D — Des coulisses terrain
 
-• la date;
-• le secteur approximatif du lac;
-• une photo.
+Répondez A, B, C ou D. Votre choix nous aidera à préparer la suite.
 
-Une courte note suffit. Merci de nous aider à rassembler ces observations autour du Massawippi.
-
-#BleuMassawippi #LacMassawippi #BarbotteBrune #ObservationCitoyenne
+#BleuMassawippi #LacMassawippi #Communauté #ÀVousDeChoisir
 
 =========================================
 
-EN — Have you ever seen or caught a brown bullhead in Lake Massawippi?
+EN — For four weeks, we have explored Massawippi through science, nature, everyday actions and your comments. Thank you for keeping the conversation going with us.
 
-We would like to better document its presence in the lake. If you see one during an outing or catch, please write to info@bleumassawippi.com and include, if possible:
+What would you like to see again soon?
+A — A science feature
+B — A nature zoom
+C — A quiz
+D — Fieldwork behind the scenes
 
-• the date;
-• the approximate area of the lake;
-• a photo.
+Reply A, B, C or D. Your choice will help us plan what comes next.
 
-A short note is all it takes. Thank you for helping us gather observations from around Massawippi.
-
-#BleuMassawippi #LakeMassawippi #BrownBullhead #CommunityObservation
+#BleuMassawippi #LakeMassawippi #Community #YourChoice
 ```
 
 ## Vendredi 31 juillet — Ma préférée… et la vôtre?
@@ -1007,45 +1007,45 @@ Historical credit: Associated Screen News Limited, BAnQ collection.
 #Heritage #BleuMassawippi #NorthHatley #LocalMemory
 ```
 
-## Jeudi 6 août — À vous de choisir la suite
+## Jeudi 6 août — Avez-vous vu une barbotte dans le lac Massawippi?
 
-**Thème :** Humour
-**Format :** Récapitulatif graphique + question au public
-**Objectif :** Clore le cycle et transformer le mois en apprentissage concret.
-**CTA :** Voter A, B, C ou D
-**Visuel final :** Mosaïque récapitulative de quatre vignettes reconnaissables — science, nature, quiz, terrain — avec lettres A à D; visages ou commentaires seulement si autorisés.
+**Thème :** Communauté
+**Format :** Affiche naturaliste bilingue 4:5 · appel au signalement
+**Objectif :** Inviter simplement les personnes qui fréquentent le lac à partager une observation de barbotte brune afin de mieux documenter sa présence.
+**CTA :** Partager une observation
+**Visuel final :** Affiche naturaliste chaleureuse sur papier ivoire, fondée sur une illustration fidèle de barbotte brune du domaine public; question manuscrite bilingue et trois repères très lisibles : date, secteur, photo.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Résultats du mois dans Meta Business Suite — lecture interne
-**Préparation :** Après publication, comparer portée, enregistrements, commentaires utiles et clics sans publier de donnée interne non contextualisée.
+**Source de référence :** Gouvernement du Québec — Barbotte brune (Ameiurus nebulosus) : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/animaux-sauvages-quebec/fiches-especes-fauniques/barbotte-brune · illustration de Duane Raver, U.S. Fish and Wildlife Service, domaine public : https://commons.wikimedia.org/wiki/File:Brown_bullhead_fish_ameiurus_nebulosus.jpg
+**Préparation :** Vérifier les coordonnées de réception, publier l’appel bilingue après validation et consigner chaque observation sans diffuser d’adresse privée ni de renseignement personnel.
 
 ### Légende prête à programmer
 
 ```text
-FR — Pendant quatre semaines, nous avons parlé du Massawippi par la science, la nature, les gestes du quotidien et vos commentaires. Merci d’avoir fait vivre la conversation avec nous.
+FR — Avez-vous déjà vu ou capturé une barbotte brune dans le lac Massawippi?
 
-Qu’aimeriez-vous revoir bientôt?
-A — Une capsule science
-B — Un zoom nature
-C — Un quiz
-D — Des coulisses terrain
+Nous aimerions mieux documenter sa présence dans le lac. Si vous en observez une au cours d’une sortie ou d’une prise, écrivez-nous à info@bleumassawippi.com en indiquant, si possible :
 
-Répondez A, B, C ou D. Votre choix nous aidera à préparer la suite.
+• la date;
+• le secteur approximatif du lac;
+• une photo.
 
-#BleuMassawippi #LacMassawippi #Communauté #ÀVousDeChoisir
+Une courte note suffit. Merci de nous aider à rassembler ces observations autour du Massawippi.
+
+#BleuMassawippi #LacMassawippi #BarbotteBrune #ObservationCitoyenne
 
 =========================================
 
-EN — For four weeks, we have explored Massawippi through science, nature, everyday actions and your comments. Thank you for keeping the conversation going with us.
+EN — Have you ever seen or caught a brown bullhead in Lake Massawippi?
 
-What would you like to see again soon?
-A — A science feature
-B — A nature zoom
-C — A quiz
-D — Fieldwork behind the scenes
+We would like to better document its presence in the lake. If you see one during an outing or catch, please write to info@bleumassawippi.com and include, if possible:
 
-Reply A, B, C or D. Your choice will help us plan what comes next.
+• the date;
+• the approximate area of the lake;
+• a photo.
 
-#BleuMassawippi #LakeMassawippi #Community #YourChoice
+A short note is all it takes. Thank you for helping us gather observations from around Massawippi.
+
+#BleuMassawippi #LakeMassawippi #BrownBullhead #CommunityObservation
 ```
 
 ## Vendredi 7 août — Merci de faire grandir l’élan autour du lac

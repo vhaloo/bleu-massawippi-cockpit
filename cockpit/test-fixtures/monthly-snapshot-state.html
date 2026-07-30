@@ -15,8 +15,8 @@
   <script type="module">
     const query = new URLSearchParams(location.search);
     document.documentElement.dataset.theme = query.get("theme") === "dark" ? "dark" : "light";
-    await import("../theme.js?v=20260729-b45");
-    await import("../cockpit-ui.js?v=20260729-b45");
+    await import("../theme.js?v=20260730-b46");
+    await import("../cockpit-ui.js?v=20260730-b46");
     document.documentElement.dataset.theme = query.get("theme") === "dark" ? "dark" : "light";
     document.body.classList.remove("cockpit-locked", "cockpit-readonly");
     document.querySelector("#cockpit-login")?.remove();
