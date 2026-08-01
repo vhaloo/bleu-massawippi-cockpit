@@ -31,6 +31,8 @@ for (const file of ["seed_editorial_media_links.js", "seed_historical_media_link
   assert.match(source, /created \+ updated > 0/);
   assert.match(source, /unchanged/);
 }
+assert.match(read("seed_historical_media_links.js"), /--event=/,
+  "La banque historique doit pouvoir être synchronisée par événement afin d’éviter une relecture globale.");
 
 assert.match(read("seed_private_content.js"), /contentChanged/);
 assert.match(read("seed_private_content.js"), /if \(writeOperations > 0\) await batch\.commit\(\)/);
