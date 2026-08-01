@@ -974,16 +974,16 @@ This is the Massawippi River rather than the lakeshore: another face of the same
 #Heritage #BleuMassawippi #MassawippiRiver #LocalHistory
 ```
 
-## Mercredi 5 août — North Hatley vu d’en haut, hier et aujourd’hui
+## Mercredi 5 août — North Hatley vu d’en haut : hier et aujourd’hui
 
 **Thème :** Patrimoine
-**Format :** Carrousel 2 photos réelles · vue historique puis vue drone de 2024
+**Format :** Carrousel recommandé · vue historique puis vue drone de 2024
 **Objectif :** Inviter la communauté à lire l’évolution du territoire à partir d’une vue aérienne ancienne correctement datée dans une fourchette.
 **CTA :** Comparer deux époques
-**Visuel final :** Carrousel de deux photographies complètes, sans recadrage trompeur : vue aérienne historique entre 1930 et 1950, puis photo drone interne du 15 août 2024; une courte note manuscrite « Hier · Aujourd’hui » et la mention visible « points de vue différents ».
+**Visuel final :** Carrousel recommandé de deux photographies complètes de North Hatley, sans recadrage trompeur : 1/2, vue aérienne BAnQ entre 1930 et 1950; 2/2, photo drone interne du 15 août 2024. Ajouter seulement « Hier · Aujourd’hui » et « points de vue différents ». Ne pas mêler la carte postale d’Ayer’s Cliff à ce carrousel.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
 **Source de référence :** Vue historique : Associated Screen News Limited, collection BAnQ, domaine public, entre 1930 et 1950. Vue actuelle : archive interne Bleu Massawippi, DJI_0243.JPG, 15 août 2024; autorisation de diffusion à confirmer avant publication.
-**Préparation :** Conserver les deux images complètes, créditer la vue historique, confirmer les droits de la photo drone et préciser que les points de vue ne sont pas identiques; ne tirer aucune conclusion écologique de la comparaison seule.
+**Préparation :** Le choix proposé est précisément le duo North Hatley : la vue BAnQ entre 1930 et 1950, puis la photo drone interne du 15 août 2024. Confirmer les droits de la photo 2024 avant de choisir le carrousel. Les images d’Ayer’s Cliff restent réservées à une publication distincte.
 
 ### Légende prête à programmer
 
@@ -1208,30 +1208,30 @@ Share your perspective in the comments. Calm water, a changing sky, family time 
 ## Mardi 11 août — Avant la prochaine mise à l’eau, le rituel complet
 
 **Thème :** Créatif
-**Format :** Mini-BD avant / après · remorque et embarcation
+**Format :** Photographie réelle de la station · mini-BD de repli si les droits ne sont pas confirmés
 **Objectif :** Publication de prévention conservée et espacée de plus de cinq semaines après le rappel du 14 juillet; présenter le rituel complet avant un changement de plan d’eau sans répéter la publication déjà programmée.
 **CTA :** Garder le rituel en tête
-**Visuel final :** Mini-BD 4:5 en deux scènes très lisibles et chaleureuses : « avant », remorque et embarcation avec boue et fragments végétaux crédibles; « après », débris retirés, eau vidée, lavage effectué et séchage amorcé. Titre manuscrit blanc « Le rituel complet »; aucun organisme inventé ni ton réprobateur.
+**Visuel final :** Premier choix : photographie interne réelle de la station de lavage actuelle, sans personne identifiable tant que le consentement n’est pas confirmé, avec un court titre manuscrit bilingue. Repli : mini-BD 4:5 avant/après, claire et chaleureuse, sans organisme inventé ni ton réprobateur.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
 **Source de référence :** Gouvernement du Québec — nettoyage des embarcations et prévention des espèces aquatiques exotiques envahissantes : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
-**Préparation :** Produire une mini-BD avant/après parfaitement lisible sur mobile : avant, remorque et embarcation avec boue et fragments végétaux visibles; après, débris retirés, eau vidée, équipement nettoyé puis laissé à sécher. Ne pas représenter ni nommer une espèce précise sans référence visuelle validée.
+**Préparation :** Privilégier la photographie réelle de la station actuelle après confirmation du crédit et du consentement. À défaut, conserver la mini-BD avant/après. Le rappel consacré aux kayaks, planches à pagaie et petits équipements demeure prévu séparément au 3 septembre.
 
 ### Légende prête à programmer
 
 ```text
 FR — Une sortie sur l’eau commence bien avant la mise à l’eau. Quand une embarcation change de plan d’eau, prenons le temps de retirer les débris visibles, vider l’eau retenue, nettoyer l’embarcation, la remorque et l’équipement, puis laisser sécher selon les recommandations officielles.
 
-Ces gestes forment un seul rituel, simple à garder en tête et utile d’un lac à l’autre. Ensuite, toute la place revient au plaisir d’être sur l’eau.
+Ce rituel vaut aussi pour les kayaks, les planches à pagaie, les pagaies, les cordages et les autres équipements qui touchent l’eau. Ensuite, toute la place revient au plaisir d’être sur le lac.
 
-#MiniBD #BleuMassawippi #Prévention #NautismeResponsable #LacMassawippi
+#BleuMassawippi #Prévention #NautismeResponsable #LacMassawippi
 
 =========================================
 
 EN — A day on the water begins well before launch. When a boat moves between bodies of water, take time to remove visible debris, drain retained water, clean the boat, trailer and equipment, then let everything dry according to official guidance.
 
-Together, these actions form one simple routine worth remembering from one lake to the next. Then all the attention can return to enjoying the water.
+The same routine applies to kayaks, paddleboards, paddles, ropes and other equipment that touches the water. Then all the attention can return to enjoying the lake.
 
-#MiniComic #BleuMassawippi #Prevention #ResponsibleBoating #LakeMassawippi
+#BleuMassawippi #Prevention #ResponsibleBoating #LakeMassawippi
 ```
 
 ## Mercredi 12 août — Après la pluie, vos observations comptent

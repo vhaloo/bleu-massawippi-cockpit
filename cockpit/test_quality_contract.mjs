@@ -207,8 +207,10 @@ critical("EDIT-001", "Le protocole cyanobactéries n’invente plus une cadence"
   /Il ne prescrit ni sept sites ni deux visites par jour/.test(files.source)
     && !/L’ancien protocole volontaire demandait sept sites deux fois par jour/.test(files.source)
     && /Gestion%20cyanobact%C3%A9rie\.docx\?web=1/.test(files.source)
-    && /cogesaf\.qc\.ca\/sentinelle-des-lacs/.test(files.source),
-  "La fiche doit distinguer le protocole source, le guide terrain et la cadence encore à décider.");
+    && /cogesaf\.qc\.ca\/sentinelle-des-lacs/.test(files.source)
+    && /Suivi des plages — E\. coli et cyanobactéries/.test(files.source)
+    && /ébauche municipale annoncée par la direction/.test(files.source),
+  "La fiche doit distinguer les deux volets, les sources et les décisions qui restent à recevoir.");
 critical("EDIT-002", "L’information Zeffy est exacte et réutilisable en français et en anglais",
   /Contribution proposée par Zeffy/.test(files.source)
     && /ni une taxe ni des frais obligatoires/.test(files.source)

@@ -241,6 +241,10 @@ const monitoringMedia = editorialMedia.filter((media) => media.eventId === "s1d2
 assert.equal(monitoringMedia.length, 2);
 assert.ok(monitoringMedia.every((media) => media.publicationBlocked === true && /consentement à confirmer/i.test(media.rightsStatus)),
   "Les photographies de terrain restent visibles pour préparation, mais bloquées jusqu’à confirmation des droits.");
+const preferredMonitoringMedia = monitoringMedia.find((media) => media.id === "editorial-s1d2-lake-sampling-real-v3");
+assert.match(preferredMonitoringMedia.label, /Préférence de la direction/i);
+assert.match(preferredMonitoringMedia.note, /choix final demeure bloqué/i,
+  "Une préférence ne doit pas contourner la confirmation des droits et du consentement.");
 const samplingPost = posts.find((post) => post.id === "s3d5");
 assert.match(samplingPost.title, /prélèvement/i, "Le retour sur les résultats doit devenir une explication concrète du prélèvement.");
 assert.match(samplingPost.copy, /lac, tributaire ou plage/i);
@@ -281,7 +285,17 @@ assert.equal(deferredBoatWash.date, "Mardi 11 août");
 assert.equal(deferredBoatWash.w, 5);
 assert.match(deferredBoatWash.title, /rituel complet/i);
 assert.match(deferredBoatWash.copy, /retirer les débris visibles, vider l’eau retenue, nettoyer/i);
+assert.match(deferredBoatWash.copy, /kayaks, les planches à pagaie/i,
+  "Le rituel doit aussi nommer clairement les petites embarcations demandées par la direction.");
+assert.match(deferredBoatWash.visual, /photographie interne réelle de la station de lavage actuelle/i);
 assert.doesNotMatch(deferredBoatWash.source, /ccq\.org/i);
+const northHatleyHistorical = historicalMedia.find((media) => media.id === "history-alt-20260801-aerial");
+const northHatleyCurrent = historicalMedia.find((media) => media.id === "history-alt-20260801-aerial-current-2024");
+assert.match(northHatleyHistorical.label, /Proposition 1\/2 recommandée/i);
+assert.match(northHatleyCurrent.label, /Proposition 2\/2 recommandée/i);
+assert.equal(northHatleyCurrent.publicationBlocked, true,
+  "La photo actuelle de North Hatley doit rester bloquée jusqu’à confirmation de ses droits.");
+assert.match(posts.find((post) => post.id === "alt-20260801").task, /Ayer’s Cliff restent réservées à une publication distincte/i);
 const soloAugustThird = posts.find((post) => post.id === "s4d1b");
 assert.equal(soloAugustThird.choiceRequired, false, "La seule carte du 3 août ne doit pas afficher un faux choix.");
 assert.equal(soloAugustThird.optionGroup, null);

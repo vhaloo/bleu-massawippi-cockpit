@@ -7,7 +7,12 @@ import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import { dryRunSummary, isDryRun, sameSeedFields } from "./seed_utils.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const media = JSON.parse(fs.readFileSync(path.join(here, "historical_media_manifest.json"), "utf8"));
+const manifest = JSON.parse(fs.readFileSync(path.join(here, "historical_media_manifest.json"), "utf8"));
+const eventFilter = process.argv.slice(2).find((arg) => arg.startsWith("--event="))?.slice("--event=".length).trim() || "";
+const eventFilters = new Set(eventFilter.split(",").map((value) => value.trim()).filter(Boolean));
+const mediaFilter = process.argv.slice(2).find((arg) => arg.startsWith("--media="))?.slice("--media=".length).trim() || "";
+const media = manifest.filter((item) => (!eventFilters.size || eventFilters.has(item.eventId)) && (!mediaFilter || item.id === mediaFilter));
+if (!media.length) throw new Error(`Aucun média historique trouvé pour le filtre demandé (${eventFilter || "tous les événements"}${mediaFilter ? `, ${mediaFilter}` : ""}).`);
 const privateLinksPath = path.join(here, "secrets", "historical-media-links.json");
 if (!fs.existsSync(privateLinksPath)) {
   throw new Error("Le registre local secrets/historical-media-links.json est requis et ne doit jamais être publié.");
@@ -15,7 +20,7 @@ if (!fs.existsSync(privateLinksPath)) {
 const privateLinks = JSON.parse(fs.readFileSync(privateLinksPath, "utf8"));
 for (const item of media) if (!/^https:\/\/bleumassawippi\.sharepoint\.com\/:i:\/g\//.test(privateLinks[item.fileName] || "")) throw new Error(`Lien SharePoint privé manquant pour ${item.fileName}.`);
 if (isDryRun()) {
-  console.log(JSON.stringify(dryRunSummary("historical-media", media, { events: new Set(media.map((item) => item.eventId)).size }), null, 2));
+  console.log(JSON.stringify(dryRunSummary("historical-media", media, { eventFilter: eventFilter || null, mediaFilter: mediaFilter || null, events: new Set(media.map((item) => item.eventId)).size }), null, 2));
   process.exit(0);
 }
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) throw new Error("GOOGLE_APPLICATION_CREDENTIALS doit pointer vers un compte de service Firebase privé.");
@@ -63,4 +68,4 @@ for (const item of media) {
 }
 
 if (created + updated > 0) await batch.commit();
-console.log(JSON.stringify({ seeded: true, media: media.length, created, updated, unchanged, writes: created + updated, rightsUnconfirmed: media.filter((item) => /confirmer/i.test(item.license || "")).length, events: [...new Set(media.map((item) => item.eventId))].length }, null, 2));
+console.log(JSON.stringify({ seeded: true, eventFilter: eventFilter || null, mediaFilter: mediaFilter || null, media: media.length, created, updated, unchanged, writes: created + updated, rightsUnconfirmed: media.filter((item) => /confirmer/i.test(item.license || "")).length, events: [...new Set(media.map((item) => item.eventId))].length }, null, 2));
