@@ -35,22 +35,22 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260803-b50";
-import { createEventContextController } from "./event-context-data.js?v=20260803-b50";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260803-b50";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260803-b50";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260803-b50";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260803-b50";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260803-b50";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260803-b50";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260803-b50";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260803-b50";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260803-b50";
-import { setupControlHints } from "./control-hints.js?v=20260803-b50";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260803-b50";
-import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260803-b50";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260803-b50";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260803-b50";
+} from "./firebase-client.js?v=20260803-b51";
+import { createEventContextController } from "./event-context-data.js?v=20260803-b51";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260803-b51";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260803-b51";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260803-b51";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260803-b51";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260803-b51";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260803-b51";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260803-b51";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260803-b51";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260803-b51";
+import { setupControlHints } from "./control-hints.js?v=20260803-b51";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260803-b51";
+import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260803-b51";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260803-b51";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260803-b51";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -2897,6 +2897,11 @@ async function applyProfile(profile) {
   const retry = document.querySelector("#cockpit-retry-content");
   if (retry) { retry.hidden = true; retry.onclick = null; }
   const session = buildSession();
+  // La vue des décisions peut se recalculer après le chargement initial
+  // (listener Firestore, retour de cache, redimensionnement). Conserver
+  // l'identité sur la coque évite alors de perdre le ciblage personnel.
+  session.dataset.uid = profile.uid || "";
+  session.dataset.role = profile.role || "";
   session.querySelector("#cockpit-session-label").innerHTML = "Connecté : <strong>" + esc(profile.displayLabel) + "</strong> · rôle " + esc(profile.role) + (safeMode ? " · mode secours" : "");
   dispatchEvent(new CustomEvent("cockpit:session-ready", { detail: { profile } }));
   setupResponsiveOffsets();

@@ -167,6 +167,10 @@ assert.equal(visibleActionTaskTarget("schedule", "s4d1"), "s4d1",
 assert.match(cockpitUi, /targetId: visibleActionTaskTarget\("section", sectionId\)/,
   "Les nouvelles rétroactions générales doivent enregistrer directement la destination visible.");
 const profileApplication = cockpitUi.slice(cockpitUi.indexOf("async function applyProfile"), cockpitUi.indexOf("function applySignedOut"));
+assert.match(profileApplication, /session\.dataset\.uid = profile\.uid \|\| "";/,
+  "La coque doit conserver l’UID pour que les recalculs de la file restent personnels.");
+assert.match(profileApplication, /session\.dataset\.role = profile\.role \|\| "";/,
+  "La coque doit conserver le rôle avec l’UID de la file personnelle.");
 assert.match(profileApplication, /if \(profile\.role === "admin"\) \{[\s\S]*buildAdminSidebar\(\)[\s\S]*buildTaskWidget\(\)[\s\S]*subscribeActionTasks\(renderActionTasks/,
   "Le panneau À accomplir et sa souscription doivent rester réservés à Valentin (rôle admin).");
 assert.match(profileApplication, /\} else \{[\s\S]*document\.querySelector\("#cockpit-task-launch"\)\?\.remove\(\)/,

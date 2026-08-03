@@ -232,14 +232,20 @@ critical("EDIT-001", "Le protocole cyanobactéries n’invente plus une cadence"
     && /Gestion%20cyanobact%C3%A9rie\.docx\?web=1/.test(files.source)
     && /cogesaf\.qc\.ca\/sentinelle-des-lacs/.test(files.source)
     && /Suivi des plages — E\. coli et cyanobactéries/.test(files.source)
-    && /ébauche municipale annoncée par la direction/.test(files.source),
-  "La fiche doit distinguer les deux volets, les sources et les décisions qui restent à recevoir.");
+    && /ébauche reçue et classée dans SharePoint/.test(files.source),
+  "La fiche doit distinguer les deux volets, les sources et les décisions qui restent à valider.");
 critical("EDIT-002", "L’information Zeffy est exacte et réutilisable en français et en anglais",
   /Contribution proposée par Zeffy/.test(files.source)
     && /ni une taxe ni des frais obligatoires/.test(files.source)
     && /choisir <strong>0&nbsp;\$<\/strong>/.test(files.source)
     && /Optional Zeffy contribution/.test(files.source),
   "La contribution Zeffy doit rester décrite comme distincte, volontaire et modifiable jusqu’à 0 $. ");
+
+critical("EDIT-005", "L’ébauche Suivi des plages est reliée sans faux statut de validation",
+  /Ébauche reçue — offre de services North Hatley/.test(files.source)
+    && /incohérence arithmétique de 5&nbsp;\$/.test(files.source)
+    && /611A7E59-0EDD-4B33-B97A-1A325FD74933/.test(files.source),
+  "Le projet doit ouvrir l’ébauche interne, signaler l’écart de total et conserver son statut de révision.");
 critical("EDIT-003", "La veille sur la barbotte brune reste sourcée et prudente",
   /ne documentent pas ce cancer transmissible au lac Massawippi/.test(files.source)
     && /aucun cas au lac Massawippi n’a été trouvé dans les sources examinées/.test(files.scienceWatch)

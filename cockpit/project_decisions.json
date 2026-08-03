@@ -33,6 +33,17 @@
       "priorityKey": 18,
       "title": "Valider le futur encart « Niveau du lac »",
       "message": "Avant sa mise à jour manuelle sur le site public : relire le ton, confirmer l’organisme ayant mandaté l’étude de 2025 et valider les liens vers les niveaux actuel et historique. Aucun grand changement au site ne précède l’accord du CA."
+    },
+    {
+      "id": "suivi-plages-reviser-offre-20260804-v1",
+      "audienceRole": "admin",
+      "assigneeEmail": "communication@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "surveillance-cyanobacteries",
+      "eventDateIso": "2026-08-04",
+      "priorityKey": 12,
+      "title": "Réviser l’ébauche — Suivi des plages",
+      "message": "L’ébauche North Hatley est maintenant classée dans SharePoint. Vérifier notamment l’écart entre 7 760 $ et 7 755 $, puis attendre les modifications et validations internes avant de produire une version présentable ou une communication publique."
     }
   ]
 }
