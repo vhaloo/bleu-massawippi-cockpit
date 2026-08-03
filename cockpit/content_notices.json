@@ -99,6 +99,39 @@
       "priorityKey": 47,
       "title": "Nouveau — Le lac dans tes yeux",
       "message": "Le pilote bilingue, les écoles du premier cercle, la grande frise et les dix outils de la trousse jeunesse sont maintenant structurés pour une décision interne."
+    },
+    {
+      "id": "strategic-official-mission-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "section",
+      "sourceId": "mandate-collaboration",
+      "publishedOn": "2026-08-03",
+      "priorityKey": 22,
+      "title": "Mise à jour — Mission officielle",
+      "message": "La mission officielle transmise par la direction est maintenant reprise mot pour mot dans la stratégie du cockpit."
+    },
+    {
+      "id": "internal-project-calendar-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "section",
+      "sourceId": "project-calendar",
+      "publishedOn": "2026-08-03",
+      "priorityKey": 23,
+      "title": "Nouveau — Calendrier des projets et échéances",
+      "message": "Un calendrier distinct des publications rassemble maintenant les rencontres, périodes de travail et dates importantes. Le bouton « Proposer un événement » permet d’y déposer une idée à mettre en forme."
+    },
+    {
+      "id": "internal-moules-zebrees-media-context-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "moules-zebrees-continuite",
+      "publishedOn": "2026-08-03",
+      "priorityKey": 24,
+      "title": "Mise à jour — contexte média sur les moules zébrées",
+      "message": "Les entrevues du 3 août, les messages factuels, les vérifications requises et les éléments à garder internes sont maintenant regroupés dans le projet."
     }
   ]
 }

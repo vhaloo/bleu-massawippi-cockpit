@@ -43,9 +43,17 @@ assert.match(read("seed_content_notices.js"), /if \(existing\.exists\)[\s\S]*pre
 assert.match(read("seed_content_notices.js"), /Une version vue ne doit jamais être rouverte/);
 const contentNotices = JSON.parse(read("content_notices.json"));
 assert.equal(contentNotices.schemaVersion, 1);
-assert.equal(contentNotices.notices.length, 9);
+assert.equal(contentNotices.notices.length, 12);
 assert.ok(contentNotices.notices.every((item) => item.audienceRole === "director" && item.assigneeEmail === "dg@bleumassawippi.com"));
 for (const id of ["strategic-zeffy-recurring-gifts-v1", "internal-application-funding-nonmunicipal-v1", "internal-poetry-progress-v2", "internal-poetry-progress-v3", "internal-youth-drawing-toolkit-v1"]) {
   assert.ok(contentNotices.notices.some((item) => item.id === id), `La nouveauté ${id} doit être versionnée dans le manifeste.`);
 }
+
+const projectDecisions = JSON.parse(read("project_decisions.json"));
+assert.equal(projectDecisions.schemaVersion, 1);
+assert.equal(projectDecisions.decisions.length, 3);
+assert.equal(projectDecisions.decisions.filter((item) => item.audienceRole === "director" && item.assigneeEmail === "dg@bleumassawippi.com").length, 2);
+assert.equal(projectDecisions.decisions.filter((item) => item.audienceRole === "admin" && item.assigneeEmail === "communication@bleumassawippi.com").length, 1);
+assert.match(read("seed_project_decisions.js"), /if \(existing\.exists\)/, "Le semeur de décisions doit préserver les entrées existantes.");
+assert.match(read("seed_project_decisions.js"), /actionType: "project_decision"/);
 console.log("Contrat d’idempotence des synchronisations : OK");

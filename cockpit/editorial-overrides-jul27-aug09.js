@@ -138,12 +138,15 @@ const EDITORIAL_OVERRIDES_JUL27_AUG09 = {
   },
   "alt-20260801": {
     title: "North Hatley vu d’en haut : hier et aujourd’hui",
-    format: "Carrousel recommandé · vue historique puis vue drone de 2024",
+    format: "Carrousel indissociable de 2 images · vue historique puis vue drone de 2024",
     cta: "Comparer deux époques",
-    source: "Vue historique : Associated Screen News Limited, collection BAnQ, domaine public, entre 1930 et 1950. Vue actuelle : archive interne Bleu Massawippi, DJI_0243.JPG, 15 août 2024; autorisation de diffusion à confirmer avant publication.",
-    task: "Le choix proposé est précisément le duo North Hatley : la vue BAnQ entre 1930 et 1950, puis la photo drone interne du 15 août 2024. Confirmer les droits de la photo 2024 avant de choisir le carrousel. Les images d’Ayer’s Cliff restent réservées à une publication distincte.",
+    source: "Vue historique : Associated Screen News Limited, collection BAnQ, domaine public, entre 1930 et 1950. Vue actuelle : archive interne Bleu Massawippi, DJI_0243.JPG, 15 août 2024.",
+    task: "Retenir l’ensemble complet de deux images, dans cet ordre : 1/2, la vue BAnQ entre 1930 et 1950; 2/2, la photo drone interne du 15 août 2024. Les droits sont traités en amont pour ce post et ne constituent pas une décision à demander ici. Les images d’Ayer’s Cliff restent réservées à une publication distincte.",
+    mediaSelectionMode: "multiple",
+    mediaSelectionRequired: 2,
+    mediaSelectionLabel: "Carrousel « Hier et aujourd’hui »",
     copy: "FR — Deux vues aériennes de North Hatley, prises à plusieurs décennies d’intervalle. La première date d’entre 1930 et 1950; la seconde a été prise le 15 août 2024.\n\nLes points de vue et les hauteurs diffèrent, mais la rivière Massawippi offre un repère commun pour observer l’évolution de la trame du village, des voies de circulation et du couvert végétal. Ces images nous aident à regarder le territoire; elles ne suffisent pas, à elles seules, à mesurer un impact écologique.\n\nCrédit historique : Associated Screen News Limited, collection BAnQ.\n\n#Patrimoine #BleuMassawippi #NorthHatley #MémoireLocale\n\n=========================================\n\nEN — Two aerial views of North Hatley, taken several decades apart. The first dates from sometime between 1930 and 1950; the second was taken on August 15, 2024.\n\nThe viewpoints and heights differ, but the Massawippi River provides a common reference for observing changes in the village layout, transportation routes and vegetation cover. These images help us look at the territory; on their own, they do not measure ecological impact.\n\nHistorical credit: Associated Screen News Limited, BAnQ collection.\n\n#Heritage #BleuMassawippi #NorthHatley #LocalMemory",
-    visual: "Carrousel recommandé de deux photographies complètes de North Hatley, sans recadrage trompeur : 1/2, vue aérienne BAnQ entre 1930 et 1950; 2/2, photo drone interne du 15 août 2024. Ajouter seulement « Hier · Aujourd’hui » et « points de vue différents ». Ne pas mêler la carte postale d’Ayer’s Cliff à ce carrousel."
+    visual: "Un seul carrousel composé de deux photographies complètes de North Hatley, sans recadrage trompeur : 1/2, vue aérienne BAnQ entre 1930 et 1950; 2/2, photo drone interne du 15 août 2024. Ajouter seulement « Hier · Aujourd’hui » et « points de vue différents ». Les deux cartes se choisissent ensemble; ne pas mêler la carte postale d’Ayer’s Cliff à ce carrousel."
   },
   "alt-20260802": {
     title: "Les voix à documenter autour du bassin",

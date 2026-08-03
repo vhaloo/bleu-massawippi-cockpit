@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recette locale — carrousel du 5 août</title>
+  <style>
+    * { box-sizing:border-box; }
+    :root { color-scheme:light; --ink:#173f4e; --line:#9fcbd1; --surface:#fff; --soft:#edf8f8; --accent:#0b7895; --chosen:#167a62; }
+    :root[data-theme="dark"] { color-scheme:dark; --ink:#e8f7f8; --line:#4f8490; --surface:#153744; --soft:#173f4d; --accent:#55c7dc; --chosen:#5ed1a8; }
+    body { margin:0; color:var(--ink); background:linear-gradient(145deg,#f4fbfb,#dceff1); font:16px/1.45 system-ui,sans-serif; }
+    :root[data-theme="dark"] body { background:linear-gradient(145deg,#081f29,#0e3440); }
+    main { width:min(1180px,calc(100% - 24px)); margin:24px auto; }
+    .post { overflow:hidden; border:1px solid var(--line); border-radius:18px; background:var(--surface); box-shadow:0 16px 42px #0b31461a; }
+    .post-head { padding:18px 20px 12px; }
+    .eyebrow { margin:0 0 4px; color:var(--accent); font-size:.76rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+    h1 { margin:0; font-size:clamp(1.2rem,3vw,1.85rem); }
+    .summary { margin:8px 0 0; max-width:78ch; }
+    .selection-note { display:flex; align-items:center; gap:8px; margin:0 18px 12px; padding:10px 12px; border:1px solid var(--line); border-radius:11px; background:var(--soft); font-size:.82rem; font-weight:850; }
+    .selection-note.complete { border-color:var(--chosen); color:var(--chosen); }
+    .gallery { display:flex; gap:14px; overflow-x:auto; padding:4px 18px 18px; scroll-snap-type:x mandatory; }
+    .media { flex:1 0 min(460px,82vw); overflow:hidden; scroll-snap-align:start; border:2px solid var(--line); border-radius:15px; background:var(--surface); }
+    .media.chosen { border-color:var(--chosen); box-shadow:0 0 0 4px color-mix(in srgb,var(--chosen) 18%,transparent); }
+    .visual { position:relative; display:block; aspect-ratio:16/9; overflow:hidden; background:#cbdde0; }
+    .visual img { width:100%; height:100%; object-fit:cover; display:block; }
+    .choice { position:absolute; right:10px; top:10px; min-height:44px; padding:9px 13px; border:2px solid #fff; border-radius:999px; color:#fff; background:#073a52e8; font:inherit; font-size:.78rem; font-weight:900; cursor:pointer; box-shadow:0 4px 14px #001a; }
+    .media.chosen .choice { background:#176f5b; }
+    details { border-top:1px solid var(--line); }
+    summary { display:flex; min-height:48px; align-items:center; gap:8px; padding:10px 12px; font-size:.8rem; font-weight:900; cursor:pointer; }
+    summary span:last-child { margin-left:auto; color:var(--accent); }
+    .info { padding:0 12px 14px; }
+    .info p { margin:0 0 10px; }
+    .info a { color:var(--accent); font-weight:800; }
+    .toggle-theme { margin:14px 18px 18px; min-height:44px; padding:8px 12px; border:1px solid var(--line); border-radius:999px; color:var(--ink); background:var(--soft); font:inherit; font-weight:800; cursor:pointer; }
+    @media (max-width:620px) {
+      main { width:100%; margin:0; }
+      .post { border-width:0; border-radius:0; }
+      .post-head { padding:16px 14px 10px; }
+      .selection-note { margin:0 12px 10px; }
+      .gallery { gap:10px; padding:4px 12px 14px; }
+      .media { flex-basis:86vw; }
+      .choice { max-width:calc(100% - 20px); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <article class="post" data-testid="aug5-carousel">
+      <header class="post-head">
+        <p class="eyebrow">Mercredi 5 août · Patrimoine</p>
+        <h1>North Hatley vu d’en haut : hier et aujourd’hui</h1>
+        <p class="summary">Un seul carrousel composé de deux photographies complètes. Les deux cartes se choisissent et se publient ensemble, dans l’ordre indiqué.</p>
+      </header>
+      <div class="selection-note" data-testid="selection-note">🖼️ Carrousel « Hier et aujourd’hui » · choisissez les 2 cartes (0/2).</div>
+      <div class="gallery" aria-label="Deux cartes du carrousel du 5 août">
+        <article class="media" data-media="historical">
+          <div class="visual">
+            <img src="../media-previews/2026-08-05/north-hatley-1930-1950-preview.webp" alt="Vue aérienne historique complète de North Hatley entre 1930 et 1950">
+            <button class="choice" type="button" aria-pressed="false">Ajouter au carrousel</button>
+          </div>
+          <details open><summary><span>Informations et actions</span><span>Carte 1/2</span></summary><div class="info"><p><b>North Hatley, entre 1930 et 1950</b><br>Associated Screen News Limited, collection BAnQ.</p><a href="../media-previews/2026-08-05/north-hatley-1930-1950-preview.webp">Agrandir l’aperçu ↗</a></div></details>
+        </article>
+        <article class="media" data-media="current">
+          <div class="visual">
+            <img src="../media-previews/2026-08-05/north-hatley-2024-preview.webp" alt="Vue aérienne complète de North Hatley prise par drone le 15 août 2024">
+            <button class="choice" type="button" aria-pressed="false">Ajouter au carrousel</button>
+          </div>
+          <details open><summary><span>Informations et actions</span><span>Carte 2/2</span></summary><div class="info"><p><b>North Hatley, 15 août 2024</b><br>Archive interne Bleu Massawippi.</p><a href="../media-previews/2026-08-05/north-hatley-2024-preview.webp">Agrandir l’aperçu ↗</a></div></details>
+        </article>
+      </div>
+      <button class="toggle-theme" type="button" data-testid="theme-toggle">Mode sombre / clair</button>
+    </article>
+  </main>
+  <script>
+    const params = new URLSearchParams(location.search);
+    document.documentElement.dataset.theme = params.get("theme") === "dark" ? "dark" : "light";
+    const cards = [...document.querySelectorAll(".media")];
+    const note = document.querySelector("[data-testid='selection-note']");
+    function update() {
+      const chosen = cards.filter((card) => card.classList.contains("chosen")).length;
+      note.textContent = `${chosen === 2 ? "✓" : "🖼️"} Carrousel « Hier et aujourd’hui » · choisissez les 2 cartes (${chosen}/2).${chosen === 2 ? " Ensemble complet prêt pour validation." : ""}`;
+      note.classList.toggle("complete", chosen === 2);
+    }
+    cards.forEach((card) => card.querySelector(".choice").addEventListener("click", (event) => {
+      const chosen = card.classList.toggle("chosen");
+      event.currentTarget.setAttribute("aria-pressed", String(chosen));
+      event.currentTarget.textContent = chosen ? "✓ Carte choisie — retirer" : "Ajouter au carrousel";
+      update();
+    }));
+    document.querySelector("[data-testid='theme-toggle']").addEventListener("click", () => {
+      document.documentElement.dataset.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    });
+  </script>
+</body>
+</html>

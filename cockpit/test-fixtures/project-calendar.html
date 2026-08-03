@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Recette visuelle — calendrier des projets</title>
+  <link rel="stylesheet" href="../project-calendar.css?v=20260803-b49">
+  <style>
+    *{box-sizing:border-box}body{margin:0;padding:24px;color:#123c4d;background:#f4faf9;font:16px/1.45 system-ui,sans-serif}.fixture{width:min(1260px,100%);margin:auto}html[data-theme="dark"] body{color:#effdfc;background:#0d2831}
+  </style>
+</head>
+<body>
+  <main class="fixture">
+    <details id="project-calendar" class="project-calendar-shell" open>
+      <summary>
+        <span class="project-calendar-summary-icon" aria-hidden="true">▦</span>
+        <span class="project-calendar-summary-copy"><strong>Calendrier des projets et échéances</strong><small>Rencontres, activités, périodes de travail et dates importantes — séparées des publications</small></span>
+        <span class="project-calendar-summary-counts"><span class="project-calendar-count">6 événements</span><span class="project-calendar-count">1 proposition</span></span>
+      </summary>
+      <div class="project-calendar-body">
+        <div class="project-calendar-intro">
+          <p><strong>Une idée peut être déposée simplement.</strong> Elle reste une proposition interne jusqu’à sa mise en forme dans un prochain cycle éditorial; rien n’est publié automatiquement.</p>
+          <button type="button" class="project-calendar-add" data-open-project-event-form>＋ Proposer un événement</button>
+        </div>
+        <div class="project-calendar-toolbar"><button type="button" aria-label="Mois précédent">‹</button><button type="button" data-calendar-today>Aujourd’hui</button><h3>août 2026</h3><button type="button" aria-label="Mois suivant">›</button></div>
+        <ul class="project-calendar-legend"><li><span class="project-calendar-dot"></span>À garder en vue</li><li><span class="project-calendar-dot" data-urgency="watch"></span>À surveiller</li><li><span class="project-calendar-dot" data-urgency="important"></span>Important</li><li><span class="project-calendar-dot" data-urgency="urgent"></span>Urgent</li><li><span class="project-calendar-dot" data-stage="completed"></span>Terminé</li></ul>
+        <div class="project-calendar-layout">
+          <section class="project-calendar-panel" data-calendar-grid-panel>
+            <div class="project-calendar-weekdays"><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span></div>
+            <div class="project-calendar-grid" id="fixture-grid"></div>
+          </section>
+          <section class="project-calendar-panel">
+            <div class="project-calendar-agenda">
+              <details class="project-calendar-event" open data-urgency="urgent" data-stage="planned"><summary><span class="project-calendar-event-meta"><span>Événement public</span><span>·</span><span>Urgent</span><span>·</span><span>Planifié</span></span><b>Au bord du bleu — après-midi de poésie</b><span class="project-calendar-event-meta">30 août, 13 h à 16 h · Parc Lôbadanaki</span></summary><div class="project-calendar-event-details"><p>Lecture de poésie, prose et slam au bord du lac Massawippi.</p><p><strong>Responsable :</strong> Communications et direction générale</p><div class="project-calendar-event-actions"><a href="#">Voir le projet</a><a href="#">Ouvrir le document</a><button type="button">Ajouter à mon agenda</button></div></div></details>
+              <details class="project-calendar-event" data-urgency="important" data-stage="in_progress"><summary><span class="project-calendar-event-meta"><span>Période de travail</span><span>·</span><span>Important</span><span>·</span><span>En cours</span></span><b>Préparation et coordination</b><span class="project-calendar-event-meta">10 au 29 août</span></summary></details>
+              <details class="project-calendar-event" data-urgency="watch" data-stage="planned"><summary><span class="project-calendar-event-meta"><span>Échéance</span><span>·</span><span>À surveiller</span></span><b>Date limite des candidatures</b><span class="project-calendar-event-meta">9 août, 23 h 59</span></summary></details>
+            </div>
+          </section>
+        </div>
+        <details class="project-calendar-proposals" open><summary>Propositions à mettre en forme <span class="project-calendar-count">1</span></summary><div class="project-proposals-list"><article class="project-proposal-card"><b>Rencontre avec un organisme partenaire</b><span class="project-proposal-badge">Nouvelle proposition</span><div class="project-proposal-meta"><span>12 août</span><span>·</span><span>Collaboration</span><span>·</span><span>À surveiller</span></div><p>Idée déposée simplement; elle sera structurée lors du prochain cycle.</p></article></div></details>
+      </div>
+    </details>
+  </main>
+  <dialog class="project-event-dialog" id="fixture-dialog">
+    <div class="project-event-dialog-header"><div><h2>Proposer un événement</h2><p>Déposez l’idée et ses repères. Elle ne sera pas ajoutée automatiquement au calendrier officiel.</p></div><button class="project-event-dialog-close" type="button">×</button></div>
+    <form class="project-event-form">
+      <label class="project-event-full">Titre ou idée<input value="Rencontre interlacs"></label>
+      <label class="project-event-full">Description<div class="project-event-field-with-mic"><textarea>Échanger sur les pratiques qui fonctionnent.</textarea><button class="project-event-mic" type="button" aria-label="Dicter la description">🎙</button></div></label>
+      <label>Date de début<input type="date" value="2026-08-12"></label><label>Date de fin<input type="date" value="2026-08-12"></label>
+      <label>Type<select><option>Rencontre</option></select></label><label>Priorité<select><option>À surveiller</option></select></label>
+      <label class="project-event-full">Lien SharePoint ou OneDrive<input value="https://bleumassawippi.sharepoint.com/"></label>
+      <p class="project-event-sharepoint-note">Les pièces jointes restent dans SharePoint ou OneDrive. Collez ici leur lien de consultation afin que le prochain cycle puisse les retrouver.</p>
+      <p class="project-event-form-status">Prête à être déposée.</p><div class="project-event-form-actions"><button type="button">Annuler</button><button type="submit">Déposer la proposition</button></div>
+    </form>
+  </dialog>
+  <script>
+    const params=new URLSearchParams(location.search);document.documentElement.dataset.theme=params.get("theme")==="dark"?"dark":"light";
+    const grid=document.querySelector("#fixture-grid");const chips={3:'<button class="project-calendar-chip" data-urgency="watch">Ouverture des candidatures</button>',8:'<button class="project-calendar-chip" data-urgency="important">Infolettre spéciale</button>',9:'<button class="project-calendar-chip" data-urgency="urgent">Date limite</button>',10:'<button class="project-calendar-chip" data-urgency="important">Coordination</button>',30:'<button class="project-calendar-chip" data-urgency="urgent">Au bord du bleu</button>'};for(let i=27;i<=68;i++){const d=i<=31?i:(i<=62?i-31:i-62);const outside=i<32||i>62;grid.insertAdjacentHTML("beforeend",`<div class="project-calendar-day" data-outside="${outside}"><time class="project-calendar-day-number">${d}</time>${chips[d]&&!outside?chips[d]:""}</div>`)}
+    if(params.get("form")==="1")document.querySelector("#fixture-dialog").showModal();
+    requestAnimationFrame(()=>{
+      const root=document.documentElement;
+      root.dataset.horizontalOverflow=String(root.scrollWidth>root.clientWidth);
+      root.dataset.viewportWidth=String(root.clientWidth);
+      root.dataset.documentWidth=String(root.scrollWidth);
+    });
+  </script>
+</body>
+</html>

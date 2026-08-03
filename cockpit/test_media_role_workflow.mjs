@@ -7,16 +7,17 @@ const ui = fs.readFileSync(new URL("./cockpit-ui.js", import.meta.url), "utf8");
 const mediaUi = fs.readFileSync(new URL("./media-choice-ui.js", import.meta.url), "utf8");
 const rules = fs.readFileSync(new URL("./firestore.rules", import.meta.url), "utf8");
 
-const pureStart = client.indexOf("function sameOrderedMedia");
+const pureStart = client.indexOf("const MAX_MEDIA_CHOICES");
 const pureEnd = client.indexOf("\nfunction normalizeMediaDecision", pureStart);
 assert.ok(pureStart >= 0 && pureEnd > pureStart, "Le dérivé d’accord doit rester isolable et testable sans Firebase.");
 const sandbox = {};
 vm.runInNewContext(
-  `${client.slice(pureStart, pureEnd).replace("export function deriveMediaAgreement", "function deriveMediaAgreement")}\nthis.deriveMediaAgreement = deriveMediaAgreement;`,
+  `${client.slice(pureStart, pureEnd).replace("export function deriveMediaAgreement", "function deriveMediaAgreement")}\nthis.deriveMediaAgreement = deriveMediaAgreement; this.nextMediaSelection = nextMediaSelection;`,
   sandbox
 );
 
 const selected = (id, role) => ({ status: "selected", mediaIds: [id], actorRole: role });
+const selectedSet = (ids, role) => ({ status: "selected", mediaIds: ids, actorRole: role });
 const revoked = (role) => ({ status: "revoked", mediaIds: [], actorRole: role });
 const noOverride = { active: false, mediaIds: [], reason: "" };
 
@@ -28,6 +29,15 @@ assert.equal(
   JSON.stringify({ status: "agreed", mediaIds: ["media-a"], divergent: false })
 );
 assert.equal(sandbox.deriveMediaAgreement(selected("media-a", "admin"), selected("media-b", "director"), noOverride, true).status, "divergent");
+assert.equal(JSON.stringify(sandbox.nextMediaSelection(["media-a"], "media-b", true, true)), JSON.stringify(["media-a", "media-b"]));
+assert.equal(JSON.stringify(sandbox.nextMediaSelection(["media-a", "media-b"], "media-a", false, true)), JSON.stringify(["media-b"]));
+assert.equal(JSON.stringify(sandbox.nextMediaSelection(["media-a"], "media-b", true, false)), JSON.stringify(["media-b"]),
+  "Le comportement historique doit continuer de remplacer un choix simple.");
+assert.equal(
+  JSON.stringify(sandbox.deriveMediaAgreement(selectedSet(["media-b", "media-a"], "admin"), selectedSet(["media-a", "media-b"], "director"), noOverride, true)),
+  JSON.stringify({ status: "agreed", mediaIds: ["media-a", "media-b"], divergent: false }),
+  "Le même carrousel doit produire un accord même si les cartes ont été cochées dans un ordre différent."
+);
 assert.equal(sandbox.deriveMediaAgreement(selected("media-a", "admin"), selected("media-b", "director"), { active: true, mediaIds: ["media-b"], reason: "Aval confirmé" }, true).status, "overridden");
 assert.equal(sandbox.deriveMediaAgreement(selected("media-a", "admin"), revoked("director"), { active: true, mediaIds: ["media-a"], reason: "Décision communications" }, true).status, "overridden", "Les communications doivent pouvoir finaliser un visuel sans fabriquer un choix de la direction.");
 
@@ -38,6 +48,10 @@ assert.match(client, /publicationBlocked === true \|\| media\.archived === true/
 assert.match(client, /setMediaDecision[\s\S]*?runTransaction\(db[\s\S]*?transaction\.set\(archiveReference/);
 assert.match(client, /archiveReference = doc\(db, "changeArchive"/);
 assert.match(client, /sameExistingChoice[\s\S]*?return before/);
+assert.match(client, /const allowsMultiple = options\.multiple === true/,
+  "La mutation média doit explicitement distinguer un choix simple d’un carrousel.");
+assert.match(client, /nextMediaSelection\(previousSideIds, mediaId, selected, allowsMultiple\)/,
+  "Un carrousel doit ajouter ou retirer une carte sans effacer les autres cartes choisies.");
 assert.match(client, /wantsOverride && !\["director", "admin"\]\.includes\(profile\.role\)/,
   "Les deux rôles de coordination peuvent appliquer un override motivé.");
 assert.match(client, /override: profile\.role === "admin"[\s\S]*?before\.override/,
@@ -68,6 +82,10 @@ assert.match(ui, /myChoiceSelected \? "Retirer mon choix" : "Choisir ce visuel"/
   "Les communications doivent pouvoir retirer puis reprendre leur propre choix média.");
 assert.match(ui, /const selected = mediaDecisionButton\.getAttribute\("aria-pressed"\) !== "true"/,
   "Le même contrôle média doit alterner choix et retrait sans suppression d’historique.");
+assert.match(ui, /mediaSelectionMode === "multiple"/,
+  "Le mode carrousel doit rester limité aux publications qui le demandent explicitement.");
+assert.match(ui, /Ajouter cette carte au carrousel/,
+  "Le libellé du geste multiple doit être clair pour une personne non technique.");
 assert.match(ui, /details class="cockpit-media-info" open/, "Les actions média doivent être ouvertes par défaut.");
 assert.match(mediaUi, /synchronizeMediaInfoPanels/, "Les panneaux média d’un même événement doivent rester synchronisés.");
 assert.match(ui, /state\.profile\?\.role === "admin"\)/, "La porte Terminer doit être autorisée seulement aux communications.");
@@ -87,15 +105,19 @@ assert.doesNotMatch(ui.slice(ui.indexOf("observeAuth")), /applyProfile\(profile\
 
 assert.match(rules, /data\.stage in \['source', 'proposal', 'draft', 'approved', 'published', 'reference'\]/, "proposal doit être un stade valide distinct d’approved.");
 assert.match(rules, /match \/mediaDecisions\/\{eventId\}/);
-assert.match(rules, /isAdmin\(\)[\s\S]*?affectedKeys\(\)\.hasOnly\(\['communications'/);
-assert.match(rules, /request\.resource\.data\.override == resource\.data\.override[\s\S]*request\.resource\.data\.override\.actorRole == 'admin'/,
+assert.match(rules, /function validAdminMediaDecisionUpdate[\s\S]*?affectedKeys\(\)\.hasOnly\(\['communications'/);
+assert.match(rules, /data\.override == before\.override[\s\S]*data\.override\.actorRole == 'admin'/,
   "Les communications peuvent appliquer un override motivé sans modifier le choix de la direction.");
-assert.match(rules, /isDirector\(\)[\s\S]*?affectedKeys\(\)\.hasOnly\(\['direction'/);
+assert.match(rules, /function validDirectorMediaDecisionUpdate[\s\S]*?affectedKeys\(\)\.hasOnly\(\['direction'/);
 assert.match(rules, /data\.override\.actorRole == 'admin'[\s\S]{0,220}data\.override\.mediaIds == data\.communications\.mediaIds/,
   "Un override des communications doit s’appuyer sur son propre choix, jamais usurper celui de la direction.");
 assert.doesNotMatch(rules, /request\.resource\.data\.direction\.status != 'selected' \|\| workflowTextApproved/,
   "La règle doit accepter une préférence direction avant la porte texte.");
 assert.match(rules, /publicationBlocked[\s\S]*?== false/);
+assert.match(rules, /side\.mediaIds\.size\(\) <= 2/,
+  "Les règles doivent borner le carrousel à deux médias.");
+assert.match(rules, /side\.mediaIds\.size\(\) < 2 \|\| validSelectableMedia\(eventId, side\.mediaIds\[1\]\)/,
+  "Les règles doivent valider chaque carte supplémentaire du carrousel.");
 assert.match(rules, /request\.resource\.data\.stage in \['scheduled', 'published'\][\s\S]*?isAdmin\(\)/, "Terminer doit être réservé aux communications dans les règles.");
 assert.match(rules, /allow update: if isEditor\(\)[\s\S]{0,420}\(isAdmin\(\)[\s\S]{0,240}resource\.data\.stage in \['scheduled', 'published'\]/,
   "Les règles doivent autoriser les communications à rouvrir un événement terminé.");
