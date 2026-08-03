@@ -953,10 +953,7 @@ html[data-theme="dark"] .vm-navigation-status b { color: #fff0eb; }
   }
 }
 
-@media (max-width: 700px) {
-  /* Sur téléphone, la languette participe au sommaire collant. Elle ne peut
-     donc jamais recouvrir une publication, même sur un très petit écran. */
-  .vm-decision-dock-tab.is-inline {
+.vm-decision-dock-tab.is-inline {
     position: static;
     top: auto;
     left: auto;
@@ -977,20 +974,16 @@ html[data-theme="dark"] .vm-navigation-status b { color: #fff0eb; }
     box-shadow: inset 0 1px rgba(255,255,255,.82), 0 3px 8px rgba(7,58,82,.14);
     font-size: .68rem;
     transform: none;
-  }
-  .cockpit-view-essential .nav .vm-decision-dock-tab.is-inline {
-    width: 100%;
-    min-width: 0;
-  }
-  .vm-decision-dock-tab.is-inline.is-visible {
+}
+.vm-decision-dock-tab.is-inline.is-visible {
     display: inline-flex;
     opacity: 1;
     pointer-events: auto;
     transform: none;
-  }
-  .vm-decision-dock-tab.is-inline::before,
-  .vm-decision-dock-tab.is-inline [data-vm-dock-tab-label] { display: none; }
-  .vm-decision-dock-tab.is-inline .vm-decision-dock-tab-handle {
+}
+.vm-decision-dock-tab.is-inline::before,
+.vm-decision-dock-tab.is-inline [data-vm-dock-tab-label] { display: none; }
+.vm-decision-dock-tab.is-inline .vm-decision-dock-tab-handle {
     display: grid;
     width: 19px;
     height: 19px;
@@ -1001,28 +994,36 @@ html[data-theme="dark"] .vm-navigation-status b { color: #fff0eb; }
     background: transparent;
     box-shadow: none;
     font-size: 0;
-  }
-  .vm-decision-dock-tab.is-inline .vm-decision-dock-tab-handle::after {
+}
+.vm-decision-dock-tab.is-inline .vm-decision-dock-tab-handle::after {
     content: "☷";
     font: 950 1.08rem/1 system-ui, sans-serif;
-  }
-  .vm-decision-dock-tab.is-inline [data-vm-dock-tab-short] {
+}
+.vm-decision-dock-tab.is-inline [data-vm-dock-tab-short] {
     display: inline;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-  .vm-decision-dock-tab.is-inline [data-vm-dock-tab-count] {
+}
+.vm-decision-dock-tab.is-inline [data-vm-dock-tab-count] {
     min-width: 21px;
     height: 21px;
     padding: 0 5px;
     font-size: .62rem;
-  }
-  .vm-decision-dock-tab.is-inline:hover,
-  .vm-decision-dock-tab.is-inline:focus-visible {
+}
+.vm-decision-dock-tab.is-inline:hover,
+.vm-decision-dock-tab.is-inline:focus-visible {
     box-shadow: inset 0 1px rgba(255,255,255,.86), 0 4px 10px rgba(7,58,82,.2);
     transform: none;
+}
+
+@media (max-width: 700px) {
+  /* Sur téléphone, la languette occupe sa propre place dans le sommaire
+     collant et ne peut jamais recouvrir une publication. */
+  .cockpit-view-essential .nav .vm-decision-dock-tab.is-inline {
+    width: 100%;
+    min-width: 0;
   }
 }
 

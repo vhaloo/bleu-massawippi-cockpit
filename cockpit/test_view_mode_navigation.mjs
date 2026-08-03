@@ -447,6 +447,18 @@ assert.ok(dockTab.classList.contains("is-visible"), "La languette doit rester ac
 dockTab.click();
 assert.ok(dock.classList.contains("is-overlay"), "La languette doit rouvrir le panneau même sur une largeur contrainte.");
 
+// Sur un portable sans gouttière latérale, le raccourci rejoint aussi le
+// sommaire : la largeur de l'écran seule ne doit pas l'autoriser à recouvrir
+// les premières lettres d'une publication.
+viewMode.update({ decisionDockAvailableWidth: 40 });
+await wait();
+decisionPanel = document.querySelector("#vm-panel-decision");
+decisionPanel.getBoundingClientRect = () => ({ top: -420, bottom: 80, left: 0, right: 700, width: 700, height: 500 });
+setViewportWidth(1280);
+window.dispatchEvent(new window.Event("resize"));
+assert.equal(dockTab.parentElement, document.querySelector(".nav .wrap"), "La languette d'un portable sans gouttière doit rejoindre le sommaire.");
+assert.ok(dockTab.classList.contains("is-inline"), "La variante compacte doit protéger le contenu aux largeurs intermédiaires.");
+
 // Sur téléphone, la languette rejoint le sommaire collant : elle participe à
 // la mise en page au lieu de recouvrir le texte ou une publication.
 setViewportWidth(390);
@@ -457,6 +469,7 @@ assert.ok(dockTab.classList.contains("is-inline"), "La variante mobile compacte 
 assert.ok(dockTab.classList.contains("is-visible"), "Le raccourci mobile doit rester accessible après le défilement.");
 dockTab.click();
 assert.ok(dock.classList.contains("is-overlay"), "Le raccourci intégré au sommaire doit ouvrir le panneau à la demande.");
+viewMode.update({ decisionDockAvailableWidth: 170 });
 setViewportWidth(1366);
 window.dispatchEvent(new window.Event("resize"));
 assert.equal(dockTab.parentElement, document.body, "La languette doit retrouver le bord de l’écran quand la largeur revient.");

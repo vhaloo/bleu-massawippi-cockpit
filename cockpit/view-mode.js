@@ -7,7 +7,7 @@
  * intact.
  */
 
-import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260803-b51";
+import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260803-b52";
 
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
@@ -28,6 +28,7 @@ const DECISION_DOCK_PANEL_MAX_WIDTH = 318;
 const DECISION_DOCK_EDGE = 12;
 const DECISION_DOCK_GAP = 18;
 const DECISION_DOCK_INLINE_MAX_WIDTH = 700;
+const DECISION_DOCK_TAB_CLEARANCE = 72;
 const MONTHS = new Map([
   ["janvier", 0], ["février", 1], ["fevrier", 1], ["mars", 2],
   ["avril", 3], ["mai", 4], ["juin", 5], ["juillet", 6],
@@ -503,7 +504,7 @@ function ensureStylesheet() {
   if (document.querySelector(`link[data-module="${MODULE_ID}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = new URL("./view-mode.css?v=20260803-b51", import.meta.url).href;
+  link.href = new URL("./view-mode.css?v=20260803-b52", import.meta.url).href;
   link.dataset.module = MODULE_ID;
   document.head.appendChild(link);
 }
@@ -616,7 +617,9 @@ function decisionDockAnchorPassed(panel, threshold) {
 
 function placeDecisionDockTab(tab, viewportWidth) {
   const navWrap = document.querySelector(".nav .wrap");
-  const inline = viewportWidth <= DECISION_DOCK_INLINE_MAX_WIDTH && Boolean(navWrap);
+  const sideClearance = decisionDockAvailableWidth();
+  const inline = Boolean(navWrap)
+    && (viewportWidth <= DECISION_DOCK_INLINE_MAX_WIDTH || sideClearance < DECISION_DOCK_TAB_CLEARANCE);
   const target = inline ? navWrap : document.body;
   if (tab.parentElement !== target) {
     if (inline) navWrap.prepend(tab);
