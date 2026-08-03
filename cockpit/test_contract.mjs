@@ -228,11 +228,21 @@ assert.match(bullheadPost.copy, /date[\s\S]*secteur[\s\S]*photo[\s\S]*info@bleum
 assert.doesNotMatch(bullheadPost.copy, /cancer|maladie|lésion|tumeur|disease|lesion|tumou?r/i,
   "L’appel doit s’en tenir au signalement du poisson, sans angle sanitaire inventé.");
 assert.ok(bullheadPost.copy.length <= 2200);
-const bullheadMarkedMedia = editorialMedia.find((media) => media.id === "editorial-barbotte-20260806-marques-visibles-v1");
-assert.equal(bullheadMarkedMedia?.eventId, bullheadPost.id, "Le visuel demandé doit être rattaché au post du 6 août.");
-assert.equal(bullheadMarkedMedia?.stage, "proposal");
-assert.ok(fs.existsSync(path.join(here, "media-previews", "2026-07-30", "barbotte-appel-signalement-v1-preview.webp")),
-  "L’aperçu léger du visuel de la barbote doit être livré avec le cockpit.");
+const archivedBullheadMediaIds = [
+  "editorial-barbotte-20260730-signalement-v2",
+  "editorial-barbotte-20260806-marques-visibles-v1"
+];
+for (const mediaId of archivedBullheadMediaIds) {
+  const archivedMedia = editorialMedia.find((media) => media.id === mediaId);
+  assert.equal(archivedMedia?.eventId, bullheadPost.id);
+  assert.equal(archivedMedia?.stage, "archived");
+  assert.equal(archivedMedia?.archived, true);
+}
+const activeBullheadMedia = editorialMedia.filter((media) => media.eventId === bullheadPost.id && media.stage !== "archived" && media.archived !== true);
+assert.deepEqual(activeBullheadMedia.map((media) => media.id), ["editorial-barbotte-20260806-tumeurs-usgs-v3"],
+  "Le poster documentaire demandé doit être le seul média actif du post du 6 août.");
+assert.ok(fs.existsSync(path.join(here, "media-previews", "2026-08-06", "barbotte-tumeurs-photo-usgs-poster-v3-preview.webp")),
+  "L’aperçu léger du poster documentaire de la barbote doit être livré avec le cockpit.");
 const approvedCommunityChoice = posts.find((post) => post.id === "s4d7");
 assert.equal(approvedCommunityChoice.dateIso, "2026-07-30", "Le post entièrement approuvé par les deux rôles doit remplacer la barbote aujourd’hui.");
 assert.deepEqual(activePosts.filter((post) => post.dateIso === "2026-07-30").map((post) => post.id), [approvedCommunityChoice.id]);
