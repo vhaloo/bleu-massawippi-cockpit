@@ -76,6 +76,15 @@ for (const asset of [
   );
 }
 
+critical(
+  "PUB-006",
+  "Ascenseur de dates compact avant les très grands écrans",
+  /DATE_ELEVATOR_COMPACT_MAX\s*=\s*1599/.test(files.ui)
+    && /@media\s*\(max-width\s*:\s*1599px\)[\s\S]*?#cockpit-date-elevator\.open\s+\.cockpit-date-nav\s*\{\s*display\s*:\s*flex/.test(files.ui)
+    && (files.ui.match(/innerWidth\s*>\s*DATE_ELEVATOR_COMPACT_MAX/g) || []).length >= 2,
+  "Sur un portable ou une Surface, le rail permanent ne doit jamais recouvrir les boutons Ouvrir; il devient un bouton compact dépliable."
+);
+
 // Secrets à haute confiance dans tous les fichiers suivis par Git.
 let tracked = [];
 try {

@@ -35,25 +35,26 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260803-b49";
-import { createEventContextController } from "./event-context-data.js?v=20260803-b49";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260803-b49";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260803-b49";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260803-b49";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260803-b49";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260803-b49";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260803-b49";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260803-b49";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260803-b49";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260803-b49";
-import { setupControlHints } from "./control-hints.js?v=20260803-b49";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260803-b49";
-import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260803-b49";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260803-b49";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260803-b49";
+} from "./firebase-client.js?v=20260803-b50";
+import { createEventContextController } from "./event-context-data.js?v=20260803-b50";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260803-b50";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260803-b50";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260803-b50";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260803-b50";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260803-b50";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260803-b50";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260803-b50";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260803-b50";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260803-b50";
+import { setupControlHints } from "./control-hints.js?v=20260803-b50";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260803-b50";
+import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260803-b50";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260803-b50";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260803-b50";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
+const DATE_ELEVATOR_COMPACT_MAX = 1599;
 const state = { user: null, profile: null, rows: new Map(), basePosts: [], editorialSignature: "[]", mediaByEvent: new Map(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
 let eventContextController = null;
 let activeRecognition = null;
@@ -216,6 +217,13 @@ style.textContent = `
   [data-theme="dark"] .cockpit-date-nav button { color:#c7dce1; }
   [data-theme="dark"] .cockpit-date-nav button:hover { color:#fff; background:#244d5a; }
   [data-theme="dark"] .cockpit-date-nav button.active { color:#fff; background:#1688a3; }
+  @media (max-width:1599px) {
+    #cockpit-date-elevator { top:calc(var(--cockpit-session-height,52px) + var(--cockpit-nav-height,44px) + 6px); right:8px; bottom:auto; width:min(178px,calc(100vw - 16px)); border-radius:13px; }
+    .cockpit-date-current { min-height:39px; border-bottom:0; font-size:.68rem; }
+    .cockpit-date-nav { display:none; max-height:48vh; border-top:1px solid #d4e7e9; }
+    #cockpit-date-elevator.open .cockpit-date-nav { display:flex; }
+    [data-theme="dark"] .cockpit-date-nav { border-color:#496873; }
+  }
   [data-theme="dark"] .cockpit-media-selection-note { border-color:#4f8490; color:#e8f7f8; background:#173f4d; }
   [data-theme="dark"] .cockpit-media-selection-note.is-complete { border-color:#4f9f85; color:#e8fff6; background:#174b40; }
   .cockpit-media-info { border-top:1px solid #d8e8ea; background:#fbfdfd; }
@@ -453,11 +461,6 @@ style.textContent = `
     body .toolbar :is(select,button) { min-height:46px; }
     .status { display:grid; grid-template-columns:auto 1fr; gap:7px 10px; font-size:.78rem; }
     .status .bar { grid-column:1 / -1; grid-row:2; }
-    #cockpit-date-elevator { top:calc(var(--cockpit-session-height,52px) + var(--cockpit-nav-height,44px) + 6px); right:8px; bottom:auto; width:min(178px,calc(100vw - 16px)); border-radius:13px; }
-    .cockpit-date-current { min-height:39px; border-bottom:0; font-size:.68rem; }
-    .cockpit-date-nav { display:none; max-height:48vh; border-top:1px solid #d4e7e9; }
-    #cockpit-date-elevator.open .cockpit-date-nav { display:flex; }
-    [data-theme="dark"] .cockpit-date-nav { border-color:#496873; }
   }
   .internal-project-docs a.internal-project-proposal {
     display:flex; align-items:center; gap:8px; width:fit-content; margin:4px 10px 9px 0;
@@ -519,7 +522,7 @@ function updateDateElevator() {
   });
   const activeButton = buttons[activeIndex];
   const nav = elevator.querySelector(".cockpit-date-nav");
-  if (activeButton && nav && innerWidth > 700) {
+  if (activeButton && nav && innerWidth > DATE_ELEVATOR_COMPACT_MAX) {
     const top = activeButton.offsetTop;
     if (top < nav.scrollTop + 8 || top + activeButton.offsetHeight > nav.scrollTop + nav.clientHeight - 8) {
       nav.scrollTo({ top: Math.max(0, top - nav.clientHeight / 2), behavior: "smooth" });
@@ -562,7 +565,7 @@ function setupDateElevator() {
       return;
     }
     const toggle = event.target.closest("[data-date-toggle]");
-    if (!toggle || innerWidth > 700) return;
+    if (!toggle || innerWidth > DATE_ELEVATOR_COMPACT_MAX) return;
     const open = elevator.classList.toggle("open");
     toggle.setAttribute("aria-expanded", String(open));
   });
