@@ -48,4 +48,12 @@ for (const id of newIds) {
   assert.ok(media[0].previewUrl, `L’aperçu réel de ${id} doit être disponible sur mobile.`);
 }
 
+const radioCanadaPost = horizon.find((item) => item.id === "actualite-20260808-denis-radio-canada-moules-zebrees");
+assert.ok(radioCanadaPost, "Le relais Radio-Canada doit occuper le 8 août sans créer de doublon.");
+assert.equal(radioCanadaPost.dateIso, "2026-08-08");
+assert.match(radioCanadaPost.copy, /2442552\/entrevue/);
+assert.ok(!/«[^»]+»/.test(radioCanadaPost.copy), "Le relais ne doit pas inventer de citation attribuée à Denis.");
+const deferredMonitoringPost = posts.find((item) => item.id === "s1d2");
+assert.equal(deferredMonitoringPost?.dateIso, "2026-09-14", "Le suivi du lac et de ses tributaires doit être conservé au 14 septembre.");
+
 console.log(JSON.stringify({ passed: true, start, end, days: expectedDates.length, publications: horizon.length, gaps: 0, duplicates: 0, newPosts: newIds.length }, null, 2));

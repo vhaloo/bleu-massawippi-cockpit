@@ -35,20 +35,22 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260801-b47";
-import { createEventContextController } from "./event-context-data.js?v=20260801-b47";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260801-b47";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260801-b47";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260801-b47";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260801-b47";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260801-b47";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260801-b47";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260801-b47";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260801-b47";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260801-b47";
-import { setupControlHints } from "./control-hints.js?v=20260801-b47";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260801-b47";
-import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260801-b47";
+} from "./firebase-client.js?v=20260803-b49";
+import { createEventContextController } from "./event-context-data.js?v=20260803-b49";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260803-b49";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260803-b49";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260803-b49";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260803-b49";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260803-b49";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260803-b49";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260803-b49";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260803-b49";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260803-b49";
+import { setupControlHints } from "./control-hints.js?v=20260803-b49";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260803-b49";
+import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260803-b49";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260803-b49";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260803-b49";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -178,6 +180,9 @@ style.textContent = `
   .cockpit-media > summary:after { margin-left: auto; }
   .cockpit-media-count { display: inline-grid; min-width: 21px; min-height: 21px; padding: 0 6px; place-items: center; border-radius: 999px; color: #fff; background: #0b7895; font-size: .66rem; }
   .cockpit-media-body { padding: 0 10px 10px; }
+  .cockpit-media-selection-note { display:flex; align-items:center; gap:7px; margin:4px 2px 8px; padding:8px 10px; border:1px solid #9fcbd1; border-radius:10px; color:#174e62; background:#edf8f8; font-size:.69rem; font-weight:800; line-height:1.35; }
+  .cockpit-media-selection-note[hidden] { display:none; }
+  .cockpit-media-selection-note.is-complete { border-color:#6db89f; color:#155c4e; background:#e4f6ef; }
   .cockpit-media-gallery { display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 12px; scroll-snap-type: x mandatory; scrollbar-width:thin; }
   .cockpit-media-nav { display:none; align-items:center; justify-content:center; gap:8px; margin:0 0 10px; }
   .cockpit-media-nav button { display:grid; width:42px; height:42px; place-items:center; border:1px solid #8cb9c1; border-radius:50%; color:#0b6077; background:#fff; font:inherit; font-size:1rem; font-weight:900; cursor:pointer; }
@@ -211,6 +216,8 @@ style.textContent = `
   [data-theme="dark"] .cockpit-date-nav button { color:#c7dce1; }
   [data-theme="dark"] .cockpit-date-nav button:hover { color:#fff; background:#244d5a; }
   [data-theme="dark"] .cockpit-date-nav button.active { color:#fff; background:#1688a3; }
+  [data-theme="dark"] .cockpit-media-selection-note { border-color:#4f8490; color:#e8f7f8; background:#173f4d; }
+  [data-theme="dark"] .cockpit-media-selection-note.is-complete { border-color:#4f9f85; color:#e8fff6; background:#174b40; }
   .cockpit-media-info { border-top:1px solid #d8e8ea; background:#fbfdfd; }
   .cockpit-media-info > summary { display:flex; min-height:42px; align-items:center; gap:6px; padding:8px 10px; color:#245866; font-size:.7rem; font-weight:900; cursor:pointer; list-style:none; }
   .cockpit-media-info > summary::-webkit-details-marker { display:none; }
@@ -944,65 +951,6 @@ function enhanceSectionFeedback() {
   });
 }
 
-function escapeCalendarText(value) {
-  return String(value ?? "")
-    .replace(/\\/g, "\\\\")
-    .replace(/\r?\n/g, "\\n")
-    .replace(/([,;])/g, "\\$1");
-}
-
-function calendarUtcStamp(date) {
-  const pad = (value) => String(value).padStart(2, "0");
-  return `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}T${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}${pad(date.getUTCSeconds())}Z`;
-}
-
-function nextCalendarDate(weekday, hour, minute = 0) {
-  const now = new Date();
-  const target = new Date(now);
-  const currentDay = target.getDay();
-  let daysAhead = (weekday - currentDay + 7) % 7;
-  if (daysAhead === 0 && (now.getHours() > hour || (now.getHours() === hour && now.getMinutes() >= minute))) daysAhead = 7;
-  target.setDate(target.getDate() + daysAhead);
-  target.setHours(hour, minute, 0, 0);
-  return target;
-}
-
-function downloadCalendarFile(filename, content) {
-  const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
-  const objectUrl = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = objectUrl;
-  anchor.download = filename;
-  anchor.rel = "noopener";
-  anchor.setAttribute("aria-hidden", "true");
-  document.body.appendChild(anchor);
-  anchor.click();
-  window.setTimeout(() => {
-    anchor.remove();
-    URL.revokeObjectURL(objectUrl);
-  }, 1200);
-}
-
-const frenchMonthNumbers = {
-  janvier: 0, février: 1, fevrier: 1, mars: 2, avril: 3, mai: 4, juin: 5,
-  juillet: 6, août: 7, aout: 7, septembre: 8, octobre: 9, novembre: 10, décembre: 11, decembre: 11
-};
-
-function parsePlanDate(value) {
-  const item = value && typeof value === "object" ? value : null;
-  const dateIso = String(item?.dateIso || "");
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateIso)) {
-    const [year, month, day] = dateIso.split("-").map(Number);
-    return new Date(year, month - 1, day, 12, 0, 0, 0);
-  }
-  const label = item?.date ?? value;
-  const match = String(label || "").toLocaleLowerCase("fr-CA").match(/(\d{1,2})(?:er)?\s+([a-zéûô]+)/i);
-  if (!match) return null;
-  const month = frenchMonthNumbers[match[2]];
-  if (typeof month !== "number") return null;
-  return new Date(2026, month, Number(match[1]), 12, 0, 0, 0);
-}
-
 function setupFeedbackDictationEvents() {
   if (document.body.dataset.feedbackDictationReady === "true") return;
   document.body.dataset.feedbackDictationReady = "true";
@@ -1171,92 +1119,6 @@ function setupMonthlyEditorialSnapshot() {
   renderMonthlyEditorialSnapshot();
 }
 
-function postCalendarStart(planItem) {
-  const start = parsePlanDate(planItem) || new Date(2026, 6, 13, 9, 0, 0, 0);
-  const hoursByDay = { 0: 9, 1: 9, 2: 12, 3: 18, 4: 12, 5: 17, 6: 10 };
-  const schedule = state.rows.get(planItem?.id) || {};
-  const calendarTime = String(schedule.calendarTime || planItem?.calendarTime || "").trim();
-  const validTime = calendarTime.match(/^([01]\d|2[0-3]):([0-5]\d)$/);
-  const hour = validTime ? Number(validTime[1]) : (hoursByDay[start.getDay()] ?? 12);
-  const minute = validTime ? Number(validTime[2]) : 0;
-  start.setHours(hour, minute, 0, 0);
-  return start;
-}
-
-function postCalendarMetadata(planItem) {
-  const schedule = state.rows.get(planItem?.id) || {};
-  const rawDuration = Number(schedule.calendarDurationMinutes ?? planItem?.calendarDurationMinutes);
-  const durationMinutes = Number.isInteger(rawDuration) && rawDuration > 0 && rawDuration <= 1440 ? rawDuration : 30;
-  const location = String(schedule.calendarLocation || planItem?.calendarLocation || "En ligne — Facebook / Instagram").trim();
-  const cost = String(schedule.calendarCost || planItem?.calendarCost || "Aucun coût de diffusion; confirmer les droits, la production et tout achat éventuel.").trim();
-  return {
-    durationMinutes,
-    location: location || "En ligne — Facebook / Instagram",
-    cost: cost || "Aucun coût de diffusion; confirmer les droits, la production et tout achat éventuel."
-  };
-}
-
-function profileTaskLabel() {
-  if (state.profile?.role === "director") return "Annie — Directrice générale";
-  if (state.profile?.role === "admin") return "Valentin — Directeur des communications";
-  return "Répartition des tâches";
-}
-
-function profileTasks(planItem) {
-  const valentin = Array.isArray(planItem?.tasksValentin) ? planItem.tasksValentin : [planItem?.task].filter(Boolean);
-  const annie = Array.isArray(planItem?.tasksAnnie) ? planItem.tasksAnnie : [];
-  if (state.profile?.role === "director") return annie.length ? annie : ["Aucune tâche assignée à la direction générale pour ce contenu; prendre connaissance au besoin."];
-  if (state.profile?.role === "admin") return valentin;
-  return [...valentin.map((task) => "Valentin : " + task), ...(annie.length ? annie.map((task) => "Annie : " + task) : ["Annie : aucune tâche assignée pour ce contenu."])];
-}
-
-function buildPostCalendarIcs(planItem) {
-  const start = postCalendarStart(planItem);
-  const metadata = postCalendarMetadata(planItem);
-  const end = new Date(start.getTime() + metadata.durationMinutes * 60000);
-  const roleLabel = profileTaskLabel();
-  const taskLines = profileTasks(planItem).map((task) => "• " + task).join("\n");
-  const description = [
-    `Publication prévue — créneau à tester (${start.toLocaleString("fr-CA", { dateStyle: "full", timeStyle: "short", timeZone: "America/Toronto" })})`,
-    "",
-    `Tâches de ${roleLabel} :`,
-    taskLines,
-    "",
-    `Format : ${planItem.format || "à confirmer"}`,
-    `Objectif : ${planItem.role || "à confirmer"}`,
-    `CTA : ${planItem.cta || "à confirmer"}`,
-    `Source / validation : ${planItem.source || "à confirmer"}`,
-    `Lieu : ${metadata.location}`,
-    `Coût prévu : ${metadata.cost}`,
-    "Cet événement est une aide de coordination : il ne programme pas automatiquement la publication."
-  ].join("\n");
-  const uid = `bleu-massawippi-post-${planItem.id}-${start.getTime()}@bleumassawippi.com`;
-  return {
-    filename: `bleu-massawippi-${planItem.id}-${start.toISOString().slice(0, 10)}.ics`,
-    content: [
-      "BEGIN:VCALENDAR",
-      "VERSION:2.0",
-      "PRODID:-//Bleu Massawippi//Cockpit//FR",
-      "CALSCALE:GREGORIAN",
-      "METHOD:PUBLISH",
-      "BEGIN:VEVENT",
-      `UID:${uid}`,
-      `DTSTAMP:${calendarUtcStamp(new Date())}`,
-      `DTSTART:${calendarUtcStamp(start)}`,
-      `DTEND:${calendarUtcStamp(end)}`,
-      `SUMMARY:${escapeCalendarText("Publication — " + (planItem.title || "Bleu Massawippi"))}`,
-      `DESCRIPTION:${escapeCalendarText(description)}`,
-      `LOCATION:${escapeCalendarText(metadata.location)}`,
-      `URL:${escapeCalendarText(planItem.source || "https://bleumassawippi.com")}`,
-      "CATEGORIES:BLEU MASSAWIPPI,SOCIAL",
-      "STATUS:CONFIRMED",
-      "TRANSP:TRANSPARENT",
-      "END:VEVENT",
-      "END:VCALENDAR"
-    ].join("\r\n")
-  };
-}
-
 function enhancePostCalendarEvents() {
   if (document.body.dataset.postCalendarEventsReady === "true") return;
   document.body.dataset.postCalendarEventsReady = "true";
@@ -1269,10 +1131,10 @@ function enhancePostCalendarEvents() {
       toast("Cet événement n’est plus disponible dans le calendrier.", true);
       return;
     }
-    const calendar = buildPostCalendarIcs(planItem);
+    const calendar = buildPostCalendarIcs(planItem, { schedule: state.rows.get(planItem?.id) || {}, role: state.profile?.role || "" });
     downloadCalendarFile(calendar.filename, calendar.content);
     const feedback = button.parentElement?.querySelector("[data-post-calendar-feedback]");
-    if (feedback) feedback.textContent = `Fichier prêt pour ${profileTaskLabel()}.`;
+    if (feedback) feedback.textContent = `Fichier prêt pour ${profileTaskLabel(state.profile?.role)}.`;
     button.textContent = "Fichier calendrier prêt";
     window.setTimeout(() => { button.textContent = "Ajouter cet événement à mon agenda"; }, 3200);
   });
@@ -1290,43 +1152,8 @@ function enhanceCalendarButtons() {
       const hour = Math.max(0, Math.min(23, Number(card.dataset.calendarHour || 10)));
       const minute = Math.max(0, Math.min(59, Number(card.dataset.calendarMinute || 0)));
       const duration = Math.max(15, Number(card.dataset.calendarDuration || 60));
-      const start = nextCalendarDate(weekday, hour, minute);
-      const end = new Date(start.getTime() + duration * 60000);
-      const uid = `bleu-massawippi-${start.getTime()}@bleumassawippi.com`;
-      const summary = "Point de coordination — Bleu Massawippi";
-      const weeklyTasks = state.profile?.role === "director"
-        ? ["Arbitrer les choix éditoriaux et les sujets sensibles.", "Confirmer les validations, partenaires et décisions qui exigent la direction générale."]
-        : ["Préparer la synthèse des choix, commentaires et tâches en attente.", "Mettre à jour le calendrier, les sources, les visuels et les suivis après l’arbitrage."];
-      const description = [
-        "Point de coordination hebdomadaire proposé autour de 10 h. L’horaire demeure modifiable dans l’agenda partagé.",
-        "",
-        `Tâches de ${profileTaskLabel()} :`,
-        weeklyTasks.map((task) => "• " + task).join("\n"),
-        "",
-        "Ordre du jour : décisions à prendre, validations sensibles, contenu de la semaine et suivis.",
-        "Lieu : en ligne ou lieu confirmé dans l’agenda partagé.",
-        "Coût prévu : aucun."
-      ].join("\n");
-      const ics = [
-        "BEGIN:VCALENDAR",
-        "VERSION:2.0",
-        "PRODID:-//Bleu Massawippi//Cockpit//FR",
-        "CALSCALE:GREGORIAN",
-        "METHOD:PUBLISH",
-        "BEGIN:VEVENT",
-        `UID:${uid}`,
-        `DTSTAMP:${calendarUtcStamp(new Date())}`,
-        `DTSTART:${calendarUtcStamp(start)}`,
-        `DTEND:${calendarUtcStamp(end)}`,
-        `SUMMARY:${escapeCalendarText(summary)}`,
-        `DESCRIPTION:${escapeCalendarText(description)}`,
-        "LOCATION:En ligne ou lieu confirmé dans l’agenda partagé",
-        "STATUS:CONFIRMED",
-        "TRANSP:TRANSPARENT",
-        "END:VEVENT",
-        "END:VCALENDAR"
-      ].join("\r\n");
-      downloadCalendarFile(`coordination-bleu-massawippi-${start.toISOString().slice(0, 10)}.ics`, ics);
+      const calendar = buildWeeklyCoordinationIcs({ weekday, hour, minute, duration, role: state.profile?.role || "" });
+      downloadCalendarFile(calendar.filename, calendar.content);
       const feedback = card.querySelector("[data-calendar-feedback]");
       if (feedback) feedback.textContent = "Fichier prêt : choisissez l’application de calendrier proposée par votre appareil.";
       button.textContent = "Fichier calendrier prêt";
@@ -2014,11 +1841,27 @@ function renderMediaForCard(card) {
   const gallery = card.querySelector("[data-media-gallery]");
   const count = card.querySelector("[data-media-count]");
   const navigation = card.querySelector("[data-media-nav]");
+  const selectionNote = card.querySelector("[data-media-selection-note]");
   if (!gallery || !count || !navigation) return;
+  const planItem = getPlanItem(card);
+  const allowsMultiple = planItem?.mediaSelectionMode === "multiple";
+  const requiredSelectionCount = allowsMultiple ? 2 : 1;
   const rows = (state.mediaByEvent.get(card.dataset.itemId) || []).filter((row) => row.archived !== true && safeMediaUrl(row.url));
   const decisions = (state.commentsByEvent.get(card.dataset.itemId) || []).filter((row) => row.deleted !== true && /^\[MÉDIA RETENU:/.test(row.comment || ""));
   const latestDecision = decisions.at(-1)?.comment || "";
   count.textContent = String(rows.length);
+  const structuredDecision = state.mediaDecisions.get(card.dataset.itemId) || null;
+  const roleSide = state.profile?.role === "director" ? "direction" : "communications";
+  const mySelectionCount = structuredDecision?.[roleSide]?.status === "selected" && Array.isArray(structuredDecision[roleSide].mediaIds)
+    ? structuredDecision[roleSide].mediaIds.length
+    : 0;
+  if (selectionNote) {
+    selectionNote.hidden = !allowsMultiple;
+    selectionNote.classList.toggle("is-complete", allowsMultiple && mySelectionCount >= requiredSelectionCount);
+    selectionNote.textContent = allowsMultiple
+      ? `${mySelectionCount >= requiredSelectionCount ? "✓" : "🖼️"} ${planItem.mediaSelectionLabel || "Carrousel"} · choisissez les ${requiredSelectionCount} cartes (${Math.min(mySelectionCount, requiredSelectionCount)}/${requiredSelectionCount}). Elles seront publiées ensemble dans l’ordre indiqué.`
+      : "";
+  }
   if (!rows.length) {
     gallery.innerHTML = `<p class="cockpit-media-empty">Aucun média lié. Déposez le fichier dans OneDrive, créez un lien de consultation, puis ajoutez-le ici.</p>`;
     navigation.hidden = true;
@@ -2037,15 +1880,21 @@ function renderMediaForCard(card) {
     const textApproved = workflowTextApprovedStages.has(workflowStage);
     const role = state.profile?.role;
     const myChoiceSelected = role === "admin" ? choice.communicationsSelected : role === "director" ? choice.directionSelected : false;
-    const chooseLabel = role === "admin"
-      ? (myChoiceSelected ? "Retirer mon choix" : "Choisir ce visuel")
-      : (myChoiceSelected ? "Retirer mon choix" : textApproved ? "Approuver ce visuel" : "Choisir ce visuel");
+    const chooseLabel = allowsMultiple
+      ? (myChoiceSelected ? "Retirer cette carte du carrousel" : "Ajouter cette carte au carrousel")
+      : role === "admin"
+        ? (myChoiceSelected ? "Retirer mon choix" : "Choisir ce visuel")
+        : (myChoiceSelected ? "Retirer mon choix" : textApproved ? "Approuver ce visuel" : "Choisir ce visuel");
     const choiceDisabled = isBlocked;
     const agreementPresentation = mediaAgreementPresentation(choice);
     const infoStatus = isFinal
       ? agreementPresentation.info
       : choice.sameRoleChoice ? "✓ Même choix" : choice.communicationsSelected ? "Recommandé" : choice.directionSelected ? "Choix direction" : choice.legacySelected ? "Hérité" : "Ouvrir";
-    const { label: imageChoiceLabel, className: imageChoiceClass } = mediaImageChoicePresentation(choice, role, myChoiceSelected);
+    const defaultImageChoice = mediaImageChoicePresentation(choice, role, myChoiceSelected);
+    const imageChoiceLabel = allowsMultiple
+      ? (myChoiceSelected ? "✓ Carte choisie — retirer" : "Ajouter au carrousel")
+      : defaultImageChoice.label;
+    const imageChoiceClass = defaultImageChoice.className;
     const roleBadges = [
       choice.communicationsSelected ? `<span class="cockpit-media-role-badge communications">✓ Recommandé par les communications</span>` : "",
       choice.directionSelected ? `<span class="cockpit-media-role-badge direction">✓ Choisi par la direction générale · visuel prêt</span>` : "",
@@ -2129,6 +1978,7 @@ function mediaControlsMarkup(planItem) {
   return `<details class="cockpit-media" open>
     <summary>Médias OneDrive <span class="cockpit-media-count" data-media-count>0</span></summary>
     <div class="cockpit-media-body">
+      <p class="cockpit-media-selection-note" data-media-selection-note hidden></p>
       <div class="cockpit-media-gallery" data-media-gallery></div>
       <div class="cockpit-media-nav" data-media-nav hidden></div>
       <p class="cockpit-media-swipe-hint">Sur mobile, glissez les images ou utilisez les flèches pour toutes les voir.</p>
@@ -2179,11 +2029,15 @@ function renderEditorialDecision(card) {
 function renderWorkflow(card) {
   const row = state.workflows.get(card.dataset.itemId) || { stage: "proposal" };
   const stage = row.stage || "proposal";
+  const planItem = getPlanItem(card);
+  const requiredMediaCount = planItem?.mediaSelectionMode === "multiple"
+    ? 2
+    : 1;
   const structuredMediaDecision = state.mediaDecisions.get(card.dataset.itemId) || null;
   const structuredMediaAgreement = ["agreed", "overridden"].includes(structuredMediaDecision?.agreement?.status);
   const directionMediaReady = structuredMediaDecision?.direction?.status === "selected"
     && Array.isArray(structuredMediaDecision.direction.mediaIds)
-    && structuredMediaDecision.direction.mediaIds.length > 0;
+    && structuredMediaDecision.direction.mediaIds.length >= requiredMediaCount;
   card.dataset.workflowStage = stage;
   card.dataset.workflowUpdatedAt = String(stateTimestampMillis(row.updatedAt));
   const contentDone = ["content_approved","media_in_progress","media_review","media_changes_requested","final_approved","scheduled","published"].includes(stage);
@@ -2832,16 +2686,18 @@ function enhanceCardEvents() {
       const mediaId = mediaDecisionButton.dataset.mediaDecision;
       const label = mediaDecisionButton.dataset.mediaLabel || "Média OneDrive";
       const selected = mediaDecisionButton.getAttribute("aria-pressed") !== "true";
+      const planItem = getPlanItem(card);
+      const allowsMultiple = planItem?.mediaSelectionMode === "multiple";
       mediaDecisionButton.disabled = true;
-      setMediaDecision(card.dataset.itemId, mediaId, selected, state.profile)
+      setMediaDecision(card.dataset.itemId, mediaId, selected, state.profile, { multiple: allowsMultiple })
         .then(async (decision) => {
-          const planItem = getPlanItem(card);
           ripple(mediaDecisionButton);
           if (state.profile.role === "director") {
             const actionItem = [...document.querySelectorAll("#cockpit-action-item-source [data-action-item-id]")]
               .find((item) => item.dataset.actionTarget === card.dataset.itemId && (!item.dataset.actionMedia || item.dataset.actionMedia === mediaId));
             const actionItemId = actionItem?.dataset.actionItemId || `media-direction-approval-${card.dataset.itemId}`;
-            const resolved = selected;
+            const requiredSelectionCount = allowsMultiple ? 2 : 1;
+            const resolved = selected && (decision?.direction?.mediaIds?.length || 0) >= requiredSelectionCount;
             try {
               await setPersonalActionItemState(actionItemId, resolved ? "done" : "pending", state.profile);
             } catch (error) {
@@ -2856,8 +2712,9 @@ function enhanceCardEvents() {
               message: selected ? `La direction a choisi « ${label} ». Vérifier l’accord des deux rôles puis programmer ou publier seulement après les feux verts.` : `La direction a retiré son choix de « ${label} »; l’historique demeure conservé.`
             });
           }
+          const selectedCount = decision?.[state.profile.role === "director" ? "direction" : "communications"]?.mediaIds?.length || 0;
           toast(selected
-            ? state.profile.role === "admin" ? "Visuel recommandé par les communications." : "Choix de la direction enregistré."
+            ? allowsMultiple ? `Carte ajoutée au carrousel (${selectedCount}/${Math.max(2, Number(planItem?.mediaSelectionRequired) || 2)}).` : state.profile.role === "admin" ? "Visuel recommandé par les communications." : "Choix de la direction enregistré."
             : "Votre choix a été retiré; l’historique est conservé.");
         })
         .catch((error) => toast(error.message, true))
@@ -2870,6 +2727,8 @@ function enhanceCardEvents() {
       event.stopPropagation();
       const mediaId = mediaOverrideButton.dataset.mediaOverride;
       const label = mediaOverrideButton.dataset.mediaLabel || "Média OneDrive";
+      const planItem = getPlanItem(card);
+      const allowsMultiple = planItem?.mediaSelectionMode === "multiple";
       const textApproved = workflowTextApprovedStages.has(state.workflows.get(card.dataset.itemId)?.stage || "proposal");
       const promptLabel = state.profile?.role === "director"
         ? "Pourquoi retenir ce visuel comme décision finale?"
@@ -2878,7 +2737,7 @@ function enhanceCardEvents() {
       if (reason === null) return;
       if (!reason.trim()) { toast("Ajoutez un motif clair afin de préserver la trace de décision.", true); return; }
       mediaOverrideButton.disabled = true;
-      setMediaDecision(card.dataset.itemId, mediaId, true, state.profile, { override: true, reason })
+      setMediaDecision(card.dataset.itemId, mediaId, true, state.profile, { override: true, reason, multiple: allowsMultiple })
         .then(async (decision) => {
           ripple(mediaOverrideButton);
           if (state.profile.role === "director" && ["agreed", "overridden"].includes(decision?.agreement?.status)) {
@@ -3069,6 +2928,13 @@ async function applyProfile(profile) {
   setupInternalProjectEvents();
   renderOpportunityStates();
   renderInternalProjectStates();
+  setupProjectCalendar({
+    profile,
+    mediaFolderUrl: state.mediaConfig?.folderViewUrl || state.mediaConfig?.folderUrl || "",
+    safeMode,
+    onDictate: startDictation,
+    toast
+  });
   syncCardAccess();
 }
 
@@ -3108,6 +2974,7 @@ function applySignedOut(message = "") {
   state.decisionUnsubscribe = null;
   state.tasks = [];
   clearCompletedTaskHistory();
+  clearProjectCalendar();
   clearPrivateContent();
   dispatchEvent(new CustomEvent("cockpit:session-ended"));
   document.body.classList.add("cockpit-locked");

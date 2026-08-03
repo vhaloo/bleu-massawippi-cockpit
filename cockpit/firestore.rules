@@ -120,11 +120,10 @@ service cloud.firestore {
 
     function validMediaDecisionSide(side, actorRole) {
       return side is map
-        && side.keys().hasAll(['status', 'mediaIds', 'actorUid', 'actorLabel', 'actorRole', 'decidedAt'])
         && side.keys().hasOnly(['status', 'mediaIds', 'actorUid', 'actorLabel', 'actorRole', 'decidedAt'])
         && side.status in ['none', 'selected', 'revoked']
-        && side.mediaIds is list && side.mediaIds.size() <= 1
-        && ((side.status == 'selected' && side.mediaIds.size() == 1)
+        && side.mediaIds is list && side.mediaIds.size() <= 2
+        && ((side.status == 'selected' && side.mediaIds.size() >= 1)
           || (side.status != 'selected' && side.mediaIds.size() == 0))
         && side.actorUid is string
         && side.actorLabel is string && side.actorLabel.size() <= 120
@@ -135,10 +134,9 @@ service cloud.firestore {
 
     function validMediaOverride(value) {
       return value is map
-        && value.keys().hasAll(['active', 'mediaIds', 'reason', 'actorUid', 'actorLabel', 'actorRole', 'decidedAt'])
         && value.keys().hasOnly(['active', 'mediaIds', 'reason', 'actorUid', 'actorLabel', 'actorRole', 'decidedAt'])
         && value.active is bool
-        && value.mediaIds is list && value.mediaIds.size() <= 1
+        && value.mediaIds is list && value.mediaIds.size() <= 2
         && value.reason is string && value.reason.size() <= 500
         && value.actorUid is string
         && value.actorLabel is string && value.actorLabel.size() <= 120
@@ -151,7 +149,7 @@ service cloud.firestore {
             && value.actorRole == ''
             && value.decidedAt == null)
           || (value.active == true
-            && value.mediaIds.size() == 1
+            && value.mediaIds.size() >= 1
             && value.reason.size() > 0
             && value.actorUid.size() > 0
             && value.actorLabel.size() > 0
@@ -161,7 +159,8 @@ service cloud.firestore {
 
     function validSelectedMedia(eventId, side) {
       return side.status != 'selected'
-        || validSelectableMedia(eventId, side.mediaIds[0]);
+        || (validSelectableMedia(eventId, side.mediaIds[0])
+          && (side.mediaIds.size() < 2 || validSelectableMedia(eventId, side.mediaIds[1])));
     }
 
     function validSelectableMedia(eventId, mediaId) {
@@ -173,50 +172,62 @@ service cloud.firestore {
         && (!('publicationBlocked' in media) || media.publicationBlocked == false);
     }
 
+    function validAgreedMediaState(data) {
+      return data.override.active == false
+        && data.communications.status == 'selected'
+        && data.direction.status == 'selected'
+        && data.communications.mediaIds == data.direction.mediaIds
+        && data.agreement.mediaIds == data.communications.mediaIds
+        && data.agreement.divergent == false
+        && data.textGateStage in ['content_approved', 'media_in_progress', 'media_review', 'media_changes_requested', 'final_approved', 'scheduled', 'published'];
+    }
+
+    function validDivergentMediaState(data) {
+      return data.override.active == false
+        && data.communications.status == 'selected'
+        && data.direction.status == 'selected'
+        && data.communications.mediaIds != data.direction.mediaIds
+        && data.agreement.mediaIds.size() == 0
+        && data.agreement.divergent == true;
+    }
+
+    function validOverriddenMediaState(data) {
+      return data.override.active == true
+        && ((data.override.actorRole == 'director'
+            && data.direction.status == 'selected'
+            && data.override.mediaIds == data.direction.mediaIds)
+          || (data.override.actorRole == 'admin'
+            && data.communications.status == 'selected'
+            && data.override.mediaIds == data.communications.mediaIds))
+        && data.agreement.mediaIds == data.override.mediaIds
+        && data.agreement.divergent == false
+        && data.textGateStage in ['content_approved', 'media_in_progress', 'media_review', 'media_changes_requested', 'final_approved', 'scheduled', 'published'];
+    }
+
+    function validPendingMediaState(data) {
+      return data.override.active == false
+        && data.agreement.mediaIds.size() == 0
+        && data.agreement.divergent == false
+        && !(data.communications.status == 'selected'
+          && data.direction.status == 'selected'
+          && data.communications.mediaIds != data.direction.mediaIds)
+        && !(data.communications.status == 'selected'
+          && data.direction.status == 'selected'
+          && data.communications.mediaIds == data.direction.mediaIds
+          && data.textGateStage in ['content_approved', 'media_in_progress', 'media_review', 'media_changes_requested', 'final_approved', 'scheduled', 'published']);
+    }
+
     function validMediaAgreement(data) {
+      let status = data.agreement.status;
       return data.agreement is map
-        && data.agreement.keys().hasAll(['status', 'mediaIds', 'divergent'])
         && data.agreement.keys().hasOnly(['status', 'mediaIds', 'divergent'])
-        && data.agreement.status in ['pending', 'agreed', 'divergent', 'overridden']
-        && data.agreement.mediaIds is list && data.agreement.mediaIds.size() <= 1
+        && status in ['pending', 'agreed', 'divergent', 'overridden']
+        && data.agreement.mediaIds is list && data.agreement.mediaIds.size() <= 2
         && data.agreement.divergent is bool
-        && ((data.agreement.status == 'agreed'
-            && data.override.active == false
-            && data.communications.status == 'selected'
-            && data.direction.status == 'selected'
-            && data.communications.mediaIds == data.direction.mediaIds
-            && data.agreement.mediaIds == data.communications.mediaIds
-            && data.agreement.divergent == false
-            && workflowTextApproved(data.eventId))
-          || (data.agreement.status == 'divergent'
-            && data.override.active == false
-            && data.communications.status == 'selected'
-            && data.direction.status == 'selected'
-            && data.communications.mediaIds != data.direction.mediaIds
-            && data.agreement.mediaIds.size() == 0
-            && data.agreement.divergent == true)
-          || (data.agreement.status == 'overridden'
-            && data.override.active == true
-            && ((data.override.actorRole == 'director'
-                && data.direction.status == 'selected'
-                && data.override.mediaIds == data.direction.mediaIds)
-              || (data.override.actorRole == 'admin'
-                && data.communications.status == 'selected'
-                && data.override.mediaIds == data.communications.mediaIds))
-            && data.agreement.mediaIds == data.override.mediaIds
-            && data.agreement.divergent == false
-            && workflowTextApproved(data.eventId))
-          || (data.agreement.status == 'pending'
-            && data.override.active == false
-            && data.agreement.mediaIds.size() == 0
-            && data.agreement.divergent == false
-            && !(data.communications.status == 'selected'
-              && data.direction.status == 'selected'
-              && data.communications.mediaIds != data.direction.mediaIds)
-            && !(data.communications.status == 'selected'
-              && data.direction.status == 'selected'
-              && data.communications.mediaIds == data.direction.mediaIds
-              && workflowTextApproved(data.eventId))));
+        && (status == 'agreed' ? validAgreedMediaState(data)
+          : status == 'divergent' ? validDivergentMediaState(data)
+          : status == 'overridden' ? validOverriddenMediaState(data)
+          : validPendingMediaState(data));
     }
 
     function mediaWorkflowMatchesAgreement(data) {
@@ -229,8 +240,7 @@ service cloud.firestore {
     }
 
     function validMediaDecisionEnvelope(data) {
-      return data.keys().hasAll(['eventId', 'schemaVersion', 'communications', 'direction', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
-        && data.keys().hasOnly(['eventId', 'schemaVersion', 'communications', 'direction', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+      return data.keys().hasOnly(['eventId', 'schemaVersion', 'communications', 'direction', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
         && data.eventId is string && data.eventId.size() >= 3 && data.eventId.size() <= 80
         && data.schemaVersion == 2
         && data.textGateStage in ['proposal', 'content_review', 'changes_requested', 'content_changes_requested', 'content_approved', 'media_in_progress', 'media_review', 'media_changes_requested', 'final_approved', 'scheduled', 'published']
@@ -249,6 +259,59 @@ service cloud.firestore {
         && validSelectedMedia(data.eventId, data.direction)
         && validMediaAgreement(data)
         && mediaWorkflowMatchesAgreement(data);
+    }
+
+    function validAdminMediaDecisionCreate() {
+      let data = request.resource.data;
+      return data.direction.status == 'none'
+        && data.communications.actorUid == request.auth.uid
+        && (data.override.active == false
+          || (data.override.actorUid == request.auth.uid
+            && data.override.actorRole == 'admin'));
+    }
+
+    function validDirectorMediaDecisionCreate() {
+      let data = request.resource.data;
+      return data.communications.status == 'none'
+        && data.direction.actorUid == request.auth.uid
+        && (data.override.active == false
+          || (data.override.actorUid == request.auth.uid
+            && data.override.actorRole == 'director'));
+    }
+
+    function validAdminMediaDecisionUpdate(eventId) {
+      let data = request.resource.data;
+      let before = resource.data;
+      return data.diff(before).affectedKeys().hasOnly(['communications', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+        && data.direction == before.direction
+        && validMediaOverride(data.override)
+        && (data.override == before.override
+          || (data.override.active == true
+            && data.override.actorUid == request.auth.uid
+            && data.override.actorRole == 'admin'))
+        && validMediaDecisionSide(data.communications, 'admin')
+        && (data.communications.mediaIds == before.direction.mediaIds
+          ? true
+          : validSelectedMedia(eventId, data.communications))
+        && validMediaAgreement(data)
+        && data.communications.actorUid == request.auth.uid;
+    }
+
+    function validDirectorMediaDecisionUpdate(eventId) {
+      let data = request.resource.data;
+      let before = resource.data;
+      return data.diff(before).affectedKeys().hasOnly(['direction', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+        && data.communications == before.communications
+        && validMediaDecisionSide(data.direction, 'director')
+        && validMediaOverride(data.override)
+        && (data.direction.mediaIds == before.communications.mediaIds
+          ? true
+          : validSelectedMedia(eventId, data.direction))
+        && validMediaAgreement(data)
+        && data.direction.actorUid == request.auth.uid
+        && (data.override.active == false
+          || (data.override.actorUid == request.auth.uid
+            && data.override.actorRole == 'director'));
     }
 
     function mediaAgreementAfter(eventId) {
@@ -271,6 +334,79 @@ service cloud.firestore {
         && data.projectId is string && data.projectId.size() >= 3 && data.projectId.size() <= 80
         && data.stage in ['to_frame', 'planned', 'active', 'blocked', 'completed']
         && data.updatedAt is timestamp && data.updatedBy == request.auth.uid
+        && data.updatedByLabel is string && data.updatedByLabel.size() > 0 && data.updatedByLabel.size() <= 120;
+    }
+
+    function validProjectDocumentUrl(value) {
+      return value is string && value.size() <= 2048
+        && (value == ''
+          || value.matches('^https://([A-Za-z0-9-]+\\.)*sharepoint\\.com/.*$')
+          || value.matches('^https://1drv\\.ms/.*$')
+          || value.matches('^https://onedrive\\.live\\.com/.*$'));
+    }
+
+    function validOptionalHttpsUrl(value) {
+      return value is string && value.size() <= 2048
+        && (value == '' || value.matches('^https://[^\\s]+$'));
+    }
+
+    function validProjectDateRange(data) {
+      return data.startDate is string && data.startDate.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && data.endDate is string && data.endDate.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && data.endDate >= data.startDate
+        && data.dateMode in ['single', 'range']
+        && ((data.startDate == data.endDate && data.dateMode == 'single')
+          || (data.endDate > data.startDate && data.dateMode == 'range'));
+    }
+
+    function validProjectEventProposal(data) {
+      return data.keys().hasAll(['schemaVersion', 'title', 'description', 'startDate', 'endDate', 'dateMode', 'category', 'urgency', 'projectId', 'attachmentUrl', 'attachmentLocation', 'notes', 'status', 'convertedEventId', 'authorUid', 'authorRole', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy'])
+        && data.keys().hasOnly(['schemaVersion', 'title', 'description', 'startDate', 'endDate', 'dateMode', 'category', 'urgency', 'projectId', 'attachmentUrl', 'attachmentLocation', 'notes', 'status', 'convertedEventId', 'authorUid', 'authorRole', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy'])
+        && data.schemaVersion == 1
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 180
+        && data.description is string && data.description.size() <= 4000
+        && validProjectDateRange(data)
+        && data.category in ['internal_project', 'external_opportunity', 'meeting', 'field_activity', 'deadline', 'other']
+        && data.urgency in ['normal', 'watch', 'important', 'urgent']
+        && data.projectId is string && data.projectId.size() <= 80
+        && validProjectDocumentUrl(data.attachmentUrl)
+        && data.attachmentLocation is string && data.attachmentLocation.size() <= 500
+        && data.notes is string && data.notes.size() <= 2000
+        && data.status in ['submitted', 'in_review', 'converted', 'closed']
+        && data.convertedEventId is string && data.convertedEventId.size() <= 160
+        && (data.status == 'converted' || data.convertedEventId == '')
+        && data.authorUid is string && data.authorUid.size() > 0 && data.authorUid.size() <= 128
+        && data.authorRole in ['director', 'admin']
+        && data.authorLabel is string && data.authorLabel.size() > 0 && data.authorLabel.size() <= 120
+        && data.createdAt is timestamp && data.updatedAt is timestamp
+        && data.updatedBy is string && data.updatedBy.size() > 0 && data.updatedBy.size() <= 128;
+    }
+
+    function validProjectCalendarEvent(data, eventId) {
+      return eventId is string && eventId.matches('^[A-Za-z0-9_-]{3,160}$')
+        && data.keys().hasAll(['schemaVersion', 'eventId', 'title', 'summary', 'startDate', 'endDate', 'dateMode', 'startTime', 'endTime', 'allDay', 'category', 'urgency', 'stage', 'projectId', 'sourceProposalId', 'attachmentUrl', 'attachmentLabel', 'actionUrl', 'actionLabel', 'location', 'ownerLabel', 'createdAt', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+        && data.keys().hasOnly(['schemaVersion', 'eventId', 'title', 'summary', 'startDate', 'endDate', 'dateMode', 'startTime', 'endTime', 'allDay', 'category', 'urgency', 'stage', 'projectId', 'sourceProposalId', 'attachmentUrl', 'attachmentLabel', 'actionUrl', 'actionLabel', 'location', 'ownerLabel', 'createdAt', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+        && data.schemaVersion == 1 && data.eventId == eventId
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 180
+        && data.summary is string && data.summary.size() <= 3000
+        && validProjectDateRange(data)
+        && data.startTime is string && (data.startTime == '' || data.startTime.matches('^([01]\\d|2[0-3]):[0-5]\\d$'))
+        && data.endTime is string && (data.endTime == '' || data.endTime.matches('^([01]\\d|2[0-3]):[0-5]\\d$'))
+        && data.allDay is bool
+        && ((data.allDay == true && data.startTime == '' && data.endTime == '') || data.allDay == false)
+        && data.category in ['internal_project', 'external_opportunity', 'meeting', 'field_activity', 'deadline', 'other']
+        && data.urgency in ['normal', 'watch', 'important', 'urgent']
+        && data.stage in ['planned', 'confirmed', 'in_progress', 'waiting', 'completed', 'cancelled']
+        && data.projectId is string && data.projectId.size() <= 80
+        && data.sourceProposalId is string && data.sourceProposalId.size() <= 160
+        && validProjectDocumentUrl(data.attachmentUrl)
+        && data.attachmentLabel is string && data.attachmentLabel.size() <= 180
+        && validOptionalHttpsUrl(data.actionUrl)
+        && data.actionLabel is string && data.actionLabel.size() <= 120
+        && data.location is string && data.location.size() <= 300
+        && data.ownerLabel is string && data.ownerLabel.size() <= 120
+        && data.createdAt is timestamp && data.updatedAt is timestamp
+        && data.updatedBy == request.auth.uid
         && data.updatedByLabel is string && data.updatedByLabel.size() > 0 && data.updatedByLabel.size() <= 120;
     }
 
@@ -486,6 +622,44 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    match /projectEventProposals/{proposalId} {
+      allow get: if activeUser();
+      allow list: if activeUser()
+        && request.query.limit != null && request.query.limit > 0 && request.query.limit <= 50;
+      allow create: if isEditor()
+        && validProjectEventProposal(request.resource.data)
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.convertedEventId == ''
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.authorRole == userRole()
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if isEditor()
+        && validProjectEventProposal(request.resource.data)
+        && request.resource.data.authorUid == resource.data.authorUid
+        && request.resource.data.authorRole == resource.data.authorRole
+        && request.resource.data.authorLabel == resource.data.authorLabel
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedBy == request.auth.uid
+        && ((resource.data.authorUid == request.auth.uid
+            && resource.data.status == 'submitted'
+            && request.resource.data.status == 'submitted'
+            && request.resource.data.convertedEventId == '')
+          || isAdmin());
+      allow delete: if false;
+    }
+
+    match /projectCalendarEvents/{eventId} {
+      allow get: if activeUser();
+      allow list: if activeUser()
+        && request.query.limit != null && request.query.limit > 0 && request.query.limit <= 150;
+      allow create: if isAdmin()
+        && validProjectCalendarEvent(request.resource.data, eventId);
+      allow update: if isAdmin()
+        && validProjectCalendarEvent(request.resource.data, eventId)
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if false;
+    }
+
     match /editorialDecisions/{eventId} {
       allow read: if activeUser();
       allow create, update: if isEditor() && validEditorialDecision(request.resource.data) && request.resource.data.eventId == eventId;
@@ -581,47 +755,18 @@ service cloud.firestore {
       allow create: if isEditor()
         && validMediaDecision(request.resource.data)
         && request.resource.data.eventId == eventId
-          && ((isAdmin()
-            && request.resource.data.direction.status == 'none'
-            && request.resource.data.communications.actorUid == request.auth.uid
-            && (request.resource.data.override.active == false
-              || (request.resource.data.override.active == true
-                && request.resource.data.override.actorUid == request.auth.uid
-                && request.resource.data.override.actorRole == 'admin')))
-          || (isDirector()
-            && request.resource.data.communications.status == 'none'
-            && request.resource.data.direction.actorUid == request.auth.uid
-            && (request.resource.data.override.active == false
-              || (request.resource.data.override.actorUid == request.auth.uid
-                && request.resource.data.override.actorRole == 'director'))));
+        && (isAdmin() ? validAdminMediaDecisionCreate()
+          : isDirector() ? validDirectorMediaDecisionCreate()
+          : false);
       allow update: if isEditor()
         && validMediaDecisionEnvelope(request.resource.data)
         && request.resource.data.eventId == eventId
-        && mediaWorkflowMatchesAgreement(request.resource.data)
-          && ((isAdmin()
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['communications', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
-            && request.resource.data.direction == resource.data.direction
-            && validMediaOverride(request.resource.data.override)
-            && (request.resource.data.override == resource.data.override
-              || (request.resource.data.override.active == true
-                && request.resource.data.override.actorUid == request.auth.uid
-                && request.resource.data.override.actorRole == 'admin'))
-            && validMediaDecisionSide(request.resource.data.communications, 'admin')
-            && validSelectedMedia(eventId, request.resource.data.communications)
-            && validMediaAgreement(request.resource.data)
-            && request.resource.data.communications.actorUid == request.auth.uid
-            )
-          || (isDirector()
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['direction', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
-            && request.resource.data.communications == resource.data.communications
-            && validMediaDecisionSide(request.resource.data.direction, 'director')
-            && validMediaOverride(request.resource.data.override)
-            && validSelectedMedia(eventId, request.resource.data.direction)
-            && validMediaAgreement(request.resource.data)
-            && request.resource.data.direction.actorUid == request.auth.uid
-            && (request.resource.data.override.active == false
-              || (request.resource.data.override.actorUid == request.auth.uid
-                && request.resource.data.override.actorRole == 'director'))));
+        && (resource.data.agreement.status in ['agreed', 'overridden']
+          ? mediaWorkflowMatchesAgreement(request.resource.data)
+          : true)
+        && (isAdmin() ? validAdminMediaDecisionUpdate(eventId)
+          : isDirector() ? validDirectorMediaDecisionUpdate(eventId)
+          : false);
       allow delete: if false;
     }
 

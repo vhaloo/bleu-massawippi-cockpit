@@ -50,6 +50,7 @@ for (const item of media) {
     eventId: item.eventId, label: item.label, url: mediaUrl, kind: "image",
     note: `${item.note ? `${item.note} ` : ""}${rightsLabel} Crédit : ${item.author}. Licence : ${item.license}. Période : ${item.period}. Source documentaire : ${item.source}`,
     rightsStatus: rightsUnconfirmed ? "unconfirmed" : "documented",
+    ...(item.previewUrl ? { previewUrl: item.previewUrl } : {}),
     ...enforcedArchiveFields
   };
   if (!existing.exists) {

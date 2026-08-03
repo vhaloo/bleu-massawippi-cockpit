@@ -66,7 +66,9 @@ const SYNC_COLLECTIONS = [
   { name: "workflowStates", timestampField: "updatedAt" },
   { name: "editorialDecisions", timestampField: "updatedAt" },
   { name: "opportunityStates", timestampField: "updatedAt" },
-  { name: "internalProjectStates", timestampField: "updatedAt" }
+  { name: "internalProjectStates", timestampField: "updatedAt" },
+  { name: "projectEventProposals", timestampField: "updatedAt" },
+  { name: "projectCalendarEvents", timestampField: "updatedAt" }
 ];
 
 const BUSINESS_COLLECTIONS = [
@@ -82,6 +84,8 @@ const BUSINESS_COLLECTIONS = [
   "mediaLinks",
   "mediaDecisions",
   "opportunityStates",
+  "projectCalendarEvents",
+  "projectEventProposals",
   "privateConfig",
   "privateContent",
   "privateContentVersions",
@@ -322,7 +326,9 @@ function dailyDefinitions() {
     readRecent("workflowStates"),
     readRecent("editorialDecisions"),
     readRecent("opportunityStates"),
-    readRecent("internalProjectStates")
+    readRecent("internalProjectStates"),
+    readRecent("projectEventProposals"),
+    readRecent("projectCalendarEvents")
   ];
 }
 
@@ -581,6 +587,56 @@ function mapActionItem(row) {
   };
 }
 
+function mapProjectEventProposal(row) {
+  return {
+    id: row.id,
+    title: row.title || null,
+    description: row.description || "",
+    startDate: row.startDate || null,
+    endDate: row.endDate || row.startDate || null,
+    dateMode: row.dateMode || "single",
+    category: row.category || "internal_project",
+    urgency: row.urgency || "normal",
+    projectId: row.projectId || null,
+    attachmentUrl: row.attachmentUrl || null,
+    attachmentLocation: row.attachmentLocation || null,
+    notes: row.notes || "",
+    status: row.status || "submitted",
+    convertedEventId: row.convertedEventId || null,
+    authorLabel: row.authorLabel || null,
+    authorRole: row.authorRole || null,
+    createdAt: dateValue(row.createdAt)?.toISOString() || null,
+    updatedAt: dateValue(row.updatedAt)?.toISOString() || null
+  };
+}
+
+function mapProjectCalendarEvent(row) {
+  return {
+    id: row.id,
+    eventId: row.eventId || row.id,
+    title: row.title || null,
+    summary: row.summary || "",
+    startDate: row.startDate || null,
+    endDate: row.endDate || row.startDate || null,
+    startTime: row.startTime || null,
+    endTime: row.endTime || null,
+    category: row.category || "internal_project",
+    urgency: row.urgency || "normal",
+    stage: row.stage || "planned",
+    projectId: row.projectId || null,
+    sourceProposalId: row.sourceProposalId || null,
+    attachmentUrl: row.attachmentUrl || null,
+    attachmentLabel: row.attachmentLabel || null,
+    actionUrl: row.actionUrl || null,
+    actionLabel: row.actionLabel || null,
+    location: row.location || null,
+    ownerLabel: row.ownerLabel || null,
+    updatedByLabel: row.updatedByLabel || null,
+    createdAt: dateValue(row.createdAt)?.toISOString() || null,
+    updatedAt: dateValue(row.updatedAt)?.toISOString() || null
+  };
+}
+
 export function buildSummary(rowsByCollection, metadata) {
   const scheduleItems = rowsByCollection.scheduleItems || [];
   const comments = rowsByCollection.comments || [];
@@ -596,6 +652,8 @@ export function buildSummary(rowsByCollection, metadata) {
   const editorialDecisions = rowsByCollection.editorialDecisions || [];
   const opportunityStates = rowsByCollection.opportunityStates || [];
   const internalProjectStates = rowsByCollection.internalProjectStates || [];
+  const projectEventProposals = rowsByCollection.projectEventProposals || [];
+  const projectCalendarEvents = rowsByCollection.projectCalendarEvents || [];
   const changedScheduleItems = scheduleItems.filter((row) => row.deleted === true || ["approved", "needs_work", "pending", "deleted"].includes(row.status));
   const dictatedComments = comments.filter((row) => row.dictated === true).map((row) => ({
     id: row.id,
@@ -639,7 +697,9 @@ export function buildSummary(rowsByCollection, metadata) {
     workflowStates: workflowStates.map((row) => ({ id: row.id, eventId: row.eventId || row.id, stage: row.stage || "proposal", updatedByLabel: row.updatedByLabel || null, updatedAt: dateValue(row.updatedAt)?.toISOString() || null })),
     editorialDecisions: editorialDecisions.map((row) => ({ id: row.id, eventId: row.eventId || row.id, decision: row.decision || "undecided", updatedByLabel: row.updatedByLabel || null, updatedAt: dateValue(row.updatedAt)?.toISOString() || null })),
     opportunityStates: opportunityStates.map((row) => ({ id: row.id, opportunityId: row.opportunityId || row.id, stage: row.stage || "watch", updatedByLabel: row.updatedByLabel || null, updatedAt: dateValue(row.updatedAt)?.toISOString() || null })),
-    internalProjectStates: internalProjectStates.map((row) => ({ id: row.id, projectId: row.projectId || row.id, stage: row.stage || "to_frame", updatedByLabel: row.updatedByLabel || null, updatedAt: dateValue(row.updatedAt)?.toISOString() || null }))
+    internalProjectStates: internalProjectStates.map((row) => ({ id: row.id, projectId: row.projectId || row.id, stage: row.stage || "to_frame", updatedByLabel: row.updatedByLabel || null, updatedAt: dateValue(row.updatedAt)?.toISOString() || null })),
+    projectEventProposals: projectEventProposals.map(mapProjectEventProposal),
+    projectCalendarEvents: projectCalendarEvents.map(mapProjectCalendarEvent)
   };
 }
 
@@ -657,6 +717,14 @@ function activeComment(row) {
 
 function activeFeedback(row) {
   return row.deleted !== true && !["done", "completed", "resolved", "closed", "archived", "deleted"].includes(String(row.status || "open").toLowerCase());
+}
+
+function activeProjectEventProposal(row) {
+  return row.deleted !== true && ["submitted", "in_review"].includes(String(row.status || "submitted").toLowerCase());
+}
+
+function activeProjectCalendarEvent(row) {
+  return row.deleted !== true && !["completed", "cancelled"].includes(String(row.stage || "planned").toLowerCase());
 }
 
 function mergeActive(previousRows, deltaRows, isActive, mapper) {
@@ -687,7 +755,9 @@ export function updateActiveMirror(previous, rowsByCollection, { projectId, gene
       tasks: mergeActive(safePrevious?.active?.tasks, rowsByCollection.tasks || [], activeTask, mapTask),
       actionItems: mergeActive(safePrevious?.active?.actionItems, rowsByCollection.actionItems || [], activeActionItem, mapActionItem),
       comments: mergeActive(safePrevious?.active?.comments, rowsByCollection.comments || [], activeComment, mapComment),
-      cockpitFeedback: mergeActive(safePrevious?.active?.cockpitFeedback, rowsByCollection.cockpitFeedback || [], activeFeedback, mapFeedback)
+      cockpitFeedback: mergeActive(safePrevious?.active?.cockpitFeedback, rowsByCollection.cockpitFeedback || [], activeFeedback, mapFeedback),
+      projectEventProposals: mergeActive(safePrevious?.active?.projectEventProposals, rowsByCollection.projectEventProposals || [], activeProjectEventProposal, mapProjectEventProposal),
+      projectCalendarEvents: mergeActive(safePrevious?.active?.projectCalendarEvents, rowsByCollection.projectCalendarEvents || [], activeProjectCalendarEvent, mapProjectCalendarEvent)
     }
   };
 }

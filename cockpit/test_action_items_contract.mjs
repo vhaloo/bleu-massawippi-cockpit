@@ -186,8 +186,8 @@ assert.match(view, /event\.media\.directionSelected\) return null/,
   "Une validation média de la direction doit élaguer sa propre décision sans nouvelle lecture.");
 assert.match(view, /event\.media\.communicationsSelected && !event\.media\.directionSelected/,
   "Après recommandation des communications, la file doit transférer la prochaine action à la direction.");
-assert.match(cockpitUi, /const resolved = selected;/,
-  "Le choix de la direction doit fermer sa décision personnelle sans attendre un second clic des communications.");
+assert.match(cockpitUi, /const requiredSelectionCount = allowsMultiple \? 2 : 1;[\s\S]*const resolved = selected && \(decision\?\.direction\?\.mediaIds\?\.length \|\| 0\) >= requiredSelectionCount;/,
+  "Le choix complet de la direction doit fermer sa décision personnelle sans attendre un second clic des communications, y compris pour un carrousel à deux médias.");
 assert.match(cockpitUi, /notifyViewUpdate\("task-completed"\)/,
   "Marquer complétée doit élaguer immédiatement les vues locales sans relecture supplémentaire.");
 assert.match(client, /includeMetadataChanges: true/,

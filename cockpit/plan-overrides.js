@@ -604,7 +604,7 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["alt-20260801", 4, "Mercredi 5 août", "2026-08-05"],
   ["barbotte-20260730-signalement", 4, "Jeudi 6 août", "2026-08-06"],
   ["don-20260807-merci-bilan", 4, "Vendredi 7 août", "2026-08-07"],
-  ["s1d2", 4, "Samedi 8 août", "2026-08-08"],
+  ["actualite-20260808-denis-radio-canada-moules-zebrees", 4, "Samedi 8 août", "2026-08-08"],
   ["s4d5", 4, "Dimanche 9 août", "2026-08-09"],
   ["alt-20260717", 5, "Lundi 10 août", "2026-08-10"],
   ["s4d1", 5, "Mardi 11 août", "2026-08-11"],
@@ -790,6 +790,61 @@ A short note is all it takes. Thank you for helping us gather observations from 
   taskOwnersVersion: "event-task-owners-2026-07-29-brown-bullhead-v1"
 };
 
+const RADIO_CANADA_DENIS_POST = {
+  id: "actualite-20260808-denis-radio-canada-moules-zebrees",
+  w: 4,
+  date: "Samedi 8 août",
+  calendarTime: "09:00",
+  t: "Actualité",
+  tier: "Pilier",
+  title: "Denis Petitclerc à Radio-Canada Estrie — les moules zébrées au lac Massawippi",
+  format: "Lien OHdio + photographie éditoriale imprimée · publication bilingue",
+  role: "Relayer rapidement l’entrevue accordée par le président de Bleu Massawippi à Radio-Canada Estrie, sans résumer ni citer un contenu qui n’a pas encore été transcrit dans le dossier éditorial.",
+  cta: "Écouter l’entrevue",
+  visual: "Composition 4:5 fondée sur l’image de Par ici l’info fournie avec le lien : tirage photographique posé sur une table, carte du lac et note manuscrite Denis à Radio-Canada · À écouter.",
+  source: "Radio-Canada OHdio — Par ici l’info — « Les moules zébrées se multiplient au Lac Massawippi, avec Denis Petitclerc » : https://ici.radio-canada.ca/ohdio/premiere/emissions/par-ici-l-info/segments/rattrapage/2442552/entrevue",
+  fallback: "Partager le lien OHdio avec l’image originale fournie par Radio-Canada et un texte alternatif; ne pas inventer de citation ni de résumé détaillé.",
+  kpi: "Écoutes du lien / partages / commentaires utiles",
+  task: "Vérifier le lien et l’intitulé, confirmer la lisibilité du visuel, puis programmer le relais bilingue sur Facebook et Instagram.",
+  copy: `FR — Denis Petitclerc, président de Bleu Massawippi, était au micro de Radio-Canada Estrie pour parler de la multiplication des moules zébrées au lac Massawippi.
+
+Cette entrevue de Par ici l’info est maintenant disponible sur OHdio. Prenez quelques minutes pour l’écouter et mieux connaître cet enjeu qui touche notre lac.
+
+🎧 Écouter l’entrevue : https://ici.radio-canada.ca/ohdio/premiere/emissions/par-ici-l-info/segments/rattrapage/2442552/entrevue
+
+Merci à Radio-Canada Estrie de donner de l’espace aux enjeux environnementaux du Massawippi.
+
+#BleuMassawippi #LacMassawippi #RadioCanadaEstrie #MoulesZébrées
+
+=========================================
+
+EN — Denis Petitclerc, president of Bleu Massawippi, spoke with Radio-Canada Estrie about the growing zebra mussel presence in Lake Massawippi.
+
+The Par ici l’info interview is now available on OHdio. Take a few minutes to listen and learn more about this issue affecting our lake. The interview is in French.
+
+🎧 Listen to the interview: https://ici.radio-canada.ca/ohdio/premiere/emissions/par-ici-l-info/segments/rattrapage/2442552/entrevue
+
+Thank you to Radio-Canada Estrie for making space for environmental issues affecting Massawippi.
+
+#BleuMassawippi #LakeMassawippi #RadioCanadaEstrie #ZebraMussels`,
+  choiceRequired: false,
+  optionGroup: null,
+  optionLabel: null,
+  isAlternative: false,
+  decisionLocked: true,
+  calendarPriority: "timely-media-coverage",
+  replacesDailySlot: true,
+  doNotShiftForBrownBullhead: true,
+  tasksValentin: [
+    "Vérifier le lien OHdio, le titre de l’entrevue, le visuel, son texte alternatif et la lisibilité mobile.",
+    "Programmer la publication bilingue sur Facebook et Instagram après les validations, sans ajouter de citation ou de résumé non vérifié."
+  ],
+  tasksAnnie: [
+    "Confirmer rapidement que le ton du relais et la présentation de Denis conviennent à la direction."
+  ],
+  taskOwnersVersion: "event-task-owners-2026-08-03-radio-canada-v1"
+};
+
 function buildAlternative(spec) {
   const nature = spec.t === "Nature";
   const heritage = spec.t === "Patrimoine";
@@ -823,6 +878,7 @@ export function applyPlanOverridesToPosts(posts) {
   if (!posts.some((post) => post.id === POETRY_CALL_POST.id)) posts.push({ ...POETRY_CALL_POST });
   if (!posts.some((post) => post.id === POETRY_REMINDER_POST.id)) posts.push({ ...POETRY_REMINDER_POST });
   if (!posts.some((post) => post.id === BROWN_BULLHEAD_REPORT_POST.id)) posts.push({ ...BROWN_BULLHEAD_REPORT_POST });
+  if (!posts.some((post) => post.id === RADIO_CANADA_DENIS_POST.id)) posts.push({ ...RADIO_CANADA_DENIS_POST });
   const first = posts.find((post) => post.id === "s1d1");
   if (first) Object.assign(first, OPEN_HOUSE_POST, { decisionLocked: true });
   const moved = posts.find((post) => post.id === "s1d1b");
@@ -1096,6 +1152,25 @@ export function applyPlanOverridesToPosts(posts) {
       } : {})
     });
   });
+  const monitoringDeferredForRadioCanada = finalPosts.find((post) => post.id === "s1d2");
+  if (monitoringDeferredForRadioCanada) {
+    const from = planDateIsoFromLabel(monitoringDeferredForRadioCanada.date);
+    const history = Array.isArray(monitoringDeferredForRadioCanada.rescheduleHistory) ? [...monitoringDeferredForRadioCanada.rescheduleHistory] : [];
+    if (from && from !== "2026-09-14") history.push({
+      from,
+      to: "2026-09-14",
+      reason: "Créneau du 8 août réservé au relais d’actualité de l’entrevue de Denis Petitclerc à Radio-Canada Estrie; la publication scientifique est conservée intégralement au prochain créneau disponible."
+    });
+    Object.assign(monitoringDeferredForRadioCanada, {
+      w: 10,
+      date: "Lundi 14 septembre",
+      calendarTime: "12:00",
+      rescheduledFrom: from || "2026-08-08",
+      rescheduledReason: "Créneau du 8 août réservé au relais d’actualité de l’entrevue de Denis Petitclerc à Radio-Canada Estrie; la publication scientifique est conservée intégralement au prochain créneau disponible.",
+      rescheduleHistory: history,
+      displacedBy: RADIO_CANADA_DENIS_POST.id
+    });
+  }
   finalPosts.forEach((post) => {
     ensureHumanInterviewCoordination(post);
     const dateIso = planDateIsoFromLabel(post.date) || ARCHIVED_DATE_ISO.get(post.id);

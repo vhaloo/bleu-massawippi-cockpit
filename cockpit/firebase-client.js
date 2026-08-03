@@ -35,7 +35,8 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260801-b47";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260803-b49";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20260803-b49";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -737,6 +738,112 @@ export function subscribeInternalProjectStates(callback, onError) {
   return trackedOnSnapshot("internalProjectStates", statesQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
 }
 
+export async function addProjectEventProposal(input, profile) {
+  requireWritable();
+  if (!profile?.uid || !["director", "admin"].includes(profile.role)) {
+    throw new Error("Ce compte ne peut pas proposer un événement.");
+  }
+  const proposal = normalizeProjectEventProposal(input);
+  const reference = doc(collection(db, "projectEventProposals"));
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const payload = {
+    ...proposal,
+    authorUid: profile.uid,
+    authorRole: profile.role,
+    authorLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    updatedBy: profile.uid
+  };
+  const batch = writeBatch(db);
+  batch.set(reference, payload);
+  batch.set(archiveReference, changeArchiveEntry("projectEventProposal", reference.id, "nouvelle proposition de calendrier", {}, {
+    title: proposal.title,
+    startDate: proposal.startDate,
+    endDate: proposal.endDate,
+    urgency: proposal.urgency,
+    status: proposal.status
+  }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
+  return reference.id;
+}
+
+export function subscribeProjectEventProposals(callback, onError, maximum = 30) {
+  requireConfigured();
+  const boundedMaximum = Math.max(1, Math.min(50, Number(maximum) || 30));
+  const proposalsQuery = query(collection(db, "projectEventProposals"), orderBy("createdAt", "desc"), limit(boundedMaximum));
+  return trackedOnSnapshot("projectEventProposals", proposalsQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+}
+
+export async function setProjectEventProposalStatus(proposalId, status, convertedEventId, profile) {
+  requireWritable();
+  if (!profile?.uid || profile.role !== "admin") throw new Error("Seules les communications peuvent classer une proposition.");
+  if (!/^[A-Za-z0-9_-]{3,160}$/.test(String(proposalId || ""))) throw new Error("Proposition invalide.");
+  if (!["submitted", "in_review", "converted", "closed"].includes(status)) throw new Error("Statut de proposition invalide.");
+  const linkedEventId = status === "converted" ? String(convertedEventId || "").trim().slice(0, 160) : "";
+  if (status === "converted" && !/^[A-Za-z0-9_-]{3,160}$/.test(linkedEventId)) throw new Error("L’événement final associé est requis.");
+  const reference = doc(db, "projectEventProposals", proposalId);
+  const existing = await getDoc(reference);
+  if (!existing.exists()) throw new Error("Cette proposition n’existe plus.");
+  const before = existing.data();
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const batch = writeBatch(db);
+  batch.update(reference, { status, convertedEventId: linkedEventId, updatedAt: serverTimestamp(), updatedBy: profile.uid });
+  batch.set(archiveReference, changeArchiveEntry("projectEventProposal", proposalId, "proposition : " + status, {
+    status: before.status || "submitted",
+    convertedEventId: before.convertedEventId || ""
+  }, { status, convertedEventId: linkedEventId }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
+}
+
+export function subscribeProjectCalendarEvents(callback, onError, { earliestDate, maximum = 120 } = {}) {
+  requireConfigured();
+  const fallback = new Date();
+  fallback.setDate(fallback.getDate() - 60);
+  const floor = /^\d{4}-\d{2}-\d{2}$/.test(String(earliestDate || "")) ? String(earliestDate) : fallback.toISOString().slice(0, 10);
+  const boundedMaximum = Math.max(1, Math.min(150, Number(maximum) || 120));
+  const eventsQuery = query(collection(db, "projectCalendarEvents"), where("endDate", ">=", floor), orderBy("endDate", "asc"), limit(boundedMaximum));
+  return trackedOnSnapshot("projectCalendarEvents", eventsQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))), onError);
+}
+
+export async function upsertProjectCalendarEvent(eventId, input, profile) {
+  requireWritable();
+  if (!profile?.uid || profile.role !== "admin") throw new Error("Seules les communications peuvent publier un événement final.");
+  const safeId = String(eventId || "").trim();
+  if (!/^[A-Za-z0-9_-]{3,160}$/.test(safeId)) throw new Error("Identifiant d’événement invalide.");
+  const event = normalizeProjectCalendarEvent(input);
+  const reference = doc(db, "projectCalendarEvents", safeId);
+  const existing = await getDoc(reference);
+  const before = existing.exists() ? existing.data() : {};
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const payload = {
+    ...event,
+    eventId: safeId,
+    createdAt: existing.exists() ? before.createdAt : serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    updatedBy: profile.uid,
+    updatedByLabel: String(profile.displayLabel || "Direction des communications").slice(0, 120)
+  };
+  const batch = writeBatch(db);
+  batch.set(reference, payload);
+  batch.set(archiveReference, changeArchiveEntry("projectCalendarEvent", safeId, existing.exists() ? "événement de projet mis à jour" : "événement de projet créé", {
+    title: before.title || "",
+    startDate: before.startDate || "",
+    endDate: before.endDate || "",
+    stage: before.stage || ""
+  }, {
+    title: event.title,
+    startDate: event.startDate,
+    endDate: event.endDate,
+    stage: event.stage
+  }, profile));
+  await batch.commit();
+  recordConfirmedWrites(2);
+  return safeId;
+}
+
 const editorialDecisionValues = new Set(["undecided", "chosen", "deferred", "rejected"]);
 
 export async function setEditorialDecision(eventId, decision, profile) {
@@ -841,6 +948,8 @@ export async function archiveMediaLink(mediaId, profile) {
   recordConfirmedWrites(2);
 }
 
+const MAX_MEDIA_CHOICES = 2;
+
 const emptyDecisionSide = (actorRole) => ({
   status: "none",
   mediaIds: [],
@@ -863,7 +972,7 @@ const emptyOverride = () => ({
 function normalizedDecisionSide(value, actorRole) {
   if (!value || typeof value !== "object") return emptyDecisionSide(actorRole);
   const mediaIds = Array.isArray(value.mediaIds)
-    ? [...new Set(value.mediaIds.map((item) => String(item || "")).filter((item) => /^[A-Za-z0-9_-]{3,160}$/.test(item)))].slice(0, 8)
+    ? [...new Set(value.mediaIds.map((item) => String(item || "")).filter((item) => /^[A-Za-z0-9_-]{3,160}$/.test(item)))].sort().slice(0, MAX_MEDIA_CHOICES)
     : [];
   const status = value.status === "selected" && mediaIds.length ? "selected" : value.status === "revoked" ? "revoked" : "none";
   return {
@@ -879,7 +988,7 @@ function normalizedDecisionSide(value, actorRole) {
 function normalizedOverride(value) {
   if (!value || typeof value !== "object" || value.active !== true) return emptyOverride();
   const mediaIds = Array.isArray(value.mediaIds)
-    ? [...new Set(value.mediaIds.map((item) => String(item || "")).filter((item) => /^[A-Za-z0-9_-]{3,160}$/.test(item)))].slice(0, 8)
+    ? [...new Set(value.mediaIds.map((item) => String(item || "")).filter((item) => /^[A-Za-z0-9_-]{3,160}$/.test(item)))].sort().slice(0, MAX_MEDIA_CHOICES)
     : [];
   if (!mediaIds.length) return emptyOverride();
   return {
@@ -894,7 +1003,17 @@ function normalizedOverride(value) {
 }
 
 function sameOrderedMedia(left, right) {
-  return left.length === right.length && left.every((item, index) => item === right[index]);
+  const canonicalLeft = [...left].sort();
+  const canonicalRight = [...right].sort();
+  return canonicalLeft.length === canonicalRight.length && canonicalLeft.every((item, index) => item === canonicalRight[index]);
+}
+
+function nextMediaSelection(previousIds, mediaId, selected, allowsMultiple) {
+  const previous = Array.isArray(previousIds) ? previousIds : [];
+  if (!allowsMultiple) return selected ? [mediaId] : [];
+  return selected
+    ? [...new Set([...previous, mediaId])].sort().slice(0, MAX_MEDIA_CHOICES)
+    : previous.filter((id) => id !== mediaId).sort();
 }
 
 // Fonction pure exportée afin que le contrat de décision puisse être testé
@@ -904,11 +1023,11 @@ export function deriveMediaAgreement(communications, direction, override, textAp
   const directionIds = direction?.status === "selected" && Array.isArray(direction.mediaIds) ? direction.mediaIds : [];
   const overrideIds = override?.active === true && Array.isArray(override.mediaIds) ? override.mediaIds : [];
   if (textApproved && overrideIds.length && String(override.reason || "").trim()) {
-    return { status: "overridden", mediaIds: [...overrideIds], divergent: false };
+    return { status: "overridden", mediaIds: [...new Set(overrideIds)].sort(), divergent: false };
   }
   if (communicationsIds.length && directionIds.length) {
     if (textApproved && sameOrderedMedia(communicationsIds, directionIds)) {
-      return { status: "agreed", mediaIds: [...communicationsIds], divergent: false };
+      return { status: "agreed", mediaIds: [...new Set(communicationsIds)].sort(), divergent: false };
     }
     if (!sameOrderedMedia(communicationsIds, directionIds)) {
       return { status: "divergent", mediaIds: [], divergent: true };
@@ -931,7 +1050,7 @@ function normalizeMediaDecision(value, eventId) {
     override,
     agreement: {
       status: ["pending", "agreed", "divergent", "overridden"].includes(value?.agreement?.status) ? value.agreement.status : agreement.status,
-      mediaIds: Array.isArray(value?.agreement?.mediaIds) ? value.agreement.mediaIds.slice(0, 8) : agreement.mediaIds,
+      mediaIds: Array.isArray(value?.agreement?.mediaIds) ? [...new Set(value.agreement.mediaIds)].sort().slice(0, MAX_MEDIA_CHOICES) : agreement.mediaIds,
       divergent: value?.agreement?.divergent === true
     },
     textGateStage: String(value?.textGateStage || "proposal"),
@@ -963,6 +1082,7 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
   const decisionReference = doc(db, "mediaDecisions", eventId);
   const workflowReference = doc(db, "workflowStates", eventId);
   const wantsOverride = options.override === true;
+  const allowsMultiple = options.multiple === true;
   const overrideReason = String(options.reason || "").trim().slice(0, 500);
   if (wantsOverride && !["director", "admin"].includes(profile.role)) {
     throw new Error("Ce compte ne peut pas appliquer un override média.");
@@ -997,8 +1117,11 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
     }
 
     const before = normalizeMediaDecision(decisionSnapshot.exists() ? decisionSnapshot.data() : {}, eventId);
-    const sameExistingChoice = before[sideName].status === (selected ? "selected" : "revoked")
-      && (selected ? before[sideName].mediaIds.length === 1 && before[sideName].mediaIds[0] === mediaId : before[sideName].mediaIds.length === 0)
+    const previousSideIds = before[sideName].status === "selected" ? before[sideName].mediaIds : [];
+    const selectedSideIds = nextMediaSelection(previousSideIds, mediaId, selected, allowsMultiple);
+    const selectedSideStatus = selectedSideIds.length ? "selected" : "revoked";
+    const sameExistingChoice = before[sideName].status === selectedSideStatus
+      && sameOrderedMedia(before[sideName].mediaIds, selectedSideIds)
       && !wantsOverride
       && (profile.role === "admin" || before.override.active !== true);
     if (sameExistingChoice) return before;
@@ -1017,8 +1140,8 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
       textGateStage: adminOverrideApprovesText ? "content_approved" : workflowStage
     };
     next[sideName] = {
-      status: selected ? "selected" : "revoked",
-      mediaIds: selected ? [mediaId] : [],
+      status: selectedSideStatus,
+      mediaIds: selectedSideIds,
       actorUid: profile.uid,
       actorLabel,
       actorRole: profile.role,
@@ -1027,7 +1150,7 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
     if (wantsOverride) {
       next.override = {
         active: true,
-        mediaIds: [mediaId],
+        mediaIds: selectedSideIds,
         reason: overrideReason,
         actorUid: profile.uid,
         actorLabel,

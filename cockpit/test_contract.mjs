@@ -8,11 +8,13 @@ import { BILINGUAL_POLICY_VERSION, FUTURE_EDITORIAL_IDS, TONE_VERSION } from "./
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "..");
 const ui = fs.readFileSync(path.join(here, "cockpit-ui.js"), "utf8");
+const calendarExport = fs.readFileSync(path.join(here, "calendar-export-tools.js"), "utf8");
 const sectionNavigation = fs.readFileSync(path.join(here, "section-navigation.js"), "utf8");
 const taskProgressUi = fs.readFileSync(path.join(here, "task-progress-ui.js"), "utf8");
 const monthlySnapshotState = fs.readFileSync(path.join(here, "monthly-snapshot-state.js"), "utf8");
 const viewMode = fs.readFileSync(path.join(here, "view-mode.js"), "utf8");
 const viewFixture = fs.readFileSync(path.join(here, "test-fixtures", "view-mode.html"), "utf8");
+const aug5CarouselFixture = fs.readFileSync(path.join(here, "test-fixtures", "aug5-media-carousel.html"), "utf8");
 const client = fs.readFileSync(path.join(here, "firebase-client.js"), "utf8");
 const theme = fs.readFileSync(path.join(here, "theme.js"), "utf8");
 const firebaseConfig = fs.readFileSync(path.join(here, "firebase-config.js"), "utf8");
@@ -33,6 +35,10 @@ const editorialMedia = JSON.parse(fs.readFileSync(path.join(here, "editorial_med
 const internalProjectDocuments = JSON.parse(fs.readFileSync(path.join(here, "internal_project_documents.json"), "utf8"));
 const postsJson = source.match(/var posts=(\[[\s\S]*?\]);\s*var meta=/)?.[1];
 assert.ok(postsJson, "Le tableau des publications source doit rester lisible.");
+assert.match(aug5CarouselFixture, /Carrousel « Hier et aujourd’hui »/);
+assert.match(aug5CarouselFixture, /north-hatley-1930-1950-preview\.webp/);
+assert.match(aug5CarouselFixture, /north-hatley-2024-preview\.webp/);
+assert.match(aug5CarouselFixture, /choisissez les 2 cartes/);
 const posts = applyPlanOverridesToPosts(JSON.parse(postsJson));
 const activePosts = posts.filter((post) => post.archivedEditorial !== true);
 const plannedMedia = [...historicalMedia, ...natureMedia, ...editorialMedia].filter((media) => media.archived !== true && media.stage !== "archived" && media.stage !== "reference");
@@ -65,17 +71,17 @@ for (const week of [1,2,3,4,5,6,7,8,9]) {
   assert.deepEqual(dates, [...dates].sort(), `La semaine ${week} doit suivre l’ordre réel des dates.`);
 }
 const continuityStart = new Date("2026-07-13T12:00:00Z");
-const continuityEnd = new Date("2026-09-13T12:00:00Z");
+const continuityEnd = new Date("2026-09-14T12:00:00Z");
 const expectedContinuityDates = [];
 for (const cursor = new Date(continuityStart); cursor <= continuityEnd; cursor.setUTCDate(cursor.getUTCDate() + 1)) {
   expectedContinuityDates.push(cursor.toISOString().slice(0, 10));
 }
 const activePostsByDate = Object.groupBy(activePosts, (post) => post.dateIso);
 assert.deepEqual(Object.keys(activePostsByDate).sort(), expectedContinuityDates,
-  "Le calendrier actif doit couvrir chaque journée du 13 juillet au 13 septembre sans trou.");
+  "Le calendrier actif doit couvrir chaque journée du 13 juillet au 14 septembre sans trou après le report conservatoire du sujet scientifique.");
 assert.ok(Object.values(activePostsByDate).every((items) => items.length === 1),
   "Chaque journée du calendrier continu doit afficher exactement une publication active.");
-assert.equal(activePosts.length, 63, "Les neuf semaines continues doivent contenir 63 publications actives.");
+assert.equal(activePosts.length, 64, "Le calendrier continu doit contenir 64 publications actives, dont le sujet scientifique conservé au 14 septembre.");
 const continuityPostIds = [
   "don-20260909-appel-soutien",
   "nature-20260910-feuille-surface",
@@ -127,8 +133,14 @@ assert.ok(volunteer.tasksAnnie.some((task) => /coordonn/i.test(task)));
 assert.ok(volunteer.tasksAnnie.some((task) => /consentement/i.test(task)));
 assert.equal(firstTuesday.choiceRequired, false, "La proposition retenue du mardi est verrouillée et ne demande plus d’arbitrage.");
 assert.equal(firstTuesday.optionGroup, null, "Une proposition verrouillée ne doit plus appartenir à un groupe de choix actif.");
-assert.equal(posts.filter((post) => !post.isAlternative).length, 38);
-assert.equal(posts.length, 69);
+assert.equal(posts.filter((post) => !post.isAlternative).length, 39);
+assert.equal(posts.length, 70);
+const radioCanadaInterview = posts.find((post) => post.id === "actualite-20260808-denis-radio-canada-moules-zebrees");
+assert.ok(radioCanadaInterview, "Le relais de l’entrevue de Denis à Radio-Canada doit être conservé dans le plan.");
+assert.equal(radioCanadaInterview.dateIso, "2026-08-08");
+assert.match(radioCanadaInterview.copy, /2442552\/entrevue/);
+assert.match(radioCanadaInterview.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
+assert.ok(!/«[^»]+»/.test(radioCanadaInterview.copy), "Aucune citation de Denis ne doit être inventée à partir du seul lien OHdio.");
 const nonMotorizedWash = posts.find((post) => post.id === "lavage-20260903-sans-moteur");
 assert.ok(nonMotorizedWash, "La recommandation du 23 juillet sur les embarcations non motorisées doit devenir une publication planifiée.");
 assert.equal(nonMotorizedWash.dateIso, "2026-09-03");
@@ -216,6 +228,11 @@ assert.match(bullheadPost.copy, /date[\s\S]*secteur[\s\S]*photo[\s\S]*info@bleum
 assert.doesNotMatch(bullheadPost.copy, /cancer|maladie|lésion|tumeur|disease|lesion|tumou?r/i,
   "L’appel doit s’en tenir au signalement du poisson, sans angle sanitaire inventé.");
 assert.ok(bullheadPost.copy.length <= 2200);
+const bullheadMarkedMedia = editorialMedia.find((media) => media.id === "editorial-barbotte-20260806-marques-visibles-v1");
+assert.equal(bullheadMarkedMedia?.eventId, bullheadPost.id, "Le visuel demandé doit être rattaché au post du 6 août.");
+assert.equal(bullheadMarkedMedia?.stage, "proposal");
+assert.ok(fs.existsSync(path.join(here, "media-previews", "2026-07-30", "barbotte-appel-signalement-v1-preview.webp")),
+  "L’aperçu léger du visuel de la barbote doit être livré avec le cockpit.");
 const approvedCommunityChoice = posts.find((post) => post.id === "s4d7");
 assert.equal(approvedCommunityChoice.dateIso, "2026-07-30", "Le post entièrement approuvé par les deux rôles doit remplacer la barbote aujourd’hui.");
 assert.deepEqual(activePosts.filter((post) => post.dateIso === "2026-07-30").map((post) => post.id), [approvedCommunityChoice.id]);
@@ -291,10 +308,14 @@ assert.match(deferredBoatWash.visual, /photographie interne réelle de la statio
 assert.doesNotMatch(deferredBoatWash.source, /ccq\.org/i);
 const northHatleyHistorical = historicalMedia.find((media) => media.id === "history-alt-20260801-aerial");
 const northHatleyCurrent = historicalMedia.find((media) => media.id === "history-alt-20260801-aerial-current-2024");
-assert.match(northHatleyHistorical.label, /Proposition 1\/2 recommandée/i);
-assert.match(northHatleyCurrent.label, /Proposition 2\/2 recommandée/i);
-assert.equal(northHatleyCurrent.publicationBlocked, true,
-  "La photo actuelle de North Hatley doit rester bloquée jusqu’à confirmation de ses droits.");
+assert.match(northHatleyHistorical.label, /Carte 1\/2 du carrousel/i);
+assert.match(northHatleyCurrent.label, /Carte 2\/2 du carrousel/i);
+assert.equal(northHatleyCurrent.publicationBlocked, false,
+  "La carte actuelle doit pouvoir faire partie du carrousel du 5 août, les droits étant traités en amont pour ce post.");
+const northHatleyPost = posts.find((post) => post.id === "alt-20260801");
+assert.equal(northHatleyPost.mediaSelectionMode, "multiple");
+assert.equal(northHatleyPost.mediaSelectionRequired, 2);
+assert.match(northHatleyPost.task, /Les droits sont traités en amont/i);
 assert.match(posts.find((post) => post.id === "alt-20260801").task, /Ayer’s Cliff restent réservées à une publication distincte/i);
 const soloAugustThird = posts.find((post) => post.id === "s4d1b");
 assert.equal(soloAugustThird.choiceRequired, false, "La seule carte du 3 août ne doit pas afficher un faux choix.");
@@ -304,8 +325,10 @@ assert.equal(sundayHeritage.date, "Dimanche 19 juillet");
 assert.equal(sundayHeritage.w, 1);
 assert.match(sundayHeritage.title, /Massawippi vu en 1859/i);
 const deferredMonitoring = posts.find((post) => post.id === "s1d2");
-assert.equal(deferredMonitoring.date, "Samedi 8 août");
-assert.equal(deferredMonitoring.w, 4);
+assert.equal(deferredMonitoring.date, "Lundi 14 septembre");
+assert.equal(deferredMonitoring.w, 10);
+assert.equal(deferredMonitoring.displacedBy, "actualite-20260808-denis-radio-canada-moules-zebrees");
+assert.match(deferredMonitoring.rescheduledReason, /entrevue de Denis Petitclerc à Radio-Canada Estrie/i);
 assert.match(deferredMonitoring.title, /lac et ses tributaires/i);
 assert.match(deferredMonitoring.copy, /chaque observation, prélèvement et mesure ajoute une donnée/i);
 assert.doesNotMatch(deferredMonitoring.copy, /un repère/i);
@@ -393,7 +416,7 @@ assert.match(viewMode, /date\.getFullYear\(\) === year[\s\S]{0,120}date\.getDate
 assert.match(viewMode, /item\.dateIso \|\| item\.date/, "La vue essentielle doit utiliser la date ISO canonique.");
 assert.match(viewMode, /distance > 0 && distance <= 7/, "Le panneau des sept prochains jours ne doit pas répéter Aujourd’hui.");
 for (const token of ["calendarTime", "calendarDurationMinutes", "calendarLocation", "calendarCost", "postCalendarMetadata"]) {
-  assert.ok(ui.includes(token), `Le fichier calendrier doit utiliser ${token}.`);
+  assert.ok(calendarExport.includes(token), `Le fichier calendrier doit utiliser ${token}.`);
 }
 assert.match(source, /Coordination renforcée avant publication/);
 assert.match(source, /class="responsibility-empty"/,
@@ -417,7 +440,7 @@ assert.equal(historicalMedia.length, 44);
 assert.equal(new Set(historicalMedia.map((item) => item.id)).size, historicalMedia.length);
 assert.equal(new Set(historicalMedia.map((item) => item.fileName)).size, historicalMedia.length);
 assert.equal(new Set(historicalMedia.map((item) => item.eventId)).size, 22);
-assert.equal(historicalMedia.filter((item) => /confirmer/i.test(item.license || "")).length, 3);
+assert.equal(historicalMedia.filter((item) => /confirmer/i.test(item.license || "")).length, 2);
 for (const media of historicalMedia) {
   assert.ok(posts.some((post) => post.id === media.eventId), `Le média ${media.fileName} doit être relié à une publication existante.`);
 }

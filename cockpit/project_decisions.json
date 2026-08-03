@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "decisions": [
+    {
+      "id": "moules-zebrees-suivi-medias-20260804-v1",
+      "audienceRole": "admin",
+      "assigneeEmail": "communication@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "moules-zebrees-continuite",
+      "eventDateIso": "2026-08-04",
+      "priorityKey": 14,
+      "title": "Récupérer et qualifier les entrevues du 3 août",
+      "message": "Obtenir les liens ou enregistrements radio et télé, vérifier les faits et les droits de reprise, puis proposer un usage sur le site, les réseaux ou dans une infolettre seulement si le contenu est exact et utile. Ne reprendre aucun conseil de santé sans source compétente."
+    },
+    {
+      "id": "poesie-logistique-north-hatley-20260810-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "poesie-du-lac",
+      "eventDateIso": "2026-08-10",
+      "priorityKey": 8,
+      "title": "Confirmer le cadre logistique — Au bord du bleu",
+      "message": "Avant ou pendant la rencontre du 10 août avec North Hatley : confirmer la zone du parc, l’accès, les assurances, le son, le plan météo, le budget plafond et les responsabilités."
+    },
+    {
+      "id": "site-niveau-lac-rapport-2025-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "section",
+      "sourceId": "mandate-collaboration",
+      "eventDateIso": "2026-08-07",
+      "priorityKey": 18,
+      "title": "Valider le futur encart « Niveau du lac »",
+      "message": "Avant sa mise à jour manuelle sur le site public : relire le ton, confirmer l’organisme ayant mandaté l’étude de 2025 et valider les liens vers les niveaux actuel et historique. Aucun grand changement au site ne précède l’accord du CA."
+    }
+  ]
+}
