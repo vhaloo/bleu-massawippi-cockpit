@@ -51,9 +51,10 @@ for (const id of ["strategic-zeffy-recurring-gifts-v1", "internal-application-fu
 
 const projectDecisions = JSON.parse(read("project_decisions.json"));
 assert.equal(projectDecisions.schemaVersion, 1);
-assert.equal(projectDecisions.decisions.length, 3);
+assert.equal(projectDecisions.decisions.length, 4);
 assert.equal(projectDecisions.decisions.filter((item) => item.audienceRole === "director" && item.assigneeEmail === "dg@bleumassawippi.com").length, 2);
-assert.equal(projectDecisions.decisions.filter((item) => item.audienceRole === "admin" && item.assigneeEmail === "communication@bleumassawippi.com").length, 1);
+assert.equal(projectDecisions.decisions.filter((item) => item.audienceRole === "admin" && item.assigneeEmail === "communication@bleumassawippi.com").length, 2);
+assert.ok(projectDecisions.decisions.some((item) => item.id === "suivi-plages-reviser-offre-20260804-v1"), "La révision de l’ébauche Suivi des plages doit rester dans la file Communications.");
 assert.match(read("seed_project_decisions.js"), /if \(existing\.exists\)/, "Le semeur de décisions doit préserver les entrées existantes.");
 assert.match(read("seed_project_decisions.js"), /actionType: "project_decision"/);
 console.log("Contrat d’idempotence des synchronisations : OK");
