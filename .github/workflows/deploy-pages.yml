@@ -87,6 +87,10 @@ jobs:
           cp cockpit/index.html public/
           cp cockpit/actualiser.html public/
           cp cockpit/cockpit-ui.js public/
+          cp cockpit/calendar-export-tools.js public/
+          cp cockpit/project-calendar.js public/
+          cp cockpit/project-calendar-model.mjs public/
+          cp cockpit/project-calendar.css public/
           cp cockpit/internal-project-order.js public/
           cp cockpit/section-navigation.js public/
           cp cockpit/publication-editor-schema.mjs public/

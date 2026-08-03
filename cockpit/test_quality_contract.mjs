@@ -62,6 +62,20 @@ for (const source of new Set(localImports)) {
   critical("PUB-004", `Module importé présent : ${source}`, exists(path.posix.join("cockpit", source.slice(2))), "Un import cassé provoque un écran vide après connexion.");
 }
 
+for (const asset of [
+  "calendar-export-tools.js",
+  "project-calendar.js",
+  "project-calendar-model.mjs",
+  "project-calendar.css"
+]) {
+  critical(
+    "PUB-005",
+    `Dépendance du calendrier copiée dans GitHub Pages : ${asset}`,
+    files.workflow.includes(`cp cockpit/${asset} public/`),
+    "Une dépendance présente dans le dépôt mais absente du paquet Pages provoque une interface vide en production."
+  );
+}
+
 // Secrets à haute confiance dans tous les fichiers suivis par Git.
 let tracked = [];
 try {
