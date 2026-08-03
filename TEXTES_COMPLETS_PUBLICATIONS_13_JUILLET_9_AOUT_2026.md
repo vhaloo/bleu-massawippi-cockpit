@@ -977,13 +977,13 @@ This is the Massawippi River rather than the lakeshore: another face of the same
 ## Mercredi 5 août — North Hatley vu d’en haut : hier et aujourd’hui
 
 **Thème :** Patrimoine
-**Format :** Carrousel recommandé · vue historique puis vue drone de 2024
+**Format :** Carrousel indissociable de 2 images · vue historique puis vue drone de 2024
 **Objectif :** Inviter la communauté à lire l’évolution du territoire à partir d’une vue aérienne ancienne correctement datée dans une fourchette.
 **CTA :** Comparer deux époques
-**Visuel final :** Carrousel recommandé de deux photographies complètes de North Hatley, sans recadrage trompeur : 1/2, vue aérienne BAnQ entre 1930 et 1950; 2/2, photo drone interne du 15 août 2024. Ajouter seulement « Hier · Aujourd’hui » et « points de vue différents ». Ne pas mêler la carte postale d’Ayer’s Cliff à ce carrousel.
+**Visuel final :** Un seul carrousel composé de deux photographies complètes de North Hatley, sans recadrage trompeur : 1/2, vue aérienne BAnQ entre 1930 et 1950; 2/2, photo drone interne du 15 août 2024. Ajouter seulement « Hier · Aujourd’hui » et « points de vue différents ». Les deux cartes se choisissent ensemble; ne pas mêler la carte postale d’Ayer’s Cliff à ce carrousel.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Vue historique : Associated Screen News Limited, collection BAnQ, domaine public, entre 1930 et 1950. Vue actuelle : archive interne Bleu Massawippi, DJI_0243.JPG, 15 août 2024; autorisation de diffusion à confirmer avant publication.
-**Préparation :** Le choix proposé est précisément le duo North Hatley : la vue BAnQ entre 1930 et 1950, puis la photo drone interne du 15 août 2024. Confirmer les droits de la photo 2024 avant de choisir le carrousel. Les images d’Ayer’s Cliff restent réservées à une publication distincte.
+**Source de référence :** Vue historique : Associated Screen News Limited, collection BAnQ, domaine public, entre 1930 et 1950. Vue actuelle : archive interne Bleu Massawippi, DJI_0243.JPG, 15 août 2024.
+**Préparation :** Retenir l’ensemble complet de deux images, dans cet ordre : 1/2, la vue BAnQ entre 1930 et 1950; 2/2, la photo drone interne du 15 août 2024. Les droits sont traités en amont pour ce post et ne constituent pas une décision à demander ici. Les images d’Ayer’s Cliff restent réservées à une publication distincte.
 
 ### Légende prête à programmer
 
@@ -1085,37 +1085,41 @@ Thank you for your trust.
 #BleuMassawippi #LakeMassawippi #ThankYou #SupportTheLake
 ```
 
-## Samedi 8 août — Suivre le lac et ses tributaires pour mieux comprendre
+## Samedi 8 août — Denis Petitclerc à Radio-Canada Estrie — les moules zébrées au lac Massawippi
 
-**Thème :** Humanité
-**Format :** Reel sonore 12–15 s · écoute du terrain
-**Objectif :** Publication scientifique conservée et reprogrammée après l’ajustement du début des vacances de la construction; elle présente ensemble le suivi du lac et de ses tributaires.
-**CTA :** Découvrir les coulisses du suivi
-**Visuel final :** Reel de 12 à 15 secondes centré sur le suivi réel : mains qui préparent un flacon, prélèvent, inscrivent une mesure et comparent le carnet. Sous-titre : « Suivre · comparer · mieux protéger ».
+**Thème :** Actualité
+**Format :** Lien OHdio + photographie éditoriale imprimée · publication bilingue
+**Objectif :** Relayer rapidement l’entrevue accordée par le président de Bleu Massawippi à Radio-Canada Estrie, sans résumer ni citer un contenu qui n’a pas encore été transcrit dans le dossier éditorial.
+**CTA :** Écouter l’entrevue
+**Visuel final :** Composition 4:5 fondée sur l’image de Par ici l’info fournie avec le lien : tirage photographique posé sur une table, carte du lac et note manuscrite Denis à Radio-Canada · À écouter.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Gouvernement du Québec — Réseau de surveillance volontaire des lacs et Plan national de l’eau : https://www.quebec.ca/gouvernement/politiques-orientations/plan-national-eau
-**Préparation :** Monter 12 à 15 secondes, sans visage identifiable, avec son naturel ou musique sous licence.
+**Source de référence :** Radio-Canada OHdio — Par ici l’info — « Les moules zébrées se multiplient au Lac Massawippi, avec Denis Petitclerc » : https://ici.radio-canada.ca/ohdio/premiere/emissions/par-ici-l-info/segments/rattrapage/2442552/entrevue
+**Préparation :** Vérifier le lien et l’intitulé, confirmer la lisibilité du visuel, puis programmer le relais bilingue sur Facebook et Instagram.
 
 ### Légende prête à programmer
 
 ```text
-FR — Le suivi du lac et de ses tributaires est essentiel pour mieux comprendre le bassin versant et mieux le protéger.
+FR — Denis Petitclerc, président de Bleu Massawippi, était au micro de Radio-Canada Estrie pour parler de la multiplication des moules zébrées au lac Massawippi.
 
-Sur le terrain, chaque observation, prélèvement et mesure ajoute une donnée. Répétés avec une méthode constante et comparés dans le temps, ces gestes nous aident à distinguer une variation ponctuelle d’une tendance, à partager une information plus juste et à orienter les actions utiles.
+Cette entrevue de Par ici l’info est maintenant disponible sur OHdio. Prenez quelques minutes pour l’écouter et mieux connaître cet enjeu qui touche notre lac.
 
-Merci aux personnes qui rendent ce travail patient possible, saison après saison.
+🎧 Écouter l’entrevue : https://ici.radio-canada.ca/ohdio/premiere/emissions/par-ici-l-info/segments/rattrapage/2442552/entrevue
 
-#BleuMassawippi #LacMassawippi #ScienceDuLac #Coulisses
+Merci à Radio-Canada Estrie de donner de l’espace aux enjeux environnementaux du Massawippi.
+
+#BleuMassawippi #LacMassawippi #RadioCanadaEstrie #MoulesZébrées
 
 =========================================
 
-EN — Monitoring the lake and its tributaries is essential to understanding the watershed better and protecting it more effectively.
+EN — Denis Petitclerc, president of Bleu Massawippi, spoke with Radio-Canada Estrie about the growing zebra mussel presence in Lake Massawippi.
 
-In the field, every observation, sample and measurement adds a data point. Repeated with a consistent method and compared over time, these actions help distinguish a short-term variation from a trend, support clearer information and guide useful action.
+The Par ici l’info interview is now available on OHdio. Take a few minutes to listen and learn more about this issue affecting our lake. The interview is in French.
 
-Thank you to everyone who makes this patient work possible, season after season.
+🎧 Listen to the interview: https://ici.radio-canada.ca/ohdio/premiere/emissions/par-ici-l-info/segments/rattrapage/2442552/entrevue
 
-#BleuMassawippi #LakeMassawippi #LakeScience #BehindTheScenes
+Thank you to Radio-Canada Estrie for making space for environmental issues affecting Massawippi.
+
+#BleuMassawippi #LakeMassawippi #RadioCanadaEstrie #ZebraMussels
 ```
 
 ## Dimanche 9 août — Le voyage d’une goutte de pluie
@@ -2293,4 +2297,37 @@ Answer: D. Small equipment also travels from one body of water to another.
 Want to keep playing? More than 500 bilingual questions await: https://bleumassawippi.com/quiz
 
 #BleuMassawippi #LakeMassawippi #LakeQuiz
+```
+
+## Lundi 14 septembre — Suivre le lac et ses tributaires pour mieux comprendre
+
+**Thème :** Humanité
+**Format :** Reel sonore 12–15 s · écoute du terrain
+**Objectif :** Publication scientifique conservée et reprogrammée après l’ajustement du début des vacances de la construction; elle présente ensemble le suivi du lac et de ses tributaires.
+**CTA :** Découvrir les coulisses du suivi
+**Visuel final :** Reel de 12 à 15 secondes centré sur le suivi réel : mains qui préparent un flacon, prélèvent, inscrivent une mesure et comparent le carnet. Sous-titre : « Suivre · comparer · mieux protéger ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Gouvernement du Québec — Réseau de surveillance volontaire des lacs et Plan national de l’eau : https://www.quebec.ca/gouvernement/politiques-orientations/plan-national-eau
+**Préparation :** Monter 12 à 15 secondes, sans visage identifiable, avec son naturel ou musique sous licence.
+
+### Légende prête à programmer
+
+```text
+FR — Le suivi du lac et de ses tributaires est essentiel pour mieux comprendre le bassin versant et mieux le protéger.
+
+Sur le terrain, chaque observation, prélèvement et mesure ajoute une donnée. Répétés avec une méthode constante et comparés dans le temps, ces gestes nous aident à distinguer une variation ponctuelle d’une tendance, à partager une information plus juste et à orienter les actions utiles.
+
+Merci aux personnes qui rendent ce travail patient possible, saison après saison.
+
+#BleuMassawippi #LacMassawippi #ScienceDuLac #Coulisses
+
+=========================================
+
+EN — Monitoring the lake and its tributaries is essential to understanding the watershed better and protecting it more effectively.
+
+In the field, every observation, sample and measurement adds a data point. Repeated with a consistent method and compared over time, these actions help distinguish a short-term variation from a trend, support clearer information and guide useful action.
+
+Thank you to everyone who makes this patient work possible, season after season.
+
+#BleuMassawippi #LakeMassawippi #LakeScience #BehindTheScenes
 ```
