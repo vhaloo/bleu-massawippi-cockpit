@@ -11,6 +11,13 @@ const workspaceDir = path.dirname(fileURLToPath(import.meta.url));
 const sourcePath = path.resolve(workspaceDir, "..", "index.html");
 const dryRun = process.argv.includes("--dry-run");
 const contentOnly = process.argv.includes("--content-only");
+const idsArg = process.argv.find((arg) => arg.startsWith("--ids="));
+const selectedIds = idsArg
+  ? [...new Set(idsArg.slice("--ids=".length).split(",").map((id) => id.trim()).filter(Boolean))]
+  : null;
+if (selectedIds?.some((id) => !/^[a-z0-9-]{3,80}$/i.test(id))) {
+  throw new Error("--ids contient un identifiant de publication invalide.");
+}
 const source = await fs.readFile(sourcePath, "utf8");
 const css = source.match(/<style>([\s\S]*?)<\/style>/i)?.[1];
 const html = source.match(/<body>([\s\S]*?)<script>\s*var posts=/i)?.[1]?.trim();
@@ -26,6 +33,11 @@ const mainPosts = Array.isArray(posts) ? posts.filter((post) => post.isAlternati
 if (!Array.isArray(posts) || mainPosts.length < 28 || posts.length < mainPosts.length) {
   throw new Error("Le plan source doit contenir au moins 28 publications principales et ses alternatives éventuelles.");
 }
+const selectedPosts = selectedIds ? posts.filter((post) => selectedIds.includes(post.id)) : posts;
+if (selectedIds && selectedPosts.length !== selectedIds.length) {
+  const found = new Set(selectedPosts.map((post) => post.id));
+  throw new Error("Publication introuvable dans --ids : " + selectedIds.filter((id) => !found.has(id)).join(", "));
+}
 
 const privateContent = {
   schemaVersion: 1,
@@ -38,7 +50,7 @@ if (size > 900000) throw new Error("Le contenu privé dépasse la limite de séc
 const contentHash = crypto.createHash("sha256").update(JSON.stringify(privateContent)).digest("hex");
 
 if (dryRun) {
-  console.log(JSON.stringify({ sourcePath, posts: posts.length, privateContentBytes: size, contentOnly, ready: true }, null, 2));
+  console.log(JSON.stringify({ sourcePath, posts: posts.length, selectedPosts: contentOnly ? 0 : selectedPosts.length, selectedIds, privateContentBytes: size, contentOnly, ready: true }, null, 2));
   process.exit(0);
 }
 
@@ -66,7 +78,7 @@ if (contentChanged) {
 let createdStates = 0;
 let updatedStates = 0;
 let unchangedStates = 0;
-for (const post of contentOnly ? [] : posts) {
+for (const post of contentOnly ? [] : selectedPosts) {
   if (!/^[a-z0-9-]{3,80}$/i.test(post.id)) throw new Error("Identifiant de publication invalide : " + post.id);
   const ref = db.collection("scheduleItems").doc(post.id);
   const existing = await ref.get();
@@ -127,4 +139,4 @@ for (const post of contentOnly ? [] : posts) {
 }
 
 if (writeOperations > 0) await batch.commit();
-console.log(JSON.stringify({ seeded: true, contentOnly, contentChanged, posts: posts.length, mainPosts: mainPosts.length, createdStates, updatedStates, unchangedStates, writes: writeOperations, privateContentBytes: size, contentHash, versionId: versionRef?.id || null }, null, 2));
+console.log(JSON.stringify({ seeded: true, contentOnly, contentChanged, posts: posts.length, selectedPosts: contentOnly ? 0 : selectedPosts.length, selectedIds, mainPosts: mainPosts.length, createdStates, updatedStates, unchangedStates, writes: writeOperations, privateContentBytes: size, contentHash, versionId: versionRef?.id || null }, null, 2));

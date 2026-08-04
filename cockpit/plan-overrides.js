@@ -600,7 +600,7 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["alt-20260722", 3, "Samedi 1er août", "2026-08-01"],
   ["s3d5", 3, "Dimanche 2 août", "2026-08-02"],
   ["poesie-20260803-rappel-candidatures", 4, "Lundi 3 août", "2026-08-03"],
-  ["alt-20260731", 4, "Mardi 4 août", "2026-08-04"],
+  ["actualite-20260804-article-radio-canada-moules-zebrees", 4, "Mardi 4 août", "2026-08-04"],
   ["alt-20260801", 4, "Mercredi 5 août", "2026-08-05"],
   ["barbotte-20260730-signalement", 4, "Jeudi 6 août", "2026-08-06"],
   ["don-20260807-merci-bilan", 4, "Vendredi 7 août", "2026-08-07"],
@@ -640,7 +640,8 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["nature-20260910-feuille-surface", 9, "Jeudi 10 septembre", "2026-09-10"],
   ["don-20260911-merci-bilan", 9, "Vendredi 11 septembre", "2026-09-11"],
   ["archives-20260912-vos-images", 9, "Samedi 12 septembre", "2026-09-12"],
-  ["quiz-20260913-trois-gestes", 9, "Dimanche 13 septembre", "2026-09-13"]
+  ["quiz-20260913-trois-gestes", 9, "Dimanche 13 septembre", "2026-09-13"],
+  ["alt-20260731", 10, "Mardi 15 septembre", "2026-09-15"]
 ];
 
 const POETRY_CALL_POST = {
@@ -845,6 +846,66 @@ Thank you to Radio-Canada Estrie for making space for environmental issues affec
   taskOwnersVersion: "event-task-owners-2026-08-03-radio-canada-v1"
 };
 
+const RADIO_CANADA_ARTICLE_POST = {
+  id: "actualite-20260804-article-radio-canada-moules-zebrees",
+  w: 4,
+  date: "Mardi 4 août",
+  calendarTime: "07:30",
+  t: "Actualité",
+  tier: "Pilier",
+  title: "À lire sur Radio-Canada — la moule zébrée au lac Massawippi",
+  format: "Article web + photographie de presse recadrée · publication bilingue",
+  role: "Relayer rapidement le nouvel article écrit de Radio-Canada sur la moule zébrée au lac Massawippi, dans une publication distincte de l’entrevue audio prévue le 8 août.",
+  cta: "Lire l’article",
+  visual: "Une photographie authentique tirée de l’article, recadrée au format carré sans ajout ni transformation trompeuse; conserver un crédit Radio-Canada visible dans les renseignements du média.",
+  source: "Courriel de Denis Petitclerc reçu le 3 août 2026 : il estime que l’article reflète fidèlement les discussions avec la journaliste Elyse. Article Radio-Canada : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi",
+  fallback: "Si le crédit ou le droit de réutilisation de la photographie ne peut pas être confirmé, partager le lien de l’article avec son aperçu natif plutôt que de substituer une image qui ne provient pas de l’article.",
+  kpi: "Clics vers l’article / partages / commentaires utiles",
+  task: "Vérifier le lien, le crédit de la photographie et la lisibilité du recadrage, puis programmer le relais bilingue après les validations.",
+  copy: `FR — 📰 À LIRE SUR RADIO-CANADA
+
+Dans un article signé Laurence Frappier et Élyse Tessier, Radio-Canada fait le point sur la progression des moules zébrées au lac Massawippi, l’arrêt des opérations de contrôle faute de financement et la recherche de solutions viables.
+
+Denis Petitclerc estime que l’article reflète fidèlement la discussion. Le reportage explique aussi pourquoi la prévention, la recherche et un financement durable doivent avancer ensemble. Nous vous invitons à le lire dans son intégralité.
+
+🔗 Lire l’article : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
+
+Merci à Radio-Canada Estrie de porter cet enjeu à l’attention du public.
+
+#BleuMassawippi #LacMassawippi #RadioCanadaEstrie #MouleZébrée
+
+=========================================
+
+EN — 📰 A NEW RADIO-CANADA ARTICLE
+
+In a French-language article by Laurence Frappier and Élyse Tessier, Radio-Canada reports on the spread of zebra mussels in Lake Massawippi, the suspension of control operations due to a lack of funding, and the search for viable solutions.
+
+Denis Petitclerc believes the article faithfully reflects the discussion. It also explains why prevention, research, and sustainable funding must move forward together. We invite you to read the full story.
+
+🔗 Read the article in French: https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
+
+Thank you to Radio-Canada Estrie for bringing this issue to the public’s attention.
+
+#BleuMassawippi #LakeMassawippi #RadioCanadaEstrie #ZebraMussels`,
+  choiceRequired: false,
+  optionGroup: null,
+  optionLabel: null,
+  isAlternative: false,
+  decisionLocked: true,
+  calendarPriority: "timely-media-coverage",
+  replacesDailySlot: true,
+  doNotShiftForBrownBullhead: true,
+  tasksValentin: [
+    "Confirmer que la photographie retenue provient bien de l’article et conserver son crédit Radio-Canada.",
+    "Vérifier le recadrage carré, le texte alternatif, le lien et la lisibilité mobile.",
+    "Programmer la publication bilingue sur Facebook et Instagram après les validations."
+  ],
+  tasksAnnie: [
+    "Confirmer rapidement que le ton du relais et la présentation de l’enjeu conviennent à la direction."
+  ],
+  taskOwnersVersion: "event-task-owners-2026-08-03-radio-canada-article-v1"
+};
+
 function buildAlternative(spec) {
   const nature = spec.t === "Nature";
   const heritage = spec.t === "Patrimoine";
@@ -879,6 +940,7 @@ export function applyPlanOverridesToPosts(posts) {
   if (!posts.some((post) => post.id === POETRY_REMINDER_POST.id)) posts.push({ ...POETRY_REMINDER_POST });
   if (!posts.some((post) => post.id === BROWN_BULLHEAD_REPORT_POST.id)) posts.push({ ...BROWN_BULLHEAD_REPORT_POST });
   if (!posts.some((post) => post.id === RADIO_CANADA_DENIS_POST.id)) posts.push({ ...RADIO_CANADA_DENIS_POST });
+  if (!posts.some((post) => post.id === RADIO_CANADA_ARTICLE_POST.id)) posts.push({ ...RADIO_CANADA_ARTICLE_POST });
   const first = posts.find((post) => post.id === "s1d1");
   if (first) Object.assign(first, OPEN_HOUSE_POST, { decisionLocked: true });
   const moved = posts.find((post) => post.id === "s1d1b");
@@ -1152,6 +1214,23 @@ export function applyPlanOverridesToPosts(posts) {
       } : {})
     });
   });
+  const articleDisplacedPost = finalPosts.find((post) => post.id === "alt-20260731");
+  if (articleDisplacedPost) {
+    const history = Array.isArray(articleDisplacedPost.rescheduleHistory) ? [...articleDisplacedPost.rescheduleHistory] : [];
+    const reason = "Créneau du 4 août réservé au nouvel article écrit de Radio-Canada; le contenu éducatif est conservé intégralement au premier créneau libre après la séquence continue.";
+    if (!history.some((entry) => entry?.from === "2026-08-04" && entry?.to === "2026-09-15" && entry?.reason === reason)) {
+      history.push({ from: "2026-08-04", to: "2026-09-15", reason });
+    }
+    Object.assign(articleDisplacedPost, {
+      w: 10,
+      date: "Mardi 15 septembre",
+      calendarTime: "12:00",
+      rescheduledFrom: "2026-08-04",
+      rescheduledReason: reason,
+      displacedBy: RADIO_CANADA_ARTICLE_POST.id,
+      rescheduleHistory: history
+    });
+  }
   const monitoringDeferredForRadioCanada = finalPosts.find((post) => post.id === "s1d2");
   if (monitoringDeferredForRadioCanada) {
     const from = planDateIsoFromLabel(monitoringDeferredForRadioCanada.date);

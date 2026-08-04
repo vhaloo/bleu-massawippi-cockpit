@@ -66,22 +66,22 @@ assert.deepEqual(
   [...activePosts].map((post) => post.dateIso).sort(),
   "Le calendrier doit rester trié chronologiquement après tous les déplacements."
 );
-for (const week of [1,2,3,4,5,6,7,8,9]) {
+for (const week of [1,2,3,4,5,6,7,8,9,10]) {
   const dates = [...new Set(activePosts.filter((post) => post.w === week).map((post) => post.dateIso))];
   assert.deepEqual(dates, [...dates].sort(), `La semaine ${week} doit suivre l’ordre réel des dates.`);
 }
 const continuityStart = new Date("2026-07-13T12:00:00Z");
-const continuityEnd = new Date("2026-09-14T12:00:00Z");
+const continuityEnd = new Date("2026-09-15T12:00:00Z");
 const expectedContinuityDates = [];
 for (const cursor = new Date(continuityStart); cursor <= continuityEnd; cursor.setUTCDate(cursor.getUTCDate() + 1)) {
   expectedContinuityDates.push(cursor.toISOString().slice(0, 10));
 }
 const activePostsByDate = Object.groupBy(activePosts, (post) => post.dateIso);
 assert.deepEqual(Object.keys(activePostsByDate).sort(), expectedContinuityDates,
-  "Le calendrier actif doit couvrir chaque journée du 13 juillet au 14 septembre sans trou après le report conservatoire du sujet scientifique.");
+  "Le calendrier actif doit couvrir chaque journée du 13 juillet au 15 septembre sans trou après le report conservatoire du sujet scientifique et le déplacement du contenu du 4 août.");
 assert.ok(Object.values(activePostsByDate).every((items) => items.length === 1),
   "Chaque journée du calendrier continu doit afficher exactement une publication active.");
-assert.equal(activePosts.length, 64, "Le calendrier continu doit contenir 64 publications actives, dont le sujet scientifique conservé au 14 septembre.");
+assert.equal(activePosts.length, 65, "Le calendrier continu doit contenir 65 publications actives, dont le sujet scientifique conservé au 14 septembre et le contenu déplacé au 15 septembre.");
 const continuityPostIds = [
   "don-20260909-appel-soutien",
   "nature-20260910-feuille-surface",
@@ -133,14 +133,27 @@ assert.ok(volunteer.tasksAnnie.some((task) => /coordonn/i.test(task)));
 assert.ok(volunteer.tasksAnnie.some((task) => /consentement/i.test(task)));
 assert.equal(firstTuesday.choiceRequired, false, "La proposition retenue du mardi est verrouillée et ne demande plus d’arbitrage.");
 assert.equal(firstTuesday.optionGroup, null, "Une proposition verrouillée ne doit plus appartenir à un groupe de choix actif.");
-assert.equal(posts.filter((post) => !post.isAlternative).length, 39);
-assert.equal(posts.length, 70);
+assert.equal(posts.filter((post) => !post.isAlternative).length, 40);
+assert.equal(posts.length, 71);
+const radioCanadaArticle = posts.find((post) => post.id === "actualite-20260804-article-radio-canada-moules-zebrees");
+assert.ok(radioCanadaArticle, "Le nouvel article écrit de Radio-Canada doit devenir une publication distincte.");
+assert.equal(radioCanadaArticle.dateIso, "2026-08-04");
+assert.equal(radioCanadaArticle.choiceRequired, false);
+assert.equal(radioCanadaArticle.doNotShiftForBrownBullhead, true);
+assert.match(radioCanadaArticle.copy, /2273213\/moule-zebree-espece-envahissante-lac-massawippi/);
+assert.match(radioCanadaArticle.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
+assert.ok(radioCanadaArticle.copy.length <= 2200, "Le relais bilingue de l’article doit respecter la limite Meta.");
+assert.ok(!/2442552\/entrevue/.test(radioCanadaArticle.copy), "Le post de l’article écrit doit rester distinct du relais OHdio.");
 const radioCanadaInterview = posts.find((post) => post.id === "actualite-20260808-denis-radio-canada-moules-zebrees");
 assert.ok(radioCanadaInterview, "Le relais de l’entrevue de Denis à Radio-Canada doit être conservé dans le plan.");
 assert.equal(radioCanadaInterview.dateIso, "2026-08-08");
 assert.match(radioCanadaInterview.copy, /2442552\/entrevue/);
 assert.match(radioCanadaInterview.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
 assert.ok(!/«[^»]+»/.test(radioCanadaInterview.copy), "Aucune citation de Denis ne doit être inventée à partir du seul lien OHdio.");
+const articleDisplacedPost = posts.find((post) => post.id === "alt-20260731");
+assert.equal(articleDisplacedPost.dateIso, "2026-09-15", "Le contenu éducatif du 4 août doit être conservé au prochain créneau libre.");
+assert.equal(articleDisplacedPost.displacedBy, radioCanadaArticle.id);
+assert.match(articleDisplacedPost.rescheduledReason, /nouvel article écrit de Radio-Canada/i);
 const nonMotorizedWash = posts.find((post) => post.id === "lavage-20260903-sans-moteur");
 assert.ok(nonMotorizedWash, "La recommandation du 23 juillet sur les embarcations non motorisées doit devenir une publication planifiée.");
 assert.equal(nonMotorizedWash.dateIso, "2026-09-03");
@@ -881,6 +894,10 @@ assert.match(editorialMediaSeed, /item\.reuseMediaId/,
   "Le seed éditorial doit pouvoir réutiliser explicitement un fichier SharePoint déjà hébergé.");
 assert.match(editorialMediaSeed, /reusedUrls\.has\(item\.reuseMediaId\)/,
   "Les lectures de médias source réutilisés doivent être mises en cache dans le même lot.");
+assert.match(privateContentSeed, /--ids=/,
+  "La synchronisation du calendrier doit accepter une liste d’identifiants ciblée pour limiter les lectures Firestore.");
+assert.match(privateContentSeed, /selectedPosts/,
+  "La synchronisation ciblée doit limiter les documents de calendrier lus et écrits.");
 const mainPostCount = posts.filter((post) => !post.isAlternative).length;
 const postsPerDay = activePosts.reduce((counts, post) => counts.set(post.dateIso, (counts.get(post.dateIso) || 0) + 1), new Map());
 const pairedDayCount = [...postsPerDay.values()].filter((count) => count > 1).length;

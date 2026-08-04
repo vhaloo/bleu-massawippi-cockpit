@@ -906,43 +906,45 @@ On Sunday, August 30, from 1 to 4 p.m., Bleu Massawippi will bring together poet
 #AuBordDuBleu #BleuMassawippi #LakeMassawippi #Poetry #SpokenWord
 ```
 
-## Mardi 4 août — Quatre repères pour mieux lire le lac
+## Mardi 4 août — À lire sur Radio-Canada — la moule zébrée au lac Massawippi
 
-**Thème :** Interaction
-**Format :** Sondage quatre choix
-**Objectif :** Choisir les prochaines capsules scientifiques selon les questions du public.
-**CTA :** Découvrir les quatre repères
-**Visuel final :** Quatre cartes cohérentes avec pictogrammes simples et mots manuscrits : transparence, phosphore, oxygène, température; titre « Quatre repères pour lire le lac ».
+**Thème :** Actualité
+**Format :** Article web + photographie de presse recadrée · publication bilingue
+**Objectif :** Relayer rapidement le nouvel article écrit de Radio-Canada sur la moule zébrée au lac Massawippi, dans une publication distincte de l’entrevue audio prévue le 8 août.
+**CTA :** Lire l’article
+**Visuel final :** Une photographie authentique tirée de l’article, recadrée au format carré sans ajout ni transformation trompeuse; conserver un crédit Radio-Canada visible dans les renseignements du média.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
-**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+**Source de référence :** Courriel de Denis Petitclerc reçu le 3 août 2026 : il estime que l’article reflète fidèlement les discussions avec la journaliste Elyse. Article Radio-Canada : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
+**Préparation :** Vérifier le lien, le crédit de la photographie et la lisibilité du recadrage, puis programmer le relais bilingue après les validations.
 
 ### Légende prête à programmer
 
 ```text
-FR — Transparence, phosphore, oxygène, température : ces mots reviennent souvent quand on parle de la santé d’un lac. Chacun répond à une question différente et aucun ne suffit, à lui seul, à raconter toute l’histoire.
+FR — 📰 À LIRE SUR RADIO-CANADA
 
-A — La transparence aide à décrire ce que la lumière traverse.
-B — Le phosphore est un nutriment suivi avec attention.
-C — L’oxygène renseigne sur les conditions de vie dans l’eau.
-D — La température influence plusieurs processus du lac.
+Dans un article signé Laurence Frappier et Élyse Tessier, Radio-Canada fait le point sur la progression des moules zébrées au lac Massawippi, l’arrêt des opérations de contrôle faute de financement et la recherche de solutions viables.
 
-Nous les expliquerons un à un, toujours avec leur contexte et leurs limites.
+Denis Petitclerc estime que l’article reflète fidèlement la discussion. Le reportage explique aussi pourquoi la prévention, la recherche et un financement durable doivent avancer ensemble. Nous vous invitons à le lire dans son intégralité.
 
-#SciencePourTous #BleuMassawippi #LacMassawippi #QualitéDeLEau
+🔗 Lire l’article : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
+
+Merci à Radio-Canada Estrie de porter cet enjeu à l’attention du public.
+
+#BleuMassawippi #LacMassawippi #RadioCanadaEstrie #MouleZébrée
 
 =========================================
 
-EN — Clarity, phosphorus, oxygen and temperature often come up when discussing lake health. Each answers a different question, and none can tell the whole story on its own.
+EN — 📰 A NEW RADIO-CANADA ARTICLE
 
-A — Clarity helps describe how light passes through the water.
-B — Phosphorus is a nutrient monitored with care.
-C — Oxygen provides information about living conditions in the water.
-D — Temperature influences many lake processes.
+In a French-language article by Laurence Frappier and Élyse Tessier, Radio-Canada reports on the spread of zebra mussels in Lake Massawippi, the suspension of control operations due to a lack of funding, and the search for viable solutions.
 
-We will explain them one at a time, always with their context and limitations.
+Denis Petitclerc believes the article faithfully reflects the discussion. It also explains why prevention, research, and sustainable funding must move forward together. We invite you to read the full story.
 
-#ScienceForEveryone #BleuMassawippi #LakeMassawippi #WaterQuality
+🔗 Read the article in French: https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
+
+Thank you to Radio-Canada Estrie for bringing this issue to the public’s attention.
+
+#BleuMassawippi #LakeMassawippi #RadioCanadaEstrie #ZebraMussels
 ```
 
 ## Archive éditoriale — Une halte aux chutes de Massawippi, vers 1865
@@ -2330,4 +2332,43 @@ In the field, every observation, sample and measurement adds a data point. Repea
 Thank you to everyone who makes this patient work possible, season after season.
 
 #BleuMassawippi #LakeMassawippi #LakeScience #BehindTheScenes
+```
+
+## Mardi 15 septembre — Quatre repères pour mieux lire le lac
+
+**Thème :** Interaction
+**Format :** Sondage quatre choix
+**Objectif :** Choisir les prochaines capsules scientifiques selon les questions du public.
+**CTA :** Découvrir les quatre repères
+**Visuel final :** Quatre cartes cohérentes avec pictogrammes simples et mots manuscrits : transparence, phosphore, oxygène, température; titre « Quatre repères pour lire le lac ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
+**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Transparence, phosphore, oxygène, température : ces mots reviennent souvent quand on parle de la santé d’un lac. Chacun répond à une question différente et aucun ne suffit, à lui seul, à raconter toute l’histoire.
+
+A — La transparence aide à décrire ce que la lumière traverse.
+B — Le phosphore est un nutriment suivi avec attention.
+C — L’oxygène renseigne sur les conditions de vie dans l’eau.
+D — La température influence plusieurs processus du lac.
+
+Nous les expliquerons un à un, toujours avec leur contexte et leurs limites.
+
+#SciencePourTous #BleuMassawippi #LacMassawippi #QualitéDeLEau
+
+=========================================
+
+EN — Clarity, phosphorus, oxygen and temperature often come up when discussing lake health. Each answers a different question, and none can tell the whole story on its own.
+
+A — Clarity helps describe how light passes through the water.
+B — Phosphorus is a nutrient monitored with care.
+C — Oxygen provides information about living conditions in the water.
+D — Temperature influences many lake processes.
+
+We will explain them one at a time, always with their context and limitations.
+
+#ScienceForEveryone #BleuMassawippi #LakeMassawippi #WaterQuality
 ```
