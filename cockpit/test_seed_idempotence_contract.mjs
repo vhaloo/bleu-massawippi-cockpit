@@ -38,6 +38,10 @@ assert.match(read("seed_private_content.js"), /contentChanged/);
 assert.match(read("seed_private_content.js"), /if \(writeOperations > 0\) await batch\.commit\(\)/);
 assert.match(read("seed_private_content.js"), /mainPosts\.length < 28/,
   "La synchronisation doit accepter un calendrier durable au-delà des 28 publications initiales.");
+assert.match(read("seed_private_content.js"), /--ids=/,
+  "La synchronisation privée doit pouvoir cibler seulement les publications modifiées.");
+assert.match(read("seed_private_content.js"), /for \(const post of contentOnly \? \[\] : selectedPosts\)/,
+  "Une synchronisation ciblée ne doit pas relire tous les documents scheduleItems.");
 assert.match(read("seed_open_house_attachments.js"), /disabledByDefault: true/);
 assert.match(read("seed_content_notices.js"), /if \(existing\.exists\)[\s\S]*preserved \+= 1/);
 assert.match(read("seed_content_notices.js"), /Une version vue ne doit jamais être rouverte/);
