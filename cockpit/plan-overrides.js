@@ -600,12 +600,12 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["alt-20260722", 3, "Samedi 1er août", "2026-08-01"],
   ["s3d5", 3, "Dimanche 2 août", "2026-08-02"],
   ["poesie-20260803-rappel-candidatures", 4, "Lundi 3 août", "2026-08-03"],
-  ["actualite-20260804-article-radio-canada-moules-zebrees", 4, "Mardi 4 août", "2026-08-04"],
+  ["alt-20260731", 4, "Mardi 4 août", "2026-08-04"],
   ["alt-20260801", 4, "Mercredi 5 août", "2026-08-05"],
   ["barbotte-20260730-signalement", 4, "Jeudi 6 août", "2026-08-06"],
   ["don-20260807-merci-bilan", 4, "Vendredi 7 août", "2026-08-07"],
   ["actualite-20260808-denis-radio-canada-moules-zebrees", 4, "Samedi 8 août", "2026-08-08"],
-  ["s4d5", 4, "Dimanche 9 août", "2026-08-09"],
+  ["actualite-20260804-article-radio-canada-moules-zebrees", 4, "Dimanche 9 août", "2026-08-09"],
   ["alt-20260717", 5, "Lundi 10 août", "2026-08-10"],
   ["s4d1", 5, "Mardi 11 août", "2026-08-11"],
   ["s3d4", 5, "Mercredi 12 août", "2026-08-12"],
@@ -641,8 +641,32 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["don-20260911-merci-bilan", 9, "Vendredi 11 septembre", "2026-09-11"],
   ["archives-20260912-vos-images", 9, "Samedi 12 septembre", "2026-09-12"],
   ["quiz-20260913-trois-gestes", 9, "Dimanche 13 septembre", "2026-09-13"],
-  ["alt-20260731", 10, "Mardi 15 septembre", "2026-09-15"]
+  ["s4d5", 10, "Mardi 15 septembre", "2026-09-15"]
 ];
+
+const COMPLETED_POST_REPAIR_ROTATIONS = new Map([
+  ["alt-20260731", {
+    from: "2026-09-15",
+    to: "2026-08-04",
+    calendarTime: "12:00",
+    displacedBy: null,
+    reason: "Correction autorisée : restaurer au 4 août la publication déjà programmée; une publication terminée demeure à son créneau et ne peut pas être remplacée silencieusement."
+  }],
+  ["actualite-20260804-article-radio-canada-moules-zebrees", {
+    from: "2026-08-04",
+    to: "2026-08-09",
+    calendarTime: "09:00",
+    displacedBy: null,
+    reason: "Relais Radio-Canada déplacé au dimanche 9 août afin de restaurer sans altération la publication du 4 août déjà programmée."
+  }],
+  ["s4d5", {
+    from: "2026-08-09",
+    to: "2026-09-15",
+    calendarTime: "12:00",
+    displacedBy: "actualite-20260804-article-radio-canada-moules-zebrees",
+    reason: "Le voyage d’une goutte de pluie est conservé intégralement au 15 septembre afin de libérer le dimanche 9 août pour le relais d’actualité Radio-Canada."
+  }]
+]);
 
 const POETRY_CALL_POST = {
   id: "poesie-20260727-appel-aux-voix",
@@ -849,8 +873,8 @@ Thank you to Radio-Canada Estrie for making space for environmental issues affec
 const RADIO_CANADA_ARTICLE_POST = {
   id: "actualite-20260804-article-radio-canada-moules-zebrees",
   w: 4,
-  date: "Mardi 4 août",
-  calendarTime: "07:30",
+  date: "Dimanche 9 août",
+  calendarTime: "09:00",
   t: "Actualité",
   tier: "Pilier",
   title: "À lire sur Radio-Canada — la moule zébrée au lac Massawippi",
@@ -1197,9 +1221,12 @@ export function applyPlanOverridesToPosts(posts) {
     const post = finalPosts.find((item) => item.id === id);
     if (!post) return;
     const from = planDateIsoFromLabel(post.date);
+    const repairRotation = COMPLETED_POST_REPAIR_ROTATIONS.get(id);
+    const historyFrom = repairRotation?.from || from;
+    const assignmentReason = repairRotation?.reason || continuityReason;
     const history = Array.isArray(post.rescheduleHistory) ? [...post.rescheduleHistory] : [];
-    if (from && from !== dateIso && !history.some((entry) => entry?.from === from && entry?.to === dateIso && entry?.reason === continuityReason)) {
-      history.push({ from, to: dateIso, reason: continuityReason });
+    if (historyFrom && historyFrom !== dateIso && !history.some((entry) => entry?.from === historyFrom && entry?.to === dateIso && entry?.reason === assignmentReason)) {
+      history.push({ from: historyFrom, to: dateIso, reason: assignmentReason });
     }
     Object.assign(post, {
       w,
@@ -1207,30 +1234,15 @@ export function applyPlanOverridesToPosts(posts) {
       choiceRequired: false,
       optionGroup: null,
       optionLabel: null,
-      ...(from && from !== dateIso ? {
-        rescheduledFrom: from,
-        rescheduledReason: continuityReason,
+      ...(repairRotation?.calendarTime ? { calendarTime: repairRotation.calendarTime } : {}),
+      ...(repairRotation ? { displacedBy: repairRotation.displacedBy } : {}),
+      ...(historyFrom && historyFrom !== dateIso ? {
+        rescheduledFrom: historyFrom,
+        rescheduledReason: assignmentReason,
         rescheduleHistory: history
       } : {})
     });
   });
-  const articleDisplacedPost = finalPosts.find((post) => post.id === "alt-20260731");
-  if (articleDisplacedPost) {
-    const history = Array.isArray(articleDisplacedPost.rescheduleHistory) ? [...articleDisplacedPost.rescheduleHistory] : [];
-    const reason = "Créneau du 4 août réservé au nouvel article écrit de Radio-Canada; le contenu éducatif est conservé intégralement au premier créneau libre après la séquence continue.";
-    if (!history.some((entry) => entry?.from === "2026-08-04" && entry?.to === "2026-09-15" && entry?.reason === reason)) {
-      history.push({ from: "2026-08-04", to: "2026-09-15", reason });
-    }
-    Object.assign(articleDisplacedPost, {
-      w: 10,
-      date: "Mardi 15 septembre",
-      calendarTime: "12:00",
-      rescheduledFrom: "2026-08-04",
-      rescheduledReason: reason,
-      displacedBy: RADIO_CANADA_ARTICLE_POST.id,
-      rescheduleHistory: history
-    });
-  }
   const monitoringDeferredForRadioCanada = finalPosts.find((post) => post.id === "s1d2");
   if (monitoringDeferredForRadioCanada) {
     const from = planDateIsoFromLabel(monitoringDeferredForRadioCanada.date);
