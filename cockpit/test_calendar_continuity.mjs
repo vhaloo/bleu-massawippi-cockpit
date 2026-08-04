@@ -54,8 +54,8 @@ assert.equal(radioCanadaPost.dateIso, "2026-08-08");
 assert.match(radioCanadaPost.copy, /2442552\/entrevue/);
 assert.ok(!/«[^»]+»/.test(radioCanadaPost.copy), "Le relais ne doit pas inventer de citation attribuée à Denis.");
 const radioCanadaArticle = horizon.find((item) => item.id === "actualite-20260804-article-radio-canada-moules-zebrees");
-assert.ok(radioCanadaArticle, "L’article écrit de Radio-Canada doit occuper le 4 août.");
-assert.equal(radioCanadaArticle.dateIso, "2026-08-04");
+assert.ok(radioCanadaArticle, "L’article écrit de Radio-Canada doit occuper le 9 août sans remplacer un post terminé.");
+assert.equal(radioCanadaArticle.dateIso, "2026-08-09");
 assert.match(radioCanadaArticle.copy, /2273213\/moule-zebree-espece-envahissante-lac-massawippi/);
 assert.ok(!/2442552\/entrevue/.test(radioCanadaArticle.copy), "Le relais écrit doit rester distinct de l’entrevue OHdio.");
 const articleMedia = manifests.filter((item) => item.eventId === radioCanadaArticle.id);
@@ -63,9 +63,12 @@ assert.equal(articleMedia.length, 1, "Le relais écrit doit proposer une seule p
 assert.ok(articleMedia[0].previewUrl, "La photographie recadrée de l’article doit avoir un aperçu mobile réel.");
 assert.match(`${articleMedia[0].note || ""} ${articleMedia[0].rightsStatus || ""}`, /Radio-Canada/i,
   "La provenance Radio-Canada et le crédit doivent accompagner la photographie.");
-const displacedArticleSlot = posts.find((item) => item.id === "alt-20260731");
-assert.equal(displacedArticleSlot?.dateIso, "2026-09-15", "Le post éducatif déplacé doit être conservé au 15 septembre.");
-assert.equal(displacedArticleSlot?.displacedBy, radioCanadaArticle.id);
+const restoredCompletedSlot = posts.find((item) => item.id === "alt-20260731");
+assert.equal(restoredCompletedSlot?.dateIso, "2026-08-04", "Le post déjà programmé doit être restauré au 4 août.");
+assert.equal(restoredCompletedSlot?.displacedBy, null);
+const deferredRaindrop = posts.find((item) => item.id === "s4d5");
+assert.equal(deferredRaindrop?.dateIso, "2026-09-15", "Le voyage d’une goutte de pluie doit être conservé au créneau libéré.");
+assert.equal(deferredRaindrop?.displacedBy, radioCanadaArticle.id);
 const deferredMonitoringPost = posts.find((item) => item.id === "s1d2");
 assert.equal(deferredMonitoringPost?.dateIso, "2026-09-14", "Le suivi du lac et de ses tributaires doit être conservé au 14 septembre.");
 

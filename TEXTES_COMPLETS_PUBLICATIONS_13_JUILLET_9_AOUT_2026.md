@@ -906,45 +906,43 @@ On Sunday, August 30, from 1 to 4 p.m., Bleu Massawippi will bring together poet
 #AuBordDuBleu #BleuMassawippi #LakeMassawippi #Poetry #SpokenWord
 ```
 
-## Mardi 4 août — À lire sur Radio-Canada — la moule zébrée au lac Massawippi
+## Mardi 4 août — Quatre repères pour mieux lire le lac
 
-**Thème :** Actualité
-**Format :** Article web + photographie de presse recadrée · publication bilingue
-**Objectif :** Relayer rapidement le nouvel article écrit de Radio-Canada sur la moule zébrée au lac Massawippi, dans une publication distincte de l’entrevue audio prévue le 8 août.
-**CTA :** Lire l’article
-**Visuel final :** Une photographie authentique tirée de l’article, recadrée au format carré sans ajout ni transformation trompeuse; conserver un crédit Radio-Canada visible dans les renseignements du média.
+**Thème :** Interaction
+**Format :** Sondage quatre choix
+**Objectif :** Choisir les prochaines capsules scientifiques selon les questions du public.
+**CTA :** Découvrir les quatre repères
+**Visuel final :** Quatre cartes cohérentes avec pictogrammes simples et mots manuscrits : transparence, phosphore, oxygène, température; titre « Quatre repères pour lire le lac ».
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Courriel de Denis Petitclerc reçu le 3 août 2026 : il estime que l’article reflète fidèlement les discussions avec la journaliste Elyse. Article Radio-Canada : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
-**Préparation :** Vérifier le lien, le crédit de la photographie et la lisibilité du recadrage, puis programmer le relais bilingue après les validations.
+**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
+**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
 
 ### Légende prête à programmer
 
 ```text
-FR — 📰 À LIRE SUR RADIO-CANADA
+FR — Transparence, phosphore, oxygène, température : ces mots reviennent souvent quand on parle de la santé d’un lac. Chacun répond à une question différente et aucun ne suffit, à lui seul, à raconter toute l’histoire.
 
-Dans un article signé Laurence Frappier et Élyse Tessier, Radio-Canada fait le point sur la progression des moules zébrées au lac Massawippi, l’arrêt des opérations de contrôle faute de financement et la recherche de solutions viables.
+A — La transparence aide à décrire ce que la lumière traverse.
+B — Le phosphore est un nutriment suivi avec attention.
+C — L’oxygène renseigne sur les conditions de vie dans l’eau.
+D — La température influence plusieurs processus du lac.
 
-Denis Petitclerc estime que l’article reflète fidèlement la discussion. Le reportage explique aussi pourquoi la prévention, la recherche et un financement durable doivent avancer ensemble. Nous vous invitons à le lire dans son intégralité.
+Nous les expliquerons un à un, toujours avec leur contexte et leurs limites.
 
-🔗 Lire l’article : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
-
-Merci à Radio-Canada Estrie de porter cet enjeu à l’attention du public.
-
-#BleuMassawippi #LacMassawippi #RadioCanadaEstrie #MouleZébrée
+#SciencePourTous #BleuMassawippi #LacMassawippi #QualitéDeLEau
 
 =========================================
 
-EN — 📰 A NEW RADIO-CANADA ARTICLE
+EN — Clarity, phosphorus, oxygen and temperature often come up when discussing lake health. Each answers a different question, and none can tell the whole story on its own.
 
-In a French-language article by Laurence Frappier and Élyse Tessier, Radio-Canada reports on the spread of zebra mussels in Lake Massawippi, the suspension of control operations due to a lack of funding, and the search for viable solutions.
+A — Clarity helps describe how light passes through the water.
+B — Phosphorus is a nutrient monitored with care.
+C — Oxygen provides information about living conditions in the water.
+D — Temperature influences many lake processes.
 
-Denis Petitclerc believes the article faithfully reflects the discussion. It also explains why prevention, research, and sustainable funding must move forward together. We invite you to read the full story.
+We will explain them one at a time, always with their context and limitations.
 
-🔗 Read the article in French: https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
-
-Thank you to Radio-Canada Estrie for bringing this issue to the public’s attention.
-
-#BleuMassawippi #LakeMassawippi #RadioCanadaEstrie #ZebraMussels
+#ScienceForEveryone #BleuMassawippi #LakeMassawippi #WaterQuality
 ```
 
 ## Archive éditoriale — Une halte aux chutes de Massawippi, vers 1865
@@ -1124,33 +1122,45 @@ Thank you to Radio-Canada Estrie for making space for environmental issues affec
 #BleuMassawippi #LakeMassawippi #RadioCanadaEstrie #ZebraMussels
 ```
 
-## Dimanche 9 août — Le voyage d’une goutte de pluie
+## Dimanche 9 août — À lire sur Radio-Canada — la moule zébrée au lac Massawippi
 
-**Thème :** Coulisses
-**Format :** Photo de tributaire / bassin versant + récit court
-**Objectif :** Rendre le bassin versant tangible grâce à une image de terrain.
-**CTA :** Suivre son chemin
-**Visuel final :** Infographie illustrée comme un petit voyage : une goutte tombe sur un toit ou un jardin, rejoint un fossé, un tributaire puis le lac; chemin clair, paysage accueillant, palette pluie-vert-lac.
+**Thème :** Actualité
+**Format :** Article web + photographie de presse recadrée · publication bilingue
+**Objectif :** Relayer rapidement le nouvel article écrit de Radio-Canada sur la moule zébrée au lac Massawippi, dans une publication distincte de l’entrevue audio prévue le 8 août.
+**CTA :** Lire l’article
+**Visuel final :** Une photographie authentique tirée de l’article, recadrée au format carré sans ajout ni transformation trompeuse; conserver un crédit Radio-Canada visible dans les renseignements du média.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/accueil-1
-**Préparation :** Ne pas identifier un terrain privé ni présenter un tributaire comme une source de problème sans données confirmées.
+**Source de référence :** Courriel de Denis Petitclerc reçu le 3 août 2026 : il estime que l’article reflète fidèlement les discussions avec la journaliste Elyse. Article Radio-Canada : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
+**Préparation :** Vérifier le lien, le crédit de la photographie et la lisibilité du recadrage, puis programmer le relais bilingue après les validations.
 
 ### Légende prête à programmer
 
 ```text
-FR — Imaginez une goutte de pluie qui tombe sur un toit, un chemin ou une pelouse. Elle peut rejoindre un fossé, poursuivre vers un tributaire, puis arriver au Massawippi.
+FR — 📰 À LIRE SUR RADIO-CANADA
 
-Suivre son voyage aide à voir le bassin versant autrement : ce qui ralentit et absorbe l’eau en amont donne aussi un coup de main au lac. La prochaine fois qu’il pleut, regardez où l’eau choisit de passer.
+Dans un article signé Laurence Frappier et Élyse Tessier, Radio-Canada fait le point sur la progression des moules zébrées au lac Massawippi, l’arrêt des opérations de contrôle faute de financement et la recherche de solutions viables.
 
-#BassinVersant #BleuMassawippi #LacMassawippi #AgirEnAmont
+Denis Petitclerc estime que l’article reflète fidèlement la discussion. Le reportage explique aussi pourquoi la prévention, la recherche et un financement durable doivent avancer ensemble. Nous vous invitons à le lire dans son intégralité.
+
+🔗 Lire l’article : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
+
+Merci à Radio-Canada Estrie de porter cet enjeu à l’attention du public.
+
+#BleuMassawippi #LacMassawippi #RadioCanadaEstrie #MouleZébrée
 
 =========================================
 
-EN — Imagine a raindrop landing on a roof, road or lawn. It may reach a ditch, continue toward a tributary and eventually arrive at Massawippi.
+EN — 📰 A NEW RADIO-CANADA ARTICLE
 
-Following its journey offers a new way to see the watershed: what slows and absorbs water upstream also lends the lake a hand. The next time it rains, notice where the water chooses to travel.
+In a French-language article by Laurence Frappier and Élyse Tessier, Radio-Canada reports on the spread of zebra mussels in Lake Massawippi, the suspension of control operations due to a lack of funding, and the search for viable solutions.
 
-#Watershed #BleuMassawippi #LakeMassawippi #ThinkUpstream
+Denis Petitclerc believes the article faithfully reflects the discussion. It also explains why prevention, research, and sustainable funding must move forward together. We invite you to read the full story.
+
+🔗 Read the article in French: https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
+
+Thank you to Radio-Canada Estrie for bringing this issue to the public’s attention.
+
+#BleuMassawippi #LakeMassawippi #RadioCanadaEstrie #ZebraMussels
 ```
 
 ## Archive éditoriale — North Hatley, un été d’autrefois
@@ -2334,41 +2344,31 @@ Thank you to everyone who makes this patient work possible, season after season.
 #BleuMassawippi #LakeMassawippi #LakeScience #BehindTheScenes
 ```
 
-## Mardi 15 septembre — Quatre repères pour mieux lire le lac
+## Mardi 15 septembre — Le voyage d’une goutte de pluie
 
-**Thème :** Interaction
-**Format :** Sondage quatre choix
-**Objectif :** Choisir les prochaines capsules scientifiques selon les questions du public.
-**CTA :** Découvrir les quatre repères
-**Visuel final :** Quatre cartes cohérentes avec pictogrammes simples et mots manuscrits : transparence, phosphore, oxygène, température; titre « Quatre repères pour lire le lac ».
+**Thème :** Coulisses
+**Format :** Photo de tributaire / bassin versant + récit court
+**Objectif :** Rendre le bassin versant tangible grâce à une image de terrain.
+**CTA :** Suivre son chemin
+**Visuel final :** Infographie illustrée comme un petit voyage : une goutte tombe sur un toit ou un jardin, rejoint un fossé, un tributaire puis le lac; chemin clair, paysage accueillant, palette pluie-vert-lac.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
-**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+**Source de référence :** https://bleumassawippi.com/accueil-1
+**Préparation :** Ne pas identifier un terrain privé ni présenter un tributaire comme une source de problème sans données confirmées.
 
 ### Légende prête à programmer
 
 ```text
-FR — Transparence, phosphore, oxygène, température : ces mots reviennent souvent quand on parle de la santé d’un lac. Chacun répond à une question différente et aucun ne suffit, à lui seul, à raconter toute l’histoire.
+FR — Imaginez une goutte de pluie qui tombe sur un toit, un chemin ou une pelouse. Elle peut rejoindre un fossé, poursuivre vers un tributaire, puis arriver au Massawippi.
 
-A — La transparence aide à décrire ce que la lumière traverse.
-B — Le phosphore est un nutriment suivi avec attention.
-C — L’oxygène renseigne sur les conditions de vie dans l’eau.
-D — La température influence plusieurs processus du lac.
+Suivre son voyage aide à voir le bassin versant autrement : ce qui ralentit et absorbe l’eau en amont donne aussi un coup de main au lac. La prochaine fois qu’il pleut, regardez où l’eau choisit de passer.
 
-Nous les expliquerons un à un, toujours avec leur contexte et leurs limites.
-
-#SciencePourTous #BleuMassawippi #LacMassawippi #QualitéDeLEau
+#BassinVersant #BleuMassawippi #LacMassawippi #AgirEnAmont
 
 =========================================
 
-EN — Clarity, phosphorus, oxygen and temperature often come up when discussing lake health. Each answers a different question, and none can tell the whole story on its own.
+EN — Imagine a raindrop landing on a roof, road or lawn. It may reach a ditch, continue toward a tributary and eventually arrive at Massawippi.
 
-A — Clarity helps describe how light passes through the water.
-B — Phosphorus is a nutrient monitored with care.
-C — Oxygen provides information about living conditions in the water.
-D — Temperature influences many lake processes.
+Following its journey offers a new way to see the watershed: what slows and absorbs water upstream also lends the lake a hand. The next time it rains, notice where the water chooses to travel.
 
-We will explain them one at a time, always with their context and limitations.
-
-#ScienceForEveryone #BleuMassawippi #LakeMassawippi #WaterQuality
+#Watershed #BleuMassawippi #LakeMassawippi #ThinkUpstream
 ```

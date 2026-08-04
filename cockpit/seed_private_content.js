@@ -6,17 +6,29 @@ import { fileURLToPath } from "node:url";
 import { applicationDefault, initializeApp } from "firebase-admin/app";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import { applyPlanOverridesToPosts, preparePlanScript } from "./plan-overrides.js";
+import { assertProtectedScheduleChange, protectedScheduleFields } from "./seed_utils.js";
 
 const workspaceDir = path.dirname(fileURLToPath(import.meta.url));
 const sourcePath = path.resolve(workspaceDir, "..", "index.html");
 const dryRun = process.argv.includes("--dry-run");
 const contentOnly = process.argv.includes("--content-only");
 const idsArg = process.argv.find((arg) => arg.startsWith("--ids="));
+const completedRescheduleArg = process.argv.find((arg) => arg.startsWith("--allow-completed-reschedule="));
+const completedRescheduleReasonArg = process.argv.find((arg) => arg.startsWith("--reschedule-reason="));
 const selectedIds = idsArg
   ? [...new Set(idsArg.slice("--ids=".length).split(",").map((id) => id.trim()).filter(Boolean))]
   : null;
+const allowedCompletedRescheduleIds = new Set(completedRescheduleArg
+  ? completedRescheduleArg.slice("--allow-completed-reschedule=".length).split(",").map((id) => id.trim()).filter(Boolean)
+  : []);
+const completedRescheduleReason = completedRescheduleReasonArg
+  ? completedRescheduleReasonArg.slice("--reschedule-reason=".length).trim()
+  : "";
 if (selectedIds?.some((id) => !/^[a-z0-9-]{3,80}$/i.test(id))) {
   throw new Error("--ids contient un identifiant de publication invalide.");
+}
+if ([...allowedCompletedRescheduleIds].some((id) => !/^[a-z0-9-]{3,80}$/i.test(id))) {
+  throw new Error("--allow-completed-reschedule contient un identifiant de publication invalide.");
 }
 const source = await fs.readFile(sourcePath, "utf8");
 const css = source.match(/<style>([\s\S]*?)<\/style>/i)?.[1];
@@ -50,7 +62,7 @@ if (size > 900000) throw new Error("Le contenu privé dépasse la limite de séc
 const contentHash = crypto.createHash("sha256").update(JSON.stringify(privateContent)).digest("hex");
 
 if (dryRun) {
-  console.log(JSON.stringify({ sourcePath, posts: posts.length, selectedPosts: contentOnly ? 0 : selectedPosts.length, selectedIds, privateContentBytes: size, contentOnly, ready: true }, null, 2));
+  console.log(JSON.stringify({ sourcePath, posts: posts.length, selectedPosts: contentOnly ? 0 : selectedPosts.length, selectedIds, allowedCompletedRescheduleIds: [...allowedCompletedRescheduleIds], hasCompletedRescheduleReason: completedRescheduleReason.length >= 20, privateContentBytes: size, contentOnly, ready: true }, null, 2));
   process.exit(0);
 }
 
@@ -78,6 +90,8 @@ if (contentChanged) {
 let createdStates = 0;
 let updatedStates = 0;
 let unchangedStates = 0;
+let protectedWorkflowReads = 0;
+let overriddenCompletedMoves = 0;
 for (const post of contentOnly ? [] : selectedPosts) {
   if (!/^[a-z0-9-]{3,80}$/i.test(post.id)) throw new Error("Identifiant de publication invalide : " + post.id);
   const ref = db.collection("scheduleItems").doc(post.id);
@@ -103,6 +117,20 @@ for (const post of contentOnly ? [] : selectedPosts) {
     const before = existing.data() || {};
     const changedFields = Object.keys(contentFields).filter((key) => JSON.stringify(before[key] ?? null) !== JSON.stringify(contentFields[key] ?? null));
     if (changedFields.length) {
+      let scheduleProtection = null;
+      if (changedFields.some((key) => protectedScheduleFields.includes(key))) {
+        const workflowSnapshot = await db.collection("workflowStates").doc(post.id).get();
+        protectedWorkflowReads += 1;
+        scheduleProtection = assertProtectedScheduleChange({
+          eventId: post.id,
+          before,
+          after: contentFields,
+          workflowStage: workflowSnapshot.exists ? workflowSnapshot.data()?.stage : "proposal",
+          allowedEventIds: allowedCompletedRescheduleIds,
+          reason: completedRescheduleReason
+        });
+        if (scheduleProtection.overrideUsed) overriddenCompletedMoves += 1;
+      }
       const archiveRef = db.collection("changeArchive").doc();
       batch.set(archiveRef, {
         entityType: "scheduleItem",
@@ -110,6 +138,9 @@ for (const post of contentOnly ? [] : selectedPosts) {
         action: `synchronisation du contenu : ${changedFields.join(", ")}`.slice(0, 160),
         before: Object.fromEntries(Object.keys(contentFields).map((key) => [key, before[key] ?? null])),
         after: contentFields,
+        protectedWorkflowStage: scheduleProtection?.workflowStage || null,
+        completedScheduleOverride: scheduleProtection?.overrideUsed === true,
+        completedScheduleOverrideReason: scheduleProtection?.overrideUsed ? scheduleProtection.reason : null,
         actorUid: "system_seed",
         actorLabel: "Synchronisation du calendrier",
         createdAt: FieldValue.serverTimestamp()
@@ -139,4 +170,4 @@ for (const post of contentOnly ? [] : selectedPosts) {
 }
 
 if (writeOperations > 0) await batch.commit();
-console.log(JSON.stringify({ seeded: true, contentOnly, contentChanged, posts: posts.length, selectedPosts: contentOnly ? 0 : selectedPosts.length, selectedIds, mainPosts: mainPosts.length, createdStates, updatedStates, unchangedStates, writes: writeOperations, privateContentBytes: size, contentHash, versionId: versionRef?.id || null }, null, 2));
+console.log(JSON.stringify({ seeded: true, contentOnly, contentChanged, posts: posts.length, selectedPosts: contentOnly ? 0 : selectedPosts.length, selectedIds, mainPosts: mainPosts.length, createdStates, updatedStates, unchangedStates, protectedWorkflowReads, overriddenCompletedMoves, writes: writeOperations, privateContentBytes: size, contentHash, versionId: versionRef?.id || null }, null, 2));
