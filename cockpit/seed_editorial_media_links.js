@@ -54,7 +54,7 @@ for (const item of selectedManifest) {
   };
   const safetyFields = {
     ...(item.publicationBlocked === true ? { publicationBlocked: true } : {}),
-    ...(item.archived === true ? { archived: true, selectedFinal: false } : {})
+    ...(item.archived === true ? { archived: true, selectedFinal: false, stage: "archived" } : {})
   };
   if (!existing.exists) {
     batch.set(reference, {
