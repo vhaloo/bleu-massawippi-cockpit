@@ -286,6 +286,13 @@ service cloud.firestore {
         && data.direction == before.direction
         && validMediaOverride(data.override)
         && (data.override == before.override
+          // Certains états historiques ont enregistré actorRole='admin'
+          // même lorsque l'override était inactif. Autoriser uniquement leur
+          // normalisation vers l'override vide canonique évite de bloquer le
+          // choix média, sans permettre aux communications d'effacer un
+          // override actif de la direction.
+          || (before.override.active == false
+            && data.override.active == false)
           || (data.override.active == true
             && data.override.actorUid == request.auth.uid
             && data.override.actorRole == 'admin'))
