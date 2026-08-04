@@ -6,6 +6,7 @@ const client = fs.readFileSync(new URL("./firebase-client.js", import.meta.url),
 const ui = fs.readFileSync(new URL("./cockpit-ui.js", import.meta.url), "utf8");
 const mediaUi = fs.readFileSync(new URL("./media-choice-ui.js", import.meta.url), "utf8");
 const rules = fs.readFileSync(new URL("./firestore.rules", import.meta.url), "utf8");
+const editorialCycle = fs.readFileSync(new URL("./reconcile_editorial_cycle_20260804.js", import.meta.url), "utf8");
 
 const pureStart = client.indexOf("const MAX_MEDIA_CHOICES");
 const pureEnd = client.indexOf("\nfunction normalizeMediaDecision", pureStart);
@@ -57,6 +58,12 @@ assert.match(client, /wantsOverride && !\["director", "admin"\]\.includes\(profi
 assert.match(client, /override: profile\.role === "admin"[\s\S]*?before\.override/,
   "Les communications doivent préserver un override de la direction.");
 assert.match(client, /stage === "final_approved" && !\(profile\.role === "admin" && \["scheduled", "published"\]\.includes\(before\.stage\)\)/);
+assert.match(client, /setWorkflowStage[\s\S]*?runTransaction\(db[\s\S]*?transaction\.get\(mediaReference\)/,
+  "Une réouverture du texte doit mettre à jour le cycle et la décision média dans la même transaction.");
+assert.match(client, /setWorkflowStage[\s\S]*?deriveMediaAgreement\(mediaBefore\.communications, mediaBefore\.direction, mediaBefore\.override, textApproved\)/,
+  "Le feu visuel doit être recalculé quand le texte est approuvé ou rouvert.");
+assert.match(client, /stage === "content_approved" && \["agreed", "overridden"\]\.includes\(agreement\.status\)[\s\S]{0,80}nextStage = "final_approved"/,
+  "Après une nouvelle approbation du texte, un accord média conservé doit redevenir final sans double manipulation.");
 assert.match(client, /adminOverrideApprovesText[\s\S]{0,260}effectiveTextApproved/,
   "Les communications doivent pouvoir valider en une transaction le texte et le visuel avec un motif explicite.");
 assert.match(client, /subscribeMediaDecisions[\s\S]*?limit\(80\)/);
@@ -128,5 +135,16 @@ assert.match(rules, /function validMediaDecision\(data\)[\s\S]*validMediaAgreeme
 assert.match(rules, /match \/mediaDecisions\/\{eventId\}[\s\S]*allow update: if isEditor\(\)[\s\S]*validMediaDecisionEnvelope\(request\.resource\.data\)[\s\S]*mediaWorkflowMatchesAgreement\(request\.resource\.data\)/,
   "Les mises à jour par les deux rôles doivent aussi imposer l’atomicité décision-workflow.");
 assert.doesNotMatch(rules, /allow delete: if true/);
+
+assert.match(editorialCycle, /--confirm-editorial-cycle-20260804/,
+  "Le cycle éditorial du 4 août doit rester en dry-run sans confirmation explicite.");
+assert.match(editorialCycle, /sameVersion[\s\S]*?état modifié depuis le dry-run/,
+  "Le cycle éditorial doit refuser d’écraser une interaction arrivée après sa lecture.");
+assert.match(editorialCycle, /agreement: \{ status: "pending", mediaIds: \[\], divergent: false \}[\s\S]{0,180}textGateStage: "content_review"/,
+  "Les textes Radio-Canada révisés doivent rouvrir la porte texte sans perdre les choix média.");
+assert.match(editorialCycle, /Le visuel choisi est conservé; le texte révisé sans URL Meta doit maintenant être relu par la direction/,
+  "La file doit expliquer clairement pourquoi une nouvelle validation de texte est demandée.");
+assert.doesNotMatch(editorialCycle, /stage:\s*["']published["']/,
+  "Le cycle éditorial ne doit jamais marquer une publication comme terminée à la place des communications.");
 
 console.log("Contrat média par rôle : OK (accord, divergence, réversibilité, héritage, rôles et blocage). ");

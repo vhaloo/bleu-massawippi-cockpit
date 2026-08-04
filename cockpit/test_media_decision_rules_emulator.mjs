@@ -126,12 +126,40 @@ try {
   adminBatch.set(doc(adminDb, "workflowStates", ids.event), workflow(ids.admin, "Valentin", "final_approved"));
   await check("le même duo donne l’accord final et avance le workflow atomiquement", adminBatch.commit());
 
+  const reopenedDecision = {
+    ...agreedDecision,
+    agreement: { status: "pending", mediaIds: [], divergent: false },
+    textGateStage: "content_review",
+    lastMutationId: `reopen-copy-${Date.now()}`,
+    updatedAt: now(),
+    updatedBy: ids.admin,
+    updatedByLabel: "Valentin"
+  };
+  const reopenBatch = writeBatch(adminDb);
+  reopenBatch.set(doc(adminDb, "mediaDecisions", ids.event), reopenedDecision);
+  reopenBatch.set(doc(adminDb, "workflowStates", ids.event), workflow(ids.admin, "Valentin", "content_review"));
+  await check("les communications rouvrent un texte révisé sans perdre les deux choix média", reopenBatch.commit());
+
+  const reapprovedDecision = {
+    ...reopenedDecision,
+    agreement: { status: "agreed", mediaIds: pair, divergent: false },
+    textGateStage: "final_approved",
+    lastMutationId: `reapprove-copy-${Date.now()}`,
+    updatedAt: now(),
+    updatedBy: ids.director,
+    updatedByLabel: "Annie"
+  };
+  const reapproveBatch = writeBatch(directorDb);
+  reapproveBatch.set(doc(directorDb, "mediaDecisions", ids.event), reapprovedDecision);
+  reapproveBatch.set(doc(directorDb, "workflowStates", ids.event), workflow(ids.director, "Annie", "final_approved"));
+  await check("la nouvelle approbation du texte réactive l’accord média conservé", reapproveBatch.commit());
+
   const directorBatch = writeBatch(directorDb);
   directorBatch.set(doc(directorDb, "workflowStates", ids.event), workflow(ids.director, "Annie", "media_review"));
   directorBatch.set(doc(directorDb, "mediaDecisions", ids.event), {
     eventId: ids.event,
     schemaVersion: 2,
-    communications: agreedDecision.communications,
+    communications: reapprovedDecision.communications,
     direction: selectedSide(ids.director, "Annie", "director", [ids.historical]),
     override: emptyOverride(),
     agreement: { status: "divergent", mediaIds: [], divergent: true },

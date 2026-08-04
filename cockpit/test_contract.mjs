@@ -140,16 +140,23 @@ assert.ok(radioCanadaArticle, "Le nouvel article écrit de Radio-Canada doit dev
 assert.equal(radioCanadaArticle.dateIso, "2026-08-09");
 assert.equal(radioCanadaArticle.choiceRequired, false);
 assert.equal(radioCanadaArticle.doNotShiftForBrownBullhead, true);
-assert.match(radioCanadaArticle.copy, /2273213\/moule-zebree-espece-envahissante-lac-massawippi/);
+assert.doesNotMatch(radioCanadaArticle.copy, /https?:\/\/ici\.radio-canada\.ca/i,
+  "Le texte destiné à Meta doit rester natif et sans URL de média.");
+assert.match(radioCanadaArticle.source, /2273213\/moule-zebree-espece-envahissante-lac-massawippi/,
+  "La source interne doit conserver le lien exact de l’article.");
 assert.match(radioCanadaArticle.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
 assert.ok(radioCanadaArticle.copy.length <= 2200, "Le relais bilingue de l’article doit respecter la limite Meta.");
 assert.ok(!/2442552\/entrevue/.test(radioCanadaArticle.copy), "Le post de l’article écrit doit rester distinct du relais OHdio.");
 const radioCanadaInterview = posts.find((post) => post.id === "actualite-20260808-denis-radio-canada-moules-zebrees");
 assert.ok(radioCanadaInterview, "Le relais de l’entrevue de Denis à Radio-Canada doit être conservé dans le plan.");
 assert.equal(radioCanadaInterview.dateIso, "2026-08-08");
-assert.match(radioCanadaInterview.copy, /2442552\/entrevue/);
+assert.doesNotMatch(radioCanadaInterview.copy, /https?:\/\/ici\.radio-canada\.ca/i,
+  "Le texte destiné à Meta doit rester natif et sans URL de média.");
+assert.match(radioCanadaInterview.source, /2442552\/entrevue/,
+  "La source interne doit conserver le lien exact de l’entrevue.");
 assert.match(radioCanadaInterview.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
-assert.ok(!/«[^»]+»/.test(radioCanadaInterview.copy), "Aucune citation de Denis ne doit être inventée à partir du seul lien OHdio.");
+assert.match(radioCanadaInterview.fallback, /ne pas inventer de citation/i,
+  "La garde contre toute citation inventée doit rester explicite.");
 const restoredCompletedPost = posts.find((post) => post.id === "alt-20260731");
 assert.equal(restoredCompletedPost.dateIso, "2026-08-04", "Le contenu déjà programmé doit demeurer au 4 août.");
 assert.equal(restoredCompletedPost.displacedBy, null);

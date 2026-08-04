@@ -827,19 +827,19 @@ const RADIO_CANADA_DENIS_POST = {
   t: "Actualité",
   tier: "Pilier",
   title: "Denis Petitclerc à Radio-Canada Estrie — les moules zébrées au lac Massawippi",
-  format: "Lien OHdio + photographie éditoriale imprimée · publication bilingue",
-  role: "Relayer rapidement l’entrevue accordée par le président de Bleu Massawippi à Radio-Canada Estrie, sans résumer ni citer un contenu qui n’a pas encore été transcrit dans le dossier éditorial.",
-  cta: "Écouter l’entrevue",
+  format: "Publication native sans lien Meta + photographie éditoriale imprimée · publication bilingue",
+  role: "Relayer rapidement l’entrevue accordée par le président de Bleu Massawippi à Radio-Canada Estrie dans un format natif compatible avec Facebook et Instagram, sans résumer ni citer un contenu qui n’a pas encore été transcrit dans le dossier éditorial.",
+  cta: "Retrouver l’entrevue sur Radio-Canada OHdio",
   visual: "Composition 4:5 fondée sur l’image de Par ici l’info fournie avec le lien : tirage photographique posé sur une table, carte du lac et note manuscrite Denis à Radio-Canada · À écouter.",
   source: "Radio-Canada OHdio — Par ici l’info — « Les moules zébrées se multiplient au Lac Massawippi, avec Denis Petitclerc » : https://ici.radio-canada.ca/ohdio/premiere/emissions/par-ici-l-info/segments/rattrapage/2442552/entrevue",
-  fallback: "Partager le lien OHdio avec l’image originale fournie par Radio-Canada et un texte alternatif; ne pas inventer de citation ni de résumé détaillé.",
-  kpi: "Écoutes du lien / partages / commentaires utiles",
-  task: "Vérifier le lien et l’intitulé, confirmer la lisibilité du visuel, puis programmer le relais bilingue sur Facebook et Instagram.",
+  fallback: "Sur Facebook et Instagram, publier le visuel et le texte nativement, sans URL de Radio-Canada. Conserver le lien direct pour le site de Bleu Massawippi et les canaux qui l’acceptent; ne pas inventer de citation ni de résumé détaillé.",
+  kpi: "Portée native / recherches de l’entrevue / partages / commentaires utiles",
+  task: "Vérifier le titre exact et la lisibilité du visuel, préparer une page ou un encart sur le site de Bleu Massawippi avec le lien OHdio, puis programmer sur Facebook et Instagram la version native sans URL de média.",
   copy: `FR — Denis Petitclerc, président de Bleu Massawippi, était au micro de Radio-Canada Estrie pour parler de la multiplication des moules zébrées au lac Massawippi.
 
-Cette entrevue de Par ici l’info est maintenant disponible sur OHdio. Prenez quelques minutes pour l’écouter et mieux connaître cet enjeu qui touche notre lac.
+Cette entrevue de Par ici l’info est maintenant disponible sur Radio-Canada OHdio. Pour la retrouver, cherchez le titre « Les moules zébrées se multiplient au lac Massawippi, avec Denis Petitclerc ».
 
-🎧 Écouter l’entrevue : https://ici.radio-canada.ca/ohdio/premiere/emissions/par-ici-l-info/segments/rattrapage/2442552/entrevue
+🎧 Le lien direct sera aussi regroupé sur le site de Bleu Massawippi.
 
 Merci à Radio-Canada Estrie de donner de l’espace aux enjeux environnementaux du Massawippi.
 
@@ -849,9 +849,9 @@ Merci à Radio-Canada Estrie de donner de l’espace aux enjeux environnementaux
 
 EN — Denis Petitclerc, president of Bleu Massawippi, spoke with Radio-Canada Estrie about the growing zebra mussel presence in Lake Massawippi.
 
-The Par ici l’info interview is now available on OHdio. Take a few minutes to listen and learn more about this issue affecting our lake. The interview is in French.
+The Par ici l’info interview is now available on Radio-Canada OHdio. To find it, search for “Les moules zébrées se multiplient au lac Massawippi, avec Denis Petitclerc.” The interview is in French.
 
-🎧 Listen to the interview: https://ici.radio-canada.ca/ohdio/premiere/emissions/par-ici-l-info/segments/rattrapage/2442552/entrevue
+🎧 The direct link will also be gathered on the Bleu Massawippi website.
 
 Thank you to Radio-Canada Estrie for making space for environmental issues affecting Massawippi.
 
@@ -866,12 +866,13 @@ Thank you to Radio-Canada Estrie for making space for environmental issues affec
   doNotShiftForBrownBullhead: true,
   tasksValentin: [
     "Vérifier le lien OHdio, le titre de l’entrevue, le visuel, son texte alternatif et la lisibilité mobile.",
-    "Programmer la publication bilingue sur Facebook et Instagram après les validations, sans ajouter de citation ou de résumé non vérifié."
+    "Préparer sur le site de Bleu Massawippi un encart qui mène au lien OHdio; ne pas annoncer cet encart avant sa mise en ligne.",
+    "Programmer la publication bilingue native sur Facebook et Instagram après les validations, sans URL de média, citation inventée ni résumé non vérifié."
   ],
   tasksAnnie: [
     "Confirmer rapidement que le ton du relais et la présentation de Denis conviennent à la direction."
   ],
-  taskOwnersVersion: "event-task-owners-2026-08-03-radio-canada-v1"
+  taskOwnersVersion: "event-task-owners-2026-08-04-radio-canada-meta-native-v2"
 };
 
 const RADIO_CANADA_ARTICLE_POST = {
@@ -882,21 +883,21 @@ const RADIO_CANADA_ARTICLE_POST = {
   t: "Actualité",
   tier: "Pilier",
   title: "À lire sur Radio-Canada — la moule zébrée au lac Massawippi",
-  format: "Article web + portrait réel en tirage imprimé et citation manuscrite · publication bilingue",
-  role: "Relayer rapidement le nouvel article écrit de Radio-Canada sur la moule zébrée au lac Massawippi, dans une publication distincte de l’entrevue audio prévue le 8 août.",
-  cta: "Lire l’article",
+  format: "Publication native sans lien Meta + portrait réel en tirage imprimé et citation manuscrite · publication bilingue",
+  role: "Relayer rapidement le nouvel article écrit de Radio-Canada sur la moule zébrée au lac Massawippi dans un format natif compatible avec Facebook et Instagram, distinct de l’entrevue audio prévue le 8 août.",
+  cta: "Retrouver l’article sur Radio-Canada",
   visual: "Le portrait réel de Denis Petitclerc fourni par les communications, présenté comme un tirage photographique chaleureux sur une table en bois. Une carte manuscrite porte exactement la citation : « Ce n’est pas parce que la solution à un problème n’a pas été trouvée que la solution n’existe pas. La science évolue. »",
   source: "Photo et citation de Denis Petitclerc transmises par Valentin Wittwe le 4 août 2026. Courriel de Denis reçu le 3 août 2026 : il estime que l’article reflète fidèlement les discussions avec la journaliste Elyse. Article Radio-Canada : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi",
-  fallback: "Si une correction de la citation ou de son attribution devient nécessaire, conserver le post en brouillon et repartir de la photographie source archivée plutôt que de publier une approximation.",
-  kpi: "Clics vers l’article / partages / commentaires utiles",
-  task: "Vérifier le lien, la citation, son attribution et la lisibilité mobile du nouveau visuel, puis programmer le relais bilingue après les validations.",
+  fallback: "Sur Facebook et Instagram, publier le visuel et le texte nativement, sans URL de Radio-Canada. Conserver le lien direct pour le site de Bleu Massawippi et les canaux qui l’acceptent. Si la citation ou son attribution doit être corrigée, garder le post en brouillon et repartir de la photographie source archivée.",
+  kpi: "Portée native / recherches de l’article / partages / commentaires utiles",
+  task: "Vérifier la citation, son attribution et la lisibilité mobile du visuel, préparer une page ou un encart sur le site de Bleu Massawippi avec le lien de l’article, puis programmer sur Facebook et Instagram la version native sans URL de média.",
   copy: `FR — 📰 À LIRE SUR RADIO-CANADA
 
 Dans un article signé Laurence Frappier et Élyse Tessier, Radio-Canada fait le point sur la progression des moules zébrées au lac Massawippi, l’arrêt des opérations de contrôle faute de financement et la recherche de solutions viables.
 
-Denis Petitclerc estime que l’article reflète fidèlement la discussion. Le reportage explique aussi pourquoi la prévention, la recherche et un financement durable doivent avancer ensemble. Nous vous invitons à le lire dans son intégralité.
+Denis Petitclerc estime que l’article reflète fidèlement la discussion. Le reportage explique aussi pourquoi la prévention, la recherche et un financement durable doivent avancer ensemble.
 
-🔗 Lire l’article : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
+📰 Pour le retrouver sur Radio-Canada, cherchez « Les moules zébrées se multiplient au lac Massawippi ». Le lien direct sera aussi regroupé sur le site de Bleu Massawippi.
 
 Merci à Radio-Canada Estrie de porter cet enjeu à l’attention du public.
 
@@ -908,9 +909,9 @@ EN — 📰 A NEW RADIO-CANADA ARTICLE
 
 In a French-language article by Laurence Frappier and Élyse Tessier, Radio-Canada reports on the spread of zebra mussels in Lake Massawippi, the suspension of control operations due to a lack of funding, and the search for viable solutions.
 
-Denis Petitclerc believes the article faithfully reflects the discussion. It also explains why prevention, research, and sustainable funding must move forward together. We invite you to read the full story.
+Denis Petitclerc believes the article faithfully reflects the discussion. It also explains why prevention, research, and sustainable funding must move forward together.
 
-🔗 Read the article in French: https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
+📰 To find the French-language story on Radio-Canada, search for “Les moules zébrées se multiplient au lac Massawippi.” The direct link will also be gathered on the Bleu Massawippi website.
 
 Thank you to Radio-Canada Estrie for bringing this issue to the public’s attention.
 
@@ -925,13 +926,14 @@ Thank you to Radio-Canada Estrie for bringing this issue to the public’s atten
   doNotShiftForBrownBullhead: true,
   tasksValentin: [
     "Vérifier que la citation de Denis est reproduite exactement et que son attribution est visible.",
-    "Vérifier le portrait imprimé, le texte alternatif, le lien et la lisibilité mobile.",
-    "Programmer la publication bilingue sur Facebook et Instagram après les validations."
+    "Vérifier le portrait imprimé, le texte alternatif, le titre de l’article et la lisibilité mobile.",
+    "Préparer sur le site de Bleu Massawippi un encart qui mène à l’article; ne pas annoncer cet encart avant sa mise en ligne.",
+    "Programmer la publication bilingue native sur Facebook et Instagram après les validations, sans URL de média."
   ],
   tasksAnnie: [
     "Confirmer rapidement que le ton du relais et la présentation de l’enjeu conviennent à la direction."
   ],
-  taskOwnersVersion: "event-task-owners-2026-08-03-radio-canada-article-v1"
+  taskOwnersVersion: "event-task-owners-2026-08-04-radio-canada-article-meta-native-v2"
 };
 
 function buildAlternative(spec) {

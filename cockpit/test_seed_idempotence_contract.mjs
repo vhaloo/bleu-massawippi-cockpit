@@ -93,4 +93,11 @@ assert.equal(projectDecisions.decisions.filter((item) => item.audienceRole === "
 assert.ok(projectDecisions.decisions.some((item) => item.id === "suivi-plages-reviser-offre-20260804-v1"), "La révision de l’ébauche Suivi des plages doit rester dans la file Communications.");
 assert.match(read("seed_project_decisions.js"), /if \(existing\.exists\)/, "Le semeur de décisions doit préserver les entrées existantes.");
 assert.match(read("seed_project_decisions.js"), /actionType: "project_decision"/);
+const editorialCycleReconciliation = read("reconcile_editorial_cycle_20260804.js");
+assert.match(editorialCycleReconciliation, /const snapshot = transaction \? await transaction\.get\(ref\) : await ref\.get\(\);/,
+  "La réconciliation doit attendre chaque lecture Firestore avant d’inspecter le document.");
+assert.match(editorialCycleReconciliation, /updateRadioAction\(\)/,
+  "Une décision déjà semée doit être mise à jour explicitement plutôt que remplacée ou dupliquée.");
+assert.match(editorialCycleReconciliation, /PLANNED_MEDIA_PREREQUISITES/,
+  "Le dry-run pré-déploiement doit distinguer les médias planifiés des données réellement absentes.");
 console.log("Contrat d’idempotence des synchronisations : OK");
