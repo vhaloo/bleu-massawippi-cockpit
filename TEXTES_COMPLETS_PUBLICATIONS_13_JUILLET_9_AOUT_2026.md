@@ -1007,43 +1007,47 @@ Historical credit: Associated Screen News Limited, BAnQ collection.
 #Heritage #BleuMassawippi #NorthHatley #LocalMemory
 ```
 
-## Jeudi 6 août — Avez-vous vu une barbotte dans le lac Massawippi?
+## Jeudi 6 août — Avez-vous vu ou capturé une barbotte avec ce type de lésion?
 
 **Thème :** Communauté
-**Format :** Affiche naturaliste bilingue 4:5 · appel au signalement
-**Objectif :** Inviter simplement les personnes qui fréquentent le lac à partager une observation de barbotte brune afin de mieux documenter sa présence.
-**CTA :** Partager une observation
-**Visuel final :** Affiche naturaliste chaleureuse sur papier ivoire, fondée sur une illustration fidèle de barbotte brune du domaine public; question manuscrite bilingue et trois repères très lisibles : date, secteur, photo.
+**Format :** Photo documentaire bilingue 4:5 · appel au signalement
+**Objectif :** Inviter sans alarmisme les personnes qui fréquentent le lac à signaler une barbotte présentant des lésions ou des masses noires visibles, avec une date, un secteur approximatif et une photo.
+**CTA :** Nous transmettre une observation
+**Visuel final :** Poster documentaire sur papier ivoire montrant une photographie USGS de barbotte brune avec des masses noires visibles, trois flèches sobres et les repères bilingues date, secteur et photo.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Gouvernement du Québec — Barbotte brune (Ameiurus nebulosus) : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/animaux-sauvages-quebec/fiches-especes-fauniques/barbotte-brune · illustration de Duane Raver, U.S. Fish and Wildlife Service, domaine public : https://commons.wikimedia.org/wiki/File:Brown_bullhead_fish_ameiurus_nebulosus.jpg
-**Préparation :** Vérifier les coordonnées de réception, publier l’appel bilingue après validation et consigner chaque observation sans diffuser d’adresse privée ni de renseignement personnel.
+**Source de référence :** USGS — barbotte du lac Memphrémagog, photographie du domaine public : https://www.usgs.gov/media/images/raised-black-external-tumors-adult-brown-bullhead-fish · Réseau canadien pour la santé de la faune — observations au lac Magog : https://healthywildlife.ca/melanomas-in-brown-bullhead-from-the-lake-memphremagog-quebec/
+**Préparation :** Publier l’appel bilingue après validation, puis consigner chaque observation sans diffuser d’adresse privée ni de renseignement personnel; ne tirer aucune conclusion à partir d’une photo seule.
 
 ### Légende prête à programmer
 
 ```text
-FR — Avez-vous déjà vu ou capturé une barbotte brune dans le lac Massawippi?
+FR — Avez-vous déjà vu ou capturé une barbotte brune dans le lac Massawippi avec ce type de lésion sur le corps?
 
-Nous aimerions mieux documenter sa présence dans le lac. Si vous en observez une au cours d’une sortie ou d’une prise, écrivez-nous à info@bleumassawippi.com en indiquant, si possible :
+Des lésions semblables ont déjà été documentées chez des barbottes des lacs Memphrémagog et Magog.
+
+Si oui, écrivez-nous à info@bleumassawippi.com en indiquant, si possible :
 
 • la date;
 • le secteur approximatif du lac;
 • une photo.
 
-Une courte note suffit. Merci de nous aider à rassembler ces observations autour du Massawippi.
+Nous rassemblons simplement les signalements. Une photo ne permet pas, à elle seule, d’en déterminer la cause. Merci aux pêcheuses, pêcheurs et personnes qui fréquentent le lac pour votre aide.
 
 #BleuMassawippi #LacMassawippi #BarbotteBrune #ObservationCitoyenne
 
 =========================================
 
-EN — Have you ever seen or caught a brown bullhead in Lake Massawippi?
+EN — Have you ever seen or caught a brown bullhead in Lake Massawippi with this type of lesion on its body?
 
-We would like to better document its presence in the lake. If you see one during an outing or catch, please write to info@bleumassawippi.com and include, if possible:
+Similar lesions have already been documented in brown bullhead from lakes Memphremagog and Magog.
+
+If so, please write to info@bleumassawippi.com and include, if possible:
 
 • the date;
 • the approximate area of the lake;
 • a photo.
 
-A short note is all it takes. Thank you for helping us gather observations from around Massawippi.
+We are simply gathering reports. A photo alone cannot determine their cause. Thank you to anglers and everyone who spends time on the lake for your help.
 
 #BleuMassawippi #LakeMassawippi #BrownBullhead #CommunityObservation
 ```
