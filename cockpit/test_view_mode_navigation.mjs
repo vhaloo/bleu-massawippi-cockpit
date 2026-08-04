@@ -7,6 +7,7 @@ const { document, window } = parseHTML(`<!doctype html><html lang="fr"><head></h
     <div class="hero"></div>
     <nav class="nav"><div class="wrap"><a href="#cap">Cap</a><a href="#projets">Projets</a><a href="#calendrier">Calendrier</a></div></nav>
     <section id="cap" hidden><details id="cap-details"><summary>Le cap</summary><p>Contexte.</p></details></section>
+    <details id="context-collapsible"><summary>Stratégie</summary><article id="site-niveau-lac-rapport-2025"><h3>Niveau du lac et barrage — des repères utiles</h3></article></details>
     <section id="projets"><details data-internal-project-id="project-one"><summary>Projet test</summary></details></section>
     <section id="calendrier">
       <input id="search" value=""><select id="week"><option value="all" selected>Toutes</option><option value="2">2</option></select>
@@ -664,6 +665,15 @@ assert.equal(document.body.classList.contains("cockpit-view-complete"), true);
 assert.equal(document.querySelector("#cap").hidden, false);
 assert.equal(document.querySelector("#cap-details").hasAttribute("open"), true);
 assert.equal(document.querySelector("#cap").dataset.testFocused, "true");
+
+// La décision « Niveau du lac » ouvre son encart dédié — et non le cadre
+// générique du mandat — avec le même parcours en vue mobile.
+const lakeLevelTarget = document.querySelector("#site-niveau-lac-rapport-2025");
+document.querySelector("#context-collapsible").removeAttribute("open");
+assert.equal(await viewMode.navigateToEntity({ type: "section", id: "site-niveau-lac-rapport-2025" }), true);
+assert.equal(document.querySelector("#context-collapsible").hasAttribute("open"), true, "La stratégie repliée doit s’ouvrir automatiquement.");
+assert.equal(lakeLevelTarget.dataset.testFocused, "true", "Le bon encart doit recevoir le focus.");
+assert.equal(scrollCalls.at(-1)?.element, lakeLevelTarget, "Le défilement final doit viser l’encart Niveau du lac lui-même.");
 
 // Un échec n'est jamais silencieux : il propose un réessai. Le réessai peut
 // réussir après l'arrivée de la cible (cas cache/reconnexion).

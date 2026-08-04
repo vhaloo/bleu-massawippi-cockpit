@@ -1092,22 +1092,22 @@ Thank you for your trust.
 ## Samedi 8 août — Denis Petitclerc à Radio-Canada Estrie — les moules zébrées au lac Massawippi
 
 **Thème :** Actualité
-**Format :** Lien OHdio + photographie éditoriale imprimée · publication bilingue
-**Objectif :** Relayer rapidement l’entrevue accordée par le président de Bleu Massawippi à Radio-Canada Estrie, sans résumer ni citer un contenu qui n’a pas encore été transcrit dans le dossier éditorial.
-**CTA :** Écouter l’entrevue
+**Format :** Publication native sans lien Meta + photographie éditoriale imprimée · publication bilingue
+**Objectif :** Relayer rapidement l’entrevue accordée par le président de Bleu Massawippi à Radio-Canada Estrie dans un format natif compatible avec Facebook et Instagram, sans résumer ni citer un contenu qui n’a pas encore été transcrit dans le dossier éditorial.
+**CTA :** Retrouver l’entrevue sur Radio-Canada OHdio
 **Visuel final :** Composition 4:5 fondée sur l’image de Par ici l’info fournie avec le lien : tirage photographique posé sur une table, carte du lac et note manuscrite Denis à Radio-Canada · À écouter.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
 **Source de référence :** Radio-Canada OHdio — Par ici l’info — « Les moules zébrées se multiplient au Lac Massawippi, avec Denis Petitclerc » : https://ici.radio-canada.ca/ohdio/premiere/emissions/par-ici-l-info/segments/rattrapage/2442552/entrevue
-**Préparation :** Vérifier le lien et l’intitulé, confirmer la lisibilité du visuel, puis programmer le relais bilingue sur Facebook et Instagram.
+**Préparation :** Vérifier le titre exact et la lisibilité du visuel, préparer une page ou un encart sur le site de Bleu Massawippi avec le lien OHdio, puis programmer sur Facebook et Instagram la version native sans URL de média.
 
 ### Légende prête à programmer
 
 ```text
 FR — Denis Petitclerc, président de Bleu Massawippi, était au micro de Radio-Canada Estrie pour parler de la multiplication des moules zébrées au lac Massawippi.
 
-Cette entrevue de Par ici l’info est maintenant disponible sur OHdio. Prenez quelques minutes pour l’écouter et mieux connaître cet enjeu qui touche notre lac.
+Cette entrevue de Par ici l’info est maintenant disponible sur Radio-Canada OHdio. Pour la retrouver, cherchez le titre « Les moules zébrées se multiplient au lac Massawippi, avec Denis Petitclerc ».
 
-🎧 Écouter l’entrevue : https://ici.radio-canada.ca/ohdio/premiere/emissions/par-ici-l-info/segments/rattrapage/2442552/entrevue
+🎧 Le lien direct sera aussi regroupé sur le site de Bleu Massawippi.
 
 Merci à Radio-Canada Estrie de donner de l’espace aux enjeux environnementaux du Massawippi.
 
@@ -1117,9 +1117,9 @@ Merci à Radio-Canada Estrie de donner de l’espace aux enjeux environnementaux
 
 EN — Denis Petitclerc, president of Bleu Massawippi, spoke with Radio-Canada Estrie about the growing zebra mussel presence in Lake Massawippi.
 
-The Par ici l’info interview is now available on OHdio. Take a few minutes to listen and learn more about this issue affecting our lake. The interview is in French.
+The Par ici l’info interview is now available on Radio-Canada OHdio. To find it, search for “Les moules zébrées se multiplient au lac Massawippi, avec Denis Petitclerc.” The interview is in French.
 
-🎧 Listen to the interview: https://ici.radio-canada.ca/ohdio/premiere/emissions/par-ici-l-info/segments/rattrapage/2442552/entrevue
+🎧 The direct link will also be gathered on the Bleu Massawippi website.
 
 Thank you to Radio-Canada Estrie for making space for environmental issues affecting Massawippi.
 
@@ -1129,13 +1129,13 @@ Thank you to Radio-Canada Estrie for making space for environmental issues affec
 ## Dimanche 9 août — À lire sur Radio-Canada — la moule zébrée au lac Massawippi
 
 **Thème :** Actualité
-**Format :** Article web + portrait réel en tirage imprimé et citation manuscrite · publication bilingue
-**Objectif :** Relayer rapidement le nouvel article écrit de Radio-Canada sur la moule zébrée au lac Massawippi, dans une publication distincte de l’entrevue audio prévue le 8 août.
-**CTA :** Lire l’article
+**Format :** Publication native sans lien Meta + portrait réel en tirage imprimé et citation manuscrite · publication bilingue
+**Objectif :** Relayer rapidement le nouvel article écrit de Radio-Canada sur la moule zébrée au lac Massawippi dans un format natif compatible avec Facebook et Instagram, distinct de l’entrevue audio prévue le 8 août.
+**CTA :** Retrouver l’article sur Radio-Canada
 **Visuel final :** Le portrait réel de Denis Petitclerc fourni par les communications, présenté comme un tirage photographique chaleureux sur une table en bois. Une carte manuscrite porte exactement la citation : « Ce n’est pas parce que la solution à un problème n’a pas été trouvée que la solution n’existe pas. La science évolue. »
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
 **Source de référence :** Photo et citation de Denis Petitclerc transmises par Valentin Wittwe le 4 août 2026. Courriel de Denis reçu le 3 août 2026 : il estime que l’article reflète fidèlement les discussions avec la journaliste Elyse. Article Radio-Canada : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
-**Préparation :** Vérifier le lien, la citation, son attribution et la lisibilité mobile du nouveau visuel, puis programmer le relais bilingue après les validations.
+**Préparation :** Vérifier la citation, son attribution et la lisibilité mobile du visuel, préparer une page ou un encart sur le site de Bleu Massawippi avec le lien de l’article, puis programmer sur Facebook et Instagram la version native sans URL de média.
 
 ### Légende prête à programmer
 
@@ -1144,9 +1144,9 @@ FR — 📰 À LIRE SUR RADIO-CANADA
 
 Dans un article signé Laurence Frappier et Élyse Tessier, Radio-Canada fait le point sur la progression des moules zébrées au lac Massawippi, l’arrêt des opérations de contrôle faute de financement et la recherche de solutions viables.
 
-Denis Petitclerc estime que l’article reflète fidèlement la discussion. Le reportage explique aussi pourquoi la prévention, la recherche et un financement durable doivent avancer ensemble. Nous vous invitons à le lire dans son intégralité.
+Denis Petitclerc estime que l’article reflète fidèlement la discussion. Le reportage explique aussi pourquoi la prévention, la recherche et un financement durable doivent avancer ensemble.
 
-🔗 Lire l’article : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
+📰 Pour le retrouver sur Radio-Canada, cherchez « Les moules zébrées se multiplient au lac Massawippi ». Le lien direct sera aussi regroupé sur le site de Bleu Massawippi.
 
 Merci à Radio-Canada Estrie de porter cet enjeu à l’attention du public.
 
@@ -1158,9 +1158,9 @@ EN — 📰 A NEW RADIO-CANADA ARTICLE
 
 In a French-language article by Laurence Frappier and Élyse Tessier, Radio-Canada reports on the spread of zebra mussels in Lake Massawippi, the suspension of control operations due to a lack of funding, and the search for viable solutions.
 
-Denis Petitclerc believes the article faithfully reflects the discussion. It also explains why prevention, research, and sustainable funding must move forward together. We invite you to read the full story.
+Denis Petitclerc believes the article faithfully reflects the discussion. It also explains why prevention, research, and sustainable funding must move forward together.
 
-🔗 Read the article in French: https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
+📰 To find the French-language story on Radio-Canada, search for “Les moules zébrées se multiplient au lac Massawippi.” The direct link will also be gathered on the Bleu Massawippi website.
 
 Thank you to Radio-Canada Estrie for bringing this issue to the public’s attention.
 

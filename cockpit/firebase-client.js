@@ -646,29 +646,67 @@ export async function setWorkflowStage(eventId, stage, profile) {
   if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas modifier le cycle de validation.");
   if (!/^[a-z0-9-]{3,80}$/i.test(String(eventId || "")) || !workflowStages.has(stage)) throw new Error("Étape de validation invalide.");
   const reference = doc(db, "workflowStates", eventId);
-  const existing = await getDoc(reference);
-  const before = existing.exists() ? existing.data() : {};
-  if ((["scheduled", "published"].includes(stage) || ["scheduled", "published"].includes(before.stage)) && profile.role !== "admin") {
-    throw new Error("Seules les communications peuvent terminer, rouvrir ou confirmer une publication programmée ou publiée.");
-  }
-  if (stage === "final_approved" && !(profile.role === "admin" && ["scheduled", "published"].includes(before.stage))) {
-    throw new Error("Choisissez et approuvez le média dans la galerie; la porte visuelle sera alors signée automatiquement.");
-  }
-  if (["scheduled", "published"].includes(stage) && !["final_approved", "scheduled", "published"].includes(before.stage)) {
-    throw new Error("Le texte et le média doivent être approuvés avant de terminer la publication.");
-  }
+  const mediaReference = doc(db, "mediaDecisions", eventId);
   const archiveReference = doc(collection(db, "changeArchive"));
-  const batch = writeBatch(db);
-  batch.set(reference, {
-    eventId,
-    stage,
-    updatedAt: serverTimestamp(),
-    updatedBy: profile.uid,
-    updatedByLabel: String(profile.displayLabel || "Utilisateur").slice(0, 120)
-  }, { merge: true });
-  batch.set(archiveReference, changeArchiveEntry("workflowState", eventId, "cycle : " + stage, { stage: before.stage || "proposal" }, { stage }, profile));
-  await batch.commit();
-  recordConfirmedWrites(2);
+  const actorLabel = String(profile.displayLabel || "Utilisateur").slice(0, 120);
+  const mutationId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  let confirmedWriteCount = 2;
+  await runTransaction(db, async (transaction) => {
+    const [existing, mediaSnapshot] = await Promise.all([
+      transaction.get(reference),
+      transaction.get(mediaReference)
+    ]);
+    const before = existing.exists() ? existing.data() : {};
+    if ((["scheduled", "published"].includes(stage) || ["scheduled", "published"].includes(before.stage)) && profile.role !== "admin") {
+      throw new Error("Seules les communications peuvent terminer, rouvrir ou confirmer une publication programmée ou publiée.");
+    }
+    if (stage === "final_approved" && !(profile.role === "admin" && ["scheduled", "published"].includes(before.stage))) {
+      throw new Error("Choisissez et approuvez le média dans la galerie; la porte visuelle sera alors signée automatiquement.");
+    }
+    if (["scheduled", "published"].includes(stage) && !["final_approved", "scheduled", "published"].includes(before.stage)) {
+      throw new Error("Le texte et le média doivent être approuvés avant de terminer la publication.");
+    }
+
+    let nextStage = stage;
+    let mediaBefore = null;
+    let mediaAfter = null;
+    if (mediaSnapshot.exists()) {
+      mediaBefore = normalizeMediaDecision(mediaSnapshot.data(), eventId);
+      const textApproved = contentApprovedWorkflowStages.has(stage);
+      const agreement = deriveMediaAgreement(mediaBefore.communications, mediaBefore.direction, mediaBefore.override, textApproved);
+      if (stage === "content_approved" && ["agreed", "overridden"].includes(agreement.status)) nextStage = "final_approved";
+      mediaAfter = {
+        ...mediaBefore,
+        agreement,
+        textGateStage: nextStage,
+        lastMutationId: `workflow-${mutationId}`.slice(0, 160),
+        updatedAt: serverTimestamp(),
+        updatedBy: profile.uid,
+        updatedByLabel: actorLabel
+      };
+      transaction.set(mediaReference, mediaAfter);
+      confirmedWriteCount += 1;
+    }
+
+    transaction.set(reference, {
+      eventId,
+      stage: nextStage,
+      updatedAt: serverTimestamp(),
+      updatedBy: profile.uid,
+      updatedByLabel: actorLabel
+    }, { merge: true });
+    transaction.set(archiveReference, changeArchiveEntry(
+      "workflowState",
+      eventId,
+      "cycle : " + nextStage,
+      { stage: before.stage || "proposal", ...(mediaBefore ? { mediaDecision: mediaDecisionArchiveView(mediaBefore) } : {}) },
+      { stage: nextStage, ...(mediaAfter ? { mediaDecision: mediaDecisionArchiveView(mediaAfter) } : {}) },
+      profile
+    ));
+  });
+  recordConfirmedWrites(confirmedWriteCount);
 }
 
 export function subscribeWorkflowStates(callback, onError) {

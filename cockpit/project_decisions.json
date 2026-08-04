@@ -9,8 +9,8 @@
       "sourceId": "moules-zebrees-continuite",
       "eventDateIso": "2026-08-04",
       "priorityKey": 14,
-      "title": "Récupérer et qualifier les entrevues du 3 août",
-      "message": "Obtenir les liens ou enregistrements radio et télé, vérifier les faits et les droits de reprise, puis proposer un usage sur le site, les réseaux ou dans une infolettre seulement si le contenu est exact et utile. Ne reprendre aucun conseil de santé sans source compétente."
+      "title": "Publier les liens Radio-Canada au bon endroit",
+      "message": "Les liens directs de Radio-Canada ne sont pas fiables sur Facebook et Instagram au Canada. Préparer sur le site de Bleu Massawippi un encart qui regroupe l’entrevue OHdio et l’article, puis utiliser sur Meta des publications natives sans URL de média. Conserver les liens directs pour le site et les canaux qui les acceptent; ne reprendre aucun conseil de santé sans source compétente."
     },
     {
       "id": "poesie-logistique-north-hatley-20260810-v1",
@@ -28,7 +28,7 @@
       "audienceRole": "director",
       "assigneeEmail": "dg@bleumassawippi.com",
       "sourceType": "section",
-      "sourceId": "mandate-collaboration",
+      "sourceId": "site-niveau-lac-rapport-2025",
       "eventDateIso": "2026-08-07",
       "priorityKey": 18,
       "title": "Valider le futur encart « Niveau du lac »",

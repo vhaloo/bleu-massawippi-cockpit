@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const strategy = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+const projectDecisions = JSON.parse(fs.readFileSync(new URL("./project_decisions.json", import.meta.url), "utf8"));
 const cockpitUi = fs.readFileSync(new URL("./cockpit-ui.js", import.meta.url), "utf8");
 const clarity = fs.readFileSync(new URL("./clarity.css", import.meta.url), "utf8");
 const motion = fs.readFileSync(new URL("./motion.js", import.meta.url), "utf8");
@@ -9,6 +10,11 @@ const assetUrl = new URL("./assets/strategy/reperes-cockpit-2x2.webp", import.me
 
 for (const marker of [
   'id="mandate-collaboration"',
+  'id="site-niveau-lac-rapport-2025"',
+  "Niveau du lac et barrage — des repères utiles",
+  "station hydrométrique 030241",
+  "Village de North Hatley",
+  "Comparer à l’historique ↗",
   "Autonomie claire. Décisions explicites. Travail soutenable.",
   "Le silence n’est jamais une approbation.",
   "20 h de communications et 5 h de projets liés ou d’administration",
@@ -24,6 +30,11 @@ for (const marker of [
   "🗂️ 6 · Rien ne disparaît",
   "la direction arbitre les décisions institutionnelles"
 ]) assert.ok(strategy.includes(marker), `La stratégie clarifiée doit conserver : ${marker}`);
+const levelDecision = projectDecisions.decisions.find((decision) => decision.id === "site-niveau-lac-rapport-2025-v1");
+assert.ok(levelDecision, "La décision de validation du futur encart Niveau du lac doit rester déclarée.");
+assert.equal(levelDecision.sourceType, "section", "La décision Niveau du lac doit cibler une section stratégique.");
+assert.equal(levelDecision.sourceId, "site-niveau-lac-rapport-2025", "La décision Niveau du lac doit cibler son propre encart, jamais le cadre générique du mandat.");
+assert.ok(strategy.includes(`id="${levelDecision.sourceId}"`), "Toute décision stratégique doit avoir une destination réelle dans le cockpit.");
 assert.ok(!strategy.includes('class="wrap stats"'), "Le bandeau de métriques redondant ne doit pas réapparaître hors de la stratégie.");
 assert.ok(!strategy.includes("Observer.<br>Comprendre.<br>Agir."), "L’accueil ne doit plus utiliser l’ancien visuel éditorial générique.");
 assert.ok(!strategy.includes("publications principales<br>séquence de lancement"), "L’accueil doit présenter un outil durable, pas une séquence de 28 jours.");

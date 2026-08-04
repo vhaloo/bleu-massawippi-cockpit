@@ -51,12 +51,23 @@ for (const id of newIds) {
 const radioCanadaPost = horizon.find((item) => item.id === "actualite-20260808-denis-radio-canada-moules-zebrees");
 assert.ok(radioCanadaPost, "Le relais Radio-Canada doit occuper le 8 août sans créer de doublon.");
 assert.equal(radioCanadaPost.dateIso, "2026-08-08");
-assert.match(radioCanadaPost.copy, /2442552\/entrevue/);
-assert.ok(!/«[^»]+»/.test(radioCanadaPost.copy), "Le relais ne doit pas inventer de citation attribuée à Denis.");
+assert.doesNotMatch(radioCanadaPost.copy, /https?:\/\/ici\.radio-canada\.ca/i,
+  "La publication Meta doit rester native et ne pas contenir un lien d’actualité bloqué au Canada.");
+assert.match(radioCanadaPost.source, /2442552\/entrevue/,
+  "Le lien OHdio doit rester documenté dans la source interne.");
+assert.match(`${radioCanadaPost.format} ${radioCanadaPost.fallback} ${radioCanadaPost.task}`, /sans (?:lien|URL).*(?:Facebook|Meta)|(?:Facebook|Meta).*sans (?:lien|URL)/i,
+  "Le relais doit expliciter la variante Meta sans URL et le report du lien vers le site.");
+assert.match(radioCanadaPost.fallback, /ne pas inventer de citation/i,
+  "Le relais doit conserver explicitement la garde contre toute citation inventée.");
 const radioCanadaArticle = horizon.find((item) => item.id === "actualite-20260804-article-radio-canada-moules-zebrees");
 assert.ok(radioCanadaArticle, "L’article écrit de Radio-Canada doit occuper le 9 août sans remplacer un post terminé.");
 assert.equal(radioCanadaArticle.dateIso, "2026-08-09");
-assert.match(radioCanadaArticle.copy, /2273213\/moule-zebree-espece-envahissante-lac-massawippi/);
+assert.doesNotMatch(radioCanadaArticle.copy, /https?:\/\/ici\.radio-canada\.ca/i,
+  "La publication Meta de l’article doit rester native et sans lien d’actualité.");
+assert.match(radioCanadaArticle.source, /2273213\/moule-zebree-espece-envahissante-lac-massawippi/,
+  "Le lien de l’article doit rester documenté dans la source interne.");
+assert.match(`${radioCanadaArticle.format} ${radioCanadaArticle.fallback} ${radioCanadaArticle.task}`, /sans (?:lien|URL).*(?:Facebook|Meta)|(?:Facebook|Meta).*sans (?:lien|URL)/i,
+  "Le relais écrit doit expliciter la variante Meta sans URL et le report du lien vers le site.");
 assert.ok(!/2442552\/entrevue/.test(radioCanadaArticle.copy), "Le relais écrit doit rester distinct de l’entrevue OHdio.");
 const articleMedia = manifests.filter((item) => item.eventId === radioCanadaArticle.id);
 assert.equal(articleMedia.length, 1, "Le relais écrit doit proposer un seul visuel actif clairement identifiable.");
@@ -70,6 +81,19 @@ const archivedArticleMedia = JSON.parse(fs.readFileSync(path.join(here, "editori
   .find((item) => item.id === "editorial-actualite-20260804-radio-canada-article-v1");
 assert.equal(archivedArticleMedia?.stage, "archived", "L’ancien visuel aux moules doit être archivé sans être supprimé.");
 assert.equal(archivedArticleMedia?.archived, true);
+const editorialManifest = JSON.parse(fs.readFileSync(path.join(here, "editorial_media_manifest.json"), "utf8"));
+const archivedSyntheticFieldPhoto = editorialManifest.find((item) => item.id === "editorial-s4d1b-field-details-v2");
+assert.equal(archivedSyntheticFieldPhoto?.stage, "archived", "L’essai photoréaliste ne doit jamais être présenté comme une photo de terrain réelle.");
+assert.equal(archivedSyntheticFieldPhoto?.archived, true);
+assert.match(archivedSyntheticFieldPhoto?.rightsStatus || "", /non documentaire/i);
+const trueFieldPhoto = editorialManifest.find((item) => item.id === "editorial-s4d1b-field-internal-photo-v3");
+assert.equal(trueFieldPhoto?.stage, "proposal", "La véritable photo interne doit rester la proposition active.");
+assert.equal(trueFieldPhoto?.publicationBlocked, true, "Les personnes visibles doivent être autorisées avant programmation.");
+assert.match(trueFieldPhoto?.note || "", /20220510_115415\.jpg/);
+const summerFridge = editorialManifest.find((item) => item.id === "editorial-s3d6-fridge-summer-dji0227-v2");
+assert.equal(summerFridge?.stage, "proposal", "Le souvenir de vacances doit rester une proposition active.");
+assert.match(summerFridge?.note || "", /DJI_0227\.JPG/,
+  "Le souvenir de vacances doit utiliser la nouvelle photographie interne encore inutilisée.");
 const restoredCompletedSlot = posts.find((item) => item.id === "alt-20260731");
 assert.equal(restoredCompletedSlot?.dateIso, "2026-08-04", "Le post déjà programmé doit être restauré au 4 août.");
 assert.equal(restoredCompletedSlot?.displacedBy, null);
