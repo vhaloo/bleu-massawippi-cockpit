@@ -241,8 +241,16 @@ assert.ok(bullheadPost, "Le signalement de la barbotte demandé par la direction
 assert.equal(bullheadPost.dateIso, "2026-08-06", "La barbote non validée doit être reportée d’au moins une semaine sans quitter le calendrier.");
 assert.match(bullheadPost.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
 assert.match(bullheadPost.copy, /date[\s\S]*secteur[\s\S]*photo[\s\S]*info@bleumassawippi\.com/i);
-assert.doesNotMatch(bullheadPost.copy, /cancer|maladie|lésion|tumeur|disease|lesion|tumou?r/i,
-  "L’appel doit s’en tenir au signalement du poisson, sans angle sanitaire inventé.");
+assert.match(bullheadPost.copy, /Avez-vous déjà vu ou capturé une barbotte brune dans le lac Massawippi avec ce type de lésion sur le corps\?/i,
+  "La question française doit reprendre la formulation demandée par la direction.");
+assert.match(bullheadPost.copy, /lésions[\s\S]*(?:type of lesion|similar lesions)/i,
+  "Le texte doit reprendre le vocabulaire de signalement explicitement demandé par la direction dans les deux langues.");
+assert.doesNotMatch(bullheadPost.copy, /mieux documenter sa présence/i,
+  "La phrase retirée explicitement par la direction ne doit pas réapparaître.");
+assert.match(bullheadPost.copy, /Memphrémagog[\s\S]*Magog[\s\S]*Memphremagog[\s\S]*Magog/i,
+  "Le contexte régional vérifié doit être présent dans les deux langues.");
+assert.doesNotMatch(bullheadPost.copy, /cancer|maladie|tumeur|disease|tumou?r/i,
+  "L’appel doit demander des signalements sans poser de diagnostic ni inquiéter inutilement.");
 assert.ok(bullheadPost.copy.length <= 2200);
 const archivedBullheadMediaIds = [
   "editorial-barbotte-20260730-signalement-v2",
