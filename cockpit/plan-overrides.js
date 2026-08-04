@@ -878,14 +878,14 @@ const RADIO_CANADA_ARTICLE_POST = {
   t: "Actualité",
   tier: "Pilier",
   title: "À lire sur Radio-Canada — la moule zébrée au lac Massawippi",
-  format: "Article web + photographie de presse recadrée · publication bilingue",
+  format: "Article web + portrait réel en tirage imprimé et citation manuscrite · publication bilingue",
   role: "Relayer rapidement le nouvel article écrit de Radio-Canada sur la moule zébrée au lac Massawippi, dans une publication distincte de l’entrevue audio prévue le 8 août.",
   cta: "Lire l’article",
-  visual: "Une photographie authentique tirée de l’article, recadrée au format carré sans ajout ni transformation trompeuse; conserver un crédit Radio-Canada visible dans les renseignements du média.",
-  source: "Courriel de Denis Petitclerc reçu le 3 août 2026 : il estime que l’article reflète fidèlement les discussions avec la journaliste Elyse. Article Radio-Canada : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi",
-  fallback: "Si le crédit ou le droit de réutilisation de la photographie ne peut pas être confirmé, partager le lien de l’article avec son aperçu natif plutôt que de substituer une image qui ne provient pas de l’article.",
+  visual: "Le portrait réel de Denis Petitclerc fourni par les communications, présenté comme un tirage photographique chaleureux sur une table en bois. Une carte manuscrite porte exactement la citation : « Ce n’est pas parce que la solution à un problème n’a pas été trouvée que la solution n’existe pas. La science évolue. »",
+  source: "Photo et citation de Denis Petitclerc transmises par Valentin Wittwe le 4 août 2026. Courriel de Denis reçu le 3 août 2026 : il estime que l’article reflète fidèlement les discussions avec la journaliste Elyse. Article Radio-Canada : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi",
+  fallback: "Si une correction de la citation ou de son attribution devient nécessaire, conserver le post en brouillon et repartir de la photographie source archivée plutôt que de publier une approximation.",
   kpi: "Clics vers l’article / partages / commentaires utiles",
-  task: "Vérifier le lien, le crédit de la photographie et la lisibilité du recadrage, puis programmer le relais bilingue après les validations.",
+  task: "Vérifier le lien, la citation, son attribution et la lisibilité mobile du nouveau visuel, puis programmer le relais bilingue après les validations.",
   copy: `FR — 📰 À LIRE SUR RADIO-CANADA
 
 Dans un article signé Laurence Frappier et Élyse Tessier, Radio-Canada fait le point sur la progression des moules zébrées au lac Massawippi, l’arrêt des opérations de contrôle faute de financement et la recherche de solutions viables.
@@ -920,8 +920,8 @@ Thank you to Radio-Canada Estrie for bringing this issue to the public’s atten
   replacesDailySlot: true,
   doNotShiftForBrownBullhead: true,
   tasksValentin: [
-    "Confirmer que la photographie retenue provient bien de l’article et conserver son crédit Radio-Canada.",
-    "Vérifier le recadrage carré, le texte alternatif, le lien et la lisibilité mobile.",
+    "Vérifier que la citation de Denis est reproduite exactement et que son attribution est visible.",
+    "Vérifier le portrait imprimé, le texte alternatif, le lien et la lisibilité mobile.",
     "Programmer la publication bilingue sur Facebook et Instagram après les validations."
   ],
   tasksAnnie: [

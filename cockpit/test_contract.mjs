@@ -504,13 +504,21 @@ for (const media of editorialMedia) {
 for (const mediaId of [
   "editorial-s1d4-mon-massawippi-fridge-v5",
   "editorial-alt-20260719-engraving-crop-upscale-v3",
-  "editorial-s2d5-vitesse-rive-planche-simple-v4"
+  "editorial-s2d5-vitesse-rive-planche-simple-v4",
+  "editorial-actualite-20260809-denis-citation-science-v2"
 ]) {
   const media = editorialMedia.find((item) => item.id === mediaId);
   assert.match(media?.previewUrl || "", /^https:\/\/vhaloo\.github\.io\/bleu-massawippi-cockpit\/media-previews\/.+\.webp$/);
   const previewPath = new URL(media.previewUrl).pathname.replace(/^\/bleu-massawippi-cockpit\//, "");
   assert.ok(fs.existsSync(path.join(here, previewPath)), `La vignette publique de ${mediaId} doit être incluse dans le site.`);
 }
+const denisScienceMedia = editorialMedia.find((item) => item.id === "editorial-actualite-20260809-denis-citation-science-v2");
+assert.equal(denisScienceMedia?.eventId, "actualite-20260804-article-radio-canada-moules-zebrees");
+assert.match(denisScienceMedia?.note || "", /Ce n’est pas parce que la solution à un problème n’a pas été trouvée que la solution n’existe pas\. La science évolue\./);
+assert.notEqual(denisScienceMedia?.publicationBlocked, true, "La photographie fournie et sa composition ne doivent pas hériter du blocage de l’image de presse archivée.");
+const archivedArticleMedia = editorialMedia.find((item) => item.id === "editorial-actualite-20260804-radio-canada-article-v1");
+assert.equal(archivedArticleMedia?.stage, "archived");
+assert.equal(archivedArticleMedia?.archived, true);
 const archivedSecchiIds = [
   "editorial-s1d5-secchi-v1",
   "editorial-s1d5-secchi-answer-v1",

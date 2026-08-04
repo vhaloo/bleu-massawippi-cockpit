@@ -1125,13 +1125,13 @@ Thank you to Radio-Canada Estrie for making space for environmental issues affec
 ## Dimanche 9 août — À lire sur Radio-Canada — la moule zébrée au lac Massawippi
 
 **Thème :** Actualité
-**Format :** Article web + photographie de presse recadrée · publication bilingue
+**Format :** Article web + portrait réel en tirage imprimé et citation manuscrite · publication bilingue
 **Objectif :** Relayer rapidement le nouvel article écrit de Radio-Canada sur la moule zébrée au lac Massawippi, dans une publication distincte de l’entrevue audio prévue le 8 août.
 **CTA :** Lire l’article
-**Visuel final :** Une photographie authentique tirée de l’article, recadrée au format carré sans ajout ni transformation trompeuse; conserver un crédit Radio-Canada visible dans les renseignements du média.
+**Visuel final :** Le portrait réel de Denis Petitclerc fourni par les communications, présenté comme un tirage photographique chaleureux sur une table en bois. Une carte manuscrite porte exactement la citation : « Ce n’est pas parce que la solution à un problème n’a pas été trouvée que la solution n’existe pas. La science évolue. »
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Courriel de Denis Petitclerc reçu le 3 août 2026 : il estime que l’article reflète fidèlement les discussions avec la journaliste Elyse. Article Radio-Canada : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
-**Préparation :** Vérifier le lien, le crédit de la photographie et la lisibilité du recadrage, puis programmer le relais bilingue après les validations.
+**Source de référence :** Photo et citation de Denis Petitclerc transmises par Valentin Wittwe le 4 août 2026. Courriel de Denis reçu le 3 août 2026 : il estime que l’article reflète fidèlement les discussions avec la journaliste Elyse. Article Radio-Canada : https://ici.radio-canada.ca/nouvelle/2273213/moule-zebree-espece-envahissante-lac-massawippi
+**Préparation :** Vérifier le lien, la citation, son attribution et la lisibilité mobile du nouveau visuel, puis programmer le relais bilingue après les validations.
 
 ### Légende prête à programmer
 

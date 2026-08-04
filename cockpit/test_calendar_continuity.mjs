@@ -59,10 +59,17 @@ assert.equal(radioCanadaArticle.dateIso, "2026-08-09");
 assert.match(radioCanadaArticle.copy, /2273213\/moule-zebree-espece-envahissante-lac-massawippi/);
 assert.ok(!/2442552\/entrevue/.test(radioCanadaArticle.copy), "Le relais écrit doit rester distinct de l’entrevue OHdio.");
 const articleMedia = manifests.filter((item) => item.eventId === radioCanadaArticle.id);
-assert.equal(articleMedia.length, 1, "Le relais écrit doit proposer une seule photographie clairement identifiable.");
-assert.ok(articleMedia[0].previewUrl, "La photographie recadrée de l’article doit avoir un aperçu mobile réel.");
-assert.match(`${articleMedia[0].note || ""} ${articleMedia[0].rightsStatus || ""}`, /Radio-Canada/i,
-  "La provenance Radio-Canada et le crédit doivent accompagner la photographie.");
+assert.equal(articleMedia.length, 1, "Le relais écrit doit proposer un seul visuel actif clairement identifiable.");
+assert.equal(articleMedia[0].id, "editorial-actualite-20260809-denis-citation-science-v2");
+assert.ok(articleMedia[0].previewUrl, "Le portrait de Denis et sa citation doivent avoir un aperçu mobile réel.");
+assert.match(`${articleMedia[0].note || ""} ${articleMedia[0].rightsStatus || ""}`, /Denis Petitclerc/i,
+  "Le portrait actif doit conserver l’attribution de Denis et la provenance de la photographie.");
+assert.match(articleMedia[0].note || "", /La science évolue\./,
+  "La citation fournie doit être documentée avec sa dernière phrase exacte.");
+const archivedArticleMedia = JSON.parse(fs.readFileSync(path.join(here, "editorial_media_manifest.json"), "utf8"))
+  .find((item) => item.id === "editorial-actualite-20260804-radio-canada-article-v1");
+assert.equal(archivedArticleMedia?.stage, "archived", "L’ancien visuel aux moules doit être archivé sans être supprimé.");
+assert.equal(archivedArticleMedia?.archived, true);
 const restoredCompletedSlot = posts.find((item) => item.id === "alt-20260731");
 assert.equal(restoredCompletedSlot?.dateIso, "2026-08-04", "Le post déjà programmé doit être restauré au 4 août.");
 assert.equal(restoredCompletedSlot?.displacedBy, null);
