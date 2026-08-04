@@ -108,6 +108,8 @@ assert.match(rules, /match \/mediaDecisions\/\{eventId\}/);
 assert.match(rules, /function validAdminMediaDecisionUpdate[\s\S]*?affectedKeys\(\)\.hasOnly\(\['communications'/);
 assert.match(rules, /data\.override == before\.override[\s\S]*data\.override\.actorRole == 'admin'/,
   "Les communications peuvent appliquer un override motivé sans modifier le choix de la direction.");
+assert.match(rules, /before\.override\.active == false[\s\S]{0,120}data\.override\.active == false/,
+  "Un choix des communications doit pouvoir normaliser un ancien override inactif sans toucher à un override actif.");
 assert.match(rules, /function validDirectorMediaDecisionUpdate[\s\S]*?affectedKeys\(\)\.hasOnly\(\['direction'/);
 assert.match(rules, /data\.override\.actorRole == 'admin'[\s\S]{0,220}data\.override\.mediaIds == data\.communications\.mediaIds/,
   "Un override des communications doit s’appuyer sur son propre choix, jamais usurper celui de la direction.");

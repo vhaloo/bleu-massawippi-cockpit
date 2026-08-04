@@ -31,7 +31,7 @@ const refs = {
 const snapshots = Object.fromEntries(await Promise.all(Object.entries(refs).map(async ([key, reference]) => [key, await reference.get()])));
 const sameVersion = (before, current) => before.exists === current.exists && (!before.exists || before.updateTime?.isEqual?.(current.updateTime));
 const emptySide = (role) => ({ status: "none", mediaIds: [], actorUid: "", actorLabel: "", actorRole: role, decidedAt: null });
-const emptyOverride = () => ({ active: false, mediaIds: [], reason: "", actorUid: "", actorLabel: "", actorRole: "admin", decidedAt: null });
+const emptyOverride = () => ({ active: false, mediaIds: [], reason: "", actorUid: "", actorLabel: "", actorRole: "", decidedAt: null });
 const selectedIds = (side) => side?.status === "selected" && Array.isArray(side.mediaIds) ? side.mediaIds : [];
 const sameOrdered = (left, right) => left.length === right.length && left.every((item, index) => item === right[index]);
 const approvedStages = new Set(["content_approved", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"]);

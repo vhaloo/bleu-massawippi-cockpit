@@ -15,7 +15,11 @@ const ids = {
   historical: "history-alt-20260801-aerial",
   current: "history-alt-20260801-aerial-current-2024",
   blocked: "history-alt-20260801-blocked",
-  foreign: "history-foreign-event"
+  foreign: "history-foreign-event",
+  legacyEvent: "barbotte-20260730-signalement",
+  legacyMedia: "editorial-barbotte-20260806-tumeurs-usgs-v3",
+  legacyBlocked: "editorial-barbotte-20260806-blocked",
+  legacyArchived: "editorial-barbotte-20260806-archived"
 };
 
 const now = () => Timestamp.now();
@@ -70,6 +74,30 @@ try {
     await setDoc(doc(db, "mediaLinks", ids.current), media());
     await setDoc(doc(db, "mediaLinks", ids.blocked), media(ids.event, false, true));
     await setDoc(doc(db, "mediaLinks", ids.foreign), media("other-event"));
+    await setDoc(doc(db, "workflowStates", ids.legacyEvent), {
+      eventId: ids.legacyEvent,
+      stage: "media_review",
+      updatedAt: now(),
+      updatedBy: ids.admin,
+      updatedByLabel: "Valentin"
+    });
+    await setDoc(doc(db, "mediaLinks", ids.legacyMedia), media(ids.legacyEvent));
+    await setDoc(doc(db, "mediaLinks", ids.legacyBlocked), media(ids.legacyEvent, false, true));
+    await setDoc(doc(db, "mediaLinks", ids.legacyArchived), media(ids.legacyEvent, true, false));
+    await setDoc(doc(db, "mediaDecisions", ids.legacyEvent), {
+      eventId: ids.legacyEvent,
+      schemaVersion: 2,
+      communications: emptySide("admin"),
+      direction: emptySide("director"),
+      // Reproduit exactement l'ancien format présent en production le 4 août.
+      override: { ...emptyOverride(), actorRole: "admin" },
+      agreement: { status: "pending", mediaIds: [], divergent: false },
+      textGateStage: "proposal",
+      lastMutationId: "editorial-cycle-20260801-barbotte-reset",
+      updatedAt: now(),
+      updatedBy: ids.admin,
+      updatedByLabel: "Valentin"
+    });
   });
 
   const adminDb = environment.authenticatedContext(ids.admin).firestore();
@@ -114,6 +142,54 @@ try {
     updatedByLabel: "Annie"
   });
   await check("la direction retire une carte et rouvre le visuel atomiquement", directorBatch.commit());
+
+  const legacyChoice = {
+    eventId: ids.legacyEvent,
+    schemaVersion: 2,
+    communications: selectedSide(ids.admin, "Valentin", "admin", [ids.legacyMedia]),
+    direction: emptySide("director"),
+    override: emptyOverride(),
+    agreement: { status: "pending", mediaIds: [], divergent: false },
+    textGateStage: "media_review",
+    lastMutationId: `legacy-choose-${Date.now()}`,
+    updatedAt: now(),
+    updatedBy: ids.admin,
+    updatedByLabel: "Valentin"
+  };
+  await check("les communications choisissent un média malgré l’ancien override inactif", setDoc(doc(adminDb, "mediaDecisions", ids.legacyEvent), legacyChoice));
+
+  const legacyRevoked = {
+    ...legacyChoice,
+    communications: {
+      status: "revoked",
+      mediaIds: [],
+      actorUid: ids.admin,
+      actorLabel: "Valentin",
+      actorRole: "admin",
+      decidedAt: now()
+    },
+    lastMutationId: `legacy-revoke-${Date.now()}`,
+    updatedAt: now()
+  };
+  await check("les communications retirent leur choix de façon réversible", setDoc(doc(adminDb, "mediaDecisions", ids.legacyEvent), legacyRevoked));
+
+  await check("les communications peuvent rechoisir le même média", setDoc(doc(adminDb, "mediaDecisions", ids.legacyEvent), {
+    ...legacyChoice,
+    lastMutationId: `legacy-reselect-${Date.now()}`,
+    updatedAt: now()
+  }));
+  await check("un média bloqué reste impossible à choisir", setDoc(doc(adminDb, "mediaDecisions", ids.legacyEvent), {
+    ...legacyChoice,
+    communications: selectedSide(ids.admin, "Valentin", "admin", [ids.legacyBlocked]),
+    lastMutationId: `legacy-blocked-${Date.now()}`,
+    updatedAt: now()
+  }), false);
+  await check("un média archivé reste impossible à choisir", setDoc(doc(adminDb, "mediaDecisions", ids.legacyEvent), {
+    ...legacyChoice,
+    communications: selectedSide(ids.admin, "Valentin", "admin", [ids.legacyArchived]),
+    lastMutationId: `legacy-archived-${Date.now()}`,
+    updatedAt: now()
+  }), false);
 
   console.log(`✓ ${checks.length} scénarios de règles de sélection multiple vérifiés.`);
 } finally {

@@ -31,7 +31,7 @@ const actor = { uid: admins.docs[0].id, ...admins.docs[0].data() };
 const actorLabel = String(actor.displayLabel || "Direction des communications").slice(0, 120);
 const sameVersion = (before, current) => before.exists === current.exists && (!before.exists || before.updateTime?.isEqual?.(current.updateTime));
 const emptySide = (role) => ({ status: "none", mediaIds: [], actorUid: "", actorLabel: "", actorRole: role, decidedAt: null });
-const emptyOverride = () => ({ active: false, mediaIds: [], reason: "", actorUid: "", actorLabel: "", actorRole: "admin", decidedAt: null });
+const emptyOverride = () => ({ active: false, mediaIds: [], reason: "", actorUid: "", actorLabel: "", actorRole: "", decidedAt: null });
 
 async function reconcileBlueDay() {
   const refs = {
