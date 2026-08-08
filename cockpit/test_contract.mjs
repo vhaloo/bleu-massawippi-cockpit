@@ -648,7 +648,7 @@ assert.match(source, /Échéancier de détection proposé/);
 assert.match(source, /ne pas précipiter une candidature 2026 incomplète/i);
 assert.match(source, /data-id="document-plan-partenariat-2026-2027"/);
 assert.match(source, /Plan de partenariat de Bleu Massawippi/);
-assert.match(source, /IQBEpphVNmkmRai8MXNpQKldATppGkCRq0xdZBV28w5LXas/);
+assert.match(source, /IQDYGqXjZKD2TJ9oS_ZVTgGfAfUOUb7mKILEyhHLVT9dd7A/);
 assert.match(source, /Ouvrir le document/);
 assert.match(source, /Télécharger le PDF/);
 const mainNav = source.match(/<nav class="nav"[\s\S]*?<\/nav>/)?.[0] || "";

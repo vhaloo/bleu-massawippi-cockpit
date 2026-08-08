@@ -13,8 +13,12 @@ for (const marker of [
   'id="site-niveau-lac-rapport-2025"',
   "Niveau du lac et barrage — des repères utiles",
   "station hydrométrique 030241",
-  "Village de North Hatley",
+  "Étude de préfaisabilité pour l’évaluation du gain potentiel sur les inondations suivant un abaissement du seuil de la crête déversante",
+  "Municipalité de Hatley",
   "Comparer à l’historique ↗",
+  "Partenariats 2026–2027 · version 11 · 6 pages",
+  "la continuité des suivis de la qualité de l’eau et des inventaires",
+  "IQDYGqXjZKD2TJ9oS_ZVTgGfAfUOUb7mKILEyhHLVT9dd7A",
   "Autonomie claire. Décisions explicites. Travail soutenable.",
   "Le silence n’est jamais une approbation.",
   "20 h de communications et 5 h de projets liés ou d’administration",
@@ -34,8 +38,14 @@ const levelDecision = projectDecisions.decisions.find((decision) => decision.id 
 assert.ok(levelDecision, "La décision de validation du futur encart Niveau du lac doit rester déclarée.");
 assert.equal(levelDecision.sourceType, "section", "La décision Niveau du lac doit cibler une section stratégique.");
 assert.equal(levelDecision.sourceId, "site-niveau-lac-rapport-2025", "La décision Niveau du lac doit cibler son propre encart, jamais le cadre générique du mandat.");
+assert.ok(levelDecision.message.includes("L’attribution à la Municipalité de Hatley et le titre complet ont été vérifiés"),
+  "La décision doit distinguer la vérification factuelle déjà faite de la validation éditoriale encore attendue.");
 assert.ok(strategy.includes(`id="${levelDecision.sourceId}"`), "Toute décision stratégique doit avoir une destination réelle dans le cockpit.");
+assert.ok(!strategy.includes("elle a été demandée par le Village de North Hatley"),
+  "L’attribution erronée de l’étude ne doit pas réapparaître.");
 assert.ok(!strategy.includes('class="wrap stats"'), "Le bandeau de métriques redondant ne doit pas réapparaître hors de la stratégie.");
+assert.match(strategy, /\.strategic-document-card \{[^}]*scroll-margin-top:/,
+  "Les raccourcis vers les documents stratégiques doivent laisser leur titre visible sous le menu fixe.");
 assert.ok(!strategy.includes("Observer.<br>Comprendre.<br>Agir."), "L’accueil ne doit plus utiliser l’ancien visuel éditorial générique.");
 assert.ok(!strategy.includes("publications principales<br>séquence de lancement"), "L’accueil doit présenter un outil durable, pas une séquence de 28 jours.");
 assert.ok(!strategy.includes("brand-lake") && !strategy.includes("data-brand-logo-target") && !strategy.includes("Le lac au centre."),
