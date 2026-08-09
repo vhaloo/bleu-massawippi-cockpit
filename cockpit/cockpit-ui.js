@@ -35,22 +35,22 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260809-b53";
-import { createEventContextController } from "./event-context-data.js?v=20260809-b53";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260809-b53";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260809-b53";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260809-b53";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260809-b53";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260809-b53";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260809-b53";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260809-b53";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260809-b53";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260809-b53";
-import { setupControlHints } from "./control-hints.js?v=20260809-b53";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260809-b53";
-import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260809-b53";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260809-b53";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260809-b53";
+} from "./firebase-client.js?v=20260809-b54";
+import { createEventContextController } from "./event-context-data.js?v=20260809-b54";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260809-b54";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260809-b54";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260809-b54";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260809-b54";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260809-b54";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260809-b54";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260809-b54";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260809-b54";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260809-b54";
+import { setupControlHints } from "./control-hints.js?v=20260809-b54";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260809-b54";
+import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260809-b54";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260809-b54";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260809-b54";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
