@@ -62,6 +62,12 @@ assert.match(worker, /key\.startsWith\(CACHE_PREFIX\) && key !== CACHE/, "La pur
 assert.match(worker, /event\.request\.method !== "GET"/, "Le cache ne doit jamais intercepter les écritures.");
 assert.match(worker, /shellRequest \? \{ cache:"no-store" \} : undefined/, "Les navigations et modules doivent contourner le cache HTTP périmé quand le réseau répond.");
 assert.match(worker, /postMessage\(\{ type:"cockpit-update-ready", release:RELEASE \}\)/, "Le nouveau worker doit prévenir les fenêtres déjà ouvertes.");
+assert.match(index, /postMessage\?\.\(\{ type:"cockpit-release-request" \}\)/,
+  "La page doit demander la version exacte d’un nouveau contrôleur avant d’afficher l’avis.");
+assert.match(worker, /type:"cockpit-release-info", release:RELEASE/,
+  "Le service worker doit répondre avec sa version exacte.");
+assert.doesNotMatch(index, /controllerchange[\s\S]{0,300}showUpdate\(\)/,
+  "controllerchange ne doit jamais afficher un avis sans version cible.");
 assert.match(worker, /notificationclick/, "Le service worker doit ouvrir les décisions depuis une notification système.");
 assert.match(worker, /cockpit-open-attention/, "Une notification doit réutiliser la fenêtre installée lorsqu’elle est déjà ouverte.");
 

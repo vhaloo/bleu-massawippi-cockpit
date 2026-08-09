@@ -2,8 +2,8 @@
 // Cela force l’activation du nouveau service worker et purge les modules
 // précédemment mis en cache, notamment firebase-client.js.
 const CACHE_PREFIX = "bleu-massawippi-cockpit-shell-";
-const RELEASE = "20260809-b53";
-const CACHE = "bleu-massawippi-cockpit-shell-v87";
+const RELEASE = "20260809-b54";
+const CACHE = "bleu-massawippi-cockpit-shell-v88";
 const SHELL = [
   "./", "./index.html", `./firebase-config.js?v=${RELEASE}`, `./theme.js?v=${RELEASE}`, `./motion.js?v=${RELEASE}`,
   `./cockpit-ui.js?v=${RELEASE}`, `./calendar-export-tools.js?v=${RELEASE}`, `./internal-project-order.js?v=${RELEASE}`, `./firebase-client.js?v=${RELEASE}`, `./project-calendar-model.mjs?v=${RELEASE}`, `./project-calendar.js?v=${RELEASE}`, `./section-navigation.js?v=${RELEASE}`, `./publication-editor-schema.mjs?v=${RELEASE}`, `./editor-studio.js?v=${RELEASE}`, `./control-hints.js?v=${RELEASE}`, `./event-context-data.js?v=${RELEASE}`, `./action-items-ui.js?v=${RELEASE}`, `./notification-recipient.js?v=${RELEASE}`, `./client-health-ui.js?v=${RELEASE}`, `./admin-lazy-data.js?v=${RELEASE}`, `./admin-activity-summary.js?v=${RELEASE}`, `./media-choice-ui.js?v=${RELEASE}`, `./task-progress-ui.js?v=${RELEASE}`, `./completed-task-history.js?v=${RELEASE}`, `./monthly-snapshot-state.js?v=${RELEASE}`, `./view-mode.js?v=${RELEASE}`, `./clarity.css?v=${RELEASE}`, `./project-calendar.css?v=${RELEASE}`, "./view-mode.css",
@@ -20,6 +20,13 @@ self.addEventListener("activate", (event) => {
     .then(() => self.clients.claim())
     .then(() => self.clients.matchAll({ type:"window", includeUncontrolled:true }))
     .then((clients) => clients.forEach((client) => client.postMessage({ type:"cockpit-update-ready", release:RELEASE }))));
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type !== "cockpit-release-request") return;
+  const message = { type:"cockpit-release-info", release:RELEASE };
+  if (event.source?.postMessage) event.source.postMessage(message);
+  else event.ports?.[0]?.postMessage?.(message);
 });
 
 self.addEventListener("fetch", (event) => {

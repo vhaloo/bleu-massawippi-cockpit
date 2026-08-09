@@ -39,7 +39,7 @@
     "test:backup": "node test_backup_restore.mjs",
     "test:backup:emulator": "npx firebase-tools@15.23.0 emulators:exec --only firestore --project cockpit-backup-test --config firebase.emulator.json \"node test_backup_restore_emulator.mjs\"",
     "test:media": "node test_media_role_workflow.mjs",
-    "test:shell": "node test_shell_version_contract.mjs",
+    "test:shell": "node test_shell_version_contract.mjs && node test_update_notice_contract.mjs",
     "test:resilience": "node test_client_resilience_contract.mjs",
     "test:motion-install": "node test_motion_install_contract.mjs",
     "test:clarity": "node test_strategy_clarity_contract.mjs",
