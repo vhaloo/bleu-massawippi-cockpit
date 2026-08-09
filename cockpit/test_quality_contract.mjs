@@ -233,8 +233,8 @@ critical("EDIT-001", "Le protocole cyanobactéries n’invente plus une cadence"
     && /Gestion%20cyanobact%C3%A9rie\.docx\?web=1/.test(files.source)
     && /cogesaf\.qc\.ca\/sentinelle-des-lacs/.test(files.source)
     && /Suivi des plages — E\. coli et cyanobactéries/.test(files.source)
-    && /ébauche reçue et classée dans SharePoint/.test(files.source),
-  "La fiche doit distinguer les deux volets, les sources et les décisions qui restent à valider.");
+    && /PDF final retenu est classé dans SharePoint/.test(files.source),
+  "La fiche doit distinguer les deux volets, les sources, le document final retenu et les décisions qui restent à valider.");
 critical("EDIT-002", "L’information Zeffy est exacte et réutilisable en français et en anglais",
   /Contribution proposée par Zeffy/.test(files.source)
     && /ni une taxe ni des frais obligatoires/.test(files.source)
@@ -242,11 +242,13 @@ critical("EDIT-002", "L’information Zeffy est exacte et réutilisable en fran�
     && /Optional Zeffy contribution/.test(files.source),
   "La contribution Zeffy doit rester décrite comme distincte, volontaire et modifiable jusqu’à 0 $. ");
 
-critical("EDIT-005", "L’ébauche Suivi des plages est reliée sans faux statut de validation",
-  /Ébauche reçue — offre de services North Hatley/.test(files.source)
-    && /incohérence arithmétique de 5&nbsp;\$/.test(files.source)
-    && /611A7E59-0EDD-4B33-B97A-1A325FD74933/.test(files.source),
-  "Le projet doit ouvrir l’ébauche interne, signaler l’écart de total et conserver son statut de révision.");
+critical("EDIT-005", "Le PDF final Suivi des plages est relié sans faux statut d’entente",
+  /PDF final retenu — offre de services Suivi de la plage municipale/.test(files.source)
+    && /Suivit%20plage\.pdf/.test(files.source)
+    && /Le total de 7&nbsp;760&nbsp;\$ est cohérent/.test(files.source)
+    && /611A7E59-0EDD-4B33-B97A-1A325FD74933/.test(files.source)
+    && !/incohérence arithmétique de 5&nbsp;\$/.test(files.source),
+  "Le projet doit ouvrir d’abord le PDF final retenu, préserver l’ébauche antérieure et distinguer une offre prête d’une entente acceptée.");
 critical("EDIT-003", "La veille sur la barbotte brune reste sourcée et prudente",
   /ne documentent pas ce cancer transmissible au lac Massawippi/.test(files.source)
     && /aucun cas au lac Massawippi n’a été trouvé dans les sources examinées/.test(files.scienceWatch)
