@@ -7,7 +7,7 @@
  * intact.
  */
 
-import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260809-b54";
+import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260809-b55";
 
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
@@ -504,7 +504,7 @@ function ensureStylesheet() {
   if (document.querySelector(`link[data-module="${MODULE_ID}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = new URL("./view-mode.css?v=20260809-b54", import.meta.url).href;
+  link.href = new URL("./view-mode.css?v=20260809-b55", import.meta.url).href;
   link.dataset.module = MODULE_ID;
   document.head.appendChild(link);
 }
@@ -1043,6 +1043,11 @@ export async function navigateToEntity({ type = "schedule", id = "", mediaId = "
     target = findEntityTarget(targetType, targetId) || target;
   }
   const card = revealTargetTree(target);
+  if (card && targetType === "schedule") {
+    window.dispatchEvent(new CustomEvent("cockpit:event-context-request", {
+      detail: { eventId: targetId, source: "navigation" }
+    }));
+  }
   let focusTarget = card || target;
   if (card && mediaId) {
     const media = [...card.querySelectorAll(".cockpit-media-card[data-media-id]")]

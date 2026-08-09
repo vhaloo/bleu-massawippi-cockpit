@@ -71,8 +71,12 @@ assert.match(firebase, /export function subscribeMediaLinksForEvent[\s\S]{0,500}
   "Un événement ouvert doit obtenir uniquement ses médias, avec une limite fixe.");
 assert.match(eventContext, /function createEventContextController\([\s\S]{0,1200}subscribeCommentsForSection[\s\S]{0,1200}subscribeMediaLinksForEvent/,
   "Le cockpit doit partager un seul contexte temps réel pour l’événement consulté.");
-assert.match(ui, /createEventContextController\([\s\S]{0,1300}eventContextController\.activate\(eventId\)/,
+assert.match(ui, /createEventContextController\([\s\S]{0,1800}eventContextController\.activate\(id\)/,
   "Le module principal doit activer le contexte partagé seulement pour la carte consultée.");
+assert.match(ui, /cockpit:event-context-request[\s\S]{0,180}activateEventContext/,
+  "Une ouverture depuis la file personnelle doit activer le même contexte ciblé que l’ouverture directe de la carte.");
+assert.match(ui, /mediaContextLoading[\s\S]{0,2200}Chargement des médias liés…/,
+  "Une récupération ciblée ne doit pas annoncer à tort qu’aucun média n’est lié.");
 
 const healthStart = healthUi.indexOf("export function buildHealthWidget");
 const healthSource = healthUi.slice(healthStart);

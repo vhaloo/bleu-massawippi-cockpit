@@ -105,6 +105,10 @@ window.HTMLElement.prototype.scrollIntoView = function scrollIntoView(options) {
 window.HTMLElement.prototype.focus = function focus() { this.dataset.testFocused = "true"; };
 
 const wait = (milliseconds = 120) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+const eventContextRequests = [];
+window.addEventListener("cockpit:event-context-request", (event) => {
+  eventContextRequests.push(String(event.detail?.eventId || ""));
+});
 function switchTestRole(uid, role) {
   const session = document.querySelector("#cockpit-session");
   session.dataset.uid = uid;
@@ -639,6 +643,8 @@ document.querySelector("#search").dispatchEvent(new window.Event("input", { bubb
 assert.equal(document.querySelector('[data-item-id="past"]'), null);
 assert.equal(await viewMode.navigateToEntity({ type: "schedule", id: "past" }), true);
 const pastCard = document.querySelector('[data-item-id="past"]');
+assert.equal(eventContextRequests.at(-1), "past",
+  "Ouvrir une publication depuis une décision doit demander son contexte média ciblé.");
 assert.equal(document.querySelector("#search").value, "");
 assert.equal(document.querySelector("#week").value, "all");
 assert.equal(document.querySelector("#theme").value, "all");

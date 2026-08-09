@@ -35,27 +35,27 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260809-b54";
-import { createEventContextController } from "./event-context-data.js?v=20260809-b54";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260809-b54";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260809-b54";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260809-b54";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260809-b54";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260809-b54";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260809-b54";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260809-b54";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260809-b54";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260809-b54";
-import { setupControlHints } from "./control-hints.js?v=20260809-b54";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260809-b54";
-import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260809-b54";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260809-b54";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260809-b54";
+} from "./firebase-client.js?v=20260809-b55";
+import { createEventContextController } from "./event-context-data.js?v=20260809-b55";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260809-b55";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260809-b55";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260809-b55";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260809-b55";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260809-b55";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260809-b55";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260809-b55";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260809-b55";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260809-b55";
+import { setupControlHints } from "./control-hints.js?v=20260809-b55";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260809-b55";
+import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260809-b55";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260809-b55";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260809-b55";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
 const DATE_ELEVATOR_COMPACT_MAX = 1599;
-const state = { user: null, profile: null, rows: new Map(), basePosts: [], editorialSignature: "[]", mediaByEvent: new Map(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
+const state = { user: null, profile: null, rows: new Map(), basePosts: [], editorialSignature: "[]", mediaByEvent: new Map(), mediaContextLoading: new Set(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
 let eventContextController = null;
 let activeRecognition = null;
 let activeTextarea = null;
@@ -1866,7 +1866,10 @@ function renderMediaForCard(card) {
       : "";
   }
   if (!rows.length) {
-    gallery.innerHTML = `<p class="cockpit-media-empty">Aucun média lié. Déposez le fichier dans OneDrive, créez un lien de consultation, puis ajoutez-le ici.</p>`;
+    const contextLoading = state.mediaContextLoading.has(card.dataset.itemId);
+    gallery.innerHTML = contextLoading
+      ? `<p class="cockpit-media-empty cockpit-media-loading" role="status">Chargement des médias liés…</p>`
+      : `<p class="cockpit-media-empty">Aucun média lié. Déposez le fichier dans OneDrive, créez un lien de consultation, puis ajoutez-le ici.</p>`;
     navigation.hidden = true;
     return;
   }
@@ -2135,15 +2138,29 @@ function renderAllCollaboration() {
 function stopEventContext() {
   eventContextController?.stop();
   eventContextController = null;
+  state.mediaContextLoading.clear();
 }
 
 function activateEventContext(eventId) {
+  const id = String(eventId || "").trim();
+  const contextEnabled = configured && !safeMode && Boolean(state.profile);
+  if (!id || !contextEnabled) return;
   eventContextController ||= createEventContextController({
-    enabled: configured && !safeMode && Boolean(state.profile),
-    onRows: (kind,id,rows) => { (kind==="comments"?state.commentsByEvent:state.mediaByEvent).set(id,rows); const card=document.querySelector(`.post[data-item-id="${CSS.escape(id)}"]`); if(card){renderCommentThread(card);renderMediaForCard(card);renderWorkflow(card);} renderMonthlyEditorialSnapshot(); notifyViewUpdate(`event-${kind}`); },
-    onError: (error) => console.warn("Contexte temps réel de l’événement indisponible", error)
+    enabled: contextEnabled,
+    onRows: (kind,id,rows) => { if(kind==="media") state.mediaContextLoading.delete(id); (kind==="comments"?state.commentsByEvent:state.mediaByEvent).set(id,rows); const card=document.querySelector(`.post[data-item-id="${CSS.escape(id)}"]`); if(card){renderCommentThread(card);renderMediaForCard(card);renderWorkflow(card);} renderMonthlyEditorialSnapshot(); notifyViewUpdate(`event-${kind}`); },
+    onError: (error) => { const currentId=eventContextController?.current?.() || ""; if(currentId){state.mediaContextLoading.delete(currentId); const card=document.querySelector(`.post[data-item-id="${CSS.escape(currentId)}"]`); if(card) renderMediaForCard(card);} console.warn("Contexte temps réel de l’événement indisponible", error); }
   });
-  eventContextController.activate(eventId);
+  const previousId = eventContextController.current();
+  if (previousId && previousId !== id && state.mediaContextLoading.delete(previousId)) {
+    const previousCard = document.querySelector(`.post[data-item-id="${CSS.escape(previousId)}"]`);
+    if (previousCard) renderMediaForCard(previousCard);
+  }
+  if (!state.mediaByEvent.has(id)) {
+    state.mediaContextLoading.add(id);
+    const card = document.querySelector(`.post[data-item-id="${CSS.escape(id)}"]`);
+    if (card) renderMediaForCard(card);
+  }
+  eventContextController.activate(id);
 }
 
 function updateSinglePostLayouts() {
@@ -2600,6 +2617,9 @@ async function saveCardComment(card, quickTag = null) {
 }
 
 function enhanceCardEvents() {
+  window.addEventListener("cockpit:event-context-request", (event) => {
+    activateEventContext(event.detail?.eventId);
+  });
   document.addEventListener("click", (event) => {
     const card = event.target.closest(".post[data-item-id]");
     if (!card) return;
@@ -2953,6 +2973,7 @@ function applySignedOut(message = "") {
   state.user = null;
   state.rows = new Map();
   state.mediaByEvent = new Map();
+  state.mediaContextLoading = new Set();
   state.mediaDecisions = new Map();
   state.commentsByEvent = new Map();
   state.workflows = new Map();
