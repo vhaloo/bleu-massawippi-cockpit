@@ -7,7 +7,7 @@
  * intact.
  */
 
-import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260803-b52";
+import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260809-b53";
 
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
@@ -504,7 +504,7 @@ function ensureStylesheet() {
   if (document.querySelector(`link[data-module="${MODULE_ID}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = new URL("./view-mode.css?v=20260803-b52", import.meta.url).href;
+  link.href = new URL("./view-mode.css?v=20260809-b53", import.meta.url).href;
   link.dataset.module = MODULE_ID;
   document.head.appendChild(link);
 }
@@ -1224,6 +1224,7 @@ function roleDecisionForEvent(event, role, tasks = []) {
   if (role === "admin" && latestTask && !event.complete && !event.setAside) {
     return {
       ...event,
+      taskId: latestTask.id,
       action: latestTask.title,
       whyNow: latestTask.isComment ? "Nouvelle consigne de la direction" : tasks.length > 1 ? `${tasks.length} actions de la direction à intégrer` : "Décision de la direction à exécuter",
       updatedAt: Math.max(baseUpdatedAt, latestTask.updatedAt)
@@ -1435,15 +1436,31 @@ function roleDecisionModels(events, identity, now) {
   );
 }
 
+function completionButton(event) {
+  const accessibleTitle = escapeHtml(`Marquer « ${event.action || event.title || "cette action"} » comme fait`);
+  if (event.actionItemId) {
+    return `<button type="button" class="vm-complete-action" data-vm-complete-action-item="${escapeHtml(event.actionItemId)}" aria-label="${accessibleTitle}" title="Classer cette action comme accomplie; elle restera dans l’historique."><span aria-hidden="true">✓</span> C’est fait</button>`;
+  }
+  if (event.taskId && runtime.identity.role === "admin") {
+    return `<button type="button" class="vm-complete-action" data-complete-task="${escapeHtml(event.taskId)}" aria-label="${accessibleTitle}" title="Classer cette tâche comme accomplie; elle restera dans l’historique."><span aria-hidden="true">✓</span> C’est fait</button>`;
+  }
+  return "";
+}
+
 function linkButton(event, label = "Ouvrir") {
-  if (event.taskId) return `<button type="button" class="vm-open" data-vm-task="${escapeHtml(event.taskId)}">${escapeHtml(label)}<span aria-hidden="true">→</span></button>`;
+  const completion = completionButton(event);
+  if (event.taskId) {
+    const taskTargetId = event.targetId || event.id;
+    return `<div class="vm-event-actions"><button type="button" class="vm-open" data-vm-target="${escapeHtml(taskTargetId)}" data-vm-entity-type="${escapeHtml(event.targetType || "schedule")}" data-vm-task="${escapeHtml(event.taskId)}">${escapeHtml(label)}<span aria-hidden="true">→</span></button>${completion}</div>`;
+  }
   const targetId = event.targetId || event.id;
   const messageId = event.messageId || event.incomingMessage?.id || "";
   const messageVersion = event.messageVersion || event.incomingMessage?.updatedAt || 0;
   const notice = event.actionType === "content_notice" && event.actionItemId
     ? ` data-vm-action-item-id="${escapeHtml(event.actionItemId)}" data-vm-action-type="content_notice"`
     : "";
-  return `<button type="button" class="vm-open" data-vm-target="${escapeHtml(targetId)}" data-vm-entity-type="${escapeHtml(event.targetType || "schedule")}"${event.mediaId ? ` data-vm-media="${escapeHtml(event.mediaId)}"` : ""}${messageId ? ` data-vm-message-id="${escapeHtml(messageId)}" data-vm-message-version="${dataMillis(messageVersion)}"` : ""}${notice}>${escapeHtml(event.actionType === "content_notice" ? "Voir la nouveauté" : label)}<span aria-hidden="true">→</span></button>`;
+  const open = `<button type="button" class="vm-open" data-vm-target="${escapeHtml(targetId)}" data-vm-entity-type="${escapeHtml(event.targetType || "schedule")}"${event.mediaId ? ` data-vm-media="${escapeHtml(event.mediaId)}"` : ""}${messageId ? ` data-vm-message-id="${escapeHtml(messageId)}" data-vm-message-version="${dataMillis(messageVersion)}"` : ""}${notice}>${escapeHtml(event.actionType === "content_notice" ? "Voir la nouveauté" : label)}<span aria-hidden="true">→</span></button>`;
+  return `<div class="vm-event-actions">${open}${completion}</div>`;
 }
 
 function estimatedDecisionMinutes(event, role) {

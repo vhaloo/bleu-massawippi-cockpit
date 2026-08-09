@@ -350,6 +350,11 @@ assert.match(document.querySelector(".vm-queue-end").textContent, /toutes vos d�
   assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Synchronisation en cours/);
   assert.ok(document.querySelectorAll(".vm-decisions .vm-event").length > 0,
     "Les décisions doivent réapparaître automatiquement dès la confirmation serveur.");
+  const adminTaskOpen = document.querySelector('.vm-decisions [data-vm-task="admin-task"]');
+  assert.ok(adminTaskOpen, "Une tâche persistante doit conserver une ouverture ciblée dans la file compacte.");
+  const adminTaskComplete = adminTaskOpen.closest(".vm-event").querySelector('[data-complete-task="admin-task"]');
+  assert.ok(adminTaskComplete, "Les communications doivent pouvoir classer leur tâche comme faite à côté d’Ouvrir.");
+  assert.match(adminTaskComplete.textContent, /C’est fait/);
   document.body.dataset.workflowSync = "cache";
   document.body.classList.add("cockpit-safe-mode");
   window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
@@ -394,6 +399,9 @@ document.body.appendChild(actionSource);
 window.dispatchEvent(new window.CustomEvent("cockpit:action-items-updated"));
 await wait();
 assert.match(document.querySelector(".vm-decisions").textContent, /Vérifier le visuel recommandé/);
+const mediaActionComplete = document.querySelector('[data-vm-complete-action-item="media-direction-approval-alt"]');
+assert.ok(mediaActionComplete, "Une action Firestore personnelle doit offrir C’est fait à côté d’Ouvrir.");
+assert.match(mediaActionComplete.textContent, /C’est fait/);
 switchTestRole("direction-colleague", "director");
 await wait();
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /Vérifier le visuel recommandé/,

@@ -113,6 +113,16 @@ assert.match(stateMutation, /queueKey: actionItemQueueKey/);
 assert.doesNotMatch(stateMutation, /getDocs|onSnapshot|query\(/, "La bascule ne doit faire qu’une lecture ciblée, jamais relire la file.");
 assert.match(subscription, /setLocalState\(actionItemId, nextState\)[\s\S]*retainedPages = retainedPages\.map/);
 assert.match(actionUi, /cockpit:action-item-state-saved[\s\S]*setLocalState/);
+assert.match(view, /data-vm-complete-action-item/, "Une action personnelle persistante doit offrir le bouton C’est fait dans la file compacte.");
+assert.match(view, /data-complete-task/, "Une tâche persistante des communications doit réutiliser son archivage existant depuis la file compacte.");
+assert.match(actionUi, /data-vm-complete-action-item[\s\S]*completePersonalAction/,
+  "Le bouton compact doit appeler le gestionnaire personnel ciblé.");
+assert.match(actionUi, /item\.dataset\.actionAssigneeUid === activeProfile\.uid[\s\S]*item\.dataset\.actionAssigneeRole === activeProfile\.role/,
+  "Le client doit revérifier l’uid et le rôle avant toute complétion manuelle.");
+assert.match(actionUi, /setPersonalActionItemState\(actionItemId, "done", activeProfile\)/,
+  "La complétion manuelle doit réutiliser la transaction atomique existante.");
+assert.doesNotMatch(actionUi, /getDocs|onSnapshot|query\(/,
+  "Le bouton C’est fait ne doit ajouter aucune lecture de collection ni aucun listener.");
 assert.match(view, /globalThis\.navigator\?\.setAppBadge\?\.\(\)/, "Le badge PWA doit être un simple point sans nombre.");
 assert.match(view, /globalThis\.navigator\?\.clearAppBadge/);
 assert.match(view, /showNotification/, "Les alertes système doivent être dérivées de la file déjà rendue.");

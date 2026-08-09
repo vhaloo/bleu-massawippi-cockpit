@@ -395,9 +395,17 @@ html.cockpit-has-unseen[data-motion="on"] .vm-attention-dot { animation: vm-atte
 .vm-event:last-child,
 .vm-message:last-child { border-bottom: 0; }
 
-.vm-event > .vm-open {
+.vm-event > .vm-event-actions {
   grid-column: 2;
   grid-row: 1 / span 2;
+}
+
+.vm-event-actions {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .vm-why-now {
@@ -572,6 +580,34 @@ html.cockpit-has-unseen[data-motion="on"] .vm-attention-dot { animation: vm-atte
   padding: 7px 9px;
   color: #0b6077;
   background: #fff;
+}
+
+.vm-complete-action {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 9px;
+  border: 1px solid #347d68;
+  border-radius: 10px;
+  color: #174f40;
+  background: #e9f7f0;
+  font: inherit;
+  font-size: .72rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.vm-complete-action:hover,
+.vm-complete-action:focus-visible {
+  color: #fff;
+  background: #347d68;
+}
+
+.vm-complete-action[disabled] {
+  opacity: .66;
+  cursor: progress;
 }
 
 .vm-empty {
@@ -865,6 +901,9 @@ html[data-theme="dark"] .vm-decision-dock-tab-handle {
 }
 html[data-theme="dark"] .vm-decision-dock-tab [data-vm-dock-tab-count] { color: #effcfd; background: #0f7188; }
 html[data-theme="dark"] .vm-open { color: #b9edf2; border-color: #4faeb7; background: #173c47; }
+html[data-theme="dark"] .vm-complete-action { color: #c9f4e5; border-color: #5cad93; background: #214a3f; }
+html[data-theme="dark"] .vm-complete-action:hover,
+html[data-theme="dark"] .vm-complete-action:focus-visible { color: #102d25; background: #8ad9bc; }
 html[data-theme="dark"] .vm-all-clear { color: #b9f0d7; background: #214c3e; }
 html[data-theme="dark"] .vm-syncing { color: #d4edf0; border-color: #416d76; background: #183d47; }
 html[data-theme="dark"] .vm-queue-offline { color: #ffe6aa; border-color: #826a32; background: #44391f; }
@@ -928,7 +967,7 @@ html[data-theme="dark"] .vm-navigation-status b { color: #fff0eb; }
   .vm-decisions,
   .vm-week { grid-column: auto; }
   .vm-panel-body { max-height: 330px; }
-  .vm-open { min-width: 44px; min-height: 44px; justify-content: center; }
+  .vm-open, .vm-complete-action { min-width: 44px; min-height: 44px; justify-content: center; }
   .vm-event, .vm-message { gap: 8px; }
   .vm-queue-footer,
   .vm-navigation-status:not([hidden]) { align-items: stretch; flex-direction: column; }
@@ -1072,7 +1111,9 @@ html[data-theme="dark"] .vm-card-progress span.state-pending { color: #ffd0cc; b
   .vm-dashboard { padding-inline: 9px; }
   .vm-panel-body { padding-inline: 10px; }
   .vm-event, .vm-message { align-items: stretch; grid-template-columns: 1fr; }
-  .vm-event > .vm-open, .vm-open { width: 100%; grid-column: 1; grid-row: auto; }
+  .vm-event > .vm-event-actions { width: 100%; grid-column: 1; grid-row: auto; }
+  .vm-event-actions > :is(.vm-open, .vm-complete-action) { flex: 1 1 120px; }
+  .vm-open { width: 100%; }
   .vm-why-now { width: 100%; }
 }
 
