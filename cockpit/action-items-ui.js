@@ -1,4 +1,4 @@
-import { setPersonalActionItemState, subscribePersonalActionItems } from "./firebase-client.js?v=20260803-b52";
+import { setPersonalActionItemState, subscribePersonalActionItems } from "./firebase-client.js?v=20260809-b53";
 
 let controller = null;
 let activeProfile = null;
@@ -31,6 +31,47 @@ function render(items, meta = {}) {
   dispatchEvent(new CustomEvent("cockpit:action-items-updated", { detail: { count: items?.length || 0, ...meta } }));
 }
 
+function personalActionNode(actionItemId) {
+  return [...(sourceNode().querySelectorAll("[data-action-item-id]") || [])]
+    .find((candidate) => candidate.dataset.actionItemId === actionItemId) || null;
+}
+
+function announce(message) {
+  const announcer = document.querySelector("#cockpit-announcer");
+  if (announcer) announcer.textContent = message;
+}
+
+async function completePersonalAction(control) {
+  const actionItemId = String(control?.dataset?.vmCompleteActionItem || "");
+  if (!activeProfile?.uid || !["director", "admin"].includes(activeProfile.role)
+    || !/^[A-Za-z0-9_-]{3,180}$/.test(actionItemId) || seenWrites.has(actionItemId)) return;
+  const item = personalActionNode(actionItemId);
+  const belongsToProfile = item
+    && item.dataset.actionAssigneeUid === activeProfile.uid
+    && item.dataset.actionAssigneeRole === activeProfile.role;
+  if (!belongsToProfile) {
+    announce("Cette action n’appartient pas à votre file personnelle.");
+    window.dispatchEvent(new CustomEvent("cockpit:action-item-completion-error", { detail: { actionItemId } }));
+    return;
+  }
+  seenWrites.add(actionItemId);
+  control.disabled = true;
+  control.setAttribute("aria-busy", "true");
+  try {
+    await setPersonalActionItemState(actionItemId, "done", activeProfile);
+    announce("Action marquée comme faite. Elle quitte votre file et reste conservée dans l’historique.");
+    window.dispatchEvent(new CustomEvent("cockpit:action-item-completed", { detail: { actionItemId } }));
+  } catch (error) {
+    console.warn("L’action reste dans la file : son classement n’a pas pu être confirmé.", error);
+    announce(error?.message || "Cette action n’a pas pu être classée comme faite.");
+    window.dispatchEvent(new CustomEvent("cockpit:action-item-completion-error", { detail: { actionItemId } }));
+    control.disabled = false;
+  } finally {
+    control.removeAttribute("aria-busy");
+    seenWrites.delete(actionItemId);
+  }
+}
+
 function bindEvents() {
   if (eventsReady) return;
   eventsReady = true;
@@ -43,6 +84,10 @@ function bindEvents() {
   });
   window.addEventListener("cockpit:action-item-state-saved", (event) => {
     controller?.setLocalState?.(event.detail?.id || "", event.detail?.state || "pending");
+  });
+  document.addEventListener("click", (event) => {
+    const control = event.target?.closest?.("[data-vm-complete-action-item]");
+    if (control) void completePersonalAction(control);
   });
   window.addEventListener("cockpit:content-notice-seen", async (event) => {
     const actionItemId = String(event.detail?.actionItemId || "");
