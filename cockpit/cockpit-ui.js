@@ -35,27 +35,27 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260809-b55";
-import { createEventContextController } from "./event-context-data.js?v=20260809-b55";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260809-b55";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260809-b55";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260809-b55";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260809-b55";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260809-b55";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260809-b55";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260809-b55";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260809-b55";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260809-b55";
-import { setupControlHints } from "./control-hints.js?v=20260809-b55";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260809-b55";
-import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260809-b55";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260809-b55";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260809-b55";
+} from "./firebase-client.js?v=20260810-b56";
+import { createEventContextController } from "./event-context-data.js?v=20260810-b56";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260810-b56";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260810-b56";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260810-b56";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260810-b56";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260810-b56";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260810-b56";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260810-b56";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260810-b56";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260810-b56";
+import { setupControlHints } from "./control-hints.js?v=20260810-b56";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260810-b56";
+import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260810-b56";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260810-b56";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260810-b56";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
 const DATE_ELEVATOR_COMPACT_MAX = 1599;
-const state = { user: null, profile: null, rows: new Map(), basePosts: [], editorialSignature: "[]", mediaByEvent: new Map(), mediaContextLoading: new Set(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
+const state = { user: null, profile: null, rows: new Map(), basePosts: [], editorialSignature: "[]", mediaByEvent: new Map(), mediaContextLoading: new Set(), mediaContextLoaded: new Set(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
 let eventContextController = null;
 let activeRecognition = null;
 let activeTextarea = null;
@@ -191,6 +191,10 @@ style.textContent = `
   .cockpit-media-position { min-width:54px; color:#345f6c; font-size:.7rem; font-weight:900; text-align:center; }
   .cockpit-media-swipe-hint { margin:0 0 8px; color:#66838c; font-size:.65rem; text-align:center; }
   .cockpit-media-empty { margin: 4px 0 9px; color: #67828d; font-size: .72rem; }
+  .cockpit-media-missing { padding:12px 14px; border:1px solid #d89a36; border-radius:10px; color:#5b3b08; background:#fff6df; line-height:1.45; }
+  .cockpit-media-missing b { color:#7b4300; }
+  [data-theme="dark"] .cockpit-media-missing { border-color:#ba7d24; color:#ffe4a8; background:#3a2d18; }
+  [data-theme="dark"] .cockpit-media-missing b { color:#fff0c8; }
   .cockpit-media-card { position: relative; flex: 0 0 min(310px, 86vw); overflow: hidden; scroll-snap-align: start; border: 1px solid #d3e6e8; border-radius: 11px; background: #f7fbfb; }
   .cockpit-media-card.is-final { border:3px solid #21866d; box-shadow:0 0 0 3px rgba(33,134,109,.14); }
   .cockpit-media-card.is-recommended:not(.is-final) { border:2px solid #0b7895; box-shadow:0 0 0 2px rgba(11,120,149,.1); }
@@ -1867,9 +1871,15 @@ function renderMediaForCard(card) {
   }
   if (!rows.length) {
     const contextLoading = state.mediaContextLoading.has(card.dataset.itemId);
+    const contextLoaded = state.mediaContextLoaded.has(card.dataset.itemId);
+    const decision = state.mediaDecisions.get(card.dataset.itemId) || null;
+    const storedChoice = decision?.direction?.status === "selected"
+      || ["agreed", "overridden"].includes(decision?.agreement?.status);
     gallery.innerHTML = contextLoading
       ? `<p class="cockpit-media-empty cockpit-media-loading" role="status">Chargement des médias liés…</p>`
-      : `<p class="cockpit-media-empty">Aucun média lié. Déposez le fichier dans OneDrive, créez un lien de consultation, puis ajoutez-le ici.</p>`;
+      : storedChoice && contextLoaded
+        ? `<p class="cockpit-media-empty cockpit-media-missing" role="alert"><b>Le visuel choisi doit être rattaché.</b><br>Le choix est conservé dans l’historique, mais aucun fichier actif n’est actuellement lié à cette publication.</p>`
+        : `<p class="cockpit-media-empty">Aucun média lié. Déposez le fichier dans OneDrive, créez un lien de consultation, puis ajoutez-le ici.</p>`;
     navigation.hidden = true;
     return;
   }
@@ -2004,6 +2014,27 @@ function mediaControlsMarkup(planItem) {
 const workflowOrder = ["proposal", "content_review", "changes_requested", "content_approved", "media_review", "final_approved", "scheduled", "published"];
 function workflowRank(stage) { return workflowOrder.indexOf(stage || "proposal"); }
 
+function mediaDecisionAvailability(eventId, decision, requiredMediaCount) {
+  const rows = (state.mediaByEvent.get(eventId) || []).filter((row) => row.archived !== true && safeMediaUrl(row.url));
+  const availableIds = new Set(rows.map((row) => String(row.id || "")).filter(Boolean));
+  const contextReliable = state.mediaContextLoaded.has(eventId) || rows.length > 0;
+  const directionIds = decision?.direction?.status === "selected" && Array.isArray(decision.direction.mediaIds)
+    ? decision.direction.mediaIds.map(String)
+    : [];
+  const agreementIds = ["agreed", "overridden"].includes(decision?.agreement?.status) && Array.isArray(decision.agreement.mediaIds)
+    ? decision.agreement.mediaIds.map(String)
+    : [];
+  const directionRecorded = directionIds.length >= requiredMediaCount;
+  const agreementRecorded = agreementIds.length >= requiredMediaCount;
+  const directionAvailable = directionIds.filter((id) => availableIds.has(id)).length >= requiredMediaCount;
+  const agreementAvailable = agreementIds.filter((id) => availableIds.has(id)).length >= requiredMediaCount;
+  return {
+    directionReady: directionRecorded && (!contextReliable || directionAvailable),
+    agreementReady: agreementRecorded && (!contextReliable || agreementAvailable),
+    staleChoice: contextReliable && (directionRecorded || agreementRecorded) && !directionAvailable && !agreementAvailable
+  };
+}
+
 function workflowMarkup(planItem) {
   return `<section class="cockpit-workflow" data-workflow><h5><span>Les 3 feux verts</span><small class="cockpit-workflow-path">📝 Texte → 🖼️ Visuel → ✓ Publication</small></h5><details class="cockpit-workflow-help"><summary>Comment ça marche ?</summary><p>Le texte et le visuel peuvent avancer en parallèle. Chacun peut choisir un visuel; le choix de la direction le marque prêt et un même choix des deux rôles affiche leur accord. Cliquez de nouveau pour retirer votre choix : l’historique est conservé. La publication demeure réservée aux communications et exige les deux feux verts.</p></details><div class="cockpit-workflow-gates"><button type="button" class="cockpit-workflow-gate" data-gate="content" aria-pressed="false"><b>📝 1 · Texte</b><span data-gate-label>À valider</span></button><button type="button" class="cockpit-workflow-gate" data-gate="media" aria-pressed="false"><b>🖼️ 2 · Visuel</b><span data-gate-label>Choix en attente</span></button><button type="button" class="cockpit-workflow-gate" data-gate="publication" aria-pressed="false"><b>✓ 3 · Terminé</b><span data-gate-label>Publié ou programmé</span></button></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
 }
@@ -2040,10 +2071,9 @@ function renderWorkflow(card) {
     ? 2
     : 1;
   const structuredMediaDecision = state.mediaDecisions.get(card.dataset.itemId) || null;
-  const structuredMediaAgreement = ["agreed", "overridden"].includes(structuredMediaDecision?.agreement?.status);
-  const directionMediaReady = structuredMediaDecision?.direction?.status === "selected"
-    && Array.isArray(structuredMediaDecision.direction.mediaIds)
-    && structuredMediaDecision.direction.mediaIds.length >= requiredMediaCount;
+  const mediaAvailability = mediaDecisionAvailability(card.dataset.itemId, structuredMediaDecision, requiredMediaCount);
+  const structuredMediaAgreement = mediaAvailability.agreementReady;
+  const directionMediaReady = mediaAvailability.directionReady;
   card.dataset.workflowStage = stage;
   card.dataset.workflowUpdatedAt = String(stateTimestampMillis(row.updatedAt));
   const contentDone = ["content_approved","media_in_progress","media_review","media_changes_requested","final_approved","scheduled","published"].includes(stage);
@@ -2065,7 +2095,9 @@ function renderWorkflow(card) {
   if (contentLabel) contentLabel.textContent = contentDone ? "Approuvé" : (stage === "changes_requested" ? "Corrections demandées" : stage === "content_review" ? "Prêt pour validation" : "En préparation");
   if (mediaLabel) mediaLabel.textContent = mediaDone
     ? (structuredMediaDecision?.agreement?.status === "overridden" ? "Validé par override motivé" : structuredMediaAgreement ? "Accord des deux rôles" : "Choisi par la direction")
-    : structuredMediaDecision?.agreement?.status === "divergent"
+    : mediaAvailability.staleChoice
+      ? "Média à rattacher"
+      : structuredMediaDecision?.agreement?.status === "divergent"
       ? "Choix à harmoniser"
       : (stage === "media_review" ? "Prêt pour validation" : "Choix en attente");
   const publicationReady = contentDone && mediaDone;
@@ -2139,6 +2171,7 @@ function stopEventContext() {
   eventContextController?.stop();
   eventContextController = null;
   state.mediaContextLoading.clear();
+  state.mediaContextLoaded.clear();
 }
 
 function activateEventContext(eventId) {
@@ -2147,7 +2180,7 @@ function activateEventContext(eventId) {
   if (!id || !contextEnabled) return;
   eventContextController ||= createEventContextController({
     enabled: contextEnabled,
-    onRows: (kind,id,rows) => { if(kind==="media") state.mediaContextLoading.delete(id); (kind==="comments"?state.commentsByEvent:state.mediaByEvent).set(id,rows); const card=document.querySelector(`.post[data-item-id="${CSS.escape(id)}"]`); if(card){renderCommentThread(card);renderMediaForCard(card);renderWorkflow(card);} renderMonthlyEditorialSnapshot(); notifyViewUpdate(`event-${kind}`); },
+    onRows: (kind,id,rows) => { if(kind==="media"){ state.mediaContextLoading.delete(id); state.mediaContextLoaded.add(id); } (kind==="comments"?state.commentsByEvent:state.mediaByEvent).set(id,rows); const card=document.querySelector(`.post[data-item-id="${CSS.escape(id)}"]`); if(card){renderCommentThread(card);renderMediaForCard(card);renderWorkflow(card);} renderMonthlyEditorialSnapshot(); notifyViewUpdate(`event-${kind}`); },
     onError: (error) => { const currentId=eventContextController?.current?.() || ""; if(currentId){state.mediaContextLoading.delete(currentId); const card=document.querySelector(`.post[data-item-id="${CSS.escape(currentId)}"]`); if(card) renderMediaForCard(card);} console.warn("Contexte temps réel de l’événement indisponible", error); }
   });
   const previousId = eventContextController.current();
@@ -2974,6 +3007,7 @@ function applySignedOut(message = "") {
   state.rows = new Map();
   state.mediaByEvent = new Map();
   state.mediaContextLoading = new Set();
+  state.mediaContextLoaded = new Set();
   state.mediaDecisions = new Map();
   state.commentsByEvent = new Map();
   state.workflows = new Map();

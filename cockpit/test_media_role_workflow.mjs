@@ -76,6 +76,14 @@ assert.match(ui, /Choisi par la direction générale/);
 assert.match(ui, /Préférence des communications différente · décision de la direction retenue/);
 assert.doesNotMatch(ui, /Choix différents — harmonisation requise/);
 assert.match(ui, /directionMediaReady/);
+assert.match(ui, /mediaDecisionAvailability\(card\.dataset\.itemId, structuredMediaDecision, requiredMediaCount\)/,
+  "Le feu visuel doit vérifier que le média choisi est encore rattaché à la publication.");
+assert.match(ui, /contextReliable && \(directionRecorded \|\| agreementRecorded\) && !directionAvailable && !agreementAvailable/,
+  "Une décision média orpheline doit être détectée après le chargement contextuel borné.");
+assert.match(ui, /Le visuel choisi doit être rattaché/,
+  "Le cockpit doit expliquer clairement une incohérence entre un ancien choix et une galerie vide.");
+assert.match(ui, /mediaAvailability\.staleChoice[\s\S]{0,80}Média à rattacher/,
+  "Une décision orpheline ne doit jamais conserver un faux feu vert visuel.");
 assert.match(ui, /const publicationReady = contentDone && mediaDone/,
   "Un choix visuel anticipé ne doit jamais suffire à autoriser la publication sans le texte.");
 assert.match(mediaUi, /Accord communications \+ direction/);
