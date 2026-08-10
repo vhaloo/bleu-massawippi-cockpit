@@ -317,6 +317,13 @@ assert.doesNotMatch(visualPausePost.copy, /commentaire/i, "La respiration photo 
 const fiveHabitsPost = posts.find((post) => post.id === "s3d7");
 assert.match(fiveHabitsPost.title, /Cinq réflexes/i);
 assert.match(fiveHabitsPost.copy, /5 —/);
+assert.match(fiveHabitsPost.format, /Photographie réelle verticale/i,
+  "Le 18 août doit utiliser une photographie authentique plutôt qu’un poster ou un carrousel généré.");
+assert.match(fiveHabitsPost.visual, /milieu humide[\s\S]*sans texte ajouté/i,
+  "La photographie réelle doit rester simple; les cinq gestes demeurent dans la légende bilingue.");
+const fiveHabitsMedia = editorialMedia.filter((media) => media.eventId === "s3d7" && media.stage !== "archived" && media.archived !== true);
+assert.ok(fiveHabitsMedia.some((media) => media.id === "editorial-s3d7-five-gentle-habits-wetland-real-v1"),
+  "Le 18 août doit conserver une proposition média réelle et explicitement rattachable.");
 const boardPortrait = posts.find((post) => post.id === "s1d3");
 assert.match(boardPortrait.title, /Pourquoi nous nous impliquons/i);
 assert.ok(boardPortrait.tasksAnnie.length >= 4);
