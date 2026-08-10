@@ -52,8 +52,8 @@ assert.ok(!strategy.includes("brand-lake") && !strategy.includes("data-brand-log
   "L’ancien mélange entre le logo et la forme de lac ne doit pas réapparaître.");
 assert.ok(!cockpitUi.includes("installBrandLogo"), "Le logo produit local ne doit plus dépendre d’un téléchargement dynamique OneDrive.");
 
-assert.equal((strategy.match(/class="strategy-toc-links"[\s\S]*?<\/nav>/)?.[0].match(/<a /g) || []).length, 8,
-  "Le sommaire stratégique doit offrir exactement huit repères stables.");
+assert.equal((strategy.match(/class="strategy-toc-links"[\s\S]*?<\/nav>/)?.[0].match(/<a /g) || []).length, 9,
+  "Le sommaire stratégique doit offrir exactement neuf repères stables, dont le guide aquatique officiel.");
 assert.ok(fs.existsSync(assetUrl), "L’atlas décoratif doit être livré localement avec le cockpit.");
 const asset = fs.readFileSync(assetUrl);
 assert.ok(asset.length > 20_000 && asset.length < 150_000, "L’atlas doit rester net et léger pour GitHub Pages.");

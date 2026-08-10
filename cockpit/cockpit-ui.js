@@ -35,22 +35,22 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260809-b55";
-import { createEventContextController } from "./event-context-data.js?v=20260809-b55";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260809-b55";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260809-b55";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260809-b55";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260809-b55";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260809-b55";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260809-b55";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260809-b55";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260809-b55";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260809-b55";
-import { setupControlHints } from "./control-hints.js?v=20260809-b55";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260809-b55";
-import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260809-b55";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260809-b55";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260809-b55";
+} from "./firebase-client.js?v=20260810-b56";
+import { createEventContextController } from "./event-context-data.js?v=20260810-b56";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260810-b56";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260810-b56";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260810-b56";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260810-b56";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260810-b56";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260810-b56";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260810-b56";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260810-b56";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260810-b56";
+import { setupControlHints } from "./control-hints.js?v=20260810-b56";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260810-b56";
+import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260810-b56";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260810-b56";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260810-b56";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -1446,7 +1446,16 @@ function renderInternalProjectStates() {
     card.classList.toggle("is-archived", completed);
     const label = card.querySelector("[data-internal-project-stage-label]");
     const deferredUntil = String(card.dataset.deferredUntil || "").trim();
-    if (label) label.textContent = stage === "planned" && deferredUntil ? `Reporté à ${deferredUntil}` : (internalProjectStageLabels[stage] || "À cadrer");
+    const deferredStatus = String(card.dataset.deferredStatus || "").trim();
+    const waitingSource = String(card.dataset.waitingSource || "").trim();
+    const requestedDeferred = stage === "planned" && Boolean(deferredUntil) && deferredStatus === "requested";
+    if (label) {
+      label.textContent = requestedDeferred
+        ? `Report ${deferredUntil} demandé`
+        : (stage === "planned" && deferredUntil
+          ? `Reporté à ${deferredUntil}`
+          : (waitingSource && stage !== "completed" ? "Source révisée attendue" : (internalProjectStageLabels[stage] || "À cadrer")));
+    }
     const host = card.querySelector("[data-internal-project-controls]");
     if (!host) return;
     const buttons = Object.entries(internalProjectStageLabels).map(([value, text]) => `<button type="button" data-internal-project-stage="${value}" class="${stage === value ? "active" : ""}" aria-pressed="${stage === value}">${text}</button>`).join("");
@@ -1545,17 +1554,22 @@ function setupInternalProjectEvents() {
     setInternalProjectStage(stageCard.dataset.internalProjectId, stage, state.profile)
       .then(async () => {
         const deferredUntil = String(stageCard.dataset.deferredUntil || "").trim();
+        const deferredStatus = String(stageCard.dataset.deferredStatus || "").trim();
         const isDeferred = stage === "planned" && Boolean(deferredUntil);
-        await writeAuditLog("internal-project:" + stageCard.dataset.internalProjectId, isDeferred ? `étape : planned · reporté à ${deferredUntil}` : "étape : " + stage, state.profile);
+        const requestedDeferred = isDeferred && deferredStatus === "requested";
+        const deferredAudit = requestedDeferred ? `étape : planned · report ${deferredUntil} demandé` : `étape : planned · reporté à ${deferredUntil}`;
+        await writeAuditLog("internal-project:" + stageCard.dataset.internalProjectId, isDeferred ? deferredAudit : "étape : " + stage, state.profile);
         await recordActionTask("internal-project-" + stageCard.dataset.internalProjectId, {
-          status: stage === "completed" || isDeferred ? "done" : "pending",
-          title: `${isDeferred ? `Reporté à ${deferredUntil}` : (internalProjectStageLabels[stage] || "Suivi")} — ${title}`,
+          status: stage === "completed" || (isDeferred && !requestedDeferred) ? "done" : "pending",
+          title: `${requestedDeferred ? `Confirmation du report ${deferredUntil}` : (isDeferred ? `Reporté à ${deferredUntil}` : (internalProjectStageLabels[stage] || "Suivi"))} — ${title}`,
           targetType: "section",
           targetId: stageCard.id,
           targetLabel: title,
-          message: isDeferred ? `Projet reporté à ${deferredUntil}; aucune action active avant la revue de reprise.` : (stage === "blocked" ? "Une décision ou une ressource est requise. Ouvrir la fiche et traiter la prochaine action prioritaire." : "Ouvrir la fiche, vérifier la prochaine action et faire avancer le projet selon l’étape choisie.")
+          message: requestedDeferred
+            ? `Le report à ${deferredUntil} a été demandé; classer la confirmation écrite avant de le présenter comme accordé.`
+            : (isDeferred ? `Projet reporté à ${deferredUntil}; aucune action active avant la revue de reprise.` : (stage === "blocked" ? "Une décision ou une ressource est requise. Ouvrir la fiche et traiter la prochaine action prioritaire." : "Ouvrir la fiche, vérifier la prochaine action et faire avancer le projet selon l’étape choisie."))
         });
-        toast(isDeferred ? `Projet reporté à ${deferredUntil}; son historique reste accessible.` : (stage === "completed" ? "Projet terminé et classé; son historique reste accessible." : "Étape du projet interne enregistrée."));
+        toast(requestedDeferred ? `Demande de report ${deferredUntil} enregistrée; confirmation écrite encore attendue.` : (isDeferred ? `Projet reporté à ${deferredUntil}; son historique reste accessible.` : (stage === "completed" ? "Projet terminé et classé; son historique reste accessible." : "Étape du projet interne enregistrée.")));
       })
       .catch((error) => toast(error.message, true))
       .finally(() => { button.disabled = false; });

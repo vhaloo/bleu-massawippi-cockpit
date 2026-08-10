@@ -93,3 +93,30 @@ Deux nouveaux commentaires de la direction ont été intégrés dans un worktree
 Le projet « Au bord du bleu » comprend désormais un aide-mémoire pour la rencontre du 10 août avec la direction générale de North Hatley. Le projet d’application « Massawippi en partage » distingue clairement l’inspiration LakePulse de l’usage scientifique des données et conditionne toute approche universitaire à un cadrage et à une capacité de suivi réels.
 
 La seconde synchronisation Firestore a produit 14 lectures estimées et aucun nouveau document. La suite complète réussit avec 494 contrôles de contenu et 100 contrôles qualité; l’inspection à 1440 × 900 et 390 × 844 ne montre ni débordement horizontal ni erreur navigateur. Point de retour : `05e246ded4e2a7a20cf2fae063d6e7675233c2ee`.
+
+## Cycle éditorial et coordination du 10 août 2026
+
+Point de départ Git : `74576bb33a88fc57c9bae04dd98bde3486bd8ade`. Une sauvegarde manuelle vérifiable a été créée avant mutation dans `Sauvegardes Cockpit/Outillage/20260810-170707-conversation-annie-precycle-manual`; le SHA-256 du bundle est `53B8F8F0F4C25B2955A58C518387061839491E6C43C61B0F2D101447881F813A`.
+
+Le cycle a intégré les faits confirmés de la discussion du 10 août sans exposer les éléments personnels ou sensibles :
+
+- le report 2027 du projet Lamproie demeure une demande à confirmer par écrit et ne supprime aucune obligation courante;
+- le projet d’application attend explicitement la version révisée d’Annie plutôt que de présenter la V1 comme finale;
+- « Au bord du bleu » indique 13 inscriptions au point de situation, la clôture des candidatures, l’absence de formule micro ouvert et la confirmation directe encore requise pour la participation de Denis;
+- le Guide de sécurité nautique 2026 est présenté comme une référence officielle, avec un langage qui ne lui attribue aucun pouvoir réglementaire à Bleu Massawippi;
+- les dossiers Lamproie et poésie ont reçu des cartes documentaires explicites plutôt que des liens isolés;
+- trois nouveautés ciblées pour la direction et sept événements du calendrier de projets sont préparés de façon idempotente.
+
+Les accès SharePoint ont été vérifiés et complétés sans envoi de courriel : `dg@bleumassawippi.com` et `communication@bleumassawippi.com` disposent d’un accès nommé en écriture au dossier Media Cockpit et aux dossiers de travail qui exigent une collaboration, ainsi que d’un accès nommé en lecture aux références connexes. Les anciens liens anonymes n’ont pas été révoqués durant ce cycle afin de ne pas casser des liens historiques du cockpit; leur éventuel retrait est consigné comme décision de migration distincte dans `TACHES_EXTERNES_VALENTIN.md`.
+
+Un test persistant des documents et ancres a été ajouté à la suite locale et à la validation GitHub Pages. Résultat : 139 références dans le contenu privé, 52 URL SharePoint, aucun fichier local absent, aucune ancre absente et aucune URL externe invalide. La suite non-émulateur réussit intégralement : 109 contrôles qualité réussis, aucun échec critique, 540 contrôles de contenu, 47 publications sur 47 jours sans trou ni doublon. Les règles Firestore totalisent 49 scénarios ou assertions réussis dans les émulateurs. Les parcours Direction et Communications ouvrent des cibles distinctes; les tests à 1536 × 900 et 390 × 844, en clair et en sombre, ne montrent aucun débordement horizontal.
+
+La coque PWA préparée porte la publication `20260810-b56` et le cache `v90`. Le second cycle éditorial ciblé en production a trouvé 20 rétroactions, toutes traitées, aucune tâche active et aucun nouveau commentaire à intégrer.
+
+Les simulations de synchronisation sont bornées et réussies : contenu privé de 544 693 octets, 15 avis avec un plafond de 17 lectures et 15 écritures, sept événements de projets avec un plafond de huit lectures et quatorze écritures.
+
+Avant l’écriture réelle, 11 documents précisément nommés ont été relus et sauvegardés dans `cockpit/sync-output/pre-sync-20260810-final`. Cette sauvegarde a produit 11 lectures, aucune écriture et aucune avancée de checkpoint; son `target-summary.json` porte le SHA-256 `D84AA9B58145A6DD24C455D0499040E6548C5CA99651D179139381395E28D357`. L’authentification a réutilisé temporairement la session locale Firebase CLI dans un fichier ADC aux permissions restreintes, supprimé automatiquement après chaque commande; aucune clé de compte de service n’a été créée ni conservée.
+
+La synchronisation de production a ensuite été exécutée en trois lots ciblés : deux écritures pour la nouvelle version du contenu privé, six créations d’avis avec neuf avis préservés, puis six écritures atomiques pour trois événements de projets modifiés, quatre autres restant inchangés. Aucun document n’a été supprimé et aucun état quotidien hors portée n’a été réécrit. La contre-lecture `cockpit/sync-output/post-sync-20260810-final` confirme les 11 cibles, le hash de contenu `3ac1349695d379facfe92b7fb5ec90c2a7121b8aea5cbf9da6b1e23815ee85dd`, 11 lectures et zéro écriture; son `target-summary.json` porte le SHA-256 `CCF6A74BFB1B5CE22D630A6F26555B37833AB2348E43227F4C7703FF2B8C7A4E`. Trois réexécutions de contrôle prouvent l’idempotence : contenu inchangé et zéro écriture, 15 avis préservés et zéro écriture, sept événements inchangés et zéro écriture.
+
+Retour arrière : restaurer d’abord le commit de départ `74576bb33a88fc57c9bae04dd98bde3486bd8ade` ou le bundle manuel indiqué plus haut pour le code; pour Firestore, réappliquer exclusivement les documents présents dans la sauvegarde ciblée pré-synchronisation après comparaison, sans scan global ni suppression.

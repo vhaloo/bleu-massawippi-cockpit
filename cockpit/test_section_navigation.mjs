@@ -10,7 +10,8 @@ assert.deepEqual(links.map((match) => match[1]), [
   "internal-project-lamproie-du-nord"
 ], "Les trois raccourcis du portefeuille doivent rester explicitement routés.");
 assert.ok(source.includes("Candidatures et financement"), "Le raccourci externe doit décrire sa destination humaine.");
-assert.ok(source.includes("Relance reportée · obligations contractuelles conservées"), "Le raccourci doit expliquer le report sans masquer les obligations contractuelles.");
+assert.ok(source.includes("Report demandé · confirmation écrite attendue"), "Le raccourci doit présenter le report comme une demande encore à confirmer.");
+assert.ok(source.includes("Obligations à préserver"), "La fiche ciblée doit continuer d’exposer les obligations contractuelles.");
 
 const { document, window } = parseHTML(`<!doctype html><body>
   <nav>

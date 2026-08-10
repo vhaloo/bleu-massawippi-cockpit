@@ -132,6 +132,39 @@
       "priorityKey": 24,
       "title": "Mise à jour — contexte média sur les moules zébrées",
       "message": "Les entrevues du 3 août, les messages factuels, les vérifications requises et les éléments à garder internes sont maintenant regroupés dans le projet."
+    },
+    {
+      "id": "strategic-guide-pratiques-aquatiques-2026-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "section",
+      "sourceId": "guide-pratiques-milieu-aquatique-2026",
+      "publishedOn": "2026-08-10",
+      "priorityKey": 35,
+      "title": "Nouveau — Guide officiel des bonnes pratiques aquatiques",
+      "message": "La référence 2026 du gouvernement du Québec est maintenant reliée dans la stratégie, avec son usage recommandé et sa limite non réglementaire. Vous pouvez simplement y jeter un coup d’œil."
+    },
+    {
+      "id": "internal-lamproie-report-requested-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "lamproie-du-nord",
+      "publishedOn": "2026-08-10",
+      "priorityKey": 36,
+      "title": "Mise à jour — Lamproie du Nord",
+      "message": "Le dossier distingue maintenant clairement la demande de report à 2027 de sa confirmation officielle, qui reste à classer."
+    },
+    {
+      "id": "internal-poetry-progress-20260810-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "poesie-du-lac",
+      "publishedOn": "2026-08-10",
+      "priorityKey": 37,
+      "title": "Mise à jour — Au bord du bleu passe en préparation finale",
+      "message": "Treize inscriptions étaient reçues au matin du 10 août. La fiche passe maintenant de l’appel public à la composition du programme et à la fermeture de la logistique."
     }
   ]
 }
