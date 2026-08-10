@@ -37,6 +37,7 @@ jobs:
           npm --prefix cockpit run seed -- --dry-run
           npm --prefix cockpit run test:contract
           npm --prefix cockpit run test:quality
+          npm --prefix cockpit run test:links
           ! grep -q 'var posts=' cockpit/index.html
           git diff --exit-code
           npm --prefix cockpit run check

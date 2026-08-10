@@ -657,9 +657,14 @@ assert.match(mainNav, /<a href="#context-collapsible">Stratégie<\/a>/,
 assert.doesNotMatch(mainNav, />Lire-moi<\/a>|>Collaboration<\/a>|>Cap<\/a>|>Cadence<\/a>|>Validation<\/a>|Participation photo/,
   "Le sommaire ne doit plus répéter les sous-sections du contexte stratégique ni isoler la participation photo.");
 const strategyToc = source.match(/<nav class="strategy-toc"[\s\S]*?<\/nav>/)?.[0] || "";
-for (const target of ["readme-collapsible", "strategic-document-plan", "collaboration", "governance-sharepoint-ca", "cap", "cadence", "validation"]) {
+for (const target of ["readme-collapsible", "strategic-document-plan", "collaboration", "governance-sharepoint-ca", "cap", "cadence", "guide-pratiques-milieu-aquatique-2026", "validation"]) {
   assert.match(strategyToc, new RegExp(`href="#${target}"`), `Le sommaire stratégique doit relier la section ${target}.`);
 }
+const aquaticGuide = source.match(/<article id="guide-pratiques-milieu-aquatique-2026"[\s\S]*?<\/article>/)?.[0] || "";
+assert.match(aquaticGuide, /Guide des bonnes pratiques en milieu aquatique/);
+assert.match(aquaticGuide, /outil de référence et non d’un texte réglementaire/);
+assert.match(aquaticGuide, /E5A1_A13_B66_2026\.pdf/);
+assert.match(aquaticGuide, /quebec\.ca\/agriculture-environnement-et-ressources-naturelles/);
 const sharepointGovernance = source.match(/<section id="governance-sharepoint-ca"[\s\S]*?<\/section>/)?.[0] || "";
 assert.match(sharepointGovernance, /Deux espaces SharePoint, une seule porte de sortie vers le CA/);
 assert.match(sharepointGovernance, /Obtenir deux validations explicites/);
@@ -706,7 +711,10 @@ assert.match(source, /Jeux provinciaux de pêche — événement terminé[\s\S]{
   "La fiche des Jeux provinciaux de pêche doit annoncer clairement sa clôture.");
 assert.match(internalProjectSeed, /"jeux-provinciaux-peche": "completed"/,
   "Le seed ne doit jamais recréer les Jeux provinciaux de pêche comme projet actif ou bloqué.");
-const applicationProject = source.match(/<details class="internal-project urgent" id="internal-project-application-carte-vivante-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
+const applicationProject = source.match(/<details class="internal-project" id="internal-project-application-carte-vivante-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
+assert.match(applicationProject, /data-waiting-source="annie-v2"/);
+assert.match(applicationProject, /BASE V1 CONSERVÉE · SOURCE RÉVISÉE ATTENDUE/);
+assert.match(applicationProject, /attendre la mouture et le budget révisés qu’Annie doit transmettre/);
 assert.match(applicationProject, /application-reference-lakepulse/);
 assert.match(applicationProject, /dernière date de prélèvement au 11 juillet 2017/,
   "L’observation transmise par la direction doit rester attribuée à la fiche consultée.");
@@ -774,11 +782,12 @@ assert.match(poetryProject, /aucune visibilité ne donne un droit de regard sur 
 assert.match(poetryProject, /ADDENDUM_VISUEL_PARTENAIRES_AU_BORD_DU_BLEU_V5\.md/);
 assert.match(poetryProject, /data-initial-stage="active" open/,
   "La fiche poésie en préparation avancée doit rester ouverte afin de rendre l’affiche immédiatement visible.");
-assert.match(poetryProject, /30 AOÛT · 13 H–16 H · PARC LÔBADANAKI PRÉVU/);
-assert.match(poetryProject, /Feu vert acquis et premier appui concret/i);
+assert.match(poetryProject, /30 AOÛT · 13 H–16 H · PRÉPARATION FINALE/);
+assert.match(poetryProject, /Treize inscriptions reçues au matin du 10 août/i);
+assert.match(poetryProject, /il n’y aura pas de micro ouvert ni d’inscription spontanée sur place/i);
 assert.match(poetryProject, /poesie-rencontre-north-hatley-2026-08-10/);
-assert.match(poetryProject, /Le 10 août, la direction rencontre la direction générale de North Hatley/,
-  "La date et l’interlocutrice de la rencontre doivent être visibles dans la prochaine action.");
+assert.match(poetryProject, /confirmer avec North Hatley la zone autorisée du parc Lôbadanaki/,
+  "La prochaine action doit passer de l’appel public à la fermeture logistique avec North Hatley.");
 for (const meetingTopic of ["Lieu et autorité", "Horaire et logistique", "Météo et décision", "Collaboration et visibilité"]) {
   assert.match(meetingBriefBuilder, new RegExp(meetingTopic), `Le PDF municipal doit couvrir : ${meetingTopic}.`);
 }
@@ -786,17 +795,19 @@ assert.doesNotMatch(poetryProject, /<details[^>]+id="poesie-rencontre-north-hatl
   "L’aide-mémoire ne doit plus occuper un long encart dans la fiche du projet.");
 assert.match(poetryProject, /Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10\.pdf/);
 assert.match(poetryProject, /Aide-mémoire — rencontre du 10 août/);
-assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 10,
-  "Les dix ressources du projet poésie doivent être présentées sous forme de cartes homogènes.");
-assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 10,
+assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 11,
+  "Les onze ressources du projet poésie doivent être présentées sous forme de cartes homogènes.");
+assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 11,
   "Chaque carte documentaire doit annoncer clairement son type.");
-assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 9,
+assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 10,
   "Chaque ressource spécialisée doit proposer un bouton d’ouverture explicite.");
+assert.match(poetryProject, /TEXTE_PARTENAIRES_MUNICIPALITES_AU_BORD_DU_BLEU_2026-08-10\.md/,
+  "Le texte de coordination avec les partenaires et municipalités doit être accessible depuis le projet poésie.");
 const meetingBriefPdf = path.join(root, "cockpit", "project-documents", "Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10.pdf");
 assert.ok(fs.existsSync(meetingBriefPdf), "Le PDF d’aide-mémoire doit être publié avec le cockpit.");
 assert.ok(fs.statSync(meetingBriefPdf).size > 50_000, "Le PDF d’aide-mémoire doit contenir sa mise en page et le logo.");
 assert.match(poetryProject, /https:\/\/forms\.office\.com\/r\/4A2xsMh7st/);
-assert.match(poetryProject, /Candidatures reçues/);
+assert.match(poetryProject, /13 inscriptions au matin du 10 août/);
 assert.match(poetryProject, /forms\.cloud\.microsoft\/Pages\/DesignPageV2\.aspx\?origin=NeoPortalPage&amp;subpage=design&amp;id=[^\"]+&amp;analysis=true/,
   "Le projet poésie doit donner accès aux réponses recueillies dans Microsoft Forms.");
 assert.match(poetryProject, /Voir les réponses ↗/);

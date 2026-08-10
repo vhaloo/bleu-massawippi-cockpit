@@ -93,3 +93,24 @@ Deux nouveaux commentaires de la direction ont été intégrés dans un worktree
 Le projet « Au bord du bleu » comprend désormais un aide-mémoire pour la rencontre du 10 août avec la direction générale de North Hatley. Le projet d’application « Massawippi en partage » distingue clairement l’inspiration LakePulse de l’usage scientifique des données et conditionne toute approche universitaire à un cadrage et à une capacité de suivi réels.
 
 La seconde synchronisation Firestore a produit 14 lectures estimées et aucun nouveau document. La suite complète réussit avec 494 contrôles de contenu et 100 contrôles qualité; l’inspection à 1440 × 900 et 390 × 844 ne montre ni débordement horizontal ni erreur navigateur. Point de retour : `05e246ded4e2a7a20cf2fae063d6e7675233c2ee`.
+
+## Cycle éditorial et coordination du 10 août 2026
+
+Point de départ Git : `74576bb33a88fc57c9bae04dd98bde3486bd8ade`. Une sauvegarde manuelle vérifiable a été créée avant mutation dans `Sauvegardes Cockpit/Outillage/20260810-170707-conversation-annie-precycle-manual`; le SHA-256 du bundle est `53B8F8F0F4C25B2955A58C518387061839491E6C43C61B0F2D101447881F813A`.
+
+Le cycle a intégré les faits confirmés de la discussion du 10 août sans exposer les éléments personnels ou sensibles :
+
+- le report 2027 du projet Lamproie demeure une demande à confirmer par écrit et ne supprime aucune obligation courante;
+- le projet d’application attend explicitement la version révisée d’Annie plutôt que de présenter la V1 comme finale;
+- « Au bord du bleu » indique 13 inscriptions au point de situation, la clôture des candidatures, l’absence de formule micro ouvert et la confirmation directe encore requise pour la participation de Denis;
+- le Guide de sécurité nautique 2026 est présenté comme une référence officielle, avec un langage qui ne lui attribue aucun pouvoir réglementaire à Bleu Massawippi;
+- les dossiers Lamproie et poésie ont reçu des cartes documentaires explicites plutôt que des liens isolés;
+- trois nouveautés ciblées pour la direction et sept événements du calendrier de projets sont préparés de façon idempotente.
+
+Les accès SharePoint ont été vérifiés et complétés sans envoi de courriel : `dg@bleumassawippi.com` et `communication@bleumassawippi.com` disposent d’un accès nommé en écriture au dossier Media Cockpit et aux dossiers de travail qui exigent une collaboration, ainsi que d’un accès nommé en lecture aux références connexes. Les anciens liens anonymes n’ont pas été révoqués durant ce cycle afin de ne pas casser des liens historiques du cockpit; leur éventuel retrait est consigné comme décision de migration distincte dans `TACHES_EXTERNES_VALENTIN.md`.
+
+Un test persistant des documents et ancres a été ajouté à la suite locale et à la validation GitHub Pages. Résultat : 139 références dans le contenu privé, 52 URL SharePoint, aucun fichier local absent, aucune ancre absente et aucune URL externe invalide. La suite non-émulateur réussit intégralement : 109 contrôles qualité réussis, aucun échec critique, 540 contrôles de contenu, 47 publications sur 47 jours sans trou ni doublon. Les règles Firestore totalisent 49 scénarios ou assertions réussis dans les émulateurs. Les parcours Direction et Communications ouvrent des cibles distinctes; les tests à 1536 × 900 et 390 × 844, en clair et en sombre, ne montrent aucun débordement horizontal.
+
+La coque PWA préparée porte la publication `20260810-b56` et le cache `v90`. Le second cycle éditorial ciblé en production a trouvé 20 rétroactions, toutes traitées, aucune tâche active et aucun nouveau commentaire à intégrer.
+
+Les simulations de synchronisation sont bornées et réussies : contenu privé de 544 693 octets, 15 avis avec un plafond de 17 lectures et 15 écritures, sept événements de projets avec un plafond de huit lectures et quatorze écritures. L’écriture réelle est volontairement suspendue tant qu’un compte de service Firebase privé existant n’est pas disponible localement; aucune nouvelle clé à haut privilège ne doit être créée silencieusement. Aucun déploiement ne doit être présenté comme complet avant la sauvegarde Firestore ciblée, la synchronisation unique et la preuve de production.
