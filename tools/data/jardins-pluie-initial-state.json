@@ -1,0 +1,7 @@
+{
+  "projectId": "jardins-pluie-2027",
+  "stage": "to_frame",
+  "updatedAt": { "$timestamp": "now" },
+  "updatedBy": "system_seed",
+  "updatedByLabel": "État initial documenté"
+}

@@ -21,8 +21,9 @@ assert.match(card, /31 mars 2027/);
 assert.match(card, /Suivi partenaires — 10 août 2026/);
 assert.match(card, /Lettre_partenaires_Lamproie_du_Nord_BROUILLON_2026-08-10\.docx/);
 assert.match(card, /REGISTRE_PARTENAIRES_LAMPROIE_2026-08-10\.md/);
-assert.equal((card.match(/class="internal-project-document-card"/g) || []).length, 9,
-  "Les neuf ressources Lamproie doivent être présentées sous forme de cartes documentaires homogènes.");
+assert.match(card, /LAMPROIE_DU_NORD_SUIVI_PARTENAIRES_2026-08-11\.md/);
+assert.equal((card.match(/class="internal-project-document-card"/g) || []).length, 10,
+  "Les dix ressources Lamproie doivent être présentées sous forme de cartes documentaires homogènes.");
 assert.match(page, /Report demandé · confirmation écrite attendue/);
 assert.match(seed, /"lamproie-du-nord": "planned"/);
 assert.match(ui, /status: stage === "completed" \|\| \(isDeferred && !requestedDeferred\) \? "done" : "pending"/);

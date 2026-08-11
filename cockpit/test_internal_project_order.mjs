@@ -22,9 +22,11 @@ assert.equal(renderedOrder[0], "poesie-du-lac", "Au bord du bleu doit être la p
 assert.equal(renderedOrder.at(-2), "lamproie-du-nord", "Lamproie du Nord doit rester presque au bas de la liste.");
 assert.equal(renderedOrder.at(-1), "jeux-provinciaux-peche", "Le dossier clos doit demeurer en dernière position.");
 assert.ok(renderedOrder.indexOf("bilan-sante-lac") < renderedOrder.indexOf("application-carte-vivante-lac"), "Le travail terrain actif doit précéder le cadrage sans échéance.");
+assert.ok(renderedOrder.indexOf("application-carte-vivante-lac") < renderedOrder.indexOf("jardins-pluie-2027"), "La maquette d’application déjà engagée doit précéder le nouveau cadrage Jardin de pluie.");
+assert.ok(renderedOrder.indexOf("jardins-pluie-2027") < renderedOrder.indexOf("surveillance-cyanobacteries"), "La proposition municipale V7 doit rester visible dans le premier groupe de travail.");
 assert.ok(renderedOrder.indexOf("concours-dessin-jeunesse") < renderedOrder.indexOf("lamproie-du-nord"), "Les deux dossiers 2027 doivent rester regroupés près du bas.");
 assert.ok(ui.indexOf("sortInternalProjectsByUrgency();") < ui.indexOf("decorateInternalProjectDocuments();"), "Le classement doit être appliqué avant les interactions des fiches.");
 assert.equal(document.querySelector(".project-portfolio-links a:nth-of-type(3)")?.getAttribute("href"), "#internal-project-poesie-du-lac", "Le raccourci prioritaire doit mener vers Au bord du bleu.");
-assert.equal(document.querySelector("[data-internal-project-register]")?.dataset.layoutVersion, "2026-07-25-urgency-order-v1", "Le changement d'ordre doit être signalé comme une nouveauté de mise en page.");
+assert.equal(document.querySelector("[data-internal-project-register]")?.dataset.layoutVersion, "2026-08-11-urgency-order-v2", "Le changement d'ordre doit être signalé comme une nouveauté de mise en page.");
 
 console.log("✓ projets internes classés par urgence, sans perte de fiche");

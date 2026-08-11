@@ -165,6 +165,39 @@
       "priorityKey": 37,
       "title": "Mise à jour — Au bord du bleu passe en préparation finale",
       "message": "Treize inscriptions étaient reçues au matin du 10 août. La fiche passe maintenant de l’appel public à la composition du programme et à la fermeture de la logistique."
+    },
+    {
+      "id": "internal-rain-garden-v7-20260811-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "jardins-pluie-2027",
+      "publishedOn": "2026-08-11",
+      "priorityKey": 31,
+      "title": "Nouveau — Jardins de pluie 2027",
+      "message": "La proposition V7 pour Ayer’s Cliff est maintenant classée avec ses deux phases, ses livrables et les décisions à confirmer avant tout engagement. Vous pouvez simplement y jeter un coup d’œil."
+    },
+    {
+      "id": "internal-application-working-layout-20260811-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "application-carte-vivante-lac",
+      "publishedOn": "2026-08-11",
+      "priorityKey": 32,
+      "title": "Mise à jour — Maquette de l’application classée",
+      "message": "La dernière mise en page retrouvée est accessible comme maquette de travail, sans remplacer la mouture et le budget révisés encore attendus."
+    },
+    {
+      "id": "internal-poetry-operations-20260811-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "poesie-du-lac",
+      "publishedOn": "2026-08-11",
+      "priorityKey": 30,
+      "title": "Mise à jour — Outils opérationnels Au bord du bleu",
+      "message": "Le registre à réconcilier, le conducteur logistique et les brouillons de messages aux artistes sont maintenant réunis dans le projet."
     }
   ]
 }
