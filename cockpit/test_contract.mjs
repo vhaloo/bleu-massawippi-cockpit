@@ -700,7 +700,7 @@ assert.ok(fs.existsSync(matchedDonationPreview), "L’aperçu WebP du nouveau vi
 assert.ok(fs.statSync(matchedDonationPreview).size < 150_000, "L’aperçu Zeffy doit rester léger sur mobile.");
 assert.doesNotMatch(posts.find((post) => post.id === "s4d7").copy, /bleumassawippi\.com\/quiz/,
   "Un sondage qui mentionne éventuellement un quiz ne doit pas être transformé en publication quiz.");
-assert.equal((source.match(/data-internal-project-id=/g) || []).length, 15, "Le registre privé doit contenir les quinze projets internes documentés.");
+assert.equal((source.match(/data-internal-project-id=/g) || []).length, 16, "Le registre privé doit contenir les seize projets internes documentés.");
 assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-07-23-lamproie-2027-v1"/);
 const internalProjectIds = [...source.matchAll(/data-internal-project-id="([a-z0-9-]+)"/g)].map((match) => match[1]).sort();
 const internalProjectSeedIds = [...internalProjectSeed.matchAll(/^  "([a-z0-9-]+)": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm)].map((match) => match[1]).sort();
@@ -795,14 +795,22 @@ assert.doesNotMatch(poetryProject, /<details[^>]+id="poesie-rencontre-north-hatl
   "L’aide-mémoire ne doit plus occuper un long encart dans la fiche du projet.");
 assert.match(poetryProject, /Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10\.pdf/);
 assert.match(poetryProject, /Aide-mémoire — rencontre du 10 août/);
-assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 11,
-  "Les onze ressources du projet poésie doivent être présentées sous forme de cartes homogènes.");
-assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 11,
+assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 14,
+  "Les quatorze ressources du projet poésie doivent être présentées sous forme de cartes homogènes.");
+assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 14,
   "Chaque carte documentaire doit annoncer clairement son type.");
-assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 10,
+assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 13,
   "Chaque ressource spécialisée doit proposer un bouton d’ouverture explicite.");
 assert.match(poetryProject, /TEXTE_PARTENAIRES_MUNICIPALITES_AU_BORD_DU_BLEU_2026-08-10\.md/,
   "Le texte de coordination avec les partenaires et municipalités doit être accessible depuis le projet poésie.");
+for (const operationalDocument of [
+  "AU_BORD_DU_BLEU_REGISTRE_CANDIDATURES_2026-08-11.md",
+  "AU_BORD_DU_BLEU_LOGISTIQUE_ET_CONDUCTEUR_2026-08-11.md",
+  "AU_BORD_DU_BLEU_MESSAGES_ARTISTES_BROUILLONS_2026-08-11.md"
+]) {
+  assert.match(poetryProject, new RegExp(operationalDocument.replaceAll(".", "\\.")),
+    `Le nouvel outil opérationnel ${operationalDocument} doit rester relié au projet poésie.`);
+}
 const meetingBriefPdf = path.join(root, "cockpit", "project-documents", "Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10.pdf");
 assert.ok(fs.existsSync(meetingBriefPdf), "Le PDF d’aide-mémoire doit être publié avec le cockpit.");
 assert.ok(fs.statSync(meetingBriefPdf).size > 50_000, "Le PDF d’aide-mémoire doit contenir sa mise en page et le logo.");
@@ -864,7 +872,7 @@ assert.match(pagesWorkflow, /cp -R cockpit\/assets public\/assets/,
 for (const stage of ["to_frame", "planned", "active", "blocked", "completed"]) {
   assert.ok(client.includes(`"${stage}"`) && firestoreRules.includes(`'${stage}'`) && internalProjectSeed.includes(`"${stage}"`), `L’étape interne ${stage} doit rester alignée entre client, règles et initialisation.`);
 }
-assert.equal((internalProjectSeed.match(/^  "[a-z0-9-]+": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm) || []).length, 15, "Le seed initial doit couvrir les quinze projets internes documentés.");
+assert.equal((internalProjectSeed.match(/^  "[a-z0-9-]+": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm) || []).length, 16, "Le seed initial doit couvrir les seize projets internes documentés.");
 assert.equal(internalProjectDocuments.documents.length, 14, "Les quatorze dossiers déjà publiés doivent rester raccordés à leur projet interne.");
 assert.equal(new Set(internalProjectDocuments.documents.map((item) => item.id)).size, 14, "Chaque dossier partageable doit viser un projet distinct.");
 assert.equal(internalProjectDocuments.redaction, "Valentin Wittwe, directeur des communications, Bleu Massawippi");
@@ -938,4 +946,4 @@ assert.match(privateContentSeed, /selectedPosts/,
 const mainPostCount = posts.filter((post) => !post.isAlternative).length;
 const postsPerDay = activePosts.reduce((counts, post) => counts.set(post.dateIso, (counts.get(post.dateIso) || 0) + 1), new Map());
 const pairedDayCount = [...postsPerDay.values()].filter((count) => count > 1).length;
-console.log(JSON.stringify({ passed: true, mainPosts: mainPostCount, totalPosts: posts.length, activePairedDays: pairedDayCount, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 15, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 540 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: mainPostCount, totalPosts: posts.length, activePairedDays: pairedDayCount, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 16, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 540 }, null, 2));

@@ -1,0 +1,18 @@
+{
+  "eventId": "s3d7",
+  "label": "Proposition documentaire · Cinq réflexes doux — le vrai lac",
+  "url": "https://bleumassawippi.sharepoint.com/:i:/g/IQBzQ8o6f9ABRqPV1DYr6Zh5AdgS8MwKZB_8nyQN0xUYkRM",
+  "previewUrl": "https://vhaloo.github.io/bleu-massawippi-cockpit/media-previews/2026-08-18/s3d7-cinq-reflexes-photo-reelle-DJI_0334-preview.webp",
+  "kind": "image",
+  "note": "Photographie interne authentique DJI_0334, conservée sans génération ni modification de scène. Le cadrage montre le lac et sa rive comme point commun aux cinq gestes décrits dans la légende. Ne pas présenter la date de prise de vue comme celle de la publication; crédit interne à confirmer avant diffusion.",
+  "rightsStatus": "unconfirmed",
+  "stage": "proposal",
+  "publicationBlocked": false,
+  "archived": false,
+  "selectedFinal": false,
+  "authorUid": "system-seed",
+  "authorLabel": "Photographie interne Bleu Massawippi",
+  "updatedBy": "system-seed",
+  "createdAt": { "$timestamp": "now" },
+  "updatedAt": { "$timestamp": "now" }
+}
