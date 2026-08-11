@@ -21,6 +21,7 @@ if (!config.tokens?.access_token || Number(config.tokens.expires_at || 0) < Date
 }
 const token = config.tokens.access_token;
 const base = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/${DATABASE}`;
+const documentRoot = `projects/${PROJECT_ID}/databases/${DATABASE}/documents`;
 
 function encode(value) {
   if (typeof value === "string") return { stringValue: value };
@@ -102,7 +103,7 @@ if (!APPLY || !create.length) process.exitCode = 0;
 else {
   const writes = create.map(({ actionId, item }) => ({
     update: {
-      name: `${base}/documents/actionItems/${actionId}`,
+      name: `${documentRoot}/actionItems/${actionId}`,
       fields: Object.fromEntries(Object.entries(item).map(([key, value]) => [key, encode(value)]))
     },
     updateTransforms: [
@@ -112,6 +113,6 @@ else {
     currentDocument: { exists: false }
   }));
   const result = await request(`${base}/documents:commit`, { method: "POST", body: JSON.stringify({ writes }) });
-  if (!result.ok) throw new Error(`Amorçage Firestore refusé (${result.status}).`);
+  if (!result.ok) throw new Error(`Amorçage Firestore refusé (${result.status}): ${JSON.stringify(result.body)}`);
   console.log(JSON.stringify({ applied: true, created: create.length, writes: writes.length, commitTime: result.body.commitTime }, null, 2));
 }
