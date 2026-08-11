@@ -8,7 +8,7 @@ const { document, window } = parseHTML(`<!doctype html><html lang="fr"><head></h
     <nav class="nav"><div class="wrap"><a href="#cap">Cap</a><a href="#projets">Projets</a><a href="#calendrier">Calendrier</a></div></nav>
     <section id="cap" hidden><details id="cap-details"><summary>Le cap</summary><p>Contexte.</p></details></section>
     <details id="context-collapsible"><summary>Stratégie</summary><article id="site-niveau-lac-rapport-2025"><h3>Niveau du lac et barrage — des repères utiles</h3></article></details>
-    <section id="projets"><details data-internal-project-id="project-one"><summary>Projet test</summary></details></section>
+    <section id="projets"><details id="projects-hub"><summary>Registre des projets</summary><details data-internal-project-id="project-one"><summary>Projet test</summary></details></details></section>
     <section id="calendrier">
       <input id="search" value=""><select id="week"><option value="all" selected>Toutes</option><option value="2">2</option></select>
       <select id="theme"><option value="all" selected>Tous</option><option value="Nature">Nature</option></select>
@@ -427,6 +427,7 @@ window.addEventListener("cockpit:content-notice-seen", (event) => { seenNotice =
 noticeControl.click();
 await wait(120);
 assert.equal(projectTarget.hasAttribute("open"), true, "La nouveauté doit ouvrir précisément le projet ciblé.");
+assert.equal(document.querySelector("#projects-hub").hasAttribute("open"), true, "Le registre parent doit aussi être révélé.");
 assert.equal(seenNotice?.actionItemId, "content-notice-project-one-v1", "La lecture ne doit être confirmée qu’après une visibilité réelle et bornée.");
 
 // La file flottante réutilise exactement les décisions déjà chargées. Elle
@@ -679,6 +680,16 @@ assert.equal(document.body.classList.contains("cockpit-view-complete"), true);
 assert.equal(document.querySelector("#cap").hidden, false);
 assert.equal(document.querySelector("#cap-details").hasAttribute("open"), true);
 assert.equal(document.querySelector("#cap").dataset.testFocused, "true");
+
+// Le calendrier des projets réutilise ce même routeur. Même si le registre et
+// la fiche sont tous deux repliés, « Ouvrir le projet » doit révéler exactement
+// la cible associée, sans dépendre d'un défilement vers un élément invisible.
+document.querySelector("#projects-hub").removeAttribute("open");
+projectTarget.removeAttribute("open");
+assert.equal(await viewMode.navigateToEntity({ type: "project", id: "project-one" }), true);
+assert.equal(document.querySelector("#projects-hub").hasAttribute("open"), true);
+assert.equal(projectTarget.hasAttribute("open"), true);
+assert.equal(projectTarget.dataset.testFocused, "true");
 
 // La décision « Niveau du lac » ouvre son encart dédié — et non le cadre
 // générique du mandat — avec le même parcours en vue mobile.

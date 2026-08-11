@@ -2,7 +2,7 @@ import {
   addProjectEventProposal,
   subscribeProjectCalendarEvents,
   subscribeProjectEventProposals
-} from "./firebase-client.js?v=20260811-b58";
+} from "./firebase-client.js?v=20260811-b59";
 import {
   PROJECT_EVENT_CATEGORIES,
   PROJECT_EVENT_STAGES,
@@ -14,7 +14,8 @@ import {
   monthGridDates,
   normalizeProjectEventProposal,
   projectEventIcs
-} from "./project-calendar-model.mjs?v=20260811-b58";
+} from "./project-calendar-model.mjs?v=20260811-b59";
+import { navigateToEntity } from "./view-mode.js?v=20260811-b59";
 
 const calendarState = {
   profile: null,
@@ -207,7 +208,25 @@ function renderProposals() {
   }).join("");
 }
 
-function handleEventAction(event) {
+export async function openRelatedProject(control) {
+  const projectId = String(control?.dataset.openRelatedProject || "").trim();
+  if (!projectId || control.dataset.opening === "true") return false;
+  const originalLabel = control.textContent;
+  control.dataset.opening = "true";
+  control.disabled = true;
+  control.setAttribute("aria-busy", "true");
+  control.textContent = "Ouverture…";
+  try {
+    return await navigateToEntity({ type: "project", id: projectId });
+  } finally {
+    control.disabled = false;
+    control.removeAttribute("aria-busy");
+    delete control.dataset.opening;
+    control.textContent = originalLabel;
+  }
+}
+
+async function handleEventAction(event) {
   const openEvent = event.target.closest("[data-calendar-event-open]");
   if (openEvent) {
     const card = document.querySelector(`#project-calendar-event-${CSS.escape(openEvent.dataset.calendarEventOpen)}`);
@@ -216,8 +235,8 @@ function handleEventAction(event) {
   }
   const relatedProject = event.target.closest("[data-open-related-project]");
   if (relatedProject) {
-    const project = document.querySelector(`[data-internal-project-id="${CSS.escape(relatedProject.dataset.openRelatedProject)}"]`);
-    if (project) { project.open = true; project.scrollIntoView({ behavior: "smooth", block: "start" }); }
+    event.preventDefault();
+    await openRelatedProject(relatedProject);
     return;
   }
   const download = event.target.closest("[data-download-project-event]");
@@ -287,7 +306,7 @@ function bindEvents() {
     if (event.target.closest("[data-calendar-previous]")) { calendarState.month.setMonth(calendarState.month.getMonth() - 1); renderMonth(); return; }
     if (event.target.closest("[data-calendar-next]")) { calendarState.month.setMonth(calendarState.month.getMonth() + 1); renderMonth(); return; }
     if (event.target.closest("[data-calendar-today]")) { const today = new Date(); calendarState.month = new Date(today.getFullYear(), today.getMonth(), 1); renderMonth(); return; }
-    handleEventAction(event);
+    void handleEventAction(event);
   });
   document.querySelector("#project-event-dialog")?.addEventListener("click", (event) => {
     if (event.target.closest("[data-close-project-event-form]")) return closeDialog();
