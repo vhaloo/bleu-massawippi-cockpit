@@ -767,7 +767,9 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['publicationBlocked', 'rightsConfirmed', 'rightsConfirmedAt', 'rightsConfirmedBy', 'rightsConfirmedByLabel', 'updatedAt', 'updatedBy'])
         && resource.data.archived == false
         && resource.data.rightsStatus is string
-        && resource.data.publicationBlocked == true
+        // Certains médias historiques suivaient déjà les droits sans porter le
+        // blocage de publication. Leur confirmation doit rester possible sans
+        // élargir les champs modifiables ni les rôles autorisés.
         && request.resource.data.rightsConfirmed == true
         && request.resource.data.publicationBlocked == false
         && request.resource.data.rightsConfirmedAt is timestamp

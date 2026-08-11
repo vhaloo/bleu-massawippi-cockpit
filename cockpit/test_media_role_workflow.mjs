@@ -137,8 +137,10 @@ assert.doesNotMatch(rules, /request\.resource\.data\.direction\.status != 'selec
 assert.match(rules, /publicationBlocked[\s\S]*?== false/);
 assert.match(rules, /rightsConfirmedAt[\s\S]*rightsConfirmedBy[\s\S]*rightsConfirmedByLabel/,
   "Les règles doivent exiger une trace structurée de la confirmation des droits.");
-assert.match(rules, /resource\.data\.rightsStatus is string[\s\S]{0,120}resource\.data\.publicationBlocked == true/,
-  "Le contrôle de droits doit rester limité aux médias suivis pour leurs droits et encore bloqués.");
+assert.match(rules, /resource\.data\.rightsStatus is string[\s\S]{0,360}request\.resource\.data\.rightsConfirmed == true[\s\S]{0,120}request\.resource\.data\.publicationBlocked == false/,
+  "Le contrôle de droits doit confirmer un média suivi et lever explicitement son blocage.");
+assert.doesNotMatch(rules, /resource\.data\.rightsStatus is string[\s\S]{0,160}resource\.data\.publicationBlocked == true/,
+  "Un média historique déjà non bloqué doit aussi pouvoir recevoir sa confirmation structurée.");
 assert.match(rules, /side\.mediaIds\.size\(\) <= 2/,
   "Les règles doivent borner le carrousel à deux médias.");
 assert.match(rules, /side\.mediaIds\.size\(\) < 2 \|\| validSelectableMedia\(eventId, side\.mediaIds\[1\]\)/,
