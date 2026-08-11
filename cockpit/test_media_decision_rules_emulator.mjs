@@ -12,10 +12,12 @@ const environment = await initializeTestEnvironment({ projectId, firestore: { ho
 const ids = {
   admin: "valentin-media-rules",
   director: "annie-media-rules",
+  viewer: "viewer-media-rules",
   event: "alt-20260801",
   historical: "history-alt-20260801-aerial",
   current: "history-alt-20260801-aerial-current-2024",
   blocked: "history-alt-20260801-blocked",
+  unblockedRights: "history-alt-20260801-unblocked-rights",
   foreign: "history-foreign-event",
   legacyEvent: "barbotte-20260730-signalement",
   legacyMedia: "editorial-barbotte-20260806-tumeurs-usgs-v3",
@@ -75,11 +77,13 @@ try {
     const db = context.firestore();
     await setDoc(doc(db, "users", ids.admin), { role: "admin", active: true, displayLabel: "Valentin" });
     await setDoc(doc(db, "users", ids.director), { role: "director", active: true, displayLabel: "Annie" });
+    await setDoc(doc(db, "users", ids.viewer), { role: "viewer", active: true, displayLabel: "Lecture seule" });
     await setDoc(doc(db, "workflowStates", ids.event), workflow(ids.admin, "Valentin", "content_approved"));
     await setDoc(doc(db, "mediaLinks", ids.historical), media());
     await setDoc(doc(db, "mediaLinks", ids.current), media());
     await setDoc(doc(db, "mediaLinks", ids.blocked), media(ids.event, false, true));
     await setDoc(doc(db, "mediaLinks", `${ids.blocked}-rights`), uncertainMedia());
+    await setDoc(doc(db, "mediaLinks", ids.unblockedRights), { ...uncertainMedia(), publicationBlocked: false });
     await setDoc(doc(db, "mediaLinks", ids.foreign), media("other-event"));
     await setDoc(doc(db, "workflowStates", ids.legacyEvent), {
       eventId: ids.legacyEvent,
@@ -109,6 +113,7 @@ try {
 
   const adminDb = environment.authenticatedContext(ids.admin).firestore();
   const directorDb = environment.authenticatedContext(ids.director).firestore();
+  const viewerDb = environment.authenticatedContext(ids.viewer).firestore();
   const pair = [ids.historical, ids.current].sort();
 
   const rightsBatch = writeBatch(directorDb);
@@ -152,6 +157,46 @@ try {
     rightsConfirmedByLabel: "Annie",
     updatedAt: now(),
     updatedBy: ids.director
+  }));
+
+  const adminRightsBatch = writeBatch(adminDb);
+  adminRightsBatch.update(doc(adminDb, "mediaLinks", ids.unblockedRights), {
+    publicationBlocked: false,
+    rightsConfirmed: true,
+    rightsConfirmedAt: now(),
+    rightsConfirmedBy: ids.admin,
+    rightsConfirmedByLabel: "Valentin",
+    updatedAt: now(),
+    updatedBy: ids.admin
+  });
+  adminRightsBatch.set(doc(adminDb, "changeArchive", "rights-confirmation-admin-unblocked-test"), {
+    entityType: "mediaLink",
+    entityId: ids.unblockedRights,
+    action: "droits de diffusion confirmés",
+    before: { rightsConfirmed: false, publicationBlocked: false },
+    after: { rightsConfirmed: true, publicationBlocked: false },
+    actorUid: ids.admin,
+    actorLabel: "Valentin",
+    createdAt: now()
+  });
+  await check("les communications confirment un média historique déjà non bloqué", adminRightsBatch.commit());
+  await check("un rôle en lecture seule ne peut pas remettre les droits en attente", updateDoc(doc(viewerDb, "mediaLinks", ids.unblockedRights), {
+    publicationBlocked: true,
+    rightsConfirmed: false,
+    rightsConfirmedAt: null,
+    rightsConfirmedBy: "",
+    rightsConfirmedByLabel: "",
+    updatedAt: now(),
+    updatedBy: ids.viewer
+  }), false);
+  await check("les communications peuvent remettre leurs droits en attente", updateDoc(doc(adminDb, "mediaLinks", ids.unblockedRights), {
+    publicationBlocked: true,
+    rightsConfirmed: false,
+    rightsConfirmedAt: null,
+    rightsConfirmedBy: "",
+    rightsConfirmedByLabel: "",
+    updatedAt: now(),
+    updatedBy: ids.admin
   }));
 
   await check("la direction choisit les deux cartes du carrousel", setDoc(doc(directorDb, "mediaDecisions", ids.event), pendingDecision(pair)));
