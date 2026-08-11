@@ -509,7 +509,7 @@ service cloud.firestore {
 
     function validMediaLink(data) {
       return data.keys().hasAll(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy'])
-        && data.keys().hasOnly(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy', 'selectedFinal', 'approvedAt', 'approvedBy', 'approvedByLabel', 'publicationBlocked', 'altText', 'rightsStatus', 'previewUrl'])
+        && data.keys().hasOnly(['eventId', 'label', 'url', 'kind', 'stage', 'note', 'archived', 'authorUid', 'authorLabel', 'createdAt', 'updatedAt', 'updatedBy', 'selectedFinal', 'approvedAt', 'approvedBy', 'approvedByLabel', 'publicationBlocked', 'altText', 'rightsStatus', 'previewUrl', 'rightsConfirmed', 'rightsConfirmedAt', 'rightsConfirmedBy', 'rightsConfirmedByLabel'])
         && data.eventId is string && data.eventId.size() >= 3 && data.eventId.size() <= 80
         && data.label is string && data.label.size() > 0 && data.label.size() <= 180
         && data.url is string && data.url.size() > 8 && data.url.size() <= 2048
@@ -524,6 +524,15 @@ service cloud.firestore {
         && (!('publicationBlocked' in data) || data.publicationBlocked is bool)
         && (!('altText' in data) || (data.altText is string && data.altText.size() <= 1000))
         && (!('rightsStatus' in data) || (data.rightsStatus is string && data.rightsStatus.size() <= 120))
+        && (!('rightsConfirmed' in data) || data.rightsConfirmed is bool)
+        && (!('rightsConfirmedAt' in data) || data.rightsConfirmedAt == null || data.rightsConfirmedAt is timestamp)
+        && (!('rightsConfirmedBy' in data) || (data.rightsConfirmedBy is string && data.rightsConfirmedBy.size() <= 128))
+        && (!('rightsConfirmedByLabel' in data) || (data.rightsConfirmedByLabel is string && data.rightsConfirmedByLabel.size() <= 120))
+        && (!('rightsConfirmed' in data) || data.rightsConfirmed == false
+          || (('rightsConfirmedAt' in data) && data.rightsConfirmedAt is timestamp
+            && ('rightsConfirmedBy' in data) && data.rightsConfirmedBy.size() > 0
+            && ('rightsConfirmedByLabel' in data) && data.rightsConfirmedByLabel.size() > 0
+            && data.publicationBlocked == false))
         && (!('previewUrl' in data) || (data.previewUrl is string && data.previewUrl.size() > 8 && data.previewUrl.size() <= 2048))
         && (!('approvedBy' in data) || data.approvedBy is string)
         && (!('approvedByLabel' in data) || data.approvedByLabel is string)
@@ -754,6 +763,35 @@ service cloud.firestore {
               || (resource.data.archived == false
                 && (!('publicationBlocked' in resource.data) || resource.data.publicationBlocked == false)))))
         && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if isEditor()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['publicationBlocked', 'rightsConfirmed', 'rightsConfirmedAt', 'rightsConfirmedBy', 'rightsConfirmedByLabel', 'updatedAt', 'updatedBy'])
+        && resource.data.archived == false
+        && resource.data.rightsStatus is string
+        && resource.data.publicationBlocked == true
+        && request.resource.data.rightsConfirmed == true
+        && request.resource.data.publicationBlocked == false
+        && request.resource.data.rightsConfirmedAt is timestamp
+        && request.resource.data.rightsConfirmedBy == request.auth.uid
+        && request.resource.data.rightsConfirmedByLabel is string
+        && request.resource.data.rightsConfirmedByLabel.size() > 0
+        && request.resource.data.updatedAt is timestamp
+        && request.resource.data.updatedBy == request.auth.uid;
+      allow update: if isEditor()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['publicationBlocked', 'rightsConfirmed', 'rightsConfirmedAt', 'rightsConfirmedBy', 'rightsConfirmedByLabel', 'updatedAt', 'updatedBy'])
+        && resource.data.archived == false
+        && resource.data.rightsConfirmed == true
+        && request.resource.data.rightsConfirmed == false
+        && request.resource.data.publicationBlocked == true
+        && request.resource.data.rightsConfirmedAt == null
+        && request.resource.data.rightsConfirmedBy == ''
+        && request.resource.data.rightsConfirmedByLabel == ''
+        && request.resource.data.updatedAt is timestamp
+        && request.resource.data.updatedBy == request.auth.uid
+        && (!exists(/databases/$(database)/documents/mediaDecisions/$(resource.data.eventId))
+          || (!(mediaId in get(/databases/$(database)/documents/mediaDecisions/$(resource.data.eventId)).data.communications.mediaIds)
+            && !(mediaId in get(/databases/$(database)/documents/mediaDecisions/$(resource.data.eventId)).data.direction.mediaIds)
+            && !(mediaId in get(/databases/$(database)/documents/mediaDecisions/$(resource.data.eventId)).data.override.mediaIds)
+            && !(mediaId in get(/databases/$(database)/documents/mediaDecisions/$(resource.data.eventId)).data.agreement.mediaIds)));
       allow delete: if false;
     }
 

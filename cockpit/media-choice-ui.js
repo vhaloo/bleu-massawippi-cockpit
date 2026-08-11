@@ -38,6 +38,16 @@ export function mediaAgreementPresentation(choice) {
   return { info: "✓ Décision finale par override", badge: `✓ Décision finale par ${actor}${actor === "override motivé" ? "" : " · motif consigné"}` };
 }
 
+export function mediaRightsNeedsConfirmation(row) {
+  if (!row || row.archived === true) return false;
+  if (Object.prototype.hasOwnProperty.call(row, "rightsConfirmed")) return true;
+  const status = String(row.rightsStatus || "").toLocaleLowerCase("fr-CA");
+  return status.includes("à confirmer")
+    || status.includes("a confirmer")
+    || status.includes("unconfirmed")
+    || status.includes("incertain");
+}
+
 export function synchronizeMediaInfoPanels(gallery) {
   const panels = [...gallery.querySelectorAll("details.cockpit-media-info")];
   let synchronizing = false;
