@@ -12,8 +12,8 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./assets/brand/cockpit-bleu-massawippi-icon-192.png">
-  <link rel="stylesheet" href="./clarity.css?v=20260811-b59">
-  <link rel="stylesheet" href="./project-calendar.css?v=20260811-b59">
+  <link rel="stylesheet" href="./clarity.css?v=20260811-b60">
+  <link rel="stylesheet" href="./project-calendar.css?v=20260811-b60">
   <title>Cockpit Communication Bleu Massawippi</title>
 </head>
 <body>
@@ -21,10 +21,10 @@
   <main id="cockpit-content" tabindex="-1"></main>
   <div id="cockpit-announcer" class="cockpit-visually-hidden" aria-live="polite" aria-atomic="true"></div>
   <noscript>Ce cockpit nécessite JavaScript pour ouvrir une session sécurisée.</noscript>
-  <script src="./firebase-config.js?v=20260811-b59"></script>
+  <script src="./firebase-config.js?v=20260811-b60"></script>
   <script>
     (() => {
-      const release = "20260811-b59";
+      const release = "20260811-b60";
       const releaseRank = (value) => {
         const match = /^(\d{8})-b(\d+)$/.exec(String(value || ""));
         return match ? [Number(match[1]), Number(match[2])] : null;
@@ -90,9 +90,9 @@
       });
     })();
   </script>
-  <script type="module" src="./theme.js?v=20260811-b59"></script>
-  <script type="module" src="./motion.js?v=20260811-b59"></script>
-  <script type="module" src="./cockpit-ui.js?v=20260811-b59"></script>
-  <script type="module" src="./view-mode.js?v=20260811-b59"></script>
+  <script type="module" src="./theme.js?v=20260811-b60"></script>
+  <script type="module" src="./motion.js?v=20260811-b60"></script>
+  <script type="module" src="./cockpit-ui.js?v=20260811-b60"></script>
+  <script type="module" src="./view-mode.js?v=20260811-b60"></script>
 </body>
 </html>

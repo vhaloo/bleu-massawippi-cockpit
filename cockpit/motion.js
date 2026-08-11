@@ -163,6 +163,9 @@ style.textContent = `
     #cockpit-motion-toggle { left:8px; bottom:62px; width:40px; height:40px; }
     #cockpit-install-launch { right:8px; bottom:62px; max-width:calc(100vw - 16px); }
   }
+  @media (max-height:800px) and (min-width:701px) {
+    #cockpit-install-launch { display:none; }
+  }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior:auto !important; animation:none !important; transition-duration:.01ms !important; transition-delay:0ms !important; }
   }
