@@ -2,7 +2,7 @@ import {
   addProjectEventProposal,
   subscribeProjectCalendarEvents,
   subscribeProjectEventProposals
-} from "./firebase-client.js?v=20260811-b59";
+} from "./firebase-client.js?v=20260811-b60";
 import {
   PROJECT_EVENT_CATEGORIES,
   PROJECT_EVENT_STAGES,
@@ -14,8 +14,8 @@ import {
   monthGridDates,
   normalizeProjectEventProposal,
   projectEventIcs
-} from "./project-calendar-model.mjs?v=20260811-b59";
-import { navigateToEntity } from "./view-mode.js?v=20260811-b59";
+} from "./project-calendar-model.mjs?v=20260811-b60";
+import { navigateToEntity } from "./view-mode.js?v=20260811-b60";
 
 const calendarState = {
   profile: null,
@@ -172,6 +172,7 @@ function renderMonth() {
   } else {
     agenda.innerHTML = monthEvents.map((event) => eventCardMarkup(event)).join("");
   }
+  bindRelatedProjectButtons(agenda);
   const activeEvents = calendarState.events.filter((event) => !["completed", "cancelled"].includes(event.stage) && event.endDate >= today).length;
   panel.querySelector("[data-project-event-count]").textContent = `${activeEvents} événement${activeEvents === 1 ? "" : "s"} à venir`;
 }
@@ -224,6 +225,24 @@ export async function openRelatedProject(control) {
     delete control.dataset.opening;
     control.textContent = originalLabel;
   }
+}
+
+/**
+ * Lie chaque commande au moment où l'agenda est rendu. Le gestionnaire
+ * délégué du panneau reste le filet de sécurité pour les autres actions, mais
+ * ce lien direct garantit que « Ouvrir le projet » demeure fonctionnel même
+ * si un rerendu du cockpit a remplacé le panneau après sa liaison initiale.
+ */
+export function bindRelatedProjectButtons(root = shell()) {
+  root?.querySelectorAll?.("[data-open-related-project]").forEach((control) => {
+    if (control.dataset.projectNavigationBound === "true") return;
+    control.dataset.projectNavigationBound = "true";
+    control.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      void openRelatedProject(control);
+    });
+  });
 }
 
 async function handleEventAction(event) {

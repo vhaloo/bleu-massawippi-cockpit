@@ -41,11 +41,15 @@
     const role = new URLSearchParams(location.search).get("role") === "director" ? "director" : "admin";
     document.querySelector("#cockpit-session").dataset.uid = role === "director" ? "annie" : "valentin";
     document.querySelector("#cockpit-session-label").textContent = `Connecté · rôle ${role}`;
-    const { openRelatedProject } = await import("../project-calendar.js?v=20260811-b59");
+    const { bindRelatedProjectButtons } = await import("../project-calendar.js?v=20260811-b60-directbind");
     const button = document.querySelector("[data-open-related-project]");
-    button.addEventListener("click", async () => {
-      const opened = await openRelatedProject(button);
-      document.querySelector("#qa-status").textContent = opened ? "Réussi : la fiche associée est ouverte et ciblée." : "Échec : la fiche n’a pas été ouverte.";
+    bindRelatedProjectButtons(document.querySelector("#project-calendar"));
+    button.addEventListener("click", () => {
+      window.setTimeout(() => {
+        const target = document.querySelector('[data-internal-project-id="poesie-du-lac"]');
+        const opened = target.open && target.classList.contains("vm-target-focus");
+        document.querySelector("#qa-status").textContent = opened ? "Réussi : la fiche associée est ouverte et ciblée." : "Échec : la fiche n’a pas été ouverte.";
+      }, 80);
     });
   </script>
 </body>
