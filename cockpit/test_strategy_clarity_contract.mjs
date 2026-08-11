@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { parseHTML } from "linkedom";
+import { positionStrategyContextAtBottom } from "./content-layout.js";
 
 const strategy = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const projectDecisions = JSON.parse(fs.readFileSync(new URL("./project_decisions.json", import.meta.url), "utf8"));
@@ -51,6 +53,13 @@ assert.ok(!strategy.includes("publications principales<br>séquence de lancement
 assert.ok(!strategy.includes("brand-lake") && !strategy.includes("data-brand-logo-target") && !strategy.includes("Le lac au centre."),
   "L’ancien mélange entre le logo et la forme de lac ne doit pas réapparaître.");
 assert.ok(!cockpitUi.includes("installBrandLogo"), "Le logo produit local ne doit plus dépendre d’un téléchargement dynamique OneDrive.");
+
+const { document: layoutDocument } = parseHTML(`<!doctype html><body><main id="cockpit-content"><div data-cockpit-private-root><details id="context-collapsible"></details><section id="projets"></section><section id="sources"></section></div></main></body>`);
+positionStrategyContextAtBottom(layoutDocument);
+const privateRoot = layoutDocument.querySelector("[data-cockpit-private-root]");
+assert.equal(privateRoot.lastElementChild?.id, "context-collapsible", "La stratégie doit devenir la dernière section du contenu privé.");
+assert.deepEqual([...privateRoot.children].map((node) => node.id), ["projets", "sources", "context-collapsible"], "Le déplacement ne doit modifier l’ordre d’aucune autre section.");
+assert.match(cockpitUi, /host\.innerHTML = content\.html;\s*positionStrategyContextAtBottom\(\);/, "Le repositionnement doit avoir lieu immédiatement après le chargement du contenu privé.");
 
 assert.equal((strategy.match(/class="strategy-toc-links"[\s\S]*?<\/nav>/)?.[0].match(/<a /g) || []).length, 9,
   "Le sommaire stratégique doit offrir exactement neuf repères stables, dont le guide aquatique officiel.");
