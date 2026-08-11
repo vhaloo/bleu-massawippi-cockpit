@@ -21,6 +21,7 @@ import {
   addMediaLink,
   archiveMediaLink,
   setMediaDecision,
+  setMediaRightsConfirmation,
   subscribeMediaDecisions,
   subscribeMediaLinks,
   subscribeComments,
@@ -35,22 +36,22 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260810-b56";
-import { createEventContextController } from "./event-context-data.js?v=20260810-b56";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260810-b56";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260810-b56";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260810-b56";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260810-b56";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260810-b56";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260810-b56";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260810-b56";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260810-b56";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260810-b56";
-import { setupControlHints } from "./control-hints.js?v=20260810-b56";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260810-b56";
-import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260810-b56";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260810-b56";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260810-b56";
+} from "./firebase-client.js?v=20260810-b57";
+import { createEventContextController } from "./event-context-data.js?v=20260810-b57";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260810-b57";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260810-b57";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260810-b57";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260810-b57";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260810-b57";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260810-b57";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260810-b57";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260810-b57";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260810-b57";
+import { setupControlHints } from "./control-hints.js?v=20260810-b57";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260810-b57";
+import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260810-b57";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260810-b57";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260810-b57";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -1896,6 +1897,8 @@ function renderMediaForCard(card) {
     const choice = buildMediaChoiceModel(state.mediaDecisions.has(card.dataset.itemId), state.mediaDecisions.get(card.dataset.itemId) || null, row, latestDecision);
     const isFinal = choice.finalSelected;
     const isBlocked = row.publicationBlocked === true;
+    const rightsNeedConfirmation = mediaRightsNeedsConfirmation(row);
+    const rightsConfirmed = row.rightsConfirmed === true;
     const workflowStage = state.workflows.get(card.dataset.itemId)?.stage || "proposal";
     const textApproved = workflowTextApprovedStages.has(workflowStage);
     const role = state.profile?.role;
@@ -1928,8 +1931,9 @@ function renderMediaForCard(card) {
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
       ${["director","admin"].includes(role) && !isBlocked ? `<button type="button" class="cockpit-media-image-choice${imageChoiceClass}" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}" aria-label="${esc(imageChoiceLabel)} — ${esc(row.label || "média")}">${esc(imageChoiceLabel)}</button>` : isBlocked ? `<span class="cockpit-media-image-status">Référence seulement</span>` : ""}
       <details class="cockpit-media-info" open><summary><span>Informations et actions</span><small class="cockpit-media-info-status ${isFinal ? "is-final" : ""}">${infoStatus}</small></summary><div class="cockpit-media-info-body">
-        ${row.rightsStatus === "unconfirmed" ? `<span class="cockpit-media-rights-warning">⚠ Droits à confirmer — référence interne seulement</span>` : ""}
-        ${isBlocked ? `<span class="cockpit-media-blocked">Référence conservée pour comparaison — ne pas choisir pour diffusion.</span>` : ""}
+        ${rightsNeedConfirmation && ["director","admin"].includes(role) ? `<label class="cockpit-media-rights-control${rightsConfirmed ? " is-confirmed" : ""}"><input type="checkbox" data-media-rights-confirmation="${esc(row.id)}"${rightsConfirmed ? " checked" : ""}><span><b>${rightsConfirmed ? "✓ Droits confirmés" : "Droits de diffusion à confirmer"}</b><small>${rightsConfirmed ? `Confirmés par ${esc(row.rightsConfirmedByLabel || "un membre de l’équipe")}. Décochez pour remettre ce point en attente.` : "Cochez seulement après avoir vérifié la source, le crédit et les autorisations nécessaires."}</small></span></label>` : ""}
+        ${isBlocked && rightsNeedConfirmation ? `<span class="cockpit-media-rights-warning">⚠ Ce média reste une référence interne tant que les droits ne sont pas confirmés.</span>` : ""}
+        ${isBlocked && !rightsNeedConfirmation ? `<span class="cockpit-media-blocked">Référence conservée pour comparaison — ne pas choisir pour diffusion.</span>` : ""}
         <div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span><br><a class="cockpit-media-source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Ouvrir l’original dans OneDrive ↗</a></div>
         ${roleBadges ? `<div class="cockpit-media-role-badges">${roleBadges}</div>` : ""}
         ${["director","admin"].includes(role) ? `<button type="button" class="cockpit-media-final-action" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}"${choiceDisabled ? " disabled" : ""}>${isBlocked ? "Référence non diffusable" : chooseLabel}</button>${canOverride ? `<button type="button" class="cockpit-media-override-action" data-media-override="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">${role === "admin" && !textApproved ? "Valider le texte et retenir ce visuel…" : "Retenir comme décision finale…"}</button>` : ""}<div class="cockpit-media-comment" data-voice-container><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire sur ce média" title="Dicter un commentaire sur ce média">🎙️</button><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div></div>` : ""}
@@ -2714,6 +2718,21 @@ function enhanceCardEvents() {
       archiveMediaLink(archiveButton.dataset.archiveMedia, state.profile)
         .then(() => toast("Lien média archivé."))
         .catch((error) => toast(error.message, true));
+      return;
+    }
+    const mediaRightsInput = event.target.closest("input[data-media-rights-confirmation]");
+    if (mediaRightsInput) {
+      event.preventDefault();
+      event.stopPropagation();
+      const confirmed = mediaRightsInput.checked;
+      mediaRightsInput.disabled = true;
+      setMediaRightsConfirmation(mediaRightsInput.dataset.mediaRightsConfirmation, confirmed, state.profile)
+        .then(() => toast(confirmed ? "Droits de diffusion confirmés; le média peut maintenant être choisi." : "Droits remis en attente; le média redevient une référence interne."))
+        .catch((error) => {
+          mediaRightsInput.checked = !confirmed;
+          toast(error.message, true);
+        })
+        .finally(() => { mediaRightsInput.disabled = false; });
       return;
     }
     const mediaDecisionButton = event.target.closest("button[data-media-decision]");

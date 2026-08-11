@@ -85,6 +85,18 @@ assert.match(ui, /Validé par override motivé/);
 assert.doesNotMatch(ui, /Validé avec aval/,
   "Le libellé générique ne doit pas inventer un aval externe non structuré.");
 assert.match(ui, /cockpit-media-image-choice/, "Le choix média doit aussi être accessible directement sur l’image.");
+assert.match(mediaUi, /export function mediaRightsNeedsConfirmation/,
+  "La visibilité du contrôle de droits doit reposer sur un modèle testable.");
+assert.match(mediaUi, /hasOwnProperty\.call\(row, "rightsConfirmed"\)/,
+  "Un média déjà confirmé doit garder un contrôle réversible.");
+assert.match(ui, /data-media-rights-confirmation/,
+  "Un média aux droits incertains doit offrir un contrôle explicite près de ses actions.");
+assert.match(ui, /Cochez seulement après avoir vérifié la source, le crédit et les autorisations nécessaires/,
+  "Le contrôle ne doit jamais présenter la confirmation des droits comme automatique.");
+assert.match(client, /export async function setMediaRightsConfirmation[\s\S]*?runTransaction\(db/,
+  "La confirmation des droits doit être atomique et réversible.");
+assert.match(client, /Retirez d’abord ce média des choix actifs/,
+  "La remise en attente des droits ne doit pas laisser un choix média incohérent.");
 assert.match(ui, /myChoiceSelected \? "Retirer mon choix" : "Choisir ce visuel"/,
   "Les communications doivent pouvoir retirer puis reprendre leur propre choix média.");
 assert.match(ui, /const selected = mediaDecisionButton\.getAttribute\("aria-pressed"\) !== "true"/,
@@ -123,6 +135,10 @@ assert.match(rules, /data\.override\.actorRole == 'admin'[\s\S]{0,220}data\.over
 assert.doesNotMatch(rules, /request\.resource\.data\.direction\.status != 'selected' \|\| workflowTextApproved/,
   "La règle doit accepter une préférence direction avant la porte texte.");
 assert.match(rules, /publicationBlocked[\s\S]*?== false/);
+assert.match(rules, /rightsConfirmedAt[\s\S]*rightsConfirmedBy[\s\S]*rightsConfirmedByLabel/,
+  "Les règles doivent exiger une trace structurée de la confirmation des droits.");
+assert.match(rules, /resource\.data\.rightsStatus is string[\s\S]{0,120}resource\.data\.publicationBlocked == true/,
+  "Le contrôle de droits doit rester limité aux médias suivis pour leurs droits et encore bloqués.");
 assert.match(rules, /side\.mediaIds\.size\(\) <= 2/,
   "Les règles doivent borner le carrousel à deux médias.");
 assert.match(rules, /side\.mediaIds\.size\(\) < 2 \|\| validSelectableMedia\(eventId, side\.mediaIds\[1\]\)/,

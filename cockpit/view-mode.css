@@ -1148,6 +1148,15 @@ html[data-theme="dark"] .vm-card-progress span.state-pending { color: #ffd0cc; b
 .cockpit-media-image-choice.is-selected { color: #fff; background: #21866d; border-color: #d8fff2; box-shadow: 0 0 0 4px rgba(33, 134, 109, .24), 0 6px 20px rgba(0, 0, 0, .3); }
 .cockpit-media-image-choice.is-agreed { color: #fff; background: #176f5b; border-color: #fff; box-shadow: 0 0 0 5px rgba(33, 134, 109, .3), 0 7px 22px rgba(0, 0, 0, .32); }
 .cockpit-media-image-status { position: absolute; top: 10px; right: 10px; z-index: 3; padding: 7px 10px; border-radius: 999px; color: #5c6568; background: rgba(255, 255, 255, .94); box-shadow: 0 4px 13px rgba(0, 0, 0, .18); font-size: .66rem; font-weight: 900; }
+.cockpit-media-rights-control { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .65rem; align-items: start; margin: .15rem 0 .7rem; padding: .72rem .8rem; border: 1px solid rgba(198, 139, 26, .7); border-radius: 12px; background: rgba(255, 236, 184, .16); cursor: pointer; }
+.cockpit-media-rights-control input { inline-size: 1.25rem; block-size: 1.25rem; margin-top: .08rem; accent-color: #148261; }
+.cockpit-media-rights-control span { display: grid; gap: .2rem; }
+.cockpit-media-rights-control b { color: #ffe5a2; font-size: .78rem; }
+.cockpit-media-rights-control small { color: var(--muted, #b9ced4); line-height: 1.35; }
+.cockpit-media-rights-control.is-confirmed { border-color: rgba(63, 188, 139, .75); background: rgba(35, 143, 105, .2); }
+.cockpit-media-rights-control.is-confirmed b { color: #bdf4dc; }
+html[data-theme="light"] .cockpit-media-rights-control b { color: #6a4700; }
+html[data-theme="light"] .cockpit-media-rights-control.is-confirmed b { color: #075e45; }
 
 #cockpit-content details > summary {
   position: relative;

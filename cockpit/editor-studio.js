@@ -1,4 +1,4 @@
-import { fetchPublicationHistory, savePublicationContent } from "./firebase-client.js?v=20260810-b56";
+import { fetchPublicationHistory, savePublicationContent } from "./firebase-client.js?v=20260810-b57";
 import {
   PUBLICATION_TEMPLATES,
   normalizePublicationDraft,
@@ -6,7 +6,7 @@ import {
   resolvePublicationId,
   validatePublicationDraft,
   weekForDate
-} from "./publication-editor-schema.mjs?v=20260810-b56";
+} from "./publication-editor-schema.mjs?v=20260810-b57";
 
 const runtime = { profile: null, getPosts: () => [], getRows: () => new Map(), button: null, panel: null, form: null, selectedId: "", stableId: "", isNew: false, revision: 0, returnFocus: null };
 

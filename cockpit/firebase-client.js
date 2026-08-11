@@ -35,8 +35,8 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260810-b56";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20260810-b56";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260810-b57";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20260810-b57";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -1238,6 +1238,87 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
       createdAt: now
     });
     return next;
+  });
+  if (confirmedWriteCount) recordConfirmedWrites(confirmedWriteCount);
+  return result;
+}
+
+export async function setMediaRightsConfirmation(mediaId, confirmed, profile) {
+  requireWritable();
+  if (!profile || !["director", "admin"].includes(profile.role)) {
+    throw new Error("Ce compte ne peut pas confirmer les droits de ce média.");
+  }
+  if (!/^[A-Za-z0-9_-]{3,160}$/.test(String(mediaId || ""))) throw new Error("Média invalide.");
+
+  const mediaReference = doc(db, "mediaLinks", mediaId);
+  const mutationId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const archiveReference = doc(db, "changeArchive", `media-rights-${mutationId}`.slice(0, 160));
+  const actorLabel = String(profile.displayLabel || "Utilisateur").slice(0, 120);
+  let confirmedWriteCount = 0;
+
+  const result = await runTransaction(db, async (transaction) => {
+    const mediaSnapshot = await transaction.get(mediaReference);
+    if (!mediaSnapshot.exists()) throw new Error("Ce média n’existe plus.");
+    const before = mediaSnapshot.data();
+    if (before.archived === true) throw new Error("Un média archivé ne peut pas changer de statut de droits.");
+    const rightsStatus = String(before.rightsStatus || "").toLocaleLowerCase("fr-CA");
+    const rightsNeedConfirmation = before.rightsConfirmed === true
+      || rightsStatus.includes("à confirmer")
+      || rightsStatus.includes("a confirmer")
+      || rightsStatus.includes("unconfirmed")
+      || rightsStatus.includes("incertain");
+    if (!rightsNeedConfirmation) throw new Error("Ce média n’est pas identifié comme ayant des droits à confirmer.");
+    if (before.rightsConfirmed === confirmed && before.publicationBlocked === !confirmed) return before;
+
+    if (!confirmed) {
+      const decisionSnapshot = await transaction.get(doc(db, "mediaDecisions", String(before.eventId || "")));
+      if (decisionSnapshot.exists()) {
+        const decision = decisionSnapshot.data();
+        const selectedIds = [
+          ...(Array.isArray(decision.communications?.mediaIds) ? decision.communications.mediaIds : []),
+          ...(Array.isArray(decision.direction?.mediaIds) ? decision.direction.mediaIds : []),
+          ...(Array.isArray(decision.override?.mediaIds) ? decision.override.mediaIds : []),
+          ...(Array.isArray(decision.agreement?.mediaIds) ? decision.agreement.mediaIds : [])
+        ];
+        if (selectedIds.includes(mediaId)) {
+          throw new Error("Retirez d’abord ce média des choix actifs avant de remettre ses droits en attente.");
+        }
+      }
+    }
+
+    const now = serverTimestamp();
+    const next = {
+      rightsConfirmed: confirmed,
+      rightsConfirmedAt: confirmed ? now : null,
+      rightsConfirmedBy: confirmed ? profile.uid : "",
+      rightsConfirmedByLabel: confirmed ? actorLabel : "",
+      publicationBlocked: !confirmed,
+      updatedAt: now,
+      updatedBy: profile.uid
+    };
+    transaction.update(mediaReference, next);
+    transaction.set(archiveReference, {
+      entityType: "mediaLink",
+      entityId: mediaId,
+      action: confirmed ? "droits de diffusion confirmés" : "droits de diffusion remis en attente",
+      before: {
+        rightsConfirmed: before.rightsConfirmed === true,
+        rightsConfirmedBy: String(before.rightsConfirmedBy || ""),
+        publicationBlocked: before.publicationBlocked === true
+      },
+      after: {
+        rightsConfirmed: confirmed,
+        rightsConfirmedBy: confirmed ? profile.uid : "",
+        publicationBlocked: !confirmed
+      },
+      actorUid: profile.uid,
+      actorLabel,
+      createdAt: now
+    });
+    confirmedWriteCount = 2;
+    return { ...before, ...next };
   });
   if (confirmedWriteCount) recordConfirmedWrites(confirmedWriteCount);
   return result;

@@ -1,7 +1,8 @@
 import fs from "node:fs/promises";
 import process from "node:process";
+import assert from "node:assert/strict";
 import { assertFails, assertSucceeds, initializeTestEnvironment } from "@firebase/rules-unit-testing";
-import { doc, getDoc, setDoc, Timestamp, writeBatch } from "firebase/firestore";
+import { doc, getDoc, setDoc, Timestamp, updateDoc, writeBatch } from "firebase/firestore";
 
 const projectId = "cockpit-media-decision-test";
 const [host = "127.0.0.1", portText = "8187"] = String(process.env.FIRESTORE_EMULATOR_HOST || "127.0.0.1:8187").split(":");
@@ -43,6 +44,11 @@ const media = (eventId = ids.event, archived = false, publicationBlocked = false
   updatedBy: ids.admin
 });
 
+const uncertainMedia = () => ({
+  ...media(ids.event, false, true),
+  rightsStatus: "photographie interne — autorisation à confirmer"
+});
+
 const pendingDecision = (directionIds) => ({
   eventId: ids.event,
   schemaVersion: 2,
@@ -73,6 +79,7 @@ try {
     await setDoc(doc(db, "mediaLinks", ids.historical), media());
     await setDoc(doc(db, "mediaLinks", ids.current), media());
     await setDoc(doc(db, "mediaLinks", ids.blocked), media(ids.event, false, true));
+    await setDoc(doc(db, "mediaLinks", `${ids.blocked}-rights`), uncertainMedia());
     await setDoc(doc(db, "mediaLinks", ids.foreign), media("other-event"));
     await setDoc(doc(db, "workflowStates", ids.legacyEvent), {
       eventId: ids.legacyEvent,
@@ -103,6 +110,49 @@ try {
   const adminDb = environment.authenticatedContext(ids.admin).firestore();
   const directorDb = environment.authenticatedContext(ids.director).firestore();
   const pair = [ids.historical, ids.current].sort();
+
+  const rightsBatch = writeBatch(directorDb);
+  rightsBatch.update(doc(directorDb, "mediaLinks", `${ids.blocked}-rights`), {
+    publicationBlocked: false,
+    rightsConfirmed: true,
+    rightsConfirmedAt: now(),
+    rightsConfirmedBy: ids.director,
+    rightsConfirmedByLabel: "Annie",
+    updatedAt: now(),
+    updatedBy: ids.director
+  });
+  rightsBatch.set(doc(directorDb, "changeArchive", "rights-confirmation-test"), {
+    entityType: "mediaLink",
+    entityId: `${ids.blocked}-rights`,
+    action: "droits de diffusion confirmés",
+    before: { rightsConfirmed: false, publicationBlocked: true },
+    after: { rightsConfirmed: true, publicationBlocked: false },
+    actorUid: ids.director,
+    actorLabel: "Annie",
+    createdAt: now()
+  });
+  await check("la direction confirme les droits avec une archive atomique", rightsBatch.commit());
+  const rightsConfirmedMedia = (await getDoc(doc(directorDb, "mediaLinks", `${ids.blocked}-rights`))).data();
+  assert.equal(rightsConfirmedMedia.publicationBlocked, false);
+  assert.equal(rightsConfirmedMedia.rightsConfirmed, true);
+  await check("la direction remet les droits en attente avant tout choix média", updateDoc(doc(directorDb, "mediaLinks", `${ids.blocked}-rights`), {
+    publicationBlocked: true,
+    rightsConfirmed: false,
+    rightsConfirmedAt: null,
+    rightsConfirmedBy: "",
+    rightsConfirmedByLabel: "",
+    updatedAt: now(),
+    updatedBy: ids.director
+  }));
+  await check("la direction reconfirme les droits avant le choix média", updateDoc(doc(directorDb, "mediaLinks", `${ids.blocked}-rights`), {
+    publicationBlocked: false,
+    rightsConfirmed: true,
+    rightsConfirmedAt: now(),
+    rightsConfirmedBy: ids.director,
+    rightsConfirmedByLabel: "Annie",
+    updatedAt: now(),
+    updatedBy: ids.director
+  }));
 
   await check("la direction choisit les deux cartes du carrousel", setDoc(doc(directorDb, "mediaDecisions", ids.event), pendingDecision(pair)));
   const initialDecision = (await getDoc(doc(directorDb, "mediaDecisions", ids.event))).data();
