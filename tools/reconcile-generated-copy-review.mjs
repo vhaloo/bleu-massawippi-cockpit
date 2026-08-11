@@ -17,6 +17,7 @@ if (!config.tokens?.access_token || Number(config.tokens.expires_at || 0) < Date
 }
 const token = config.tokens.access_token;
 const base = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/${DATABASE}`;
+const documentRoot = `projects/${PROJECT_ID}/databases/${DATABASE}/documents`;
 const root = path.resolve(import.meta.dirname, "..");
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const postsJson = html.match(/var posts=(\[[\s\S]*?\]);\s*var meta=/)?.[1];
@@ -82,7 +83,7 @@ const mutation = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
 const writes = [];
 for (const post of candidates) {
   const current = workflowByEvent.get(post.id);
-  const workflowName = `${base}/documents/workflowStates/${post.id}`;
+  const workflowName = `${documentRoot}/workflowStates/${post.id}`;
   const update = {
     name: workflowName,
     fields: {
@@ -100,7 +101,7 @@ for (const post of candidates) {
   });
   writes.push({
     update: {
-      name: `${base}/documents/changeArchive/generated-copy-review-${post.id}-${mutation}`,
+      name: `${documentRoot}/changeArchive/generated-copy-review-${post.id}-${mutation}`,
       fields: {
         entityType: { stringValue: "workflowState" },
         entityId: { stringValue: post.id },

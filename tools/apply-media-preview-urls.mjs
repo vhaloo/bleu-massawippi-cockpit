@@ -16,6 +16,7 @@ if (!config.tokens?.access_token || Number(config.tokens.expires_at || 0) < Date
 }
 const token = config.tokens.access_token;
 const base = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/${DATABASE}`;
+const documentRoot = `projects/${PROJECT_ID}/databases/${DATABASE}/documents`;
 
 async function request(url, options = {}) {
   const response = await fetch(url, {
@@ -68,7 +69,7 @@ else {
   for (const item of changes) {
     writes.push({
       update: {
-        name: `${base}/documents/mediaLinks/${item.id}`,
+        name: `${documentRoot}/mediaLinks/${item.id}`,
         fields: { previewUrl: { stringValue: item.previewUrl } }
       },
       updateMask: { fieldPaths: ["previewUrl"] },
@@ -77,7 +78,7 @@ else {
     });
     writes.push({
       update: {
-        name: `${base}/documents/changeArchive/media-preview-url-20260811-${item.id}`,
+        name: `${documentRoot}/changeArchive/media-preview-url-20260811-${item.id}`,
         fields: {
           entityType: { stringValue: "mediaLink" },
           entityId: { stringValue: item.id },
@@ -93,6 +94,6 @@ else {
     });
   }
   const result = await request(`${base}/documents:commit`, { method: "POST", body: JSON.stringify({ writes }) });
-  if (!result.ok) throw new Error(`Commit Firestore refusé (${result.status}).`);
+  if (!result.ok) throw new Error(`Commit Firestore refusé (${result.status}): ${JSON.stringify(result.body)}`);
   console.log(JSON.stringify({ applied: true, mediaUpdated: changes.length, writes: writes.length, commitTime: result.body.commitTime }, null, 2));
 }
