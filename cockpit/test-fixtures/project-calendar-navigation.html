@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QA — ouverture d’un projet depuis son échéance</title>
+  <style>
+    body { margin: 0; padding: 24px; color: #123444; background: #eef8f8; font: 16px/1.5 system-ui, sans-serif; }
+    main { width: min(900px, 100%); margin: auto; }
+    details { margin: 12px 0; padding: 12px; border: 1px solid #8bbfc6; border-radius: 14px; background: white; }
+    summary { cursor: pointer; font-weight: 800; }
+    button { min-height: 44px; padding: 10px 14px; border: 1px solid #0b7895; border-radius: 10px; color: white; background: #073a52; font-weight: 800; }
+    #qa-status { min-height: 24px; font-weight: 750; }
+    .vm-target-focus { outline: 4px solid #e8ae4b; outline-offset: 4px; }
+  </style>
+</head>
+<body>
+  <div id="cockpit-session" data-uid="valentin"><span id="cockpit-session-label">Connecté · rôle admin</span></div>
+  <main id="cockpit-content">
+    <nav class="nav"><div class="wrap"><a href="#projets">Projets</a></div></nav>
+    <section id="projets">
+      <details id="project-calendar" open>
+        <summary>Calendrier des projets et échéances</summary>
+        <details class="project-calendar-event" open>
+          <summary>Au bord du bleu — préparation finale</summary>
+          <button type="button" data-open-related-project="poesie-du-lac">Ouvrir le projet</button>
+        </details>
+      </details>
+      <details id="projets-internes">
+        <summary>Projets internes</summary>
+        <details id="internal-project-poesie-du-lac" data-internal-project-id="poesie-du-lac">
+          <summary><h3>Au bord du bleu — poésie, prose et slam</h3></summary>
+          <p id="qa-target">La bonne fiche de projet est ouverte.</p>
+        </details>
+      </details>
+      <p id="qa-status" role="status" aria-live="polite">Prêt pour le test.</p>
+    </section>
+  </main>
+  <div id="cockpit-announcer" aria-live="polite"></div>
+  <script type="module">
+    const role = new URLSearchParams(location.search).get("role") === "director" ? "director" : "admin";
+    document.querySelector("#cockpit-session").dataset.uid = role === "director" ? "annie" : "valentin";
+    document.querySelector("#cockpit-session-label").textContent = `Connecté · rôle ${role}`;
+    const { openRelatedProject } = await import("../project-calendar.js?v=20260811-b59");
+    const button = document.querySelector("[data-open-related-project]");
+    button.addEventListener("click", async () => {
+      const opened = await openRelatedProject(button);
+      document.querySelector("#qa-status").textContent = opened ? "Réussi : la fiche associée est ouverte et ciblée." : "Échec : la fiche n’a pas été ouverte.";
+    });
+  </script>
+</body>
+</html>
