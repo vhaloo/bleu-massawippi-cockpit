@@ -22,14 +22,17 @@ const ids = {
   legacyEvent: "barbotte-20260730-signalement",
   legacyMedia: "editorial-barbotte-20260806-tumeurs-usgs-v3",
   legacyBlocked: "editorial-barbotte-20260806-blocked",
-  legacyArchived: "editorial-barbotte-20260806-archived"
+  legacyArchived: "editorial-barbotte-20260806-archived",
+  adminTextEvent: "s2d1-admin-text-approval",
+  adminTextMedia: "editorial-s2d1-iris-scrapbook-v4",
+  directorTextEvent: "s2d1-director-text-approval"
 };
 
 const now = () => Timestamp.now();
 const emptySide = (role) => ({ status: "none", mediaIds: [], actorUid: "", actorLabel: "", actorRole: role, decidedAt: null });
 const selectedSide = (uid, label, role, mediaIds) => ({ status: "selected", mediaIds: [...mediaIds].sort(), actorUid: uid, actorLabel: label, actorRole: role, decidedAt: now() });
 const emptyOverride = () => ({ active: false, mediaIds: [], reason: "", actorUid: "", actorLabel: "", actorRole: "", decidedAt: null });
-const workflow = (uid, label, stage) => ({ eventId: ids.event, stage, updatedAt: now(), updatedBy: uid, updatedByLabel: label });
+const workflow = (uid, label, stage, eventId = ids.event) => ({ eventId, stage, updatedAt: now(), updatedBy: uid, updatedByLabel: label });
 const media = (eventId = ids.event, archived = false, publicationBlocked = false) => ({
   eventId,
   label: "Média de recette",
@@ -95,6 +98,37 @@ try {
     await setDoc(doc(db, "mediaLinks", ids.legacyMedia), media(ids.legacyEvent));
     await setDoc(doc(db, "mediaLinks", ids.legacyBlocked), media(ids.legacyEvent, false, true));
     await setDoc(doc(db, "mediaLinks", ids.legacyArchived), media(ids.legacyEvent, true, false));
+    await setDoc(doc(db, "workflowStates", ids.adminTextEvent), workflow(ids.admin, "Valentin", "content_review", ids.adminTextEvent));
+    await setDoc(doc(db, "mediaLinks", ids.adminTextMedia), media(ids.adminTextEvent));
+    await setDoc(doc(db, "mediaDecisions", ids.adminTextEvent), {
+      eventId: ids.adminTextEvent,
+      schemaVersion: 2,
+      communications: emptySide("admin"),
+      direction: selectedSide(ids.director, "Annie", "director", [ids.adminTextMedia]),
+      override: emptyOverride(),
+      agreement: { status: "pending", mediaIds: [], divergent: false },
+      // Reproduit l'état historique observé en production le 12 août : le
+      // workflow est en révision, mais la décision média garde l'ancien stade.
+      textGateStage: "proposal",
+      lastMutationId: "media-comment-before-text-approval",
+      updatedAt: now(),
+      updatedBy: ids.director,
+      updatedByLabel: "Annie"
+    });
+    await setDoc(doc(db, "workflowStates", ids.directorTextEvent), workflow(ids.admin, "Valentin", "content_review", ids.directorTextEvent));
+    await setDoc(doc(db, "mediaDecisions", ids.directorTextEvent), {
+      eventId: ids.directorTextEvent,
+      schemaVersion: 2,
+      communications: emptySide("admin"),
+      direction: emptySide("director"),
+      override: emptyOverride(),
+      agreement: { status: "pending", mediaIds: [], divergent: false },
+      textGateStage: "content_review",
+      lastMutationId: "text-ready-before-direction-choice",
+      updatedAt: now(),
+      updatedBy: ids.admin,
+      updatedByLabel: "Valentin"
+    });
     await setDoc(doc(db, "mediaDecisions", ids.legacyEvent), {
       eventId: ids.legacyEvent,
       schemaVersion: 2,
@@ -115,6 +149,93 @@ try {
   const directorDb = environment.authenticatedContext(ids.director).firestore();
   const viewerDb = environment.authenticatedContext(ids.viewer).firestore();
   const pair = [ids.historical, ids.current].sort();
+
+  const adminTextBefore = (await getDoc(doc(adminDb, "mediaDecisions", ids.adminTextEvent))).data();
+  const adminTextBatch = writeBatch(adminDb);
+  adminTextBatch.set(doc(adminDb, "mediaDecisions", ids.adminTextEvent), {
+    ...adminTextBefore,
+    agreement: { status: "pending", mediaIds: [], divergent: false },
+    textGateStage: "content_approved",
+    lastMutationId: "workflow-admin-text-approval",
+    updatedAt: now(),
+    updatedBy: ids.admin,
+    updatedByLabel: "Valentin"
+  });
+  adminTextBatch.set(doc(adminDb, "workflowStates", ids.adminTextEvent), workflow(ids.admin, "Valentin", "content_approved", ids.adminTextEvent));
+  adminTextBatch.set(doc(adminDb, "changeArchive", "admin-text-approval-test"), {
+    entityType: "workflowState",
+    entityId: ids.adminTextEvent,
+    action: "cycle : content_approved",
+    before: { stage: "content_review" },
+    after: { stage: "content_approved" },
+    actorUid: ids.admin,
+    actorLabel: "Valentin",
+    createdAt: now()
+  });
+  await check("les communications confirment le texte sans choisir un média ni modifier le choix de la direction", adminTextBatch.commit());
+  const adminTextAfter = (await getDoc(doc(adminDb, "mediaDecisions", ids.adminTextEvent))).data();
+  assert.deepEqual(adminTextAfter.communications, adminTextBefore.communications);
+  assert.deepEqual(adminTextAfter.direction.mediaIds, adminTextBefore.direction.mediaIds);
+
+  const adminTextReopenBatch = writeBatch(adminDb);
+  adminTextReopenBatch.set(doc(adminDb, "mediaDecisions", ids.adminTextEvent), {
+    ...adminTextAfter,
+    agreement: { status: "pending", mediaIds: [], divergent: false },
+    textGateStage: "content_review",
+    lastMutationId: "workflow-admin-text-reopen",
+    updatedAt: now(),
+    updatedBy: ids.admin,
+    updatedByLabel: "Valentin"
+  });
+  adminTextReopenBatch.set(doc(adminDb, "workflowStates", ids.adminTextEvent), workflow(ids.admin, "Valentin", "content_review", ids.adminTextEvent));
+  await check("les communications retirent le feu vert texte sans toucher au choix de la direction", adminTextReopenBatch.commit());
+
+  const adminTextReopened = (await getDoc(doc(adminDb, "mediaDecisions", ids.adminTextEvent))).data();
+  const adminTextReapproveBatch = writeBatch(adminDb);
+  adminTextReapproveBatch.set(doc(adminDb, "mediaDecisions", ids.adminTextEvent), {
+    ...adminTextReopened,
+    agreement: { status: "pending", mediaIds: [], divergent: false },
+    textGateStage: "content_approved",
+    lastMutationId: "workflow-admin-text-reapprove",
+    updatedAt: now(),
+    updatedBy: ids.admin,
+    updatedByLabel: "Valentin"
+  });
+  adminTextReapproveBatch.set(doc(adminDb, "workflowStates", ids.adminTextEvent), workflow(ids.admin, "Valentin", "content_approved", ids.adminTextEvent));
+  await check("les communications reconfirment le texte sans toucher au choix de la direction", adminTextReapproveBatch.commit());
+  await check("les communications ne peuvent pas modifier le choix média de la direction pendant la transition du texte", setDoc(doc(adminDb, "mediaDecisions", ids.adminTextEvent), {
+    ...(await getDoc(doc(adminDb, "mediaDecisions", ids.adminTextEvent))).data(),
+    direction: emptySide("director"),
+    lastMutationId: "forbidden-admin-direction-change",
+    updatedAt: now(),
+    updatedBy: ids.admin,
+    updatedByLabel: "Valentin"
+  }), false);
+
+  const directorTextBefore = (await getDoc(doc(directorDb, "mediaDecisions", ids.directorTextEvent))).data();
+  const directorTextBatch = writeBatch(directorDb);
+  directorTextBatch.set(doc(directorDb, "mediaDecisions", ids.directorTextEvent), {
+    ...directorTextBefore,
+    textGateStage: "content_approved",
+    lastMutationId: "workflow-director-text-approval",
+    updatedAt: now(),
+    updatedBy: ids.director,
+    updatedByLabel: "Annie"
+  });
+  directorTextBatch.set(doc(directorDb, "workflowStates", ids.directorTextEvent), workflow(ids.director, "Annie", "content_approved", ids.directorTextEvent));
+  directorTextBatch.set(doc(directorDb, "changeArchive", "director-text-approval-test"), {
+    entityType: "workflowState",
+    entityId: ids.directorTextEvent,
+    action: "cycle : content_approved",
+    before: { stage: "content_review" },
+    after: { stage: "content_approved" },
+    actorUid: ids.director,
+    actorLabel: "Annie",
+    createdAt: now()
+  });
+  await check("la direction confirme le texte avant d'avoir choisi un média", directorTextBatch.commit());
+  const directorTextAfter = (await getDoc(doc(directorDb, "mediaDecisions", ids.directorTextEvent))).data();
+  assert.deepEqual(directorTextAfter.direction, directorTextBefore.direction);
 
   const rightsBatch = writeBatch(directorDb);
   rightsBatch.update(doc(directorDb, "mediaLinks", `${ids.blocked}-rights`), {
