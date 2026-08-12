@@ -178,21 +178,21 @@ Tell us about it in the comments. Thank you for helping us share the voice of th
   },
   "alt-20260718": {
     title: "Qu’est-ce qui se cache sous nos pas?",
-    cta: "Découvrir ce petit monde",
+    cta: "Observer ce qui vous intrigue",
     source: "Gouvernement du Québec — biodiversité des rives et milieux humides : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/biodiversite/biodiversite-quebec · Gouvernement du Québec — bandes riveraines, habitats et stabilisation des sols : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/agriculture/pratiques-agricoles-environnement/gestion-eau-sols · Parcs Canada — salamandres et litière de feuilles : https://parcs.canada.ca/pn-np/ab/waterton/nature/faune-wildlife/reptiles-amphibians/salamandre-salamander",
     copy: bilingual(
       `Qu’est-ce qui se cache sous les feuilles, les racines et les pierres d’une rive vivante?
 
 Ce couvert forme des refuges pour de nombreux invertébrés et, selon le milieu, pour des amphibiens. La végétation riveraine contribue aussi à retenir le sol, à ralentir le ruissellement et à réduire l’érosion. Toute une communauté discrète participe ainsi à la biodiversité du rivage.
 
-Lors de votre prochaine promenade, prenez le temps d’observer ce petit monde en laissant feuilles, pierres et animaux à leur place. Quel détail attire votre curiosité?
+Lors de votre prochaine promenade, prenez le temps d’observer ce petit monde en laissant feuilles, pierres et animaux à leur place. Quel détail vous intrigue?
 
 #BleuMassawippi #LacMassawippi #RiveVivante #NatureDuLac`,
       `What might be hiding beneath the leaves, roots and stones of a living shoreline?
 
 This cover provides refuge for many invertebrates and, depending on the habitat, amphibians. Shoreline vegetation also helps hold soil in place, slow runoff and reduce erosion. An entire quiet community supports shoreline biodiversity.
 
-On your next walk, take time to notice this small world while leaving leaves, stones and animals where they are. Which detail sparks your curiosity?
+On your next walk, take time to notice this small world while leaving leaves, stones and animals where they are. Which detail intrigues you?
 
 #BleuMassawippi #LakeMassawippi #LivingShoreline #LakeNature`
     ),
@@ -248,16 +248,16 @@ Which detail catches your eye first?
     copy: bilingual(
       `L’iris versicolore attire d’abord le regard par ses nuances de violet, de bleu et de jaune. Emblème floral du Québec, il nous invite aussi à découvrir le milieu vivant qui l’accueille.
 
-Cette plante fréquente les milieux humides et les rives. Avec les autres végétaux de ces habitats, elle fait partie d’un ensemble qui offre abri et nourriture à de nombreuses espèces, contribue à retenir les sols et accompagne naturellement les mouvements de l’eau.
+L’iris versicolore est une plante indigène des milieux humides. Avec les autres végétaux de ces habitats, il contribue à stabiliser les sols et les berges, à soutenir une riche biodiversité et à maintenir l’équilibre naturel des milieux riverains. Il ne s’agit pas d’une plante envahissante : il appartient pleinement à la flore humide du Québec.
 
-Une belle façon de garder le souvenir d’un iris est de le photographier là où il pousse, en laissant son emplacement précis discret.
+Observer l’iris, c’est donc voir à la fois une fleur remarquable et tout le milieu vivant qui l’entoure.
 
 #ZoomNature #BleuMassawippi #IrisVersicolore #LacMassawippi`,
       `A blue flag iris first catches the eye with its violet, blue and yellow colours. Quebec’s floral emblem, it also invites us to discover the living habitat around it.
 
-This plant is found in wetlands and along shorelines. Together with the other vegetation in these habitats, it is part of a community that offers food and shelter to many species, helps hold soil in place and lives with the natural movement of water.
+Blue flag iris is native to wetlands. Together with other plants in these habitats, it helps stabilize soils and shorelines, supports rich biodiversity and contributes to the natural balance of shoreline environments. It is not an invasive plant: it belongs to Quebec’s wetland flora.
 
-A lovely way to remember an iris is to photograph it where it grows while keeping its precise location discreet.
+Observing an iris therefore means seeing both a remarkable flower and the entire living habitat around it.
 
 #NatureZoom #BleuMassawippi #BlueFlagIris #LakeMassawippi`
     ),
@@ -328,15 +328,20 @@ Credit: Jean B. Le Baron — public domain.
   "alt-20260721": {
     title: "Le plongeon huard (Gavia immer), voix du lac",
     cta: "Écouter et observer à bonne distance",
+    source: "Parcs Canada — le plongeon huard comme indicateur de la santé des lacs, et Environnement et Changement climatique Canada — effets du mercure sur sa reproduction : https://parcs.canada.ca/pn-np/qc/mauricie/nature/conservation/surveillance-integrite-ecologique-ecological-integrity-monitoring/eau-douce-freshwater · https://www.canada.ca/fr/environnement-changement-climatique/services/recherche-faune-science-paysage/sujets-recherche/toxicologie-metaux.html",
     copy: bilingual(
       `Un appel traverse l’eau, puis une silhouette noire et blanche glisse à la surface : le plongeon huard (Gavia immer) sait rendre un instant au lac inoubliable.
 
 Profitons de la rencontre sans la bousculer. Ralentir, lui laisser de l’espace et observer à bonne distance permet d’admirer l’oiseau tout en respectant son rythme. Avez-vous déjà reconnu l’un de ses chants?
 
+Le huard est aussi un précieux indicateur de la santé d’un lac. Comme il dépend d’eaux limpides et qu’il est sensible à des pressions comme le mercure, le plomb, l’aménagement des rives et les activités récréatives, sa présence, sa nidification et le succès de ses jeunes aident les scientifiques à suivre l’intégrité écologique des milieux lacustres.
+
 #BleuMassawippi #LacMassawippi #PlongeonHuard #ObservationRespectueuse`,
       `A call travels across the water, then a black-and-white silhouette glides into view: the common loon (Gavia immer) can make a moment on the lake unforgettable.
 
 Let’s enjoy the encounter without crowding it. Slowing down, leaving space and watching from a respectful distance lets us admire the bird while respecting its rhythm. Have you ever recognized one of its calls?
+
+The loon is also a valuable indicator of a lake’s health. Because it depends on clear water and is sensitive to pressures such as mercury, lead, shoreline development and recreational activity, its presence, nesting and the success of its young help scientists monitor the ecological integrity of lake environments.
 
 #BleuMassawippi #LakeMassawippi #CommonLoon #RespectfulWildlifeViewing`
     ),
@@ -425,7 +430,7 @@ Next time you travel along the lake, which of these roles will you notice first?
 
 #BleuMassawippi #LakeMassawippi #LivingShoreline #LakeNature`
     ),
-    visual: "Triptyque illustré vintage relié par une même rive : « Retenir » sur les racines, « Ralentir » sur l’eau, « Accueillir » près d’un refuge faunique. Des verbes grands et très lisibles, une scène chaleureuse, aucun ton de leçon."
+    visual: "Photographie documentaire réelle d’une rive naturelle où l’eau, le sol, les rochers et la végétation demeurent lisibles. Privilégier une image interne distincte des vues aériennes déjà répétées; aucun décor ni espèce inventés."
   },
   s2d4: {
     title: "Cet automne, découvrons les jardins de pluie",
@@ -449,25 +454,26 @@ Would you like to receive the details? Send us a private message and we will kee
     visual: "Visuel semi-promotionnel chaleureux d’un jardin de pluie après l’averse, avec les mentions « Atelier cet automne » et « Détails à venir ». Montrer l’eau qui ralentit et entre dans le sol; ne pas afficher de date, d’adresse ou de promesse non confirmée."
   },
   "alt-20260724": {
-    title: "Un atelier jardins de pluie cet automne",
-    cta: "Nous dire si cela vous intéresse",
+    title: "Le bassin versant relie le paysage",
+    cta: "Regarder au-delà de la rive",
+    source: "Gouvernement du Québec — Gestion intégrée des ressources en eau : https://www.quebec.ca/habitation-territoire/amenagement-developpement-territoires/amenagement-territoire/guide-prise-decision-urbanisme/protection-environnement/gestion-integree-ressources-eau",
     copy: bilingual(
-      `Et si l’on aidait l’eau de pluie à ralentir avant qu’elle poursuive son chemin vers les fossés, les ruisseaux et le lac?
+      `Le lac ne s’arrête pas à sa rive. Autour de lui, les collines, les sols, les fossés, les milieux humides et les cours d’eau font partie d’un même réseau : le bassin versant.
 
-Bleu Massawippi prépare pour cet automne un atelier accessible sur les jardins de pluie : comment ils fonctionnent, ce qu’ils peuvent apporter et par où commencer. La date et les modalités seront annoncées lorsqu’elles seront confirmées.
+L’eau qui tombe sur ce territoire finit par suivre un chemin vers un cours d’eau ou le lac. Regarder le paysage comme un tout aide à comprendre pourquoi les gestes posés en amont comptent aussi pour le Massawippi.
 
-Cette rencontre vous intéresserait? Dites-le-nous en commentaire ou écrivez-nous en message privé.
+La prochaine fois que vous regardez le lac, jusqu’où imaginez-vous son bassin versant autour de vous?
 
-#JardinsDePluie #BleuMassawippi #BassinVersant #CetAutomne`,
-      `What if we helped rainwater slow down before it continued toward ditches, streams and the lake?
+#BleuMassawippi #LacMassawippi #BassinVersant #Eau`,
+      `The lake does not end at its shoreline. Around it, hills, soils, ditches, wetlands and waterways are part of the same network: the watershed.
 
-This fall, Bleu Massawippi is preparing a practical, beginner-friendly workshop on rain gardens: how they work, what they can offer and where to begin. The date and details will be announced once they are confirmed.
+Water that falls across this territory eventually follows a path toward a waterway or the lake. Seeing the landscape as a whole helps explain why actions taken upstream also matter for Massawippi.
 
-Would you be interested? Tell us in the comments or send us a private message.
+Next time you look at the lake, how far can you imagine its watershed extending around you?
 
-#RainGardens #BleuMassawippi #Watershed #ThisFall`
+#BleuMassawippi #LakeMassawippi #Watershed #Water`
     ),
-    visual: "Semi-promo douce avec photo ou illustration crédible d’un jardin de pluie, titre « Atelier cet automne » et sous-titre « Détails à venir ». Laisser un espace net pour l’appel à manifester son intérêt; aucune date ni adresse inventée."
+    visual: "Photographie aérienne réelle du lac et des collines environnantes, sans texte ajouté ni limite de bassin inventée. Le paysage sert à faire comprendre visuellement que le lac est relié à un territoire plus vaste."
   },
   s2d5: {
     title: "Près de la rive, ralentir protège le plaisir",

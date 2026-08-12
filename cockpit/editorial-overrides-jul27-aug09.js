@@ -88,8 +88,8 @@ const EDITORIAL_OVERRIDES_JUL27_AUG09 = {
   },
   s4d2: {
     title: "Sur l’eau, le plaisir se partage",
-    cta: "Garder l’œil ouvert",
-    copy: "FR — Le meilleur radar sur le lac? Celui qui remarque les rives, les baigneurs, les embarcations plus lentes, les pêcheurs, les planches à pagaie — et les moments où ralentir rend la sortie plus agréable pour tout le monde.\n\nMerci à toutes les personnes qui gardent l’œil ouvert et font de la place au plaisir des autres.\n\n#PlaisirPartagé #BleuMassawippi #NautismeResponsable #LacMassawippi\n\n=========================================\n\nEN — The best radar on the lake? The kind that notices shorelines, swimmers, slower boats, anglers and paddlers — and knows when it’s time to slow down so everyone can enjoy the day.\n\nThank you to everyone who keeps an eye out and leaves room for others to enjoy the water.\n\n#SharedEnjoyment #BleuMassawippi #ResponsibleBoating #LakeMassawippi",
+    cta: "Voir, ralentir et laisser de l’espace",
+    copy: "FR — Naviguer sur le lac, c’est vivre ensemble : voir celles et ceux qui nagent, pêchent ou pagaient, ajuster sa vitesse et laisser de l’espace.\n\nDe petits gestes qui rendent l’eau plus douce pour chacun.\n\n#PlaisirPartagé #BleuMassawippi #NautismeResponsable #LacMassawippi\n\n=========================================\n\nEN — Being on the lake means sharing it: noticing people who swim, fish or paddle, adjusting your speed and leaving space.\n\nSmall gestures that make the water more welcoming for everyone.\n\n#SharedEnjoyment #BleuMassawippi #ResponsibleBoating #LakeMassawippi",
     visual: "Illustration panoramique lumineuse de plusieurs usages cohabitant avec beaucoup d’espace — baignade, pagaie, pêche, petite embarcation — et trajectoires douces; titre « Le plaisir se partage »."
   },
   s4d5: {

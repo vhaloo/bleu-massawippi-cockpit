@@ -61,6 +61,42 @@ assert.deepEqual(
 for (const post of activePosts.filter((post) => post.dateIso >= "2026-07-22")) {
   assert.ok(plannedMedia.some((media) => media.eventId === post.id), `La publication future ${post.id} doit avoir au moins une proposition média explicite, même si sa diffusion exige encore une validation.`);
 }
+const editorialCycleAug12Posts = Object.fromEntries(
+  ["s2d1", "s4d2", "alt-20260718", "alt-20260721", "alt-20260723", "alt-20260724"].map((id) => [id, activePosts.find((post) => post.id === id)])
+);
+assert.match(editorialCycleAug12Posts.s2d1.copy, /plante indigène des milieux humides/,
+  "La capsule sur l’iris doit intégrer l’information écologique demandée par la direction.");
+assert.doesNotMatch(editorialCycleAug12Posts.s2d1.copy, /garder le souvenir d’un iris|remember an iris/,
+  "La phrase écartée par la direction ne doit plus apparaître dans la capsule sur l’iris.");
+assert.match(editorialCycleAug12Posts["alt-20260718"].copy, /Quel détail vous intrigue\?/,
+  "La question de la capsule naturaliste doit reprendre la formulation retenue par la direction.");
+assert.match(editorialCycleAug12Posts.s4d2.copy, /Naviguer sur le lac, c’est vivre ensemble/,
+  "La publication sur le partage du lac doit intégrer la formulation proposée par la direction le 12 août.");
+assert.match(editorialCycleAug12Posts["alt-20260721"].copy, /précieux indicateur de la santé d’un lac/,
+  "La capsule sur le huard doit expliquer son rôle d’indicateur écologique.");
+assert.match(editorialCycleAug12Posts["alt-20260721"].source, /parcs\.canada\.ca[\s\S]*canada\.ca/,
+  "L’ajout scientifique sur le huard doit rester appuyé par des sources publiques primaires.");
+assert.match(editorialCycleAug12Posts["alt-20260723"].visual, /Photographie documentaire réelle/,
+  "La nouvelle proposition de rive doit privilégier une photographie authentique distincte.");
+assert.equal(editorialCycleAug12Posts["alt-20260724"].title, "Le bassin versant relie le paysage",
+  "L’atelier non financé doit être remplacé sans laisser de trou dans le calendrier.");
+assert.doesNotMatch(editorialCycleAug12Posts["alt-20260724"].copy, /atelier|workshop/i,
+  "La publication de remplacement ne doit pas publiciser l’atelier reporté.");
+const editorialCycleAug12Media = editorialMedia.filter((media) => ["s3d7", "alt-20260723", "alt-20260724"].includes(media.eventId));
+for (const mediaId of [
+  "editorial-s3d7-five-gentle-real-photo-v2",
+  "editorial-alt-20260723-living-shore-real-photo-v2",
+  "editorial-alt-20260724-watershed-real-photo-v1"
+]) {
+  const media = editorialCycleAug12Media.find((item) => item.id === mediaId);
+  assert.ok(media && media.archived !== true && media.stage !== "archived", `Le nouveau média ${mediaId} doit rester proposé et visible.`);
+  assert.ok(media.previewUrl, `Le nouveau média ${mediaId} doit conserver un aperçu léger dans le cockpit.`);
+}
+assert.equal(
+  editorialMedia.filter((media) => media.eventId === "alt-20260724" && /rain-garden/.test(media.id)).every((media) => media.archived === true && media.stage === "archived"),
+  true,
+  "Les deux visuels de l’atelier reporté doivent rester conservés, mais classés aux archives."
+);
 assert.deepEqual(
   activePosts.map((post) => post.dateIso),
   [...activePosts].map((post) => post.dateIso).sort(),
