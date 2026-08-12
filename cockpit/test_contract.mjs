@@ -317,6 +317,12 @@ assert.doesNotMatch(visualPausePost.copy, /commentaire/i, "La respiration photo 
 const fiveHabitsPost = posts.find((post) => post.id === "s3d7");
 assert.match(fiveHabitsPost.title, /Cinq réflexes/i);
 assert.match(fiveHabitsPost.copy, /5 —/);
+assert.match(fiveHabitsPost.copy, /4 — Ne pas utiliser d’engrais chimiques ou de pesticides près du lac et des cours d’eau\./i,
+  "Le point 4 français du 18 août doit porter l’interdiction formulée par la direction.");
+assert.match(fiveHabitsPost.copy, /4 — Do not use chemical fertilizers or pesticides near the lake and waterways\./i,
+  "Le point 4 anglais du 18 août doit rester symétrique à la formulation française.");
+assert.doesNotMatch(fiveHabitsPost.copy, /Éviter d’utiliser des engrais chimiques|Avoid chemical fertilizers/i,
+  "L’ancienne formulation du point 4 ne doit plus être diffusée.");
 const boardPortrait = posts.find((post) => post.id === "s1d3");
 assert.match(boardPortrait.title, /Pourquoi nous nous impliquons/i);
 assert.ok(boardPortrait.tasksAnnie.length >= 4);

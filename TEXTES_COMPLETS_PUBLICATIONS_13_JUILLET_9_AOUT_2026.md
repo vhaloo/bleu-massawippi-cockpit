@@ -1447,7 +1447,7 @@ FR — Prendre soin du lac peut se glisser dans des habitudes très simples.
 1 — Laisser une bande de végétation donner un coup de main au bord de l’eau.
 2 — Diriger l’eau de pluie vers une surface qui peut l’absorber plutôt que vers le lac.
 3 — Ramasser les déchets et les déjections animales avant qu’ils ne voyagent avec la pluie.
-4 — Éviter d’utiliser des engrais chimiques ou des pesticides près du lac et des cours d’eau.
+4 — Ne pas utiliser d’engrais chimiques ou de pesticides près du lac et des cours d’eau.
 5 — Avant de changer de plan d’eau, inspecter, vider, nettoyer et sécher l’embarcation et l’équipement.
 
 Cinq réflexes réalistes, à adopter là où ils s’appliquent, sans chercher la perfection.
@@ -1461,7 +1461,7 @@ EN — Caring for the lake can become part of very simple habits.
 1 — Let a strip of vegetation lend a hand along the water’s edge.
 2 — Direct rainwater toward a surface that can absorb it rather than toward the lake.
 3 — Pick up litter and pet waste before rain can carry them away.
-4 — Avoid chemical fertilizers and pesticides near the lake and waterways.
+4 — Do not use chemical fertilizers or pesticides near the lake and waterways.
 5 — Before moving between bodies of water, inspect, drain, clean and dry your boat and equipment.
 
 Five realistic habits to use where they apply, without aiming for perfection.
