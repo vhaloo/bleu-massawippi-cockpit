@@ -949,7 +949,7 @@ We will explain them one at a time, always with their context and limitations.
 
 **Thème :** Patrimoine
 **Format :** Photographie historique documentée · publication bilingue
-**Objectif :** Relier la mémoire industrielle de la rivière à l’histoire du bassin versant sans confondre la rivière et le lac. Angle écarté par la direction le 29 juillet 2026; conservé dans les archives éditoriales sans suppression.
+**Objectif :** Relier la mémoire industrielle de la rivière à l’histoire du bassin versant sans confondre la rivière et le lac. Angle écarté par la direction; conservé dans les archives éditoriales sans suppression.
 **CTA :** Découvrir un autre visage du bassin
 **Visuel final :** Photographie historique complète des chutes et du moulin, posée sur fond d’archive; petite ligne cartographique situant « rivière Massawippi » et date « vers 1865 », sans altérer ni coloriser la scène; crédit lisible.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
@@ -1171,7 +1171,7 @@ Thank you to Radio-Canada Estrie for bringing this issue to the public’s atten
 
 **Thème :** Patrimoine
 **Format :** Carte postale panoramique documentée · publication bilingue
-**Objectif :** Explorer l’image de North Hatley comme lieu de villégiature au début du XXe siècle, sans transformer le titre publicitaire de la carte en preuve historique suffisante. Angle écarté par la direction le 29 juillet 2026; conservé dans les archives éditoriales sans suppression.
+**Objectif :** Explorer l’image de North Hatley comme lieu de villégiature au début du XXe siècle, sans transformer le titre publicitaire de la carte en preuve historique suffisante. Angle écarté par la direction; conservé dans les archives éditoriales sans suppression.
 **CTA :** Partager un souvenir du lac
 **Visuel final :** Carte postale panoramique historique présentée au complet dans un album ouvert que des mains consultent; texture, bordure, date approximative et crédit préservés, avec la question « Quel souvenir vous revient? ».
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
@@ -1366,37 +1366,37 @@ They reflect the work of people who observe, return to the same sites and take t
 #BehindTheScenes #BleuMassawippi #LakeMassawippi #LakeScience
 ```
 
-## Dimanche 16 août — Le nénuphar, un petit habitat à la surface
+## Dimanche 16 août — Iris versicolore : la beauté d’un milieu essentiel
 
 **Thème :** Nature
-**Format :** Illustration aquarelle-encre 4:5
-**Objectif :** Présenter une plante aquatique familière sans généraliser son rôle ni encourager la cueillette.
-**CTA :** Découvrir son rôle dans le milieu
-**Visuel final :** Photographie réelle et autorisée d’un nénuphar blanc dans son milieu, recadrée sobrement au format 4:5 sans texte ni élément généré.
+**Format :** Photo macro ou courte vidéo + capsule espèce
+**Objectif :** Capsule phare avancée au dimanche 16 août à la demande de la direction; elle ouvre la séquence nature, tandis que le nénuphar est reporté pour éviter deux sujets de flore aquatique dans la même semaine.
+**CTA :** Regarder la fleur et tout son milieu
+**Visuel final :** Visuel phare 4:5 à fort impact : macro réaliste et correctement identifiée d’un iris versicolore, fleur très présente mais milieu humide encore lisible. Seconde carte éducative vintage : plante entière, fleur agrandie et trois repères — « eau · rive · biodiversité ». Aucun emplacement précis.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** National Park Service — les plantes aquatiques offrent ombre, abri et couvert à la faune des étangs : https://home.nps.gov/keaq/learn/nature/pond-ecosystem.htm · Photographie de Nymphaea odorata par Thomas G. Barnes, U.S. Fish and Wildlife Service, domaine public : https://commons.wikimedia.org/wiki/File:Nymphaea_odorata_fragrant_water_lily_flower.jpg
-**Préparation :** Utiliser la photographie réelle et correctement créditée. Si une photographie confirmée du bassin du Massawippi devient disponible avant la programmation, la privilégier; sinon, indiquer clairement que l’image de référence n’a pas été prise au lac Massawippi.
+**Source de référence :** Gouvernement du Québec — emblème floral et importance de l’eau et des milieux humides : https://www.quebec.ca/gouvernement/portrait-quebec/drapeau-symboles-nationaux/emblemes/iris-versicolore · Gouvernement du Québec — fonctions écologiques des milieux humides : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/forets/protection-forets/territoires-forestiers-proteges/milieux-humides-interet
+**Préparation :** Confirmer l’identification de l’espèce et éviter de révéler un emplacement sensible.
 
 ### Légende prête à programmer
 
 ```text
-FR — Le nénuphar n’est pas seulement une belle fleur à la surface. Enraciné dans les fonds peu profonds, il fait partie de la végétation aquatique qui structure les zones littorales.
+FR — L’iris versicolore attire d’abord le regard par ses nuances de violet, de bleu et de jaune. Emblème floral du Québec, il nous invite aussi à découvrir le milieu vivant qui l’accueille.
 
-Ses feuilles créent de l’ombre et du couvert; autour de ses tiges et de ses parties submergées, de petits organismes trouvent aussi des surfaces et des abris. Sa fleur relie enfin le lac aux insectes qui la visitent.
+L’iris versicolore est une plante indigène des milieux humides. Avec les autres végétaux de ces habitats, il contribue à stabiliser les sols et les berges, à soutenir une riche biodiversité et à maintenir l’équilibre naturel des milieux riverains. Il ne s’agit pas d’une plante envahissante : il appartient pleinement à la flore humide du Québec.
 
-Cette capsule présente le rôle général des nénuphars dans un herbier aquatique. La photographie montre un nénuphar blanc et n’a pas été prise au lac Massawippi.
+Observer l’iris, c’est donc voir à la fois une fleur remarquable et tout le milieu vivant qui l’entoure.
 
-#ZoomNature #BleuMassawippi #PlantesAquatiques #LacMassawippi
+#ZoomNature #BleuMassawippi #IrisVersicolore #LacMassawippi
 
 =========================================
 
-EN — A water lily is more than a beautiful flower at the surface. Rooted in shallow water, it is part of the aquatic vegetation that structures shoreline habitats.
+EN — A blue flag iris first catches the eye with its violet, blue and yellow colours. Quebec’s floral emblem, it also invites us to discover the living habitat around it.
 
-Its leaves create shade and cover; around its stems and submerged parts, small organisms also find surfaces and shelter. Its flower connects the lake with the insects that visit it.
+Blue flag iris is native to wetlands. Together with other plants in these habitats, it helps stabilize soils and shorelines, supports rich biodiversity and contributes to the natural balance of shoreline environments. It is not an invasive plant: it belongs to Quebec’s wetland flora.
 
-This feature explains the general role of water lilies in an aquatic plant bed. The photograph shows a white water lily and was not taken at Lake Massawippi.
+Observing an iris therefore means seeing both a remarkable flower and the entire living habitat around it.
 
-#NatureZoom #BleuMassawippi #AquaticPlants #LakeMassawippi
+#NatureZoom #BleuMassawippi #BlueFlagIris #LakeMassawippi
 ```
 
 ## Lundi 17 août — Trois informations pour mieux connaître le lac
@@ -1469,37 +1469,33 @@ Five realistic habits to use where they apply, without aiming for perfection.
 #EveryActionCounts #BleuMassawippi #LakeMassawippi #Prevention #Watershed
 ```
 
-## Mercredi 19 août — Iris versicolore : la beauté d’un milieu essentiel
+## Mercredi 19 août — Le voyage d’une goutte de pluie
 
-**Thème :** Nature
-**Format :** Photo macro ou courte vidéo + capsule espèce
-**Objectif :** Capsule phare reprogrammée dans un créneau visible afin de développer pleinement la beauté de l’iris versicolore et la valeur des milieux humides.
-**CTA :** Regarder la fleur et tout son milieu
-**Visuel final :** Visuel phare 4:5 à fort impact : macro réaliste et correctement identifiée d’un iris versicolore, fleur très présente mais milieu humide encore lisible. Seconde carte éducative vintage : plante entière, fleur agrandie et trois repères — « eau · rive · biodiversité ». Aucun emplacement précis.
+**Thème :** Coulisses
+**Format :** Photo de tributaire / bassin versant + récit court
+**Objectif :** Rendre le bassin versant tangible grâce à une image de terrain.
+**CTA :** Suivre son chemin
+**Visuel final :** Infographie illustrée comme un petit voyage : une goutte tombe sur un toit ou un jardin, rejoint un fossé, un tributaire puis le lac; chemin clair, paysage accueillant, palette pluie-vert-lac.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Gouvernement du Québec — emblème floral et importance de l’eau et des milieux humides : https://www.quebec.ca/gouvernement/portrait-quebec/drapeau-symboles-nationaux/emblemes/iris-versicolore · Gouvernement du Québec — fonctions écologiques des milieux humides : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/forets/protection-forets/territoires-forestiers-proteges/milieux-humides-interet
-**Préparation :** Confirmer l’identification de l’espèce et éviter de révéler un emplacement sensible.
+**Source de référence :** https://bleumassawippi.com/accueil-1
+**Préparation :** Ne pas identifier un terrain privé ni présenter un tributaire comme une source de problème sans données confirmées.
 
 ### Légende prête à programmer
 
 ```text
-FR — L’iris versicolore attire d’abord le regard par ses nuances de violet, de bleu et de jaune. Emblème floral du Québec, il nous invite aussi à découvrir le milieu vivant qui l’accueille.
+FR — Imaginez une goutte de pluie qui tombe sur un toit, un chemin ou une pelouse. Elle peut rejoindre un fossé, poursuivre vers un tributaire, puis arriver au Massawippi.
 
-L’iris versicolore est une plante indigène des milieux humides. Avec les autres végétaux de ces habitats, il contribue à stabiliser les sols et les berges, à soutenir une riche biodiversité et à maintenir l’équilibre naturel des milieux riverains. Il ne s’agit pas d’une plante envahissante : il appartient pleinement à la flore humide du Québec.
+Suivre son voyage aide à voir le bassin versant autrement : ce qui ralentit et absorbe l’eau en amont donne aussi un coup de main au lac. La prochaine fois qu’il pleut, regardez où l’eau choisit de passer.
 
-Observer l’iris, c’est donc voir à la fois une fleur remarquable et tout le milieu vivant qui l’entoure.
-
-#ZoomNature #BleuMassawippi #IrisVersicolore #LacMassawippi
+#BassinVersant #BleuMassawippi #LacMassawippi #AgirEnAmont
 
 =========================================
 
-EN — A blue flag iris first catches the eye with its violet, blue and yellow colours. Quebec’s floral emblem, it also invites us to discover the living habitat around it.
+EN — Imagine a raindrop landing on a roof, road or lawn. It may reach a ditch, continue toward a tributary and eventually arrive at Massawippi.
 
-Blue flag iris is native to wetlands. Together with other plants in these habitats, it helps stabilize soils and shorelines, supports rich biodiversity and contributes to the natural balance of shoreline environments. It is not an invasive plant: it belongs to Quebec’s wetland flora.
+Following its journey offers a new way to see the watershed: what slows and absorbs water upstream also lends the lake a hand. The next time it rains, notice where the water chooses to travel.
 
-Observing an iris therefore means seeing both a remarkable flower and the entire living habitat around it.
-
-#NatureZoom #BleuMassawippi #BlueFlagIris #LakeMassawippi
+#Watershed #BleuMassawippi #LakeMassawippi #ThinkUpstream
 ```
 
 ## Jeudi 20 août — Ici, l’eau prend son temps
@@ -1725,11 +1721,44 @@ Next time you look at the lake, how far can you imagine its watershed extending 
 #BleuMassawippi #LakeMassawippi #Watershed #Water
 ```
 
-## Jeudi 27 août — Partager le lac, c’est aussi se laisser de l’espace
+## Jeudi 27 août — Le nénuphar, un petit habitat à la surface
+
+**Thème :** Nature
+**Format :** Illustration aquarelle-encre 4:5
+**Objectif :** Sujet nature conservé et reporté au 27 août afin de laisser respirer l’iris du 16 août et de maintenir une séquence éditoriale variée.
+**CTA :** Découvrir son rôle dans le milieu
+**Visuel final :** Photographie réelle et autorisée d’un nénuphar blanc dans son milieu, recadrée sobrement au format 4:5 sans texte ni élément généré.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** National Park Service — les plantes aquatiques offrent ombre, abri et couvert à la faune des étangs : https://home.nps.gov/keaq/learn/nature/pond-ecosystem.htm · Photographie de Nymphaea odorata par Thomas G. Barnes, U.S. Fish and Wildlife Service, domaine public : https://commons.wikimedia.org/wiki/File:Nymphaea_odorata_fragrant_water_lily_flower.jpg
+**Préparation :** Utiliser la photographie réelle et correctement créditée. Si une photographie confirmée du bassin du Massawippi devient disponible avant la programmation, la privilégier; sinon, indiquer clairement que l’image de référence n’a pas été prise au lac Massawippi.
+
+### Légende prête à programmer
+
+```text
+FR — Le nénuphar n’est pas seulement une belle fleur à la surface. Enraciné dans les fonds peu profonds, il fait partie de la végétation aquatique qui structure les zones littorales.
+
+Ses feuilles créent de l’ombre et du couvert; autour de ses tiges et de ses parties submergées, de petits organismes trouvent aussi des surfaces et des abris. Sa fleur relie enfin le lac aux insectes qui la visitent.
+
+Cette capsule présente le rôle général des nénuphars dans un herbier aquatique. La photographie montre un nénuphar blanc et n’a pas été prise au lac Massawippi.
+
+#ZoomNature #BleuMassawippi #PlantesAquatiques #LacMassawippi
+
+=========================================
+
+EN — A water lily is more than a beautiful flower at the surface. Rooted in shallow water, it is part of the aquatic vegetation that structures shoreline habitats.
+
+Its leaves create shade and cover; around its stems and submerged parts, small organisms also find surfaces and shelter. Its flower connects the lake with the insects that visit it.
+
+This feature explains the general role of water lilies in an aquatic plant bed. The photograph shows a white water lily and was not taken at Lake Massawippi.
+
+#NatureZoom #BleuMassawippi #AquaticPlants #LakeMassawippi
+```
+
+## Archive éditoriale — Partager le lac, c’est aussi se laisser de l’espace
 
 **Thème :** Humanité
 **Format :** Photo humaine sans visage + message court
-**Objectif :** Sujet récurrent conservé pour un autre mois avec une formulation distincte, afin d’éviter la répétition dans la même séquence.
+**Objectif :** Sujet récurrent conservé pour un autre mois avec une formulation distincte, afin d’éviter la répétition dans la même séquence. Angle écarté par la direction; conservé dans les archives éditoriales sans suppression.
 **CTA :** Choisir la courtoisie
 **Visuel final :** Mini-récit en trois cases : main qui réduit doucement la vitesse, salut amical entre usagers, puis famille ou personne profitant d’une rive calme. Dernière carte : « Merci de partager le lac ».
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
@@ -2352,31 +2381,39 @@ Thank you to everyone who makes this patient work possible, season after season.
 #BleuMassawippi #LakeMassawippi #LakeScience #BehindTheScenes
 ```
 
-## Mardi 15 septembre — Le voyage d’une goutte de pluie
+## Mardi 15 septembre — Le soir change notre regard
 
-**Thème :** Coulisses
-**Format :** Photo de tributaire / bassin versant + récit court
-**Objectif :** Rendre le bassin versant tangible grâce à une image de terrain.
-**CTA :** Suivre son chemin
-**Visuel final :** Infographie illustrée comme un petit voyage : une goutte tombe sur un toit ou un jardin, rejoint un fossé, un tributaire puis le lac; chemin clair, paysage accueillant, palette pluie-vert-lac.
+**Thème :** Contemplation
+**Format :** Photographie d’archive réelle + légende bilingue
+**Objectif :** Terminer la séquence par une pause contemplative distincte, fondée sur une photographie authentique du lac et clairement datée comme archive.
+**CTA :** Observer un détail
+**Visuel final :** Photographie réelle du lac Massawippi au crépuscule, recadrée mécaniquement en 4:5 sans ajout ni modification de la scène.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/accueil-1
-**Préparation :** Ne pas identifier un terrain privé ni présenter un tributaire comme une source de problème sans données confirmées.
+**Source de référence :** Philzzz77 — Lac Massawippi soirée automne 2024, 4 septembre 2024, Wikimedia Commons, CC BY-SA 4.0.
+**Préparation :** Vérifier le crédit CC BY-SA 4.0, le texte alternatif et la cohérence bilingue avant programmation.
 
 ### Légende prête à programmer
 
 ```text
-FR — Imaginez une goutte de pluie qui tombe sur un toit, un chemin ou une pelouse. Elle peut rejoindre un fossé, poursuivre vers un tributaire, puis arriver au Massawippi.
+FR — À la fin du jour, le lac semble se faire plus silencieux. La lumière glisse sur l’eau, les rives deviennent des silhouettes et un paysage familier se révèle autrement.
 
-Suivre son voyage aide à voir le bassin versant autrement : ce qui ralentit et absorbe l’eau en amont donne aussi un coup de main au lac. La prochaine fois qu’il pleut, regardez où l’eau choisit de passer.
+Cette photographie d’archive, prise en septembre 2024, ne montre pas l’état du lac aujourd’hui. Elle nous rappelle simplement qu’un même lieu ne se regarde jamais tout à fait deux fois.
 
-#BassinVersant #BleuMassawippi #LacMassawippi #AgirEnAmont
+Quel détail attire votre regard en premier?
+
+Photo : Philzzz77, CC BY-SA 4.0.
+
+#BleuMassawippi #LacMassawippi #AuFilDuLac
 
 =========================================
 
-EN — Imagine a raindrop landing on a roof, road or lawn. It may reach a ditch, continue toward a tributary and eventually arrive at Massawippi.
+EN — At the end of the day, the lake seems to grow quieter. Light moves across the water, the shorelines become silhouettes and a familiar landscape reveals itself differently.
 
-Following its journey offers a new way to see the watershed: what slows and absorbs water upstream also lends the lake a hand. The next time it rains, notice where the water chooses to travel.
+This archival photograph, taken in September 2024, does not show the lake’s current condition. It simply reminds us that the same place never looks quite the same twice.
 
-#Watershed #BleuMassawippi #LakeMassawippi #ThinkUpstream
+What detail catches your eye first?
+
+Photo: Philzzz77, CC BY-SA 4.0.
+
+#BleuMassawippi #LakeMassawippi #AlongTheLake
 ```
