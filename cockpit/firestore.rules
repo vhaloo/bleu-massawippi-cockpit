@@ -301,7 +301,12 @@ service cloud.firestore {
           ? true
           : validSelectedMedia(eventId, data.communications))
         && validMediaAgreement(data)
-        && data.communications.actorUid == request.auth.uid;
+        // Une transition de la porte texte synchronise aussi textGateStage et
+        // agreement dans ce document, même si les communications n'ont pas
+        // encore choisi de média. Dans ce cas, leur côté doit rester strictement
+        // inchangé; l'exigence actorUid ne s'applique que lorsqu'il est modifié.
+        && (data.communications == before.communications
+          || data.communications.actorUid == request.auth.uid);
     }
 
     function validDirectorMediaDecisionUpdate(eventId) {
@@ -315,7 +320,10 @@ service cloud.firestore {
           ? true
           : validSelectedMedia(eventId, data.direction))
         && validMediaAgreement(data)
-        && data.direction.actorUid == request.auth.uid
+        // Même garde-fou pour l'approbation du texte par la direction avant
+        // qu'elle ait choisi un média : aucune identité vide n'est inventée.
+        && (data.direction == before.direction
+          || data.direction.actorUid == request.auth.uid)
         && (data.override.active == false
           || (data.override.actorUid == request.auth.uid
             && data.override.actorRole == 'director'));
