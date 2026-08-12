@@ -9,6 +9,7 @@ const ARCHIVED_DATE_ISO = new Map([
   ["s2d3", "2026-07-22"],
   ["s2d6", "2026-07-26"],
   ["s3d1b", "2026-07-27"],
+  ["alt-20260725", "2026-08-27"],
   ["alt-20260804", "2026-08-04"],
   ["alt-20260810", "2026-08-10"]
 ]);
@@ -590,6 +591,57 @@ Want to keep playing? More than 500 bilingual questions await: https://bleumassa
       "Valider que le rappel est exact, accueillant et adapté au contexte institutionnel."
     ],
     taskOwnersVersion: "event-task-owners-2026-07-29-continuity-v1"
+  },
+  {
+    id: "photo-20260915-soir-automne",
+    w: 10,
+    date: "Mardi 15 septembre",
+    calendarTime: "12:00",
+    t: "Contemplation",
+    tier: "Passerelle",
+    title: "Le soir change notre regard",
+    format: "Photographie d’archive réelle + légende bilingue",
+    role: "Terminer la séquence par une pause contemplative distincte, fondée sur une photographie authentique du lac et clairement datée comme archive.",
+    cta: "Observer un détail",
+    visual: "Photographie réelle du lac Massawippi au crépuscule, recadrée mécaniquement en 4:5 sans ajout ni modification de la scène.",
+    source: "Philzzz77 — Lac Massawippi soirée automne 2024, 4 septembre 2024, Wikimedia Commons, CC BY-SA 4.0.",
+    fallback: "Photographie réelle du lac dont la date, le crédit et la licence sont explicitement conservés.",
+    kpi: "Enregistrements / commentaires d’observation",
+    task: "Vérifier le crédit CC BY-SA 4.0, le texte alternatif et la cohérence bilingue avant programmation.",
+    copy: `FR — À la fin du jour, le lac semble se faire plus silencieux. La lumière glisse sur l’eau, les rives deviennent des silhouettes et un paysage familier se révèle autrement.
+
+Cette photographie d’archive, prise en septembre 2024, ne montre pas l’état du lac aujourd’hui. Elle nous rappelle simplement qu’un même lieu ne se regarde jamais tout à fait deux fois.
+
+Quel détail attire votre regard en premier?
+
+Photo : Philzzz77, CC BY-SA 4.0.
+
+#BleuMassawippi #LacMassawippi #AuFilDuLac
+
+=========================================
+
+EN — At the end of the day, the lake seems to grow quieter. Light moves across the water, the shorelines become silhouettes and a familiar landscape reveals itself differently.
+
+This archival photograph, taken in September 2024, does not show the lake’s current condition. It simply reminds us that the same place never looks quite the same twice.
+
+What detail catches your eye first?
+
+Photo: Philzzz77, CC BY-SA 4.0.
+
+#BleuMassawippi #LakeMassawippi #AlongTheLake`,
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    isAlternative: false,
+    tasksValentin: [
+      "Conserver le crédit, la date d’archive et la licence CC BY-SA 4.0 dans la légende.",
+      "Vérifier le recadrage 4:5, le texte alternatif bilingue et la lisibilité mobile.",
+      "Soumettre les validations puis programmer la publication."
+    ],
+    tasksAnnie: [
+      "Valider que la pause contemplative demeure claire, sobre et cohérente avec la mission."
+    ],
+    taskOwnersVersion: "event-task-owners-2026-08-12-continuity-v1"
   }
 ];
 
@@ -612,10 +664,10 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["alt-20260807", 5, "Jeudi 13 août", "2026-08-13"],
   ["s3d6", 5, "Vendredi 14 août", "2026-08-14"],
   ["s4d1b", 5, "Samedi 15 août", "2026-08-15"],
-  ["alt-20260805", 5, "Dimanche 16 août", "2026-08-16"],
+  ["s2d1", 5, "Dimanche 16 août", "2026-08-16"],
   ["alt-20260716", 6, "Lundi 17 août", "2026-08-17"],
   ["s3d7", 6, "Mardi 18 août", "2026-08-18"],
-  ["s2d1", 6, "Mercredi 19 août", "2026-08-19"],
+  ["s4d5", 6, "Mercredi 19 août", "2026-08-19"],
   ["s4d4", 6, "Jeudi 20 août", "2026-08-20"],
   ["s4d3", 6, "Vendredi 21 août", "2026-08-21"],
   ["alt-20260718", 6, "Samedi 22 août", "2026-08-22"],
@@ -623,7 +675,7 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["alt-20260721", 7, "Lundi 24 août", "2026-08-24"],
   ["alt-20260723", 7, "Mardi 25 août", "2026-08-25"],
   ["alt-20260724", 7, "Mercredi 26 août", "2026-08-26"],
-  ["alt-20260725", 7, "Jeudi 27 août", "2026-08-27"],
+  ["alt-20260805", 7, "Jeudi 27 août", "2026-08-27"],
   ["alt-20260728", 7, "Vendredi 28 août", "2026-08-28"],
   ["s1d7", 7, "Samedi 29 août", "2026-08-29"],
   ["lexique-20260830-tributaire", 7, "Dimanche 30 août", "2026-08-30"],
@@ -641,7 +693,7 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["don-20260911-merci-bilan", 9, "Vendredi 11 septembre", "2026-09-11"],
   ["archives-20260912-vos-images", 9, "Samedi 12 septembre", "2026-09-12"],
   ["quiz-20260913-trois-gestes", 9, "Dimanche 13 septembre", "2026-09-13"],
-  ["s4d5", 10, "Mardi 15 septembre", "2026-09-15"]
+  ["photo-20260915-soir-automne", 10, "Mardi 15 septembre", "2026-09-15"]
 ];
 
 const COMPLETED_POST_REPAIR_ROTATIONS = new Map([
@@ -660,11 +712,11 @@ const COMPLETED_POST_REPAIR_ROTATIONS = new Map([
     reason: "Relais Radio-Canada déplacé au dimanche 9 août afin de restaurer sans altération la publication du 4 août déjà programmée."
   }],
   ["s4d5", {
-    from: "2026-08-09",
-    to: "2026-09-15",
+    from: "2026-09-15",
+    to: "2026-08-19",
     calendarTime: "12:00",
-    displacedBy: "actualite-20260804-article-radio-canada-moules-zebrees",
-    reason: "Le voyage d’une goutte de pluie est conservé intégralement au 15 septembre afin de libérer le dimanche 9 août pour le relais d’actualité Radio-Canada."
+    displacedBy: null,
+    reason: "Le voyage d’une goutte de pluie revient au 19 août pour séparer les deux sujets de flore aquatique et maintenir une publication par jour sans réutiliser l’angle éditorial refusé."
   }]
 ]);
 
@@ -1028,13 +1080,15 @@ export function applyPlanOverridesToPosts(posts) {
   });
   const deferredIris = posts.find((post) => post.id === "s2d1");
   if (deferredIris) Object.assign(deferredIris, {
-    w: 6,
-    date: "Mercredi 19 août",
+    w: 5,
+    date: "Dimanche 16 août",
     calendarTime: "12:30",
     choiceRequired: false,
     optionGroup: null,
     optionLabel: null,
-      role: "Capsule phare reprogrammée dans un créneau visible afin de développer pleinement la beauté de l’iris versicolore et la valeur des milieux humides."
+      role: "Capsule phare avancée au dimanche 16 août à la demande de la direction; elle ouvre la séquence nature, tandis que le nénuphar est reporté pour éviter deux sujets de flore aquatique dans la même semaine.",
+      editorialFamily: "flore-aquatique",
+      topicSignature: "plante-aquatique,flore-riveraine"
     });
   const chosenHistory = posts.find((post) => post.id === "s2d7");
   if (chosenHistory) Object.assign(chosenHistory, {
@@ -1204,7 +1258,7 @@ export function applyPlanOverridesToPosts(posts) {
     const post = finalPosts.find((item) => item.id === id);
     if (post) Object.assign(post, placement);
   });
-  ["alt-20260804", "alt-20260810"].forEach((id) => {
+  ["alt-20260725", "alt-20260804", "alt-20260810"].forEach((id) => {
     const rejected = finalPosts.find((item) => item.id === id);
     if (!rejected) return;
     Object.assign(rejected, {
@@ -1215,7 +1269,7 @@ export function applyPlanOverridesToPosts(posts) {
       choiceRequired: false,
       optionGroup: null,
       optionLabel: null,
-      role: `${rejected.role || ""} Angle écarté par la direction le 29 juillet 2026; conservé dans les archives éditoriales sans suppression.`.trim()
+      role: `${rejected.role || ""} Angle écarté par la direction; conservé dans les archives éditoriales sans suppression.`.trim()
     });
   });
   ["s1d3b", "alt-20260715", "s1d5", "s1d6", "s1d4", "s1d2", "s2d1b", "s1d7", "s2d1", "s2d2", "alt-20260722", "s2d4", "s2d5", "s2d7", "alt-20260726", "s3d1", "s3d2", "s3d4", "s3d3", "s3d7", "s4d1", "s4d1b", "alt-20260729", "alt-20260802", "lexique-20260830-tributaire", "don-20260729-appel-soutien", "don-20260807-merci-bilan", "poesie-20260727-appel-aux-voix"].forEach((id) => {
@@ -1248,6 +1302,12 @@ export function applyPlanOverridesToPosts(posts) {
         rescheduleHistory: history
       } : {})
     });
+  });
+  const deferredWaterLily = finalPosts.find((post) => post.id === "alt-20260805");
+  if (deferredWaterLily) Object.assign(deferredWaterLily, {
+    editorialFamily: "flore-aquatique",
+    topicSignature: "plante-aquatique,flore-riveraine",
+    role: "Sujet nature conservé et reporté au 27 août afin de laisser respirer l’iris du 16 août et de maintenir une séquence éditoriale variée."
   });
   const monitoringDeferredForRadioCanada = finalPosts.find((post) => post.id === "s1d2");
   if (monitoringDeferredForRadioCanada) {

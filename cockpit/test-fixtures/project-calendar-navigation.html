@@ -41,7 +41,7 @@
     const role = new URLSearchParams(location.search).get("role") === "director" ? "director" : "admin";
     document.querySelector("#cockpit-session").dataset.uid = role === "director" ? "annie" : "valentin";
     document.querySelector("#cockpit-session-label").textContent = `Connecté · rôle ${role}`;
-    const { bindRelatedProjectButtons } = await import("../project-calendar.js?v=20260811-b61-directbind");
+    const { bindRelatedProjectButtons } = await import("../project-calendar.js?v=20260812-b62-directbind");
     const button = document.querySelector("[data-open-related-project]");
     bindRelatedProjectButtons(document.querySelector("#project-calendar"));
     button.addEventListener("click", () => {

@@ -4,6 +4,7 @@ import { FieldValue, getFirestore } from "firebase-admin/firestore";
 
 const apply = process.argv.includes("--apply");
 const confirm = process.argv.includes("--confirm-editorial-reconciliation");
+const eventFilter = process.argv.find((value) => value.startsWith("--event="))?.slice("--event=".length).trim() || "";
 
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) throw new Error("Compte de service local requis.");
 if (apply && !confirm) throw new Error("Relancer avec --apply --confirm-editorial-reconciliation après vérification du dry-run.");
@@ -15,7 +16,17 @@ if (admins.size !== 1) throw new Error(`Un unique compte communications actif es
 const actor = { uid: admins.docs[0].id, ...admins.docs[0].data() };
 const actorLabel = String(actor.displayLabel || "Direction des communications").slice(0, 120);
 
-const operations = [
+const allOperations = [
+  {
+    eventId: "alt-20260725",
+    taskId: "editorial-alt-20260725",
+    archiveId: "editorial-archive-alt-20260725-20260812",
+    expectedDecision: "rejected",
+    nextDecision: "rejected",
+    targetLabel: "Archive éditoriale · Partager le lac, c’est aussi se laisser de l’espace",
+    action: "angle éditorial rejeté classé sans suppression",
+    completionReason: "Angle écarté par la direction le 12 août 2026 et conservé dans les archives éditoriales; il ne revient plus dans le calendrier actif."
+  },
   {
     eventId: "alt-20260804",
     taskId: "editorial-alt-20260804",
@@ -47,6 +58,10 @@ const operations = [
     completionReason: "Bonne idée conservée et reprogrammée au mercredi 2 septembre; la tâche de déplacement est terminée et la proposition redevient active à sa nouvelle date."
   }
 ];
+const operations = eventFilter
+  ? allOperations.filter((operation) => operation.eventId === eventFilter)
+  : allOperations;
+if (!operations.length) throw new Error(`Aucune opération éditoriale trouvée pour ${eventFilter}.`);
 
 const initial = await Promise.all(operations.map(async (operation) => {
   const taskRef = db.doc(`tasks/${operation.taskId}`);
@@ -67,6 +82,7 @@ const initial = await Promise.all(operations.map(async (operation) => {
 console.log(JSON.stringify({
   mode: apply ? "apply" : "dry-run",
   actor: actorLabel,
+  eventFilter: eventFilter || null,
   operations: initial.map((item) => ({
     eventId: item.eventId,
     taskStatusBefore: item.task.data().status,
