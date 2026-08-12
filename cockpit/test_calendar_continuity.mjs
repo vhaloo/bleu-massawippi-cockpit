@@ -11,7 +11,7 @@ assert.ok(postsJson, "Le calendrier source doit rester lisible.");
 
 const posts = applyPlanOverridesToPosts(JSON.parse(postsJson));
 const start = "2026-07-29";
-const end = "2026-09-13";
+const end = "2026-09-15";
 const horizon = posts.filter((post) => post.archivedEditorial !== true && post.dateIso >= start && post.dateIso <= end);
 const byDate = Object.groupBy(horizon, (post) => post.dateIso);
 const expectedDates = [];
@@ -19,8 +19,8 @@ for (const cursor = new Date(`${start}T12:00:00Z`); cursor <= new Date(`${end}T1
   expectedDates.push(cursor.toISOString().slice(0, 10));
 }
 
-assert.equal(horizon.length, 47, "La période demandée doit contenir 47 publications actives.");
-assert.deepEqual(Object.keys(byDate).sort(), expectedDates, "Aucune date du 29 juillet au 13 septembre ne doit être vide.");
+assert.equal(horizon.length, 49, "La période demandée doit contenir 49 publications actives.");
+assert.deepEqual(Object.keys(byDate).sort(), expectedDates, "Aucune date du 29 juillet au 15 septembre ne doit être vide.");
 assert.ok(Object.values(byDate).every((items) => items.length === 1), "Chaque journée doit contenir exactement une publication active.");
 assert.ok(horizon.every((post) => post.choiceRequired !== true && !post.optionGroup), "Les anciens choix séparés doivent devenir des dates autonomes.");
 
@@ -36,7 +36,8 @@ const newIds = [
   "nature-20260910-feuille-surface",
   "don-20260911-merci-bilan",
   "archives-20260912-vos-images",
-  "quiz-20260913-trois-gestes"
+  "quiz-20260913-trois-gestes",
+  "photo-20260915-soir-automne"
 ];
 for (const id of newIds) {
   const post = horizon.find((item) => item.id === id);
@@ -100,8 +101,14 @@ const restoredCompletedSlot = posts.find((item) => item.id === "alt-20260731");
 assert.equal(restoredCompletedSlot?.dateIso, "2026-08-04", "Le post déjà programmé doit être restauré au 4 août.");
 assert.equal(restoredCompletedSlot?.displacedBy, null);
 const deferredRaindrop = posts.find((item) => item.id === "s4d5");
-assert.equal(deferredRaindrop?.dateIso, "2026-09-15", "Le voyage d’une goutte de pluie doit être conservé au créneau libéré.");
-assert.equal(deferredRaindrop?.displacedBy, radioCanadaArticle.id);
+assert.equal(deferredRaindrop?.dateIso, "2026-08-19", "Le voyage d’une goutte de pluie doit séparer les deux sujets de flore aquatique.");
+assert.equal(deferredRaindrop?.displacedBy, null);
+const irisPost = posts.find((item) => item.id === "s2d1");
+assert.equal(irisPost?.dateIso, "2026-08-16", "L’iris doit occuper le dimanche proposé par la direction.");
+const waterLilyPost = posts.find((item) => item.id === "alt-20260805");
+assert.equal(waterLilyPost?.dateIso, "2026-08-27", "Le nénuphar doit être reporté assez loin pour diversifier la séquence.");
+const rejectedSharedSpace = posts.find((item) => item.id === "alt-20260725");
+assert.equal(rejectedSharedSpace?.archivedEditorial, true, "L’angle éditorial refusé doit être archivé sans suppression.");
 const deferredMonitoringPost = posts.find((item) => item.id === "s1d2");
 assert.equal(deferredMonitoringPost?.dateIso, "2026-09-14", "Le suivi du lac et de ses tributaires doit être conservé au 14 septembre.");
 

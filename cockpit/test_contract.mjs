@@ -55,7 +55,7 @@ for (const post of posts) {
 }
 assert.deepEqual(
   Object.fromEntries(posts.filter((post) => post.archivedEditorial === true).map((post) => [post.id, post.dateIso])),
-  { s1d1b: "2026-07-13", s2d3: "2026-07-22", s2d6: "2026-07-26", s3d1b: "2026-07-27", "alt-20260804": "2026-08-04", "alt-20260810": "2026-08-10" },
+  { s1d1b: "2026-07-13", s2d3: "2026-07-22", s2d6: "2026-07-26", s3d1b: "2026-07-27", "alt-20260804": "2026-08-04", "alt-20260810": "2026-08-10", "alt-20260725": "2026-08-27" },
   "Les archives éditoriales doivent conserver leur date d’origine pour rester modifiables sous les règles Firestore."
 );
 for (const post of activePosts.filter((post) => post.dateIso >= "2026-07-22")) {
@@ -169,8 +169,8 @@ assert.ok(volunteer.tasksAnnie.some((task) => /coordonn/i.test(task)));
 assert.ok(volunteer.tasksAnnie.some((task) => /consentement/i.test(task)));
 assert.equal(firstTuesday.choiceRequired, false, "La proposition retenue du mardi est verrouillée et ne demande plus d’arbitrage.");
 assert.equal(firstTuesday.optionGroup, null, "Une proposition verrouillée ne doit plus appartenir à un groupe de choix actif.");
-assert.equal(posts.filter((post) => !post.isAlternative).length, 40);
-assert.equal(posts.length, 71);
+assert.equal(posts.filter((post) => !post.isAlternative).length, 41);
+assert.equal(posts.length, 72);
 const radioCanadaArticle = posts.find((post) => post.id === "actualite-20260804-article-radio-canada-moules-zebrees");
 assert.ok(radioCanadaArticle, "Le nouvel article écrit de Radio-Canada doit devenir une publication distincte.");
 assert.equal(radioCanadaArticle.dateIso, "2026-08-09");
@@ -261,9 +261,9 @@ assert.equal(displacedBoatCleaningPost.archivedEditorial, undefined, "Le post d�
 assert.equal(displacedBoatCleaningPost.displacedBy, donationAppeal.id);
 const displacedWatershedPost = posts.find((post) => post.id === "s4d5");
 const displacedHeritagePost = posts.find((post) => post.id === "alt-20260807");
-assert.equal(displacedWatershedPost.dateIso, "2026-09-15");
-assert.equal(displacedWatershedPost.displacedBy, radioCanadaArticle.id);
-assert.match(displacedWatershedPost.rescheduledReason, /dimanche 9 août/i);
+assert.equal(displacedWatershedPost.dateIso, "2026-08-19");
+assert.equal(displacedWatershedPost.displacedBy, null);
+assert.match(displacedWatershedPost.rescheduledReason, /séparer les deux sujets de flore aquatique/i);
 assert.equal(displacedHeritagePost.dateIso, "2026-08-13");
 assert.equal(displacedWatershedPost.optionGroup, null);
 assert.equal(displacedHeritagePost.optionGroup, null);

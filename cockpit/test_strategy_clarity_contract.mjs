@@ -16,7 +16,7 @@ for (const marker of [
   "Niveau du lac et barrage — des repères utiles",
   "station hydrométrique 030241",
   "Étude de préfaisabilité pour l’évaluation du gain potentiel sur les inondations suivant un abaissement du seuil de la crête déversante",
-  "Municipalité de Hatley",
+  "Le Village de North Hatley a mandaté la firme GBI, qui a confié l’analyse hydraulique à FLUVIO.",
   "Comparer à l’historique ↗",
   "Partenariats 2026–2027 · version 11 · 6 pages",
   "la continuité des suivis de la qualité de l’eau et des inventaires",
@@ -40,11 +40,11 @@ const levelDecision = projectDecisions.decisions.find((decision) => decision.id 
 assert.ok(levelDecision, "La décision de validation du futur encart Niveau du lac doit rester déclarée.");
 assert.equal(levelDecision.sourceType, "section", "La décision Niveau du lac doit cibler une section stratégique.");
 assert.equal(levelDecision.sourceId, "site-niveau-lac-rapport-2025", "La décision Niveau du lac doit cibler son propre encart, jamais le cadre générique du mandat.");
-assert.ok(levelDecision.message.includes("L’attribution à la Municipalité de Hatley et le titre complet ont été vérifiés"),
+assert.ok(levelDecision.message.includes("le Village de North Hatley a mandaté GBI, qui a confié l’analyse hydraulique à FLUVIO"),
   "La décision doit distinguer la vérification factuelle déjà faite de la validation éditoriale encore attendue.");
 assert.ok(strategy.includes(`id="${levelDecision.sourceId}"`), "Toute décision stratégique doit avoir une destination réelle dans le cockpit.");
-assert.ok(!strategy.includes("elle a été demandée par le Village de North Hatley"),
-  "L’attribution erronée de l’étude ne doit pas réapparaître.");
+assert.ok(!strategy.includes("réalisée pour la Municipalité de Hatley"),
+  "L’ancienne attribution erronée de l’étude ne doit pas réapparaître.");
 assert.ok(!strategy.includes('class="wrap stats"'), "Le bandeau de métriques redondant ne doit pas réapparaître hors de la stratégie.");
 assert.match(strategy, /\.strategic-document-card \{[^}]*scroll-margin-top:/,
   "Les raccourcis vers les documents stratégiques doivent laisser leur titre visible sous le menu fixe.");

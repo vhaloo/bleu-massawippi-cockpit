@@ -5,7 +5,7 @@ import { FieldValue, getFirestore } from "firebase-admin/firestore";
 
 const DECISION_ID = "site-niveau-lac-rapport-2025-v1";
 const ACTION_ID = `project-decision-${DECISION_ID}`;
-const MUTATION_ID = "reconcile-level-lake-content-20260808-v1";
+const MUTATION_ID = "reconcile-level-lake-content-20260812-v2";
 const APPLY = process.argv.includes("--apply");
 const CONFIRM = process.argv.includes("--confirm-level-lake-content");
 
@@ -77,7 +77,7 @@ if (APPLY && !alreadyCorrect) {
     transaction.set(archiveRef, {
       entityType: "projectDecisionContent",
       entityId: ACTION_ID,
-      action: "consigne Niveau du lac actualisée après vérification de la source officielle",
+      action: "attribution du rapport Niveau du lac corrigée après vérification du rapport officiel",
       before: { actionItem: before },
       after: { actionItem: after },
       actorUid: actor.uid,
