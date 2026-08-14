@@ -21,6 +21,14 @@ assert.match(iris?.topicSignature || "", /plante-aquatique/);
 assert.match(waterLily?.topicSignature || "", /plante-aquatique/);
 assert.equal(iris?.dateIso, "2026-08-16");
 assert.equal(waterLily?.dateIso, "2026-08-27");
+assert.match(iris?.copy || "", /Un iris ne se cueille pas, il se contemple\./,
+  "La légende doit conserver la formulation retenue par la direction pour décourager la cueillette avec douceur.");
+assert.doesNotMatch(iris?.copy || "", /plante envahissante|flore humide/u,
+  "La légende ne doit plus contenir les formulations que la direction a demandé de retirer.");
+assert.match(iris?.copy || "", /=========================================/,
+  "La publication sur l’iris doit rester bilingue.");
+assert.ok((iris?.copy || "").length <= 2200,
+  "La publication bilingue sur l’iris doit respecter la limite de 2 200 caractères.");
 
 const simulatedConflict = findEditorialFamilyConflicts([
   { id: "iris", dateIso: "2026-08-16", editorialFamily: "flore-aquatique" },
