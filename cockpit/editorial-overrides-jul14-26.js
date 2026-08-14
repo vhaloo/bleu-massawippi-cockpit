@@ -248,16 +248,16 @@ Which detail catches your eye first?
     copy: bilingual(
       `L’iris versicolore attire d’abord le regard par ses nuances de violet, de bleu et de jaune. Emblème floral du Québec, il nous invite aussi à découvrir le milieu vivant qui l’accueille.
 
-L’iris versicolore est une plante indigène des milieux humides. Avec les autres végétaux de ces habitats, il contribue à stabiliser les sols et les berges, à soutenir une riche biodiversité et à maintenir l’équilibre naturel des milieux riverains. Il ne s’agit pas d’une plante envahissante : il appartient pleinement à la flore humide du Québec.
+L’iris versicolore est une plante indigène des milieux humides. Il fait partie de ces habitats essentiels qui contribuent à stabiliser les lacs et les cours d’eau, à améliorer la qualité de l’eau et à soutenir une riche biodiversité.
 
-Observer l’iris, c’est donc voir à la fois une fleur remarquable et tout le milieu vivant qui l’entoure.
+Un iris ne se cueille pas, il se contemple. On en garde le souvenir en photo, et la magie reste intacte.
 
 #ZoomNature #BleuMassawippi #IrisVersicolore #LacMassawippi`,
       `A blue flag iris first catches the eye with its violet, blue and yellow colours. Quebec’s floral emblem, it also invites us to discover the living habitat around it.
 
-Blue flag iris is native to wetlands. Together with other plants in these habitats, it helps stabilize soils and shorelines, supports rich biodiversity and contributes to the natural balance of shoreline environments. It is not an invasive plant: it belongs to Quebec’s wetland flora.
+Blue flag iris is native to wetlands. It is part of these essential habitats, which help stabilize lakes and waterways, improve water quality and support rich biodiversity.
 
-Observing an iris therefore means seeing both a remarkable flower and the entire living habitat around it.
+An iris is not meant to be picked, but admired. A photo keeps the memory while leaving the magic intact.
 
 #NatureZoom #BleuMassawippi #BlueFlagIris #LakeMassawippi`
     ),
