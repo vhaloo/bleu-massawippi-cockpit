@@ -62,6 +62,12 @@ assert.match(read("seed_historical_media_links.js"), /--event=/,
 
 assert.match(read("seed_private_content.js"), /contentChanged/);
 assert.match(read("seed_private_content.js"), /if \(writeOperations > 0\) await batch\.commit\(\)/);
+assert.match(read("seed_private_content.js"), /--firebase-cli-rest/,
+  "La synchronisation du contenu privé doit pouvoir réutiliser la session Firebase CLI sans clé locale supplémentaire.");
+assert.match(read("seed_private_content.js"), /--firebase-cli-rest exige --content-only/,
+  "Le mode REST doit rester strictement borné au contenu privé et ne jamais modifier les publications.");
+assert.match(read("seed_private_content.js"), /privateContentVersions/,
+  "Une synchronisation REST doit versionner le contenu avant de remplacer la copie active.");
 assert.match(read("seed_private_content.js"), /mainPosts\.length < 28/,
   "La synchronisation doit accepter un calendrier durable au-delà des 28 publications initiales.");
 assert.match(read("seed_private_content.js"), /--ids=/,

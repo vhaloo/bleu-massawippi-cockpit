@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import crypto from "node:crypto";
+import os from "node:os";
 import { fileURLToPath } from "node:url";
 import { applicationDefault, initializeApp } from "firebase-admin/app";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
@@ -12,6 +13,7 @@ const workspaceDir = path.dirname(fileURLToPath(import.meta.url));
 const sourcePath = path.resolve(workspaceDir, "..", "index.html");
 const dryRun = process.argv.includes("--dry-run");
 const contentOnly = process.argv.includes("--content-only");
+const firebaseCliRest = process.argv.includes("--firebase-cli-rest");
 const idsArg = process.argv.find((arg) => arg.startsWith("--ids="));
 const completedRescheduleArg = process.argv.find((arg) => arg.startsWith("--allow-completed-reschedule="));
 const completedRescheduleReasonArg = process.argv.find((arg) => arg.startsWith("--reschedule-reason="));
@@ -62,7 +64,83 @@ if (size > 900000) throw new Error("Le contenu privé dépasse la limite de séc
 const contentHash = crypto.createHash("sha256").update(JSON.stringify(privateContent)).digest("hex");
 
 if (dryRun) {
-  console.log(JSON.stringify({ sourcePath, posts: posts.length, selectedPosts: contentOnly ? 0 : selectedPosts.length, selectedIds, allowedCompletedRescheduleIds: [...allowedCompletedRescheduleIds], hasCompletedRescheduleReason: completedRescheduleReason.length >= 20, privateContentBytes: size, contentOnly, ready: true }, null, 2));
+  console.log(JSON.stringify({ sourcePath, posts: posts.length, selectedPosts: contentOnly ? 0 : selectedPosts.length, selectedIds, allowedCompletedRescheduleIds: [...allowedCompletedRescheduleIds], hasCompletedRescheduleReason: completedRescheduleReason.length >= 20, privateContentBytes: size, contentHash, contentOnly, firebaseCliRest, ready: true }, null, 2));
+  process.exit(0);
+}
+
+function encodeFirestoreValue(value) {
+  if (value === null) return { nullValue: null };
+  if (typeof value === "string") return { stringValue: value };
+  if (typeof value === "boolean") return { booleanValue: value };
+  if (typeof value === "number" && Number.isInteger(value)) return { integerValue: String(value) };
+  if (typeof value === "number") return { doubleValue: value };
+  if (Array.isArray(value)) return { arrayValue: { values: value.map(encodeFirestoreValue) } };
+  if (typeof value === "object") return { mapValue: { fields: encodeFirestoreFields(value) } };
+  throw new Error(`Type Firestore non pris en charge : ${typeof value}`);
+}
+
+function encodeFirestoreFields(value) {
+  return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, encodeFirestoreValue(child)]));
+}
+
+function decodeFirestoreValue(value = {}) {
+  if ("stringValue" in value) return value.stringValue;
+  if ("integerValue" in value) return Number(value.integerValue);
+  if ("booleanValue" in value) return value.booleanValue;
+  if ("timestampValue" in value) return value.timestampValue;
+  return undefined;
+}
+
+async function synchronizePrivateContentWithFirebaseCli() {
+  if (!contentOnly) {
+    throw new Error("--firebase-cli-rest exige --content-only afin de ne jamais toucher aux publications ni à leur workflow.");
+  }
+  const configPath = path.join(os.homedir(), ".config", "configstore", "firebase-tools.json");
+  const config = JSON.parse(await fs.readFile(configPath, "utf8"));
+  const accessToken = config.tokens?.access_token;
+  if (!accessToken || Number(config.tokens?.expires_at || 0) < Date.now() + 120_000) {
+    throw new Error("Session Firebase CLI expirée; renouveler la session avant cette synchronisation bornée.");
+  }
+  const projectId = process.env.GOOGLE_CLOUD_PROJECT || "bleu-massawippi-cockpit-5d860";
+  const database = "(default)";
+  const base = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/${database}`;
+  const headers = { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" };
+  const currentResponse = await fetch(`${base}/documents/privateContent/plan`, { headers });
+  if (!currentResponse.ok && currentResponse.status !== 404) {
+    throw new Error(`Lecture du contenu privé refusée (${currentResponse.status}).`);
+  }
+  const currentDocument = currentResponse.ok ? await currentResponse.json() : null;
+  const currentHash = decodeFirestoreValue(currentDocument?.fields?.contentHash);
+  if (currentHash === contentHash) {
+    console.log(JSON.stringify({ seeded: true, contentOnly: true, contentChanged: false, writes: 0, privateContentBytes: size, contentHash, authMode: "firebase-cli-rest" }, null, 2));
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const versionId = `content-${now.replace(/[-:.TZ]/g, "").slice(0, 14)}-${crypto.randomUUID().slice(0, 8)}`;
+  const versionName = `projects/${projectId}/databases/${database}/documents/privateContentVersions/${versionId}`;
+  const planName = `projects/${projectId}/databases/${database}/documents/privateContent/plan`;
+  const versionFields = encodeFirestoreFields({ ...privateContent, contentHash, source: "index.html" });
+  versionFields.createdAt = { timestampValue: now };
+  const planFields = encodeFirestoreFields({ ...privateContent, contentHash });
+  planFields.updatedAt = { timestampValue: now };
+  const commitResponse = await fetch(`${base}/documents:commit`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ writes: [
+      { update: { name: versionName, fields: versionFields }, currentDocument: { exists: false } },
+      { update: { name: planName, fields: planFields }, ...(currentDocument ? { currentDocument: { updateTime: currentDocument.updateTime } } : { currentDocument: { exists: false } }) }
+    ] })
+  });
+  if (!commitResponse.ok) {
+    const detail = (await commitResponse.text()).slice(0, 500);
+    throw new Error(`Synchronisation du contenu privé refusée (${commitResponse.status}) : ${detail}`);
+  }
+  console.log(JSON.stringify({ seeded: true, contentOnly: true, contentChanged: true, writes: 2, privateContentBytes: size, contentHash, previousContentHash: currentHash || null, versionId, authMode: "firebase-cli-rest" }, null, 2));
+}
+
+if (firebaseCliRest) {
+  await synchronizePrivateContentWithFirebaseCli();
   process.exit(0);
 }
 
