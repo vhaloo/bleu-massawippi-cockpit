@@ -390,6 +390,10 @@ assert.match(denisTemporaryMedia.note, /citation publique authentique[\s\S]*cons
 assert.match(denisTemporaryMedia.previewUrl, /\/media-previews\/2026-09-08\/denis-petitclerc-temporaire-photo-argentique-citation-v1-preview\.webp$/);
 const lexiconPost = posts.find((post) => post.id === "lexique-20260830-tributaire");
 assert.match(lexiconPost.copy, /cours d’eau qui en rejoint un autre/i);
+assert.doesNotMatch(lexiconPost.copy, /Quel autre mot lié au lac aimeriez-vous que nous expliquions simplement/i,
+  "La question publique retirée par la direction ne doit pas réapparaître en français.");
+assert.doesNotMatch(lexiconPost.copy, /Which other lake-related word would you like us to explain in plain language/i,
+  "La version anglaise doit rester symétrique après le retrait demandé par la direction.");
 const firstFourWeeks = Object.groupBy(posts.filter((post) => post.w <= 4), (post) => post.date);
 assert.equal(Object.keys(firstFourWeeks).length, 28);
 assert.equal(Object.values(firstFourWeeks).filter((items) => items.length >= 2).length, 0,
@@ -574,6 +578,21 @@ for (const media of editorialMedia) {
   assert.match(media.fileName, /\.(?:jpg|png|mp4)$/);
   assert.ok(media.altText.length >= 60, `Le visuel ${media.fileName} doit conserver un texte alternatif utile.`);
 }
+const s1d7WallMedia = editorialMedia.find((item) => item.id === "editorial-s1d7-mon-massawippi-quai-mur-v1");
+assert.ok(s1d7WallMedia, "La nouvelle proposition Mon Massawippi demandée par la direction doit être conservée.");
+assert.equal(s1d7WallMedia.eventId, "s1d7");
+assert.equal(s1d7WallMedia.publicationBlocked, true,
+  "La composition sur photographie interne demeure bloquée tant que le droit de diffusion n’est pas documenté.");
+assert.ok(historicalMedia.some((item) => item.id === "history-2013-maison-du-lac-ayers-cliff"),
+  "L’ancienne proposition s1d7 doit rester conservée dans l’historique.");
+for (const assetName of [s1d7WallMedia.fileName, "s1d7-mon-massawippi-quai-mur-v1-preview.webp"]) {
+  assert.ok(fs.existsSync(path.join(here, "media-previews", "2026-09-06", assetName)),
+    `Le fichier ${assetName} doit être livré avec le cockpit.`);
+}
+const s4d3DirectionPreference = editorialMedia.find((item) => item.id === "editorial-s4d3-field-inventory-real-v2");
+assert.match(s4d3DirectionPreference?.label || "", /Préférence de la direction/i);
+assert.equal(s4d3DirectionPreference?.publicationBlocked, true,
+  "Une préférence visuelle de la direction ne doit pas contourner la confirmation des droits.");
 for (const mediaId of [
   "editorial-s1d4-mon-massawippi-fridge-v5",
   "editorial-alt-20260719-engraving-crop-upscale-v3",

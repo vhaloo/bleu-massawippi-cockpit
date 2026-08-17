@@ -1941,8 +1941,6 @@ FR — Le mot du lac : tributaire.
 
 Un tributaire est un cours d’eau qui en rejoint un autre ou qui se jette dans un lac. Autour du Massawippi, les tributaires relient tout le bassin versant : ce qui se passe en amont peut donc voyager jusqu’au lac.
 
-Quel autre mot lié au lac aimeriez-vous que nous expliquions simplement?
-
 #LeMotDuLac #BleuMassawippi #LacMassawippi #Tributaires #BassinVersant
 
 =========================================
@@ -1950,8 +1948,6 @@ Quel autre mot lié au lac aimeriez-vous que nous expliquions simplement?
 EN — Lake word of the day: tributary.
 
 A tributary is a stream or river that flows into another waterway or a lake. Around Massawippi, tributaries connect the whole watershed, so what happens upstream can eventually reach the lake.
-
-Which other lake-related word would you like us to explain in plain language?
 
 #LakeWords #BleuMassawippi #LakeMassawippi #Tributaries #Watershed
 ```
