@@ -4,6 +4,13 @@ import { applyEditorialCopyOverrides } from "./editorial-copy-overrides.js";
 const OPEN_HOUSE_MAP_URL = "https://www.google.com/maps/search/?api=1&query=Eglise+Saint-Barthelemy%2C+911+rue+Clough%2C+Ayer%27s+Cliff%2C+QC+J0B+1C0";
 
 const PLAN_YEAR = 2026;
+export const CADENCE_5_POLICY = Object.freeze({
+  version: "cadence5-variable-2026-08-17-v1",
+  effectiveFrom: "2026-08-17",
+  postsPerCompleteWeek: 5,
+  distribution: "Créneaux variés fixés une seule fois; aucune redistribution aléatoire au chargement.",
+  fundingCadence: "Un point de soutien le vendredi toutes les deux semaines, avec montant et date confirmés avant diffusion."
+});
 const ARCHIVED_DATE_ISO = new Map([
   ["s1d1b", "2026-07-13"],
   ["s2d3", "2026-07-22"],
@@ -338,47 +345,51 @@ const CONTINUITY_POSTS = [
     calendarTime: "12:00",
     t: "Soutien",
     tier: "Pilier",
-    title: "Un geste qui reste près du lac",
-    format: "Photographie réelle + appel bilingue",
-    role: "Inviter chaleureusement à soutenir la mission sans promesse de doublement ni pression, avec un lien distinct pour chaque langue.",
-    cta: "Soutenir Bleu Massawippi",
+    title: "Le point soutien — merci d’avancer avec nous",
+    format: "Photographie réelle + point de campagne bilingue",
+    role: "Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.",
+    cta: "Voir le point et soutenir la mission",
     visual: "Photographie réelle du lac présentée comme un souvenir familier; le paysage demeure intact et le message reste court, humain et lisible sur mobile.",
     source: "Campagne Zeffy officielle de Bleu Massawippi : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007",
-    fallback: "Photographie réelle du lac sans texte ajouté; vérifier que les deux formulaires Zeffy sont actifs avant programmation.",
-    kpi: "Clics vers Zeffy / adhésions et dons confirmés",
-    task: "Vérifier les deux liens Zeffy, confirmer la disponibilité de la campagne et programmer seulement après les validations du texte et du média.",
-    copy: `FR — Un lac que l’on aime mérite une attention qui dure. 💙
+    fallback: "Si le total ou sa date ne sont pas confirmés, reporter ce point de soutien; ne jamais diffuser un chiffre estimé ni un champ temporaire.",
+    kpi: "Total confirmé / date de vérification / clics vers Zeffy / adhésions et dons confirmés",
+    task: "Vérifier le total de campagne et sa date dans Zeffy, remplacer les quatre champs temporaires, vérifier les deux liens et programmer seulement après les validations du texte et du média.",
+    copy: `FR — 💙 Le point soutien.
 
-En devenant membre ou en faisant un don à Bleu Massawippi, vous soutenez une mission concrète : mieux connaître le lac et ses tributaires, partager des repères accessibles et préparer des actions utiles avec la communauté.
+Au [DATE DE VÉRIFICATION], le total confirmé de notre campagne s’élève à [MONTANT TOTAL CONFIRMÉ]. Merci à toutes les personnes qui font avancer la mission de Bleu Massawippi, à leur mesure.
 
-Chaque contribution compte, à la mesure de chacun. Merci de garder le Massawippi près du cœur.
+Ces contributions nous aident à mieux connaître le lac et ses tributaires, à partager des repères accessibles et à préparer des actions concrètes avec la communauté.
 
-Adhésion ou don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+Vous souhaitez ajouter votre geste? Adhésion ou don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
 
 #BleuMassawippi #LacMassawippi #SoutenirLeLac
 
 =========================================
 
-EN — A lake we love deserves lasting care. 💙
+EN — 💙 Support update.
 
-By becoming a member or donating to Bleu Massawippi, you support a practical mission: understanding the lake and its tributaries, sharing accessible knowledge and preparing useful action with the community.
+As of [VERIFICATION DATE], the confirmed campaign total is [CONFIRMED CAMPAIGN TOTAL]. Thank you to everyone helping Bleu Massawippi move its mission forward, in the way that is right for them.
 
-Every contribution matters, in the way that is right for each person. Thank you for keeping Massawippi close to heart.
+These contributions help us better understand the lake and its tributaries, share accessible knowledge and prepare practical action with the community.
 
-Membership or donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+Would you like to add your support? Membership or donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
 
 #BleuMassawippi #LakeMassawippi #SupportTheLake`,
     choiceRequired: false,
     optionGroup: null,
     optionLabel: null,
     isAlternative: false,
+    publicationBlocked: true,
+    requiresConfirmedDonationAmount: true,
+    donationCadence: "biweekly-friday-update",
+    requiredPlaceholders: ["[DATE DE VÉRIFICATION]", "[MONTANT TOTAL CONFIRMÉ]", "[VERIFICATION DATE]", "[CONFIRMED CAMPAIGN TOTAL]"],
     tasksValentin: [
+      "Vérifier dans Zeffy le total confirmé et la date exacte du relevé, puis remplacer les quatre champs temporaires.",
       "Vérifier séparément les formulaires Zeffy français et anglais et confirmer qu’ils sont toujours actifs.",
-      "Vérifier le crédit de la photographie réelle, le texte alternatif et la lisibilité 4:5 sur mobile.",
-      "Finaliser la légende FR / EN, soumettre les validations et programmer seulement après les feux verts requis."
+      "Vérifier le crédit de la photographie réelle, soumettre les validations et programmer seulement après la levée du blocage."
     ],
     tasksAnnie: [
-      "Confirmer que l’appel reflète correctement la mission et approuver le texte et le média."
+      "Confirmer le total, la date et le ton du rappel, puis approuver le texte et le média."
     ],
     taskOwnersVersion: "event-task-owners-2026-07-29-continuity-v1"
   },
@@ -436,34 +447,34 @@ Documentary photograph; it is not presented as having been taken at Lake Massawi
     calendarTime: "12:00",
     t: "Gratitude",
     tier: "Pilier",
-    title: "Merci d’avancer avec nous",
-    format: "Photographie réelle + bilan bilingue",
-    role: "Remercier avec transparence après l’appel du 9 septembre en utilisant uniquement un montant net confirmé.",
-    cta: "Partager le résultat avec gratitude",
+    title: "Le point soutien — chaque geste compte",
+    format: "Photographie réelle + point de campagne bilingue",
+    role: "Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.",
+    cta: "Voir le point et soutenir la mission",
     visual: "Photographie aérienne réelle du lac Massawippi, sans modification documentaire; une courte mention manuscrite peut être ajoutée après validation.",
-    source: "Zeffy — rapport Paiements filtré depuis le 9 septembre 2026; exclure remboursements, litiges et paiements non reçus.",
-    fallback: "Si le montant n’est pas confirmé, reporter ce bilan et utiliser une publication de réserve; ne jamais diffuser les champs temporaires.",
-    kpi: "Montant net confirmé / donateurs remerciés / partages",
-    task: "Remplacer tous les champs temporaires par des données Zeffy vérifiées et lever le blocage seulement après double vérification.",
-    copy: `FR — Merci d’avancer avec nous. 💙
+    source: "Zeffy — rapport Paiements de la campagne, statut Réussi; exclure remboursements, litiges et paiements non reçus. Liens : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007",
+    fallback: "Si le total ou sa date ne sont pas confirmés, reporter ce point de soutien et utiliser une publication de réserve; ne jamais diffuser les champs temporaires.",
+    kpi: "Total confirmé / date de vérification / clics vers Zeffy / adhésions et dons confirmés",
+    task: "Vérifier le total de campagne et sa date dans Zeffy, remplacer les quatre champs temporaires, vérifier les deux liens et lever le blocage seulement après double vérification.",
+    copy: `FR — 💙 Chaque geste compte.
 
-Depuis notre appel du 9 septembre, votre générosité a permis de réunir [MONTANT NET CONFIRMÉ] pour soutenir la mission de Bleu Massawippi.
+Au [DATE DE VÉRIFICATION], le total confirmé de notre campagne s’élève à [MONTANT TOTAL CONFIRMÉ]. Merci à toutes les personnes qui choisissent de soutenir le lac et la mission de Bleu Massawippi.
 
-Derrière ce résultat, il y a des personnes qui choisissent d’agir à leur mesure. Chaque contribution aide à mieux connaître le lac, à partager l’information et à préparer la suite avec soin.
+Cet élan nous aide à mieux suivre le territoire, à rendre les connaissances accessibles et à préparer la suite avec soin.
 
-Merci pour votre confiance.
+Vous souhaitez participer? Adhésion ou don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
 
 #BleuMassawippi #LacMassawippi #Merci
 
 =========================================
 
-EN — Thank you for moving forward with us. 💙
+EN — 💙 Every contribution matters.
 
-Since our September 9 appeal, your generosity has raised [CONFIRMED NET AMOUNT] to support Bleu Massawippi’s mission.
+As of [VERIFICATION DATE], the confirmed campaign total is [CONFIRMED CAMPAIGN TOTAL]. Thank you to everyone choosing to support the lake and Bleu Massawippi’s mission.
 
-Behind this result are people choosing to act in ways that are right for them. Every contribution helps us better understand the lake, share information and prepare the next steps with care.
+This momentum helps us monitor the region, make knowledge accessible and prepare the next steps with care.
 
-Thank you for your trust.
+Would you like to take part? Membership or donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
 
 #BleuMassawippi #LakeMassawippi #ThankYou`,
     choiceRequired: false,
@@ -472,16 +483,72 @@ Thank you for your trust.
     isAlternative: false,
     publicationBlocked: true,
     requiresConfirmedDonationAmount: true,
-    requiredPlaceholders: ["[MONTANT NET CONFIRMÉ]", "[CONFIRMED NET AMOUNT]"],
+    donationCadence: "biweekly-friday-update",
+    requiredPlaceholders: ["[DATE DE VÉRIFICATION]", "[MONTANT TOTAL CONFIRMÉ]", "[VERIFICATION DATE]", "[CONFIRMED CAMPAIGN TOTAL]"],
     tasksValentin: [
-      "Filtrer le rapport Zeffy depuis le 9 septembre et conserver uniquement les transactions réussies réellement reçues.",
-      "Remplacer les deux champs temporaires, documenter le montant net et vérifier qu’aucun crochet ne subsiste.",
+      "Vérifier dans Zeffy le total confirmé et la date exacte du relevé, puis remplacer les quatre champs temporaires.",
+      "Vérifier les deux formulaires Zeffy et documenter le relevé utilisé.",
       "Finaliser le média, soumettre les validations et programmer seulement après la levée du blocage."
     ],
     tasksAnnie: [
-      "Confirmer le montant net et approuver le texte et le média avant diffusion."
+      "Confirmer le total, la date et le ton du rappel, puis approuver le texte et le média avant diffusion."
     ],
     taskOwnersVersion: "event-task-owners-2026-07-29-continuity-v1"
+  },
+  {
+    id: "don-20260918-point-soutien",
+    w: 10,
+    date: "Vendredi 18 septembre",
+    calendarTime: "12:00",
+    t: "Soutien",
+    tier: "Pilier",
+    title: "Le point soutien — ensemble, près du lac",
+    format: "Photographie réelle + point de campagne bilingue",
+    role: "Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.",
+    cta: "Voir le point et soutenir la mission",
+    visual: "Photographie aérienne réelle du lac Massawippi, sobre et familière; aucun montant n’est inscrit dans l’image afin que la donnée reste vérifiable dans la légende.",
+    source: "Zeffy — rapport Paiements de la campagne, statut Réussi; exclure remboursements, litiges et paiements non reçus. Liens : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007",
+    fallback: "Si le total ou sa date ne sont pas confirmés, reporter ce point de soutien; ne jamais diffuser un chiffre estimé ni un champ temporaire.",
+    kpi: "Total confirmé / date de vérification / clics vers Zeffy / adhésions et dons confirmés",
+    task: "Vérifier le total de campagne et sa date dans Zeffy, remplacer les quatre champs temporaires, vérifier les deux liens et programmer seulement après les validations du texte et du média.",
+    copy: `FR — 💙 Ensemble, près du lac.
+
+Au [DATE DE VÉRIFICATION], le total confirmé de notre campagne s’élève à [MONTANT TOTAL CONFIRMÉ]. Merci à toutes les personnes qui donnent à Bleu Massawippi les moyens de mieux comprendre le lac, de partager l’information et d’agir avec la communauté.
+
+Chaque geste compte, à la mesure de chacun.
+
+Adhésion ou don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LacMassawippi #SoutenirLeLac
+
+=========================================
+
+EN — 💙 Together, close to the lake.
+
+As of [VERIFICATION DATE], the confirmed campaign total is [CONFIRMED CAMPAIGN TOTAL]. Thank you to everyone giving Bleu Massawippi the means to better understand the lake, share information and act with the community.
+
+Every contribution matters, in the way that is right for each person.
+
+Membership or donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LakeMassawippi #SupportTheLake`,
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    isAlternative: false,
+    publicationBlocked: true,
+    requiresConfirmedDonationAmount: true,
+    donationCadence: "biweekly-friday-update",
+    requiredPlaceholders: ["[DATE DE VÉRIFICATION]", "[MONTANT TOTAL CONFIRMÉ]", "[VERIFICATION DATE]", "[CONFIRMED CAMPAIGN TOTAL]"],
+    tasksValentin: [
+      "Vérifier dans Zeffy le total confirmé et la date exacte du relevé, puis remplacer les quatre champs temporaires.",
+      "Vérifier séparément les formulaires Zeffy français et anglais et conserver la preuve du relevé.",
+      "Vérifier le crédit de la photographie réelle, soumettre les validations et programmer seulement après la levée du blocage."
+    ],
+    tasksAnnie: [
+      "Confirmer le total, la date et le ton du rappel, puis approuver le texte et le média."
+    ],
+    taskOwnersVersion: "event-task-owners-2026-08-17-donation-cycle-v1"
   },
   {
     id: "archives-20260912-vos-images",
@@ -667,33 +734,35 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["s2d1", 5, "Dimanche 16 août", "2026-08-16"],
   ["alt-20260716", 6, "Lundi 17 août", "2026-08-17"],
   ["s3d7", 6, "Mardi 18 août", "2026-08-18"],
-  ["s4d5", 6, "Mercredi 19 août", "2026-08-19"],
-  ["s4d4", 6, "Jeudi 20 août", "2026-08-20"],
-  ["s4d3", 6, "Vendredi 21 août", "2026-08-21"],
-  ["alt-20260718", 6, "Samedi 22 août", "2026-08-22"],
-  ["s4d2", 6, "Dimanche 23 août", "2026-08-23"],
-  ["alt-20260721", 7, "Lundi 24 août", "2026-08-24"],
-  ["alt-20260723", 7, "Mardi 25 août", "2026-08-25"],
-  ["alt-20260724", 7, "Mercredi 26 août", "2026-08-26"],
-  ["alt-20260805", 7, "Jeudi 27 août", "2026-08-27"],
-  ["alt-20260728", 7, "Vendredi 28 août", "2026-08-28"],
-  ["s1d7", 7, "Samedi 29 août", "2026-08-29"],
-  ["lexique-20260830-tributaire", 7, "Dimanche 30 août", "2026-08-30"],
-  ["alt-20260729", 8, "Lundi 31 août", "2026-08-31"],
-  ["s4d6", 8, "Mardi 1er septembre", "2026-09-01"],
-  ["alt-20260802", 8, "Mercredi 2 septembre", "2026-09-02"],
-  ["lavage-20260903-sans-moteur", 8, "Jeudi 3 septembre", "2026-09-03"],
-  ["alt-20260714", 8, "Vendredi 4 septembre", "2026-09-04"],
-  ["s4d7b", 8, "Samedi 5 septembre", "2026-09-05"],
-  ["alt-20260806", 8, "Dimanche 6 septembre", "2026-09-06"],
-  ["alt-20260808", 9, "Lundi 7 septembre", "2026-09-07"],
-  ["s1d3", 9, "Mardi 8 septembre", "2026-09-08"],
-  ["don-20260909-appel-soutien", 9, "Mercredi 9 septembre", "2026-09-09"],
-  ["nature-20260910-feuille-surface", 9, "Jeudi 10 septembre", "2026-09-10"],
-  ["don-20260911-merci-bilan", 9, "Vendredi 11 septembre", "2026-09-11"],
-  ["archives-20260912-vos-images", 9, "Samedi 12 septembre", "2026-09-12"],
-  ["quiz-20260913-trois-gestes", 9, "Dimanche 13 septembre", "2026-09-13"],
-  ["photo-20260915-soir-automne", 10, "Mardi 15 septembre", "2026-09-15"]
+  ["s4d5", 6, "Jeudi 20 août", "2026-08-20"],
+  ["don-20260909-appel-soutien", 6, "Vendredi 21 août", "2026-08-21"],
+  ["s4d4", 6, "Dimanche 23 août", "2026-08-23"],
+  ["s4d3", 7, "Lundi 24 août", "2026-08-24"],
+  ["alt-20260718", 7, "Mercredi 26 août", "2026-08-26"],
+  ["s4d2", 7, "Jeudi 27 août", "2026-08-27"],
+  ["alt-20260721", 7, "Samedi 29 août", "2026-08-29"],
+  ["alt-20260723", 7, "Dimanche 30 août", "2026-08-30"],
+  ["alt-20260724", 8, "Mardi 1er septembre", "2026-09-01"],
+  ["alt-20260805", 8, "Mercredi 2 septembre", "2026-09-02"],
+  ["don-20260911-merci-bilan", 8, "Vendredi 4 septembre", "2026-09-04"],
+  ["alt-20260728", 8, "Samedi 5 septembre", "2026-09-05"],
+  ["s1d7", 8, "Dimanche 6 septembre", "2026-09-06"],
+  ["lexique-20260830-tributaire", 9, "Lundi 7 septembre", "2026-09-07"],
+  ["alt-20260729", 9, "Mardi 8 septembre", "2026-09-08"],
+  ["s4d6", 9, "Jeudi 10 septembre", "2026-09-10"],
+  ["alt-20260802", 9, "Samedi 12 septembre", "2026-09-12"],
+  ["lavage-20260903-sans-moteur", 9, "Dimanche 13 septembre", "2026-09-13"],
+  ["alt-20260714", 10, "Lundi 14 septembre", "2026-09-14"],
+  ["s4d7b", 10, "Mercredi 16 septembre", "2026-09-16"],
+  ["alt-20260806", 10, "Jeudi 17 septembre", "2026-09-17"],
+  ["don-20260918-point-soutien", 10, "Vendredi 18 septembre", "2026-09-18"],
+  ["alt-20260808", 10, "Dimanche 20 septembre", "2026-09-20"],
+  ["s1d3", 11, "Mardi 22 septembre", "2026-09-22"],
+  ["nature-20260910-feuille-surface", 11, "Mercredi 23 septembre", "2026-09-23"],
+  ["archives-20260912-vos-images", 11, "Vendredi 25 septembre", "2026-09-25"],
+  ["quiz-20260913-trois-gestes", 11, "Samedi 26 septembre", "2026-09-26"],
+  ["s1d2", 11, "Dimanche 27 septembre", "2026-09-27"],
+  ["photo-20260915-soir-automne", 12, "Mardi 29 septembre", "2026-09-29"]
 ];
 
 const COMPLETED_POST_REPAIR_ROTATIONS = new Map([
@@ -713,10 +782,10 @@ const COMPLETED_POST_REPAIR_ROTATIONS = new Map([
   }],
   ["s4d5", {
     from: "2026-09-15",
-    to: "2026-08-19",
+    to: "2026-08-20",
     calendarTime: "12:00",
     displacedBy: null,
-    reason: "Le voyage d’une goutte de pluie revient au 19 août pour séparer les deux sujets de flore aquatique et maintenir une publication par jour sans réutiliser l’angle éditorial refusé."
+    reason: "Le voyage d’une goutte de pluie est conservé au 20 août dans la nouvelle cadence variée de cinq publications par semaine, sans réutiliser l’angle éditorial refusé."
   }]
 ]);
 
@@ -1276,7 +1345,7 @@ export function applyPlanOverridesToPosts(posts) {
     const post = finalPosts.find((item) => item.id === id);
     if (post) Object.assign(post, { choiceRequired: false, optionGroup: null, optionLabel: null });
   });
-  const continuityReason = "Calendrier continu du 29 juillet au 13 septembre 2026 : rapprocher les contenus les plus avancés, séparer les anciens choix en dates distinctes et ne laisser aucune journée vide.";
+  const continuityReason = "Cadence de cinq publications par semaine à compter du 17 août 2026 : créneaux variés fixés une seule fois, contenus prêts rapprochés sans déplacer les publications terminées, et respiration volontaire entre les jours de diffusion.";
   CONTINUITY_CALENDAR_ASSIGNMENTS.forEach(([id, w, date, dateIso]) => {
     const post = finalPosts.find((item) => item.id === id);
     if (!post) return;
@@ -1307,23 +1376,23 @@ export function applyPlanOverridesToPosts(posts) {
   if (deferredWaterLily) Object.assign(deferredWaterLily, {
     editorialFamily: "flore-aquatique",
     topicSignature: "plante-aquatique,flore-riveraine",
-    role: "Sujet nature conservé et reporté au 27 août afin de laisser respirer l’iris du 16 août et de maintenir une séquence éditoriale variée."
+    role: "Sujet nature conservé et reporté au 2 septembre afin de laisser respirer l’iris du 16 août et de maintenir une séquence éditoriale variée."
   });
   const monitoringDeferredForRadioCanada = finalPosts.find((post) => post.id === "s1d2");
   if (monitoringDeferredForRadioCanada) {
     const from = planDateIsoFromLabel(monitoringDeferredForRadioCanada.date);
     const history = Array.isArray(monitoringDeferredForRadioCanada.rescheduleHistory) ? [...monitoringDeferredForRadioCanada.rescheduleHistory] : [];
-    if (from && from !== "2026-09-14") history.push({
+    if (from && from !== "2026-09-27") history.push({
       from,
-      to: "2026-09-14",
-      reason: "Créneau du 8 août réservé au relais d’actualité de l’entrevue de Denis Petitclerc à Radio-Canada Estrie; la publication scientifique est conservée intégralement au prochain créneau disponible."
+      to: "2026-09-27",
+      reason: "Créneau du 8 août réservé au relais d’actualité de l’entrevue de Denis Petitclerc à Radio-Canada Estrie; la publication scientifique est conservée intégralement dans la nouvelle cadence de cinq publications par semaine."
     });
     Object.assign(monitoringDeferredForRadioCanada, {
-      w: 10,
-      date: "Lundi 14 septembre",
+      w: 11,
+      date: "Dimanche 27 septembre",
       calendarTime: "12:00",
       rescheduledFrom: from || "2026-08-08",
-      rescheduledReason: "Créneau du 8 août réservé au relais d’actualité de l’entrevue de Denis Petitclerc à Radio-Canada Estrie; la publication scientifique est conservée intégralement au prochain créneau disponible.",
+      rescheduledReason: "Créneau du 8 août réservé au relais d’actualité de l’entrevue de Denis Petitclerc à Radio-Canada Estrie; la publication scientifique est conservée intégralement dans la nouvelle cadence de cinq publications par semaine.",
       rescheduleHistory: history,
       displacedBy: RADIO_CANADA_DENIS_POST.id
     });
@@ -1369,7 +1438,7 @@ export function preparePlanScript(script, posts) {
   );
   output = output.replace(
     /(var meta=\{[\s\S]*?\};)/,
-    "$1meta[5]=[\"Semaine 5 · Cadence éditoriale\",\"10 au 16 août\"];meta[6]=[\"Semaine 6 · Cadence éditoriale\",\"17 au 23 août\"];meta[7]=[\"Semaine 7 · Cadence éditoriale\",\"24 au 30 août\"];meta[8]=[\"Semaine 8 · Cadence éditoriale\",\"31 août au 6 septembre\"];meta[9]=[\"Semaine 9 · Cadence éditoriale\",\"7 au 13 septembre\"];"
+    "$1meta[5]=[\"Semaine 5 · Historique protégé\",\"10 au 16 août\"];meta[6]=[\"Semaine 6 · 5 publications variées\",\"17 au 23 août\"];meta[7]=[\"Semaine 7 · 5 publications variées\",\"24 au 30 août\"];meta[8]=[\"Semaine 8 · 5 publications variées\",\"31 août au 6 septembre\"];meta[9]=[\"Semaine 9 · 5 publications variées\",\"7 au 13 septembre\"];meta[10]=[\"Semaine 10 · 5 publications variées\",\"14 au 20 septembre\"];meta[11]=[\"Semaine 11 · 5 publications variées\",\"21 au 27 septembre\"];meta[12]=[\"Banque préparée\",\"À partir du 28 septembre\"];"
   );
   return output;
 }

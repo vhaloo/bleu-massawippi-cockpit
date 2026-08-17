@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { applyPlanOverridesToPosts, preparePlanScript } from "./plan-overrides.js";
+import { applyPlanOverridesToPosts, CADENCE_5_POLICY, preparePlanScript } from "./plan-overrides.js";
 import { BILINGUAL_POLICY_VERSION, FUTURE_EDITORIAL_IDS, TONE_VERSION } from "./editorial-copy-overrides.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -102,26 +102,38 @@ assert.deepEqual(
   [...activePosts].map((post) => post.dateIso).sort(),
   "Le calendrier doit rester trié chronologiquement après tous les déplacements."
 );
-for (const week of [1,2,3,4,5,6,7,8,9,10]) {
+for (const week of [1,2,3,4,5,6,7,8,9,10,11,12]) {
   const dates = [...new Set(activePosts.filter((post) => post.w === week).map((post) => post.dateIso))];
   assert.deepEqual(dates, [...dates].sort(), `La semaine ${week} doit suivre l’ordre réel des dates.`);
 }
-const continuityStart = new Date("2026-07-13T12:00:00Z");
-const continuityEnd = new Date("2026-09-15T12:00:00Z");
-const expectedContinuityDates = [];
-for (const cursor = new Date(continuityStart); cursor <= continuityEnd; cursor.setUTCDate(cursor.getUTCDate() + 1)) {
-  expectedContinuityDates.push(cursor.toISOString().slice(0, 10));
+assert.equal(CADENCE_5_POLICY.effectiveFrom, "2026-08-17");
+assert.equal(CADENCE_5_POLICY.postsPerCompleteWeek, 5);
+const protectedHistoricalDates = [];
+for (const cursor = new Date("2026-07-13T12:00:00Z"); cursor <= new Date("2026-08-16T12:00:00Z"); cursor.setUTCDate(cursor.getUTCDate() + 1)) {
+  protectedHistoricalDates.push(cursor.toISOString().slice(0, 10));
 }
+const cadenceWeeks = [
+  ["2026-08-17", "2026-08-18", "2026-08-20", "2026-08-21", "2026-08-23"],
+  ["2026-08-24", "2026-08-26", "2026-08-27", "2026-08-29", "2026-08-30"],
+  ["2026-09-01", "2026-09-02", "2026-09-04", "2026-09-05", "2026-09-06"],
+  ["2026-09-07", "2026-09-08", "2026-09-10", "2026-09-12", "2026-09-13"],
+  ["2026-09-14", "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-20"],
+  ["2026-09-22", "2026-09-23", "2026-09-25", "2026-09-26", "2026-09-27"]
+];
+const expectedContinuityDates = [...protectedHistoricalDates, ...cadenceWeeks.flat(), "2026-09-29"];
 const activePostsByDate = Object.groupBy(activePosts, (post) => post.dateIso);
 assert.deepEqual(Object.keys(activePostsByDate).sort(), expectedContinuityDates,
-  "Le calendrier actif doit couvrir chaque journée du 13 juillet au 15 septembre sans trou après le report conservatoire du sujet scientifique et le déplacement du contenu du 4 août.");
+  "Le calendrier actif doit préserver l’historique quotidien puis suivre exactement les créneaux fixés de cinq publications par semaine.");
 assert.ok(Object.values(activePostsByDate).every((items) => items.length === 1),
-  "Chaque journée du calendrier continu doit afficher exactement une publication active.");
-assert.equal(activePosts.length, 65, "Le calendrier continu doit contenir 65 publications actives, dont le sujet scientifique conservé au 14 septembre et le contenu déplacé au 15 septembre.");
+  "Chaque créneau actif doit afficher exactement une publication.");
+assert.ok(cadenceWeeks.every((week) => week.length === CADENCE_5_POLICY.postsPerCompleteWeek && week.every((date) => activePostsByDate[date]?.length === 1)),
+  "Chaque semaine complète à compter du 17 août doit contenir exactement cinq publications.");
+assert.equal(activePosts.length, 66, "Le calendrier doit conserver 35 publications historiques, 30 publications sur six semaines complètes et une publication préparée en banque.");
 const continuityPostIds = [
   "don-20260909-appel-soutien",
   "nature-20260910-feuille-surface",
   "don-20260911-merci-bilan",
+  "don-20260918-point-soutien",
   "archives-20260912-vos-images",
   "quiz-20260913-trois-gestes"
 ];
@@ -136,9 +148,13 @@ for (const id of continuityPostIds) {
   assert.ok(media[0].previewUrl, `Le média de ${id} doit afficher un vrai aperçu mobile.`);
   assert.ok(media[0].reuseMediaId, `Le média de ${id} doit réutiliser un fichier déjà hébergé sans copie inutile.`);
 }
-const septemberThankYou = activePosts.find((post) => post.id === "don-20260911-merci-bilan");
-assert.equal(septemberThankYou.publicationBlocked, true, "Le bilan du 11 septembre doit rester bloqué tant que le montant n’est pas confirmé.");
-assert.deepEqual(septemberThankYou.requiredPlaceholders, ["[MONTANT NET CONFIRMÉ]", "[CONFIRMED NET AMOUNT]"]);
+for (const [id, dateIso] of [["don-20260909-appel-soutien", "2026-08-21"], ["don-20260911-merci-bilan", "2026-09-04"], ["don-20260918-point-soutien", "2026-09-18"]]) {
+  const checkpoint = activePosts.find((post) => post.id === id);
+  assert.equal(checkpoint?.dateIso, dateIso);
+  assert.equal(checkpoint?.publicationBlocked, true, "Chaque point de soutien doit rester bloqué tant que le total et sa date ne sont pas confirmés.");
+  assert.deepEqual(checkpoint?.requiredPlaceholders, ["[DATE DE VÉRIFICATION]", "[MONTANT TOTAL CONFIRMÉ]", "[VERIFICATION DATE]", "[CONFIRMED CAMPAIGN TOTAL]"]);
+  assert.equal(checkpoint?.donationCadence, "biweekly-friday-update");
+}
 assert.match(activePosts.find((post) => post.id === "quiz-20260913-trois-gestes").copy, /https:\/\/bleumassawippi\.com\/quiz/);
 const first = posts.find((post) => post.id === "s1d1");
 const moved = posts.find((post) => post.id === "s1d1b");
@@ -156,8 +172,8 @@ assert.equal(moved.dateIso, "2026-07-13");
 assert.equal(moved.w, 98);
 assert.equal(moved.archivedEditorial, true);
 assert.equal(moved.archived, true);
-assert.equal(volunteer.date, "Mardi 8 septembre");
-assert.equal(volunteer.w, 9);
+assert.equal(volunteer.date, "Mardi 22 septembre");
+assert.equal(volunteer.w, 11);
 assert.equal(volunteer.coordinationLevel, "high");
 assert.equal(volunteer.requiresHumanConsent, true);
 assert.equal(volunteer.requiresContactOwnership, true);
@@ -169,8 +185,8 @@ assert.ok(volunteer.tasksAnnie.some((task) => /coordonn/i.test(task)));
 assert.ok(volunteer.tasksAnnie.some((task) => /consentement/i.test(task)));
 assert.equal(firstTuesday.choiceRequired, false, "La proposition retenue du mardi est verrouillée et ne demande plus d’arbitrage.");
 assert.equal(firstTuesday.optionGroup, null, "Une proposition verrouillée ne doit plus appartenir à un groupe de choix actif.");
-assert.equal(posts.filter((post) => !post.isAlternative).length, 41);
-assert.equal(posts.length, 72);
+assert.equal(posts.filter((post) => !post.isAlternative).length, 42);
+assert.equal(posts.length, 73);
 const radioCanadaArticle = posts.find((post) => post.id === "actualite-20260804-article-radio-canada-moules-zebrees");
 assert.ok(radioCanadaArticle, "Le nouvel article écrit de Radio-Canada doit devenir une publication distincte.");
 assert.equal(radioCanadaArticle.dateIso, "2026-08-09");
@@ -200,7 +216,7 @@ assert.match(restoredCompletedPost.rescheduledReason, /publication déjà progra
 assert.match(radioCanadaArticle.rescheduledReason, /restaurer sans altération/i);
 const nonMotorizedWash = posts.find((post) => post.id === "lavage-20260903-sans-moteur");
 assert.ok(nonMotorizedWash, "La recommandation du 23 juillet sur les embarcations non motorisées doit devenir une publication planifiée.");
-assert.equal(nonMotorizedWash.dateIso, "2026-09-03");
+assert.equal(nonMotorizedWash.dateIso, "2026-09-13");
 assert.equal(nonMotorizedWash.choiceRequired, false);
 assert.match(nonMotorizedWash.copy, /canot[\s\S]*planche à pagaie[\s\S]*canoe[\s\S]*paddleboard/i);
 assert.match(nonMotorizedWash.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
@@ -261,9 +277,9 @@ assert.equal(displacedBoatCleaningPost.archivedEditorial, undefined, "Le post d�
 assert.equal(displacedBoatCleaningPost.displacedBy, donationAppeal.id);
 const displacedWatershedPost = posts.find((post) => post.id === "s4d5");
 const displacedHeritagePost = posts.find((post) => post.id === "alt-20260807");
-assert.equal(displacedWatershedPost.dateIso, "2026-08-19");
+assert.equal(displacedWatershedPost.dateIso, "2026-08-20");
 assert.equal(displacedWatershedPost.displacedBy, null);
-assert.match(displacedWatershedPost.rescheduledReason, /séparer les deux sujets de flore aquatique/i);
+assert.match(displacedWatershedPost.rescheduledReason, /nouvelle cadence variée de cinq publications/i);
 assert.equal(displacedHeritagePost.dateIso, "2026-08-13");
 assert.equal(displacedWatershedPost.optionGroup, null);
 assert.equal(displacedHeritagePost.optionGroup, null);
@@ -408,8 +424,8 @@ assert.equal(sundayHeritage.date, "Dimanche 19 juillet");
 assert.equal(sundayHeritage.w, 1);
 assert.match(sundayHeritage.title, /Massawippi vu en 1859/i);
 const deferredMonitoring = posts.find((post) => post.id === "s1d2");
-assert.equal(deferredMonitoring.date, "Lundi 14 septembre");
-assert.equal(deferredMonitoring.w, 10);
+assert.equal(deferredMonitoring.date, "Dimanche 27 septembre");
+assert.equal(deferredMonitoring.w, 11);
 assert.equal(deferredMonitoring.displacedBy, "actualite-20260808-denis-radio-canada-moules-zebrees");
 assert.match(deferredMonitoring.rescheduledReason, /entrevue de Denis Petitclerc à Radio-Canada Estrie/i);
 assert.match(deferredMonitoring.title, /lac et ses tributaires/i);
@@ -432,8 +448,8 @@ assert.doesNotMatch(deferredBlueMinute.copy, /Juste un instant pour regarder/);
 assert.match(deferredBlueMinute.copy, /#InstantBleu/);
 assert.doesNotMatch(`${deferredBlueMinute.title}\n${deferredBlueMinute.visual}\n${deferredBlueMinute.copy}`, /Juste une minute|Une minute bleue|#MinuteBleue/i);
 assert.doesNotMatch(saturdayCommunity.copy, /Nous avons envie de découvrir ce qui fait vivre votre lien/i);
-assert.equal(deferredMemories.date, "Samedi 29 août", "La capsule souvenirs doit rester conservée à une autre date.");
-assert.equal(deferredShoreLife.date, "Samedi 22 août", "La biodiversité sous les feuilles doit rester conservée à une autre date.");
+assert.equal(deferredMemories.date, "Dimanche 6 septembre", "La capsule souvenirs doit rester conservée à une autre date.");
+assert.equal(deferredShoreLife.date, "Mercredi 26 août", "La biodiversité sous les feuilles doit rester conservée à une autre date.");
 const frogSeries = posts.find((post) => post.id === "alt-20260802");
 assert.match(frogSeries.title, /voix à documenter autour du bassin/i);
 assert.match(frogSeries.copy, /ne constitue pas encore un inventaire complet du bassin|Ce n’est pas encore un inventaire complet du bassin/i);
@@ -754,9 +770,13 @@ assert.match(source, /Jeux provinciaux de pêche — événement terminé[\s\S]{
 assert.match(internalProjectSeed, /"jeux-provinciaux-peche": "completed"/,
   "Le seed ne doit jamais recréer les Jeux provinciaux de pêche comme projet actif ou bloqué.");
 const applicationProject = source.match(/<details class="internal-project" id="internal-project-application-carte-vivante-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
-assert.match(applicationProject, /data-waiting-source="annie-v2"/);
-assert.match(applicationProject, /BASE V1 CONSERVÉE · SOURCE RÉVISÉE ATTENDUE/);
-assert.match(applicationProject, /attendre la mouture et le budget révisés qu’Annie doit transmettre/);
+assert.match(applicationProject, /data-waiting-source="discovery-only"/);
+assert.match(applicationProject, /CADRAGE SEULEMENT · PRODUCTION NON AUTORISÉE/);
+assert.match(applicationProject, /résumé « Prototype Alpha 0\.0\.1 » reçu d’Annie est maintenant intégré au cadrage/);
+assert.match(applicationProject, /estimation de 60–80 % doit être vérifiée livrable par livrable/);
+assert.match(applicationProject, /Aucun code, prototype fonctionnel, achat, partenaire, échéance publique ni lancement n’est autorisé/);
+assert.match(applicationProject, /Cadrage_application_Massawippi_en_partage_2026-08-17\.md/);
+assert.match(applicationProject, /Découverte à documenter, pas à développer/);
 assert.match(applicationProject, /application-reference-lakepulse/);
 assert.match(applicationProject, /dernière date de prélèvement au 11 juillet 2017/,
   "L’observation transmise par la direction doit rester attribuée à la fiche consultée.");
@@ -843,10 +863,10 @@ assert.match(poetryProject, /ADDENDUM_VISUEL_PARTENAIRES_AU_BORD_DU_BLEU_V5\.md/
 assert.match(poetryProject, /data-initial-stage="active" open/,
   "La fiche poésie en préparation avancée doit rester ouverte afin de rendre l’affiche immédiatement visible.");
 assert.match(poetryProject, /30 AOÛT · 13 H–16 H · PRÉPARATION FINALE/);
-assert.match(poetryProject, /Treize inscriptions reçues au matin du 10 août/i);
+assert.match(poetryProject, /Treize inscriptions recensées; programmation à fermer/i);
 assert.match(poetryProject, /il n’y aura pas de micro ouvert ni d’inscription spontanée sur place/i);
 assert.match(poetryProject, /poesie-rencontre-north-hatley-2026-08-10/);
-assert.match(poetryProject, /confirmer avec North Hatley la zone autorisée du parc Lôbadanaki/,
+assert.match(poetryProject, /confirmer avec North Hatley la prise électrique de la station sanitaire, l’accessibilité, les toilettes, la zone autorisée et le plan météo/,
   "La prochaine action doit passer de l’appel public à la fermeture logistique avec North Hatley.");
 for (const meetingTopic of ["Lieu et autorité", "Horaire et logistique", "Météo et décision", "Collaboration et visibilité"]) {
   assert.match(meetingBriefBuilder, new RegExp(meetingTopic), `Le PDF municipal doit couvrir : ${meetingTopic}.`);
@@ -855,11 +875,11 @@ assert.doesNotMatch(poetryProject, /<details[^>]+id="poesie-rencontre-north-hatl
   "L’aide-mémoire ne doit plus occuper un long encart dans la fiche du projet.");
 assert.match(poetryProject, /Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10\.pdf/);
 assert.match(poetryProject, /Aide-mémoire — rencontre du 10 août/);
-assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 14,
-  "Les quatorze ressources du projet poésie doivent être présentées sous forme de cartes homogènes.");
-assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 14,
+assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 15,
+  "Les quinze ressources du projet poésie doivent être présentées sous forme de cartes homogènes.");
+assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 15,
   "Chaque carte documentaire doit annoncer clairement son type.");
-assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 13,
+assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 14,
   "Chaque ressource spécialisée doit proposer un bouton d’ouverture explicite.");
 assert.match(poetryProject, /TEXTE_PARTENAIRES_MUNICIPALITES_AU_BORD_DU_BLEU_2026-08-10\.md/,
   "Le texte de coordination avec les partenaires et municipalités doit être accessible depuis le projet poésie.");
@@ -875,7 +895,10 @@ const meetingBriefPdf = path.join(root, "cockpit", "project-documents", "Aide_me
 assert.ok(fs.existsSync(meetingBriefPdf), "Le PDF d’aide-mémoire doit être publié avec le cockpit.");
 assert.ok(fs.statSync(meetingBriefPdf).size > 50_000, "Le PDF d’aide-mémoire doit contenir sa mise en page et le logo.");
 assert.match(poetryProject, /https:\/\/forms\.office\.com\/r\/4A2xsMh7st/);
-assert.match(poetryProject, /13 inscriptions au matin du 10 août/);
+assert.match(poetryProject, /13 inscriptions recensées/);
+assert.match(poetryProject, /Au_bord_du_bleu_checklist_operationnelle_2026-08-17\.md/);
+assert.match(poetryProject, /Le système de son a été testé avec Denis et fonctionne/);
+assert.match(poetryProject, /Trois personnes pour l’installation; quatre idéalement/);
 assert.match(poetryProject, /forms\.cloud\.microsoft\/Pages\/DesignPageV2\.aspx\?origin=NeoPortalPage&amp;subpage=design&amp;id=[^\"]+&amp;analysis=true/,
   "Le projet poésie doit donner accès aux réponses recueillies dans Microsoft Forms.");
 assert.match(poetryProject, /Voir les réponses ↗/);

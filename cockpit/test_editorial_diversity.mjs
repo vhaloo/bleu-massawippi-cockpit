@@ -20,7 +20,7 @@ assert.equal(waterLily?.editorialFamily, "flore-aquatique");
 assert.match(iris?.topicSignature || "", /plante-aquatique/);
 assert.match(waterLily?.topicSignature || "", /plante-aquatique/);
 assert.equal(iris?.dateIso, "2026-08-16");
-assert.equal(waterLily?.dateIso, "2026-08-27");
+assert.equal(waterLily?.dateIso, "2026-09-02");
 assert.match(iris?.copy || "", /Un iris ne se cueille pas, il se contemple\./,
   "La légende doit conserver la formulation retenue par la direction pour décourager la cueillette avec douceur.");
 assert.doesNotMatch(iris?.copy || "", /plante envahissante|flore humide/u,
