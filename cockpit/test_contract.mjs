@@ -971,6 +971,14 @@ assert.match(youthProject, /Communications — environ 12 à 18 h avant lancemen
 assert.match(youthProject, /Dix outils versionnés sont regroupés dans deux documents internes/);
 assert.match(youthProject, /Dossier_operationnel_le_lac_dans_tes_yeux_v1\.pdf/);
 assert.match(youthProject, /Trousse_ecoles_le_lac_dans_tes_yeux_v1\.pdf/);
+const lakeHealthProject = source.match(/<details class="internal-project" id="internal-project-bilan-sante"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
+assert.match(lakeHealthProject, /Nature Cantons-de-l’Est \(NCE\)/,
+  "Le bilan de santé doit nommer le prestataire externe indiqué par la direction.");
+const beachMonitoringProject = source.match(/<details class="internal-project" id="internal-project-cyanobacteries"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
+assert.match(beachMonitoringProject, /Ayer’s Cliff demeure une seconde municipalité envisagée/,
+  "Le suivi des plages doit conserver Ayer’s Cliff comme piste sans créer d’engagement.");
+assert.match(beachMonitoringProject, /aucun service n’est présenté comme convenu/,
+  "La piste Ayer’s Cliff ne doit pas transformer une discussion en engagement.");
 const pagesWorkflow = fs.readFileSync(path.join(root, ".github/workflows/deploy-pages.yml"), "utf8");
 assert.match(pagesWorkflow, /cp -R cockpit\/assets public\/assets/,
   "GitHub Pages doit publier les visuels des projets internes.");
