@@ -166,6 +166,10 @@ critical("VIS-002", "Breakpoints mobile et tablette présents", /@media\s*\(max-
 warning("VIS-003", "Protection explicite contre débordement horizontal", /overflow-x:\s*(?:hidden|clip)/.test(files.ui + files.theme + files.viewStyle + files.source), "Ne jamais masquer un débordement qui rend une commande inaccessible.");
 critical("VIS-004", "Bascule de thème compacte dans l’en-tête mobile", /#cockpit-session \.cockpit-theme-toggle\.in-session[^}]*font-size:\s*0/.test(files.theme), "Le libellé du thème ne doit pas déborder sur l’identité de session.");
 critical("VIS-005", "Sommaire complet confiné sur téléphone", /@media\s*\(max-width:\s*780px\)[\s\S]*?\.nav\s*\{[^}]*overflow-x:\s*hidden[\s\S]*?\.nav \.wrap\s*\{[^}]*overflow-x:\s*auto/.test(files.viewStyle), "La rangée complète doit défiler dans son propre cadre sans élargir la page.");
+critical("VIS-006", "Connexion contenue dans la largeur mobile",
+  /\.cockpit-login-card\s*\{[^}]*box-sizing:\s*border-box/.test(files.ui)
+    && /\.cockpit-login-product\s*\{[^}]*box-sizing:\s*border-box/.test(files.ui),
+  "La carte et le logo de connexion doivent inclure leur rembourrage dans la largeur disponible à 320 et 390 px.");
 
 // PWA et service worker.
 critical("PWA-001", "Manifest relié et application standalone", /rel="manifest"/.test(files.shell) && /"display"\s*:\s*"standalone"/.test(files.manifest), "Le nom, le scope, les couleurs et l’icône restent valides.");
