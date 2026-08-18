@@ -342,7 +342,7 @@ const CONTINUITY_POSTS = [
     t: "Soutien",
     tier: "Pilier",
     title: "Le point soutien — merci d’avancer avec nous",
-    format: "Photographie réelle + point de campagne bilingue",
+    format: "Roue de progression + photographie réelle · point bilingue",
     role: "Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.",
     cta: "Voir le point et soutenir la mission",
     visual: "Photographie réelle du lac présentée comme un souvenir familier; le paysage demeure intact et le message reste court, humain et lisible sur mobile.",
@@ -447,11 +447,11 @@ Documentary photograph; it is not presented as having been taken at Lake Massawi
     format: "Photographie réelle + point de campagne bilingue",
     role: "Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.",
     cta: "Voir le point et soutenir la mission",
-    visual: "Photographie aérienne réelle du lac Massawippi, sans modification documentaire; une courte mention manuscrite peut être ajoutée après validation.",
+    visual: "Roue de progression simple et très lisible, associée à une photographie réelle du lac Massawippi. Afficher seulement le total confirmé, sa date de vérification et l’objectif de campagne confirmé. Ne jamais déduire ni afficher un pourcentage sans dénominateur vérifié.",
     source: "Zeffy — rapport Paiements de la campagne, statut Réussi; exclure remboursements, litiges et paiements non reçus. Liens : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007",
     fallback: "Si le total ou sa date ne sont pas confirmés, reporter ce point de soutien et utiliser une publication de réserve; ne jamais diffuser les champs temporaires.",
     kpi: "Total confirmé / date de vérification / clics vers Zeffy / adhésions et dons confirmés",
-    task: "Vérifier le total de campagne et sa date dans Zeffy, remplacer les quatre champs temporaires, vérifier les deux liens et lever le blocage seulement après double vérification.",
+    task: "Vérifier le total de campagne, l’objectif qui sert de dénominateur et la date du relevé dans Zeffy; produire ensuite la roue de progression, remplacer les quatre champs temporaires, vérifier les deux liens et lever le blocage seulement après double vérification.",
     copy: `FR — 💙 Chaque geste compte.
 
 Au [DATE DE VÉRIFICATION], le total confirmé de notre campagne s’élève à [MONTANT TOTAL CONFIRMÉ]. Merci à toutes les personnes qui choisissent de soutenir le lac et la mission de Bleu Massawippi.
@@ -482,7 +482,9 @@ Would you like to take part? Membership or donation: https://www.zeffy.com/en-CA
     donationCadence: "biweekly-friday-update",
     requiredPlaceholders: ["[DATE DE VÉRIFICATION]", "[MONTANT TOTAL CONFIRMÉ]", "[VERIFICATION DATE]", "[CONFIRMED CAMPAIGN TOTAL]"],
     tasksValentin: [
-      "Vérifier dans Zeffy le total confirmé et la date exacte du relevé, puis remplacer les quatre champs temporaires.",
+      "Vérifier dans Zeffy le total confirmé, la date exacte du relevé et l’objectif de campagne qui sert de dénominateur.",
+      "Produire la roue de progression demandée par la direction seulement après validation de ces trois données; conserver la photographie réelle comme base ou référence visuelle.",
+      "Remplacer les quatre champs temporaires dans le texte.",
       "Vérifier les deux formulaires Zeffy et documenter le relevé utilisé.",
       "Finaliser le média, soumettre les validations et programmer seulement après la levée du blocage."
     ],

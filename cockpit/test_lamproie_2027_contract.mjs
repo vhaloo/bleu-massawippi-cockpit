@@ -19,9 +19,12 @@ assert.match(card, /confirmation écrite/);
 assert.match(card, /1er mars 2027/);
 assert.match(card, /31 mars 2027/);
 assert.match(card, /Parties prenantes par fonction/);
-assert.match(card, /Communications au 16 août/);
-assert.match(card, /Ayer’s Cliff a répondu positivement/);
-assert.match(card, /sans doublon/);
+assert.match(card, /Communications au 18 août/);
+assert.match(card, /Simon Dostaler/);
+assert.match(card, /a répondu positivement le même jour/);
+assert.match(card, /Mélanie Lelièvre remplace désormais Mme Martel/);
+assert.match(card, /ne pas relancer La Frontalière, l’UPA locale ni le CIE Memphrémagog/);
+assert.match(card, /sans renvoyer de message en double/);
 assert.match(card, /Fiducie\/Fondation Massawippi/);
 assert.match(card, /Documents de synthèse — 16 août 2026/);
 assert.match(card, /00_Index_documents_heritages_et_syntheses_Lamproie_du_Nord_2026-08-16\.docx/);
@@ -32,8 +35,9 @@ assert.match(card, /Suivi partenaires — 10 août 2026/);
 assert.match(card, /Lettre_partenaires_Lamproie_du_Nord_BROUILLON_2026-08-10\.docx/);
 assert.match(card, /REGISTRE_PARTENAIRES_LAMPROIE_2026-08-10\.md/);
 assert.match(card, /LAMPROIE_DU_NORD_SUIVI_PARTENAIRES_2026-08-11\.md/);
-assert.equal((card.match(/class="internal-project-document-card"/g) || []).length, 16,
-  "Les seize ressources Lamproie doivent être présentées sous forme de cartes documentaires homogènes.");
+assert.match(card, /Lamproie_du_Nord_suivi_parties_prenantes_2026-08-18\.md/);
+assert.equal((card.match(/class="internal-project-document-card"/g) || []).length, 17,
+  "Les dix-sept ressources Lamproie doivent être présentées sous forme de cartes documentaires homogènes.");
 assert.doesNotMatch(card, /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i,
   "Aucune adresse personnelle ne doit apparaître dans la fiche Cockpit.");
 assert.doesNotMatch(card, /819(?:[ -]?\d){7}/,
