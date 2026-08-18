@@ -36,23 +36,23 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260812-b62";
-import { createEventContextController } from "./event-context-data.js?v=20260812-b62";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260812-b62";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260812-b62";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260812-b62";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260812-b62";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260812-b62";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260812-b62";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260812-b62";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260812-b62";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260812-b62";
-import { setupControlHints } from "./control-hints.js?v=20260812-b62";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260812-b62";
-import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260812-b62";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260812-b62";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260812-b62";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260812-b62";
+} from "./firebase-client.js?v=20260818-b63";
+import { createEventContextController } from "./event-context-data.js?v=20260818-b63";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260818-b63";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260818-b63";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260818-b63";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260818-b63";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260818-b63";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260818-b63";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260818-b63";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260818-b63";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260818-b63";
+import { setupControlHints } from "./control-hints.js?v=20260818-b63";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260818-b63";
+import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260818-b63";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260818-b63";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260818-b63";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260818-b63";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -93,9 +93,9 @@ style.textContent = `
   #cockpit-login{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:24px;background:rgba(5,35,51,.72);backdrop-filter:blur(14px)}
   #cockpit-login[hidden]{display:none}
   button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #2ab6bb;outline-offset:3px}
-  .cockpit-login-card { width: min(450px, 100%); padding: 30px; border: 1px solid rgba(255,255,255,.35); border-radius: 24px; color: #102f3f; background: #f8fcfc; box-shadow: 0 30px 70px rgba(0,0,0,.25); }
-  .cockpit-login-card h2 { margin: 0 0 7px; color: #073a52; font-size: 2rem; letter-spacing: -.04em; }
-  .cockpit-login-product { display:block; width:min(100%,360px); height:auto; margin:0 auto 18px; padding:12px 14px; border:1px solid #d6e8ea; border-radius:18px; background:#f8fcfc; }
+  .cockpit-login-card{box-sizing:border-box;width:min(450px,100%);padding:30px;border:1px solid rgba(255,255,255,.35);border-radius:24px;color:#102f3f;background:#f8fcfc;box-shadow:0 30px 70px rgba(0,0,0,.25)}
+  .cockpit-login-card h2{margin:0 0 7px;color:#073a52;font-size:2rem;letter-spacing:-.04em}
+  .cockpit-login-product{box-sizing:border-box;display:block;width:min(100%,360px);height:auto;margin:0 auto 18px;padding:12px 14px;border:1px solid #d6e8ea;border-radius:18px;background:#f8fcfc}
   .cockpit-login-card p { color: #54717d; }
   .cockpit-login-card label { display: grid; gap: 5px; margin-top: 13px; color: #315564; font-size: .82rem; font-weight: 800; }
   .cockpit-login-card input { min-height: 44px; padding: 0 12px; border: 1px solid #cfe3e6; border-radius: 10px; color: #102f3f; background: white; }
