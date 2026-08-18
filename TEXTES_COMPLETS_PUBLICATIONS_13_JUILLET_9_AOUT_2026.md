@@ -1501,7 +1501,7 @@ Following its journey offers a new way to see the watershed: what slows and abso
 ## Vendredi 21 août — Le point soutien — merci d’avancer avec nous
 
 **Thème :** Soutien
-**Format :** Photographie réelle + point de campagne bilingue
+**Format :** Roue de progression + photographie réelle · point bilingue
 **Objectif :** Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.
 **CTA :** Voir le point et soutenir la mission
 **Visuel final :** Photographie réelle du lac présentée comme un souvenir familier; le paysage demeure intact et le message reste court, humain et lisible sur mobile.
@@ -1830,10 +1830,10 @@ This feature explains the general role of water lilies in an aquatic plant bed. 
 **Format :** Photographie réelle + point de campagne bilingue
 **Objectif :** Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.
 **CTA :** Voir le point et soutenir la mission
-**Visuel final :** Photographie aérienne réelle du lac Massawippi, sans modification documentaire; une courte mention manuscrite peut être ajoutée après validation.
+**Visuel final :** Roue de progression simple et très lisible, associée à une photographie réelle du lac Massawippi. Afficher seulement le total confirmé, sa date de vérification et l’objectif de campagne confirmé. Ne jamais déduire ni afficher un pourcentage sans dénominateur vérifié.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
 **Source de référence :** Zeffy — rapport Paiements de la campagne, statut Réussi; exclure remboursements, litiges et paiements non reçus. Liens : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
-**Préparation :** Vérifier le total de campagne et sa date dans Zeffy, remplacer les quatre champs temporaires, vérifier les deux liens et lever le blocage seulement après double vérification.
+**Préparation :** Vérifier le total de campagne, l’objectif qui sert de dénominateur et la date du relevé dans Zeffy; produire ensuite la roue de progression, remplacer les quatre champs temporaires, vérifier les deux liens et lever le blocage seulement après double vérification.
 
 ### Légende prête à programmer
 
@@ -1952,33 +1952,33 @@ A tributary is a stream or river that flows into another waterway or a lake. Aro
 #LakeWords #BleuMassawippi #LakeMassawippi #Tributaries #Watershed
 ```
 
-## Mardi 8 septembre — La quenouille, une plante du marais
+## Mardi 8 septembre — Le touladi, un témoin à lire avec les autres données
 
 **Thème :** Nature
-**Format :** Illustration aquarelle-encre 4:5
+**Format :** Photographie documentaire réelle · publication bilingue
 **Objectif :** Bonne idée nature conservée et reprogrammée après le choix de la publication sur les observations après la pluie pour le 29 juillet.
-**CTA :** Découvrir son milieu
-**Visuel final :** Affiche naturaliste vintage 4:5 présentant la quenouille dans un marais générique, avec annotations manuscrites « tige · épi · rhizome » et titre « La quenouille, une plante du marais »; aucune affirmation de présence locale.
+**CTA :** Lire les signes ensemble
+**Visuel final :** Photographie documentaire réelle d’un touladi tenu au-dessus de l’eau, correctement créditée au U.S. Fish and Wildlife Service et indiquée comme n’ayant pas été prise au lac Massawippi. Aucun texte ni élément n’est ajouté à la scène.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Gouvernement du Québec — milieux humides : https://www.environnement.gouv.qc.ca/eau/rives/milieuxhumides.htm · Gouvernement du Canada — interventions sur les rives : https://www.canada.ca/fr/environnement-changement-climatique/services/eau-apercu/proteger-eau-douce/guide-pratique-interventions-sur-rives-eau-douce/chapitre-6.html · présence locale à confirmer avant diffusion.
-**Préparation :** Valider l’identification, l’observation locale et les droits du visuel avant d’associer la quenouille au Massawippi; garder la capsule générique tant qu’une preuve locale n’est pas documentée.
+**Source de référence :** État touladi Massawippi (Messier, 2023), archive interne Bleu Massawippi · Gouvernement du Québec — touladi : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/animaux-sauvages-quebec/fiches-especes-fauniques/touladi · Parcs Canada — le touladi comme espèce indicatrice : https://parcs.canada.ca/pn-np/sk/princealbert/nature/integrite_ecologique-ecological_integrity/lacs-lakes/touladis-trout/mobilisation-engagement
+**Préparation :** Relire le portrait local de 2023 avant diffusion si un chiffre ou une tendance est ajouté. La présente capsule ne publie aucune donnée locale et ne transforme pas le touladi en diagnostic isolé.
 
 ### Légende prête à programmer
 
 ```text
-FR — La quenouille est une plante associée aux zones peu profondes de certains milieux humides. Ses tiges dressées ajoutent de la structure au marais; autour d’elles, de nombreux organismes trouvent abri, nourriture ou un lieu de reproduction. Les milieux humides contribuent aussi à ralentir l’eau et à soutenir la biodiversité.
+FR — Le touladi vit dans des lacs profonds où l’eau demeure froide et bien oxygénée. Longévif et sensible aux changements de son milieu, il fait partie des espèces que les scientifiques suivent pour mieux comprendre l’état d’un écosystème lacustre.
 
-Cette capsule présente le rôle général de la quenouille dans un marais. Avant de l’associer précisément au lac Massawippi, nous confirmerons sa présence et son contexte à partir d’une observation ou d’un inventaire local documenté.
+Une variation de sa population n’est jamais un verdict à elle seule. Elle prend son sens lorsqu’on la met en relation avec la température, l’oxygène, l’habitat et d’autres observations. Au lac Massawippi, un portrait du touladi réalisé en 2023 offre un repère utile pour suivre le lac dans le temps.
 
-#ZoomNature #BleuMassawippi #MilieuxHumides #BassinVersant
+#Touladi #ScienceDuLac #BleuMassawippi #LacMassawippi
 
 =========================================
 
-EN — Cattails are plants associated with shallow areas in some wetlands. Their upright stems add structure to the marsh; around them, many organisms find shelter, food or a place to reproduce. Wetlands also help slow water and support biodiversity.
+EN — Lake trout live in deep lakes where the water remains cold and well oxygenated. Long-lived and sensitive to environmental change, they are among the species scientists monitor to help understand the condition of a lake ecosystem.
 
-This feature presents the general role of cattails in a marsh. Before connecting the plant specifically to Lake Massawippi, we will confirm its presence and context through a documented local observation or inventory.
+A population change is never a verdict on its own. It becomes meaningful when considered alongside temperature, oxygen, habitat and other observations. At Lake Massawippi, a 2023 lake trout assessment provides a useful reference for tracking the lake over time.
 
-#NatureZoom #BleuMassawippi #Wetlands #Watershed
+#LakeTrout #LakeScience #BleuMassawippi #LakeMassawippi
 ```
 
 ## Jeudi 10 septembre — 15 secondes sur le terrain avec nous

@@ -359,9 +359,16 @@ const samplingPost = posts.find((post) => post.id === "s3d5");
 assert.match(samplingPost.title, /prélèvement/i, "Le retour sur les résultats doit devenir une explication concrète du prélèvement.");
 assert.match(samplingPost.copy, /lac, tributaire ou plage/i);
 assert.match(samplingPost.copy, /seulement après (leur )?validation/i);
-const cattailPost = posts.find((post) => post.id === "alt-20260729");
-assert.match(cattailPost.copy, /présence et son contexte/i);
-assert.match(cattailPost.copy, /observation ou d’un inventaire local documenté/i);
+const lakeTroutPost = posts.find((post) => post.id === "alt-20260729");
+assert.match(lakeTroutPost.title, /touladi/i);
+assert.match(lakeTroutPost.copy, /n’est jamais un verdict à elle seule/i,
+  "Le touladi doit être présenté comme un indicateur à lire avec d’autres données, jamais comme un diagnostic isolé.");
+assert.match(lakeTroutPost.copy, /température, l’oxygène, l’habitat et d’autres observations/i);
+assert.match(lakeTroutPost.copy, /portrait du touladi réalisé en 2023/i);
+const lakeTroutMedia = editorialMedia.find((media) => media.id === "editorial-alt-20260729-lake-trout-real-v1");
+assert.ok(lakeTroutMedia, "La proposition documentaire réelle du touladi doit être inscrite au manifeste.");
+assert.match(lakeTroutMedia.rightsStatus, /domaine public/i);
+assert.match(lakeTroutMedia.note, /n’est pas présentée comme ayant été prise au lac Massawippi/i);
 const visualPausePost = posts.find((post) => post.id === "s3d6");
 assert.match(visualPausePost.format, /Photo plein cadre/i);
 assert.match(visualPausePost.copy, /quel souvenir gardez-vous de votre Massawippi\?/i, "La question courte validée doit demeurer dans la respiration photo.");
@@ -778,7 +785,7 @@ assert.ok(fs.statSync(matchedDonationPreview).size < 150_000, "L’aperçu Zeffy
 assert.doesNotMatch(posts.find((post) => post.id === "s4d7").copy, /bleumassawippi\.com\/quiz/,
   "Un sondage qui mentionne éventuellement un quiz ne doit pas être transformé en publication quiz.");
 assert.equal((source.match(/data-internal-project-id=/g) || []).length, 16, "Le registre privé doit contenir les seize projets internes documentés.");
-assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-08-16-lamproie-stakeholders-v2"/);
+assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-08-18-lamproie-stakeholders-v3"/);
 const internalProjectIds = [...source.matchAll(/data-internal-project-id="([a-z0-9-]+)"/g)].map((match) => match[1]).sort();
 const internalProjectSeedIds = [...internalProjectSeed.matchAll(/^  "([a-z0-9-]+)": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm)].map((match) => match[1]).sort();
 assert.deepEqual(internalProjectSeedIds, internalProjectIds, "Les cartes et le seed des projets internes doivent utiliser exactement les mêmes identifiants.");
