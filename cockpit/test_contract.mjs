@@ -143,10 +143,22 @@ for (const id of continuityPostIds) {
   assert.match(post.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/,
     `La publication de continuité ${id} doit être bilingue.`);
   assert.ok(post.copy.length <= 2200, `La publication de continuité ${id} doit respecter la limite Meta.`);
-  const media = editorialMedia.filter((item) => item.eventId === id && item.stage !== "archived" && item.archived !== true);
+  const media = editorialMedia.filter((item) => item.eventId === id && !["archived", "reference"].includes(item.stage) && item.archived !== true);
   assert.equal(media.length, 1, `La publication de continuité ${id} doit avoir un média actif clair.`);
   assert.ok(media[0].previewUrl, `Le média de ${id} doit afficher un vrai aperçu mobile.`);
-  assert.ok(media[0].reuseMediaId, `Le média de ${id} doit réutiliser un fichier déjà hébergé sans copie inutile.`);
+  assert.ok(media[0].fileName, `Le média de ${id} doit identifier son fichier source.`);
+}
+for (const [eventId, freshMediaId] of [
+  ["don-20260911-merci-bilan", "editorial-don-20260911-community-photo-v2"],
+  ["don-20260918-point-soutien", "editorial-don-20260918-community-photo-v2"]
+]) {
+  const freshMedia = editorialMedia.find((item) => item.id === freshMediaId);
+  assert.equal(freshMedia?.eventId, eventId, `${freshMediaId} doit rester lié au bon point soutien.`);
+  assert.equal(freshMedia?.reuseMediaId, undefined, `${freshMediaId} doit être un visuel frais, pas une réutilisation.`);
+  assert.match(freshMedia?.label || "", /Proposition finale/, `${freshMediaId} doit être présenté comme prêt à choisir.`);
+  const retainedReferences = editorialMedia.filter((item) => item.eventId === eventId && item.stage === "reference");
+  assert.ok(retainedReferences.length >= 1, `${eventId} doit conserver l’ancienne image comme référence.`);
+  assert.ok(retainedReferences.every((item) => item.publicationBlocked === true), `${eventId} ne doit pas permettre de sélectionner une référence.`);
 }
 for (const [id, dateIso] of [["don-20260909-appel-soutien", "2026-08-21"], ["don-20260911-merci-bilan", "2026-09-04"], ["don-20260918-point-soutien", "2026-09-18"]]) {
   const checkpoint = activePosts.find((post) => post.id === id);

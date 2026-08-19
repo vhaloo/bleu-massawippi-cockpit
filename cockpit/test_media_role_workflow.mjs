@@ -99,6 +99,12 @@ assert.match(client, /Retirez d’abord ce média des choix actifs/,
   "La remise en attente des droits ne doit pas laisser un choix média incohérent.");
 assert.match(ui, /myChoiceSelected \? "Retirer mon choix" : "Choisir ce visuel"/,
   "Les communications doivent pouvoir retirer puis reprendre leur propre choix média.");
+assert.match(ui, /const canOverride = !isBlocked[\s\S]{0,180}role === "admin"/,
+  "Valentin doit voir l’override motivé sur tout média diffusable, même avant son premier choix.");
+assert.match(ui, /Forcer ce visuel et le texte/,
+  "L’action de forçage doit être nommée explicitement dans la vue des communications.");
+assert.match(ui, /const canOverride = !isBlocked/,
+  "Une référence bloquée ne doit jamais devenir forçable par le changement d’interface.");
 assert.match(ui, /const selected = mediaDecisionButton\.getAttribute\("aria-pressed"\) !== "true"/,
   "Le même contrôle média doit alterner choix et retrait sans suppression d’historique.");
 assert.match(ui, /mediaSelectionMode === "multiple"/,
