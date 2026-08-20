@@ -1501,10 +1501,10 @@ Following its journey offers a new way to see the watershed: what slows and abso
 ## Vendredi 21 août — Le point soutien — merci d’avancer avec nous
 
 **Thème :** Soutien
-**Format :** Roue de progression + photographie réelle · point bilingue
+**Format :** Souvenir sur le frigo + photographie réelle · point bilingue
 **Objectif :** Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.
 **CTA :** Voir le point et soutenir la mission
-**Visuel final :** Photographie réelle du lac présentée comme un souvenir familier; le paysage demeure intact et le message reste court, humain et lisible sur mobile.
+**Visuel final :** Photographie réelle du lac présentée comme un souvenir familier sur un réfrigérateur, avec le remerciement bilingue Merci pour vos dons / Thank you for your donation en lettres aimantées colorées. Aucun chiffre dans l’image.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
 **Source de référence :** Campagne Zeffy officielle de Bleu Massawippi : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
 **Préparation :** Vérifier le total de campagne et sa date dans Zeffy, remplacer les quatre champs temporaires, vérifier les deux liens et programmer seulement après les validations du texte et du média.
