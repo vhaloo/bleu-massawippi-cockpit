@@ -1966,7 +1966,7 @@ A tributary is a stream or river that flows into another waterway or a lake. Aro
 ### Légende prête à programmer
 
 ```text
-FR — Le touladi vit dans des lacs profonds où l’eau demeure froide et bien oxygénée. Longévif et sensible aux changements de son milieu, il fait partie des espèces que les scientifiques suivent pour mieux comprendre l’état d’un écosystème lacustre.
+FR — Le touladi (Salvelinus namaycush) vit dans des lacs profonds où l’eau demeure froide et bien oxygénée. Longévif et sensible aux changements de son milieu, il fait partie des espèces que les scientifiques suivent pour mieux comprendre l’état d’un écosystème lacustre.
 
 Une variation de sa population n’est jamais un verdict à elle seule. Elle prend son sens lorsqu’on la met en relation avec la température, l’oxygène, l’habitat et d’autres observations. Au lac Massawippi, un portrait du touladi réalisé en 2023 offre un repère utile pour suivre le lac dans le temps.
 
@@ -1974,7 +1974,7 @@ Une variation de sa population n’est jamais un verdict à elle seule. Elle pre
 
 =========================================
 
-EN — Lake trout live in deep lakes where the water remains cold and well oxygenated. Long-lived and sensitive to environmental change, they are among the species scientists monitor to help understand the condition of a lake ecosystem.
+EN — Lake trout (Salvelinus namaycush) live in deep lakes where the water remains cold and well oxygenated. Long-lived and sensitive to environmental change, they are among the species scientists monitor to help understand the condition of a lake ecosystem.
 
 A population change is never a verdict on its own. It becomes meaningful when considered alongside temperature, oxygen, habitat and other observations. At Lake Massawippi, a 2023 lake trout assessment provides a useful reference for tracking the lake over time.
 
