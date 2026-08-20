@@ -335,6 +335,65 @@ Thank you for your trust.
 
 const CONTINUITY_POSTS = [
   {
+    id: "poesie-20260821-invitation-public",
+    w: 6,
+    date: "Vendredi 21 août",
+    calendarTime: "12:00",
+    t: "Événement",
+    tier: "Pilier",
+    title: "Au bord du bleu — 13 voix au rendez-vous",
+    format: "Affiche bilingue événementielle V8 · invitation publique",
+    role: "Inviter le public à Au bord du bleu, annoncer le décompte consolidé de 13 contributions et rappeler uniquement la plage publique de 13 h à 16 h.",
+    cta: "Venir écouter au bord du lac",
+    visual: "Dernière affiche événementielle bilingue Au bord du bleu, version V8, déjà conservée dans l’encart interne du projet; aucun appel aux candidatures.",
+    source: "Registre canonique interne Au bord du bleu du 20 août 2026 : 15 réponses Forms, 14 personnes uniques, 13 contributions actives, dont 12 personnes sur place et le texte d’une poète absente lu sur place. Affiche V8 du projet interne.",
+    fallback: "Utiliser exclusivement l’affiche événementielle V8 courante; ne pas réutiliser l’affiche V7 de recrutement et ne pas annoncer l’heure interne de 13 h 40.",
+    kpi: "Portée locale / partages / réponses d’intention / présence du public",
+    task: "Relire la légende et l’affiche V8, puis publier manuellement le 21 août seulement après la vérification finale; aucune programmation automatique.",
+    copy: `FR — 🌊 Au bord du bleu approche!
+
+Le dimanche 30 août, 13 poètes et artistes de la parole feront résonner le lac Massawippi. Douze seront parmi nous au parc Lôbadanaki, tandis que le texte d’une treizième poète, absente ce jour-là, sera lu sur place. Poésie, prose, slam et parole vivante se rencontreront au bord de l’eau.
+
+Le public est accueilli librement de 13 h à 16 h. Venez écouter, découvrir des voix d’ici et d’ailleurs, et partager un après-midi simple et chaleureux au bord du lac.
+
+📍 Parc Lôbadanaki, North Hatley
+📅 Dimanche 30 août 2026
+🕐 13 h à 16 h
+🎟 Entrée libre
+
+En cas de pluie, l’événement sera déplacé à l’intérieur de l’église; les détails pratiques seront confirmés avant l’événement.
+
+#AuBordDuBleu #BleuMassawippi #Poésie #LacMassawippi
+
+=========================================
+
+EN — 🌊 Au bord du bleu is almost here!
+
+On Sunday, August 30, 13 poets and spoken-word artists will bring their voices to Lake Massawippi. Twelve will join us at parc Lôbadanaki, while a thirteenth poet’s text will be read on site in her absence. Poetry, prose, spoken word and living voices will meet by the water.
+
+The public is welcome anytime from 1 to 4 p.m. Come listen, discover voices from near and far, and share a simple, warm afternoon by the lake.
+
+📍 Parc Lôbadanaki, North Hatley
+📅 Sunday, August 30, 2026
+🕐 1–4 p.m.
+🎟 Free admission
+
+In case of rain, the event will move inside the church; practical details will be confirmed before the event.
+
+#AuBordDuBleu #BleuMassawippi #Poetry #LakeMassawippi`,
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    isAlternative: false,
+    publicationBlocked: false,
+    tasksValentin: [
+      "Relire la légende bilingue et vérifier qu’elle annonce 13 contributions sans nommer la personne absente.",
+      "Vérifier l’aperçu mobile de l’affiche V8 et publier manuellement le 21 août; ne pas programmer automatiquement."
+    ],
+    tasksAnnie: [],
+    taskOwnersVersion: "event-task-owners-2026-08-20-poetry-invitation-v1"
+  },
+  {
     id: "don-20260909-appel-soutien",
     w: 9,
     date: "Mercredi 9 septembre",
@@ -733,13 +792,13 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["alt-20260716", 6, "Lundi 17 août", "2026-08-17"],
   ["s3d7", 6, "Mardi 18 août", "2026-08-18"],
   ["s4d5", 6, "Jeudi 20 août", "2026-08-20"],
-  ["don-20260909-appel-soutien", 6, "Vendredi 21 août", "2026-08-21"],
+  ["poesie-20260821-invitation-public", 6, "Vendredi 21 août", "2026-08-21"],
   ["s4d4", 6, "Dimanche 23 août", "2026-08-23"],
   ["s4d3", 7, "Lundi 24 août", "2026-08-24"],
   ["alt-20260718", 7, "Mercredi 26 août", "2026-08-26"],
   ["s4d2", 7, "Jeudi 27 août", "2026-08-27"],
+  ["don-20260909-appel-soutien", 7, "Vendredi 28 août", "2026-08-28"],
   ["alt-20260721", 7, "Samedi 29 août", "2026-08-29"],
-  ["alt-20260723", 7, "Dimanche 30 août", "2026-08-30"],
   ["alt-20260724", 8, "Mardi 1er septembre", "2026-09-01"],
   ["alt-20260805", 8, "Mercredi 2 septembre", "2026-09-02"],
   ["don-20260911-merci-bilan", 8, "Vendredi 4 septembre", "2026-09-04"],
@@ -760,8 +819,22 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["archives-20260912-vos-images", 11, "Vendredi 25 septembre", "2026-09-25"],
   ["quiz-20260913-trois-gestes", 11, "Samedi 26 septembre", "2026-09-26"],
   ["s1d2", 11, "Dimanche 27 septembre", "2026-09-27"],
-  ["photo-20260915-soir-automne", 12, "Mardi 29 septembre", "2026-09-29"]
+  ["photo-20260915-soir-automne", 12, "Mardi 29 septembre", "2026-09-29"],
+  ["alt-20260723", 12, "Mercredi 30 septembre", "2026-09-30"]
 ];
+
+const USER_DIRECTED_RESCHEDULES = new Map([
+  ["don-20260909-appel-soutien", {
+    from: "2026-08-21",
+    to: "2026-08-28",
+    reason: "Demande des communications du 20 août 2026 : céder le créneau du vendredi 21 août à l’invitation Au bord du bleu et reporter intégralement le point de soutien Zeffy au vendredi suivant."
+  }],
+  ["alt-20260723", {
+    from: "2026-08-30",
+    to: "2026-09-30",
+    reason: "Rééquilibrage du 20 août 2026 : préserver le dimanche 30 août pour Au bord du bleu, conserver la capsule sur la rive sans concurrence le jour de l’événement et la reporter au 30 septembre."
+  }]
+]);
 
 const COMPLETED_POST_REPAIR_ROTATIONS = new Map([
   ["alt-20260731", {
@@ -1349,9 +1422,13 @@ export function applyPlanOverridesToPosts(posts) {
     if (!post) return;
     const from = planDateIsoFromLabel(post.date);
     const repairRotation = COMPLETED_POST_REPAIR_ROTATIONS.get(id);
-    const historyFrom = repairRotation?.from || from;
-    const assignmentReason = repairRotation?.reason || continuityReason;
+    const userDirectedRotation = USER_DIRECTED_RESCHEDULES.get(id);
+    const historyFrom = repairRotation?.from || userDirectedRotation?.from || from;
+    const assignmentReason = repairRotation?.reason || userDirectedRotation?.reason || continuityReason;
     const history = Array.isArray(post.rescheduleHistory) ? [...post.rescheduleHistory] : [];
+    if (userDirectedRotation && from && from !== historyFrom && !history.some((entry) => entry?.from === from && entry?.to === historyFrom && entry?.reason === continuityReason)) {
+      history.push({ from, to: historyFrom, reason: continuityReason });
+    }
     if (historyFrom && historyFrom !== dateIso && !history.some((entry) => entry?.from === historyFrom && entry?.to === dateIso && entry?.reason === assignmentReason)) {
       history.push({ from: historyFrom, to: dateIso, reason: assignmentReason });
     }
