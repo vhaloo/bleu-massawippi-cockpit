@@ -810,8 +810,13 @@ assert.match(source, /Jeux provinciaux de pêche — événement terminé[\s\S]{
 assert.match(internalProjectSeed, /"jeux-provinciaux-peche": "completed"/,
   "Le seed ne doit jamais recréer les Jeux provinciaux de pêche comme projet actif ou bloqué.");
 const applicationProject = source.match(/<details class="internal-project" id="internal-project-application-carte-vivante-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
-assert.match(applicationProject, /data-waiting-source="discovery-only"/);
+assert.match(applicationProject, /data-waiting-source="functional-spec-pending"/);
 assert.match(applicationProject, /CADRAGE SEULEMENT · PRODUCTION NON AUTORISÉE/);
+assert.match(applicationProject, /En attente du cahier/);
+assert.match(applicationProject, /Aucun fichier ni contenu correspondant n’a été reçu dans communication@ ou dans le Cockpit/);
+assert.match(applicationProject, /aucune validation, approbation ou action de production n’est déduite/);
+assert.match(applicationProject, /Cahier des charges fonctionnel/);
+assert.match(applicationProject, /Annonce · 20 août · fichier non reçu/);
 assert.match(applicationProject, /résumé « Prototype Alpha 0\.0\.1 » reçu d’Annie est maintenant intégré au cadrage/);
 assert.match(applicationProject, /estimation de 60–80 % doit être vérifiée livrable par livrable/);
 assert.match(applicationProject, /Aucun code, prototype fonctionnel, achat, partenaire, échéance publique ni lancement n’est autorisé/);
