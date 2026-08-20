@@ -160,6 +160,15 @@ for (const [eventId, freshMediaId] of [
   assert.ok(retainedReferences.length >= 1, `${eventId} doit conserver l’ancienne image comme référence.`);
   assert.ok(retainedReferences.every((item) => item.publicationBlocked === true), `${eventId} ne doit pas permettre de sélectionner une référence.`);
 }
+const fridayThanksMedia = editorialMedia.find((item) => item.id === "editorial-don-20260821-thanks-fridge-v2");
+assert.equal(fridayThanksMedia?.eventId, "don-20260909-appel-soutien", "Le nouveau frigo de remerciement doit rester lié au vendredi 21 août.");
+assert.equal(fridayThanksMedia?.stage, "proposal", "Le nouveau frigo doit rester une proposition révisable.");
+assert.equal(fridayThanksMedia?.publicationBlocked, true, "Le média du 21 août ne doit pas lever le blocage financier de la publication.");
+assert.match(fridayThanksMedia?.label || "", /Proposition finale/);
+assert.match(fridayThanksMedia?.altText || "", /Merci pour vos dons.*Thank you for your donation/i);
+const previousFridayThanksMedia = editorialMedia.find((item) => item.id === "editorial-don-20260909-souvenir-v1");
+assert.equal(previousFridayThanksMedia?.stage, "reference", "L’ancienne base du point soutien doit rester conservée comme référence.");
+assert.equal(previousFridayThanksMedia?.publicationBlocked, true, "L’ancienne référence ne doit pas être sélectionnable.");
 for (const [id, dateIso] of [["don-20260909-appel-soutien", "2026-08-21"], ["don-20260911-merci-bilan", "2026-09-04"], ["don-20260918-point-soutien", "2026-09-18"]]) {
   const checkpoint = activePosts.find((post) => post.id === id);
   assert.equal(checkpoint?.dateIso, dateIso);
@@ -911,8 +920,14 @@ assert.match(poetryProject, /30 AOÛT · 13 H–16 H · PRÉPARATION FINALE/);
 assert.match(poetryProject, /Treize inscriptions recensées; programmation à fermer/i);
 assert.match(poetryProject, /il n’y aura pas de micro ouvert ni d’inscription spontanée sur place/i);
 assert.match(poetryProject, /poesie-rencontre-north-hatley-2026-08-10/);
-assert.match(poetryProject, /confirmer avec North Hatley la prise électrique de la station sanitaire, l’accessibilité, les toilettes, la zone autorisée et le plan météo/,
+assert.match(poetryProject, /confirmer avec North Hatley la prise électrique de la station sanitaire, l’accessibilité, les toilettes et la zone autorisée, ainsi que l’ouverture et les accès de l’église de repli/,
   "La prochaine action doit passer de l’appel public à la fermeture logistique avec North Hatley.");
+assert.match(poetryProject, /En cas de pluie, l’événement sera déplacé à l’intérieur de l’église/,
+  "Le plan pluie doit indiquer explicitement le repli à l’intérieur de l’église.");
+assert.match(poetryProject, /La pluie seule déclenche le repli à l’intérieur de l’église; elle n’entraîne pas l’annulation/,
+  "La pluie seule ne doit plus laisser entendre une annulation ou un autre lieu de repli.");
+assert.doesNotMatch(poetryProject, /Parc du Quai et Saint-Barthélemy demeurent les premiers replis à étudier/,
+  "Les anciens scénarios de repli doivent être retirés de la fiche active.");
 for (const meetingTopic of ["Lieu et autorité", "Horaire et logistique", "Météo et décision", "Collaboration et visibilité"]) {
   assert.match(meetingBriefBuilder, new RegExp(meetingTopic), `Le PDF municipal doit couvrir : ${meetingTopic}.`);
 }
