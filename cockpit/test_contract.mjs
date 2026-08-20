@@ -377,6 +377,8 @@ assert.match(lakeTroutPost.copy, /n’est jamais un verdict à elle seule/i,
   "Le touladi doit être présenté comme un indicateur à lire avec d’autres données, jamais comme un diagnostic isolé.");
 assert.match(lakeTroutPost.copy, /température, l’oxygène, l’habitat et d’autres observations/i);
 assert.match(lakeTroutPost.copy, /portrait du touladi réalisé en 2023/i);
+assert.equal((lakeTroutPost.copy.match(/Salvelinus namaycush/g) || []).length, 2,
+  "Le nom scientifique confirmé du touladi doit rester visible dans les deux langues.");
 const lakeTroutMedia = editorialMedia.find((media) => media.id === "editorial-alt-20260729-lake-trout-real-v1");
 assert.ok(lakeTroutMedia, "La proposition documentaire réelle du touladi doit être inscrite au manifeste.");
 assert.match(lakeTroutMedia.rightsStatus, /domaine public/i);
