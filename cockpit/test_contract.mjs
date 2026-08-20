@@ -917,10 +917,10 @@ assert.match(poetryProject, /ADDENDUM_VISUEL_PARTENAIRES_AU_BORD_DU_BLEU_V5\.md/
 assert.match(poetryProject, /data-initial-stage="active" open/,
   "La fiche poésie en préparation avancée doit rester ouverte afin de rendre l’affiche immédiatement visible.");
 assert.match(poetryProject, /30 AOÛT · 13 H–16 H · PRÉPARATION FINALE/);
-assert.match(poetryProject, /Treize inscriptions recensées; programmation à fermer/i);
+assert.match(poetryProject, /Quatorze personnes uniques recensées; treize contributions actives à fermer/i);
 assert.match(poetryProject, /il n’y aura pas de micro ouvert ni d’inscription spontanée sur place/i);
 assert.match(poetryProject, /poesie-rencontre-north-hatley-2026-08-10/);
-assert.match(poetryProject, /confirmer avec North Hatley la prise électrique de la station sanitaire, l’accessibilité, les toilettes et la zone autorisée, ainsi que l’ouverture et les accès de l’église de repli/,
+assert.match(poetryProject, /Confirmer ensuite avec North Hatley la prise électrique de la station sanitaire, l’accessibilité, les toilettes et la zone autorisée, ainsi que l’ouverture et les accès de l’église de repli/i,
   "La prochaine action doit passer de l’appel public à la fermeture logistique avec North Hatley.");
 assert.match(poetryProject, /En cas de pluie, l’événement sera déplacé à l’intérieur de l’église/,
   "Le plan pluie doit indiquer explicitement le repli à l’intérieur de l’église.");
@@ -955,7 +955,11 @@ const meetingBriefPdf = path.join(root, "cockpit", "project-documents", "Aide_me
 assert.ok(fs.existsSync(meetingBriefPdf), "Le PDF d’aide-mémoire doit être publié avec le cockpit.");
 assert.ok(fs.statSync(meetingBriefPdf).size > 50_000, "Le PDF d’aide-mémoire doit contenir sa mise en page et le logo.");
 assert.match(poetryProject, /https:\/\/forms\.office\.com\/r\/4A2xsMh7st/);
-assert.match(poetryProject, /13 inscriptions recensées/);
+assert.match(poetryProject, /Quatorze personnes uniques recensées; treize contributions actives/);
+assert.match(poetryProject, /Annick a retiré sa lecture et viendra comme spectatrice/);
+assert.match(poetryProject, /ne doit pas être réinséré sans nouvelle confirmation explicite/);
+assert.match(poetryProject, /Aucune prise de parole n’est attribuée à Annie sans son accord/);
+assert.match(poetryProject, /13 h 42/);
 assert.match(poetryProject, /Au_bord_du_bleu_checklist_operationnelle_2026-08-17\.md/);
 assert.match(poetryProject, /Le système de son a été testé avec Denis et fonctionne/);
 assert.match(poetryProject, /Trois personnes pour l’installation; quatre idéalement/);
