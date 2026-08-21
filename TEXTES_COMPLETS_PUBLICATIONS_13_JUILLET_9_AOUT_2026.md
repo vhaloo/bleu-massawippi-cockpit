@@ -1498,41 +1498,51 @@ Following its journey offers a new way to see the watershed: what slows and abso
 #Watershed #BleuMassawippi #LakeMassawippi #ThinkUpstream
 ```
 
-## Vendredi 21 août — Le point soutien — merci d’avancer avec nous
+## Vendredi 21 août — Au bord du bleu — 13 voix au rendez-vous
 
-**Thème :** Soutien
-**Format :** Roue de progression + photographie réelle · point bilingue
-**Objectif :** Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.
-**CTA :** Voir le point et soutenir la mission
-**Visuel final :** Photographie réelle du lac présentée comme un souvenir familier; le paysage demeure intact et le message reste court, humain et lisible sur mobile.
+**Thème :** Événement
+**Format :** Affiche bilingue événementielle V8 · invitation publique
+**Objectif :** Inviter le public à Au bord du bleu, annoncer le décompte consolidé de 13 contributions et rappeler uniquement la plage publique de 13 h à 16 h.
+**CTA :** Venir écouter au bord du lac
+**Visuel final :** Dernière affiche événementielle bilingue Au bord du bleu, version V8, déjà conservée dans l’encart interne du projet; aucun appel aux candidatures.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Campagne Zeffy officielle de Bleu Massawippi : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
-**Préparation :** Vérifier le total de campagne et sa date dans Zeffy, remplacer les quatre champs temporaires, vérifier les deux liens et programmer seulement après les validations du texte et du média.
+**Source de référence :** Registre canonique interne Au bord du bleu du 20 août 2026 : 15 réponses Forms, 14 personnes uniques, 13 contributions actives, dont 12 personnes sur place et le texte d’une poète absente lu sur place. Affiche V8 du projet interne.
+**Préparation :** Relire la légende et l’affiche V8, puis publier manuellement le 21 août seulement après la vérification finale; aucune programmation automatique.
 
 ### Légende prête à programmer
 
 ```text
-FR — 💙 Le point soutien.
+FR — 🌊 Au bord du bleu approche!
 
-Au [DATE DE VÉRIFICATION], le total confirmé de notre campagne s’élève à [MONTANT TOTAL CONFIRMÉ]. Merci à toutes les personnes qui font avancer la mission de Bleu Massawippi, à leur mesure.
+Le dimanche 30 août, 13 poètes et artistes de la parole feront résonner le lac Massawippi. Douze seront parmi nous au parc Lôbadanaki, tandis que le texte d’une treizième poète, absente ce jour-là, sera lu sur place. Poésie, prose, slam et parole vivante se rencontreront au bord de l’eau.
 
-Ces contributions nous aident à mieux connaître le lac et ses tributaires, à partager des repères accessibles et à préparer des actions concrètes avec la communauté.
+Le public est accueilli librement de 13 h à 16 h. Venez écouter, découvrir des voix d’ici et d’ailleurs, et partager un après-midi simple et chaleureux au bord du lac.
 
-Vous souhaitez ajouter votre geste? Adhésion ou don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+📍 Parc Lôbadanaki, North Hatley
+📅 Dimanche 30 août 2026
+🕐 13 h à 16 h
+🎟 Entrée libre
 
-#BleuMassawippi #LacMassawippi #SoutenirLeLac
+En cas de pluie, l’événement sera déplacé à l’intérieur de l’église; les détails pratiques seront confirmés avant l’événement.
+
+#AuBordDuBleu #BleuMassawippi #Poésie #LacMassawippi
 
 =========================================
 
-EN — 💙 Support update.
+EN — 🌊 Au bord du bleu is almost here!
 
-As of [VERIFICATION DATE], the confirmed campaign total is [CONFIRMED CAMPAIGN TOTAL]. Thank you to everyone helping Bleu Massawippi move its mission forward, in the way that is right for them.
+On Sunday, August 30, 13 poets and spoken-word artists will bring their voices to Lake Massawippi. Twelve will join us at parc Lôbadanaki, while a thirteenth poet’s text will be read on site in her absence. Poetry, prose, spoken word and living voices will meet by the water.
 
-These contributions help us better understand the lake and its tributaries, share accessible knowledge and prepare practical action with the community.
+The public is welcome anytime from 1 to 4 p.m. Come listen, discover voices from near and far, and share a simple, warm afternoon by the lake.
 
-Would you like to add your support? Membership or donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+📍 Parc Lôbadanaki, North Hatley
+📅 Sunday, August 30, 2026
+🕐 1–4 p.m.
+🎟 Free admission
 
-#BleuMassawippi #LakeMassawippi #SupportTheLake
+In case of rain, the event will move inside the church; practical details will be confirmed before the event.
+
+#AuBordDuBleu #BleuMassawippi #Poetry #LakeMassawippi
 ```
 
 ## Dimanche 23 août — Ici, l’eau prend son temps
@@ -1692,6 +1702,43 @@ Small gestures that make the water more welcoming for everyone.
 #SharedEnjoyment #BleuMassawippi #ResponsibleBoating #LakeMassawippi
 ```
 
+## Vendredi 28 août — Le point soutien — merci d’avancer avec nous
+
+**Thème :** Soutien
+**Format :** Souvenir sur le frigo + photographie réelle · point bilingue
+**Objectif :** Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.
+**CTA :** Voir le point et soutenir la mission
+**Visuel final :** Photographie réelle du lac présentée comme un souvenir familier sur un réfrigérateur, avec le remerciement bilingue Merci pour vos dons / Thank you for your donation en lettres aimantées colorées. Aucun chiffre dans l’image.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Campagne Zeffy officielle de Bleu Massawippi : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+**Préparation :** Vérifier le total de campagne et sa date dans Zeffy, remplacer les quatre champs temporaires, vérifier les deux liens et programmer seulement après les validations du texte et du média.
+
+### Légende prête à programmer
+
+```text
+FR — 💙 Le point soutien.
+
+Au [DATE DE VÉRIFICATION], le total confirmé de notre campagne s’élève à [MONTANT TOTAL CONFIRMÉ]. Merci à toutes les personnes qui font avancer la mission de Bleu Massawippi, à leur mesure.
+
+Ces contributions nous aident à mieux connaître le lac et ses tributaires, à partager des repères accessibles et à préparer des actions concrètes avec la communauté.
+
+Vous souhaitez ajouter votre geste? Adhésion ou don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LacMassawippi #SoutenirLeLac
+
+=========================================
+
+EN — 💙 Support update.
+
+As of [VERIFICATION DATE], the confirmed campaign total is [CONFIRMED CAMPAIGN TOTAL]. Thank you to everyone helping Bleu Massawippi move its mission forward, in the way that is right for them.
+
+These contributions help us better understand the lake and its tributaries, share accessible knowledge and prepare practical action with the community.
+
+Would you like to add your support? Membership or donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LakeMassawippi #SupportTheLake
+```
+
 ## Samedi 29 août — Le plongeon huard (Gavia immer), voix du lac
 
 **Thème :** Nature
@@ -1723,39 +1770,6 @@ Let’s enjoy the encounter without crowding it. Slowing down, leaving space and
 The loon is also a valuable indicator of a lake’s health. Because it depends on clear water and is sensitive to pressures such as mercury, lead, shoreline development and recreational activity, its presence, nesting and the success of its young help scientists monitor the ecological integrity of lake environments.
 
 #BleuMassawippi #LakeMassawippi #CommonLoon #RespectfulWildlifeViewing
-```
-
-## Dimanche 30 août — Retenir. Ralentir. Accueillir.
-
-**Thème :** Éducation
-**Format :** Carrousel illustré · trois fonctions
-**Objectif :** Bonne idée conservée et reprogrammée après arbitrage; capsule sur les fonctions d’une rive végétalisée à renforcer en français.
-**CTA :** Voir la rive autrement
-**Visuel final :** Photographie documentaire réelle d’une rive naturelle où l’eau, le sol, les rochers et la végétation demeurent lisibles. Privilégier une image interne distincte des vues aériennes déjà répétées; aucun décor ni espèce inventés.
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
-**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
-
-### Légende prête à programmer
-
-```text
-FR — Retenir le sol. Ralentir l’eau. Accueillir la faune.
-
-Trois gestes, une même rive vivante. Ses racines stabilisent le sol, sa végétation freine une partie du ruissellement et ses différentes hauteurs créent des abris pour de nombreuses espèces.
-
-La prochaine fois que vous longez le lac, lequel de ces rôles remarquerez-vous en premier?
-
-#BleuMassawippi #LacMassawippi #RiveVivante #NatureDuLac
-
-=========================================
-
-EN — Hold the soil. Slow the water. Welcome wildlife.
-
-Three actions, one living shoreline. Its roots stabilize soil, its vegetation slows some runoff and its different layers create shelter for many species.
-
-Next time you travel along the lake, which of these roles will you notice first?
-
-#BleuMassawippi #LakeMassawippi #LivingShoreline #LakeNature
 ```
 
 ## Mardi 1er septembre — Le bassin versant relie le paysage
@@ -1966,7 +1980,7 @@ A tributary is a stream or river that flows into another waterway or a lake. Aro
 ### Légende prête à programmer
 
 ```text
-FR — Le touladi vit dans des lacs profonds où l’eau demeure froide et bien oxygénée. Longévif et sensible aux changements de son milieu, il fait partie des espèces que les scientifiques suivent pour mieux comprendre l’état d’un écosystème lacustre.
+FR — Le touladi (Salvelinus namaycush) vit dans des lacs profonds où l’eau demeure froide et bien oxygénée. Longévif et sensible aux changements de son milieu, il fait partie des espèces que les scientifiques suivent pour mieux comprendre l’état d’un écosystème lacustre.
 
 Une variation de sa population n’est jamais un verdict à elle seule. Elle prend son sens lorsqu’on la met en relation avec la température, l’oxygène, l’habitat et d’autres observations. Au lac Massawippi, un portrait du touladi réalisé en 2023 offre un repère utile pour suivre le lac dans le temps.
 
@@ -1974,7 +1988,7 @@ Une variation de sa population n’est jamais un verdict à elle seule. Elle pre
 
 =========================================
 
-EN — Lake trout live in deep lakes where the water remains cold and well oxygenated. Long-lived and sensitive to environmental change, they are among the species scientists monitor to help understand the condition of a lake ecosystem.
+EN — Lake trout (Salvelinus namaycush) live in deep lakes where the water remains cold and well oxygenated. Long-lived and sensitive to environmental change, they are among the species scientists monitor to help understand the condition of a lake ecosystem.
 
 A population change is never a verdict on its own. It becomes meaningful when considered alongside temperature, oxygen, habitat and other observations. At Lake Massawippi, a 2023 lake trout assessment provides a useful reference for tracking the lake over time.
 
@@ -2449,4 +2463,37 @@ What detail catches your eye first?
 Photo: Philzzz77, CC BY-SA 4.0.
 
 #BleuMassawippi #LakeMassawippi #AlongTheLake
+```
+
+## Mercredi 30 septembre — Retenir. Ralentir. Accueillir.
+
+**Thème :** Éducation
+**Format :** Carrousel illustré · trois fonctions
+**Objectif :** Bonne idée conservée et reprogrammée après arbitrage; capsule sur les fonctions d’une rive végétalisée à renforcer en français.
+**CTA :** Voir la rive autrement
+**Visuel final :** Photographie documentaire réelle d’une rive naturelle où l’eau, le sol, les rochers et la végétation demeurent lisibles. Privilégier une image interne distincte des vues aériennes déjà répétées; aucun décor ni espèce inventés.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
+**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Retenir le sol. Ralentir l’eau. Accueillir la faune.
+
+Trois gestes, une même rive vivante. Ses racines stabilisent le sol, sa végétation freine une partie du ruissellement et ses différentes hauteurs créent des abris pour de nombreuses espèces.
+
+La prochaine fois que vous longez le lac, lequel de ces rôles remarquerez-vous en premier?
+
+#BleuMassawippi #LacMassawippi #RiveVivante #NatureDuLac
+
+=========================================
+
+EN — Hold the soil. Slow the water. Welcome wildlife.
+
+Three actions, one living shoreline. Its roots stabilize soil, its vegetation slows some runoff and its different layers create shelter for many species.
+
+Next time you travel along the lake, which of these roles will you notice first?
+
+#BleuMassawippi #LakeMassawippi #LivingShoreline #LakeNature
 ```

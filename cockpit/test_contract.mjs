@@ -114,13 +114,13 @@ for (const cursor = new Date("2026-07-13T12:00:00Z"); cursor <= new Date("2026-0
 }
 const cadenceWeeks = [
   ["2026-08-17", "2026-08-18", "2026-08-20", "2026-08-21", "2026-08-23"],
-  ["2026-08-24", "2026-08-26", "2026-08-27", "2026-08-29", "2026-08-30"],
+  ["2026-08-24", "2026-08-26", "2026-08-27", "2026-08-28", "2026-08-29"],
   ["2026-09-01", "2026-09-02", "2026-09-04", "2026-09-05", "2026-09-06"],
   ["2026-09-07", "2026-09-08", "2026-09-10", "2026-09-12", "2026-09-13"],
   ["2026-09-14", "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-20"],
   ["2026-09-22", "2026-09-23", "2026-09-25", "2026-09-26", "2026-09-27"]
 ];
-const expectedContinuityDates = [...protectedHistoricalDates, ...cadenceWeeks.flat(), "2026-09-29"];
+const expectedContinuityDates = [...protectedHistoricalDates, ...cadenceWeeks.flat(), "2026-09-29", "2026-09-30"];
 const activePostsByDate = Object.groupBy(activePosts, (post) => post.dateIso);
 assert.deepEqual(Object.keys(activePostsByDate).sort(), expectedContinuityDates,
   "Le calendrier actif doit préserver l’historique quotidien puis suivre exactement les créneaux fixés de cinq publications par semaine.");
@@ -128,8 +128,9 @@ assert.ok(Object.values(activePostsByDate).every((items) => items.length === 1),
   "Chaque créneau actif doit afficher exactement une publication.");
 assert.ok(cadenceWeeks.every((week) => week.length === CADENCE_5_POLICY.postsPerCompleteWeek && week.every((date) => activePostsByDate[date]?.length === 1)),
   "Chaque semaine complète à compter du 17 août doit contenir exactement cinq publications.");
-assert.equal(activePosts.length, 66, "Le calendrier doit conserver 35 publications historiques, 30 publications sur six semaines complètes et une publication préparée en banque.");
+assert.equal(activePosts.length, 67, "Le calendrier doit conserver 35 publications historiques, 30 publications sur six semaines complètes et deux publications préparées en banque.");
 const continuityPostIds = [
+  "poesie-20260821-invitation-public",
   "don-20260909-appel-soutien",
   "nature-20260910-feuille-surface",
   "don-20260911-merci-bilan",
@@ -160,7 +161,28 @@ for (const [eventId, freshMediaId] of [
   assert.ok(retainedReferences.length >= 1, `${eventId} doit conserver l’ancienne image comme référence.`);
   assert.ok(retainedReferences.every((item) => item.publicationBlocked === true), `${eventId} ne doit pas permettre de sélectionner une référence.`);
 }
-for (const [id, dateIso] of [["don-20260909-appel-soutien", "2026-08-21"], ["don-20260911-merci-bilan", "2026-09-04"], ["don-20260918-point-soutien", "2026-09-18"]]) {
+const fridayThanksMedia = editorialMedia.find((item) => item.id === "editorial-don-20260821-thanks-fridge-v2");
+assert.equal(fridayThanksMedia?.eventId, "don-20260909-appel-soutien", "Le frigo de remerciement reporté doit rester lié au point de soutien du vendredi 28 août.");
+assert.equal(fridayThanksMedia?.stage, "proposal", "Le nouveau frigo doit rester une proposition révisable.");
+assert.equal(fridayThanksMedia?.publicationBlocked, true, "Le média du 28 août ne doit pas lever le blocage financier de la publication.");
+assert.match(fridayThanksMedia?.label || "", /Proposition finale/);
+assert.match(fridayThanksMedia?.altText || "", /Merci pour vos dons.*Thank you for your donation/i);
+assert.match(fridayThanksMedia?.note || "", /reportée du vendredi 21 au vendredi 28 août/i);
+const poetryInvitation = activePosts.find((post) => post.id === "poesie-20260821-invitation-public");
+assert.equal(poetryInvitation?.dateIso, "2026-08-21");
+assert.match(poetryInvitation?.copy || "", /13 poètes et artistes de la parole/i);
+assert.match(poetryInvitation?.copy || "", /13 h à 16 h/);
+assert.match(poetryInvitation?.copy || "", /1–4 p\.m\./);
+assert.doesNotMatch(poetryInvitation?.copy || "", /13 h 40|13 h 42|1:40 p\.m\.|1:42 p\.m\./i,
+  "L’heure formelle interne ne doit jamais apparaître dans l’invitation publique.");
+const poetryInvitationMedia = editorialMedia.find((item) => item.id === "editorial-poesie-20260821-invitation-v8");
+assert.equal(poetryInvitationMedia?.eventId, poetryInvitation?.id);
+assert.match(poetryInvitationMedia?.fileName || "", /v8-evenement-bilingue\.png$/);
+assert.equal(poetryInvitationMedia?.stage, "proposal");
+const previousFridayThanksMedia = editorialMedia.find((item) => item.id === "editorial-don-20260909-souvenir-v1");
+assert.equal(previousFridayThanksMedia?.stage, "reference", "L’ancienne base du point soutien doit rester conservée comme référence.");
+assert.equal(previousFridayThanksMedia?.publicationBlocked, true, "L’ancienne référence ne doit pas être sélectionnable.");
+for (const [id, dateIso] of [["don-20260909-appel-soutien", "2026-08-28"], ["don-20260911-merci-bilan", "2026-09-04"], ["don-20260918-point-soutien", "2026-09-18"]]) {
   const checkpoint = activePosts.find((post) => post.id === id);
   assert.equal(checkpoint?.dateIso, dateIso);
   assert.equal(checkpoint?.publicationBlocked, true, "Chaque point de soutien doit rester bloqué tant que le total et sa date ne sont pas confirmés.");
@@ -197,8 +219,8 @@ assert.ok(volunteer.tasksAnnie.some((task) => /coordonn/i.test(task)));
 assert.ok(volunteer.tasksAnnie.some((task) => /consentement/i.test(task)));
 assert.equal(firstTuesday.choiceRequired, false, "La proposition retenue du mardi est verrouillée et ne demande plus d’arbitrage.");
 assert.equal(firstTuesday.optionGroup, null, "Une proposition verrouillée ne doit plus appartenir à un groupe de choix actif.");
-assert.equal(posts.filter((post) => !post.isAlternative).length, 42);
-assert.equal(posts.length, 73);
+assert.equal(posts.filter((post) => !post.isAlternative).length, 43);
+assert.equal(posts.length, 74);
 const radioCanadaArticle = posts.find((post) => post.id === "actualite-20260804-article-radio-canada-moules-zebrees");
 assert.ok(radioCanadaArticle, "Le nouvel article écrit de Radio-Canada doit devenir une publication distincte.");
 assert.equal(radioCanadaArticle.dateIso, "2026-08-09");
@@ -377,6 +399,8 @@ assert.match(lakeTroutPost.copy, /n’est jamais un verdict à elle seule/i,
   "Le touladi doit être présenté comme un indicateur à lire avec d’autres données, jamais comme un diagnostic isolé.");
 assert.match(lakeTroutPost.copy, /température, l’oxygène, l’habitat et d’autres observations/i);
 assert.match(lakeTroutPost.copy, /portrait du touladi réalisé en 2023/i);
+assert.equal((lakeTroutPost.copy.match(/Salvelinus namaycush/g) || []).length, 2,
+  "Le nom scientifique confirmé du touladi doit rester visible dans les deux langues.");
 const lakeTroutMedia = editorialMedia.find((media) => media.id === "editorial-alt-20260729-lake-trout-real-v1");
 assert.ok(lakeTroutMedia, "La proposition documentaire réelle du touladi doit être inscrite au manifeste.");
 assert.match(lakeTroutMedia.rightsStatus, /domaine public/i);
@@ -808,8 +832,13 @@ assert.match(source, /Jeux provinciaux de pêche — événement terminé[\s\S]{
 assert.match(internalProjectSeed, /"jeux-provinciaux-peche": "completed"/,
   "Le seed ne doit jamais recréer les Jeux provinciaux de pêche comme projet actif ou bloqué.");
 const applicationProject = source.match(/<details class="internal-project" id="internal-project-application-carte-vivante-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
-assert.match(applicationProject, /data-waiting-source="discovery-only"/);
+assert.match(applicationProject, /data-waiting-source="functional-spec-pending"/);
 assert.match(applicationProject, /CADRAGE SEULEMENT · PRODUCTION NON AUTORISÉE/);
+assert.match(applicationProject, /En attente du cahier/);
+assert.match(applicationProject, /Aucun fichier ni contenu correspondant n’a été reçu dans communication@ ou dans le Cockpit/);
+assert.match(applicationProject, /aucune validation, approbation ou action de production n’est déduite/);
+assert.match(applicationProject, /Cahier des charges fonctionnel/);
+assert.match(applicationProject, /Annonce · 20 août · fichier non reçu/);
 assert.match(applicationProject, /résumé « Prototype Alpha 0\.0\.1 » reçu d’Annie est maintenant intégré au cadrage/);
 assert.match(applicationProject, /estimation de 60–80 % doit être vérifiée livrable par livrable/);
 assert.match(applicationProject, /Aucun code, prototype fonctionnel, achat, partenaire, échéance publique ni lancement n’est autorisé/);
@@ -901,11 +930,18 @@ assert.match(poetryProject, /ADDENDUM_VISUEL_PARTENAIRES_AU_BORD_DU_BLEU_V5\.md/
 assert.match(poetryProject, /data-initial-stage="active" open/,
   "La fiche poésie en préparation avancée doit rester ouverte afin de rendre l’affiche immédiatement visible.");
 assert.match(poetryProject, /30 AOÛT · 13 H–16 H · PRÉPARATION FINALE/);
-assert.match(poetryProject, /Treize inscriptions recensées; programmation à fermer/i);
+assert.match(poetryProject, /Quatorze personnes uniques recensées; treize contributions actives au décompte public/i);
+assert.match(poetryProject, /Douze personnes contributrices sont prévues sur place; la treizième contribution est le texte final de Heather, lu par Valentin en son absence/i);
 assert.match(poetryProject, /il n’y aura pas de micro ouvert ni d’inscription spontanée sur place/i);
 assert.match(poetryProject, /poesie-rencontre-north-hatley-2026-08-10/);
-assert.match(poetryProject, /confirmer avec North Hatley la prise électrique de la station sanitaire, l’accessibilité, les toilettes, la zone autorisée et le plan météo/,
+assert.match(poetryProject, /Confirmer ensuite avec North Hatley la prise électrique de la station sanitaire, l’accessibilité, les toilettes et la zone autorisée, ainsi que l’ouverture et les accès de l’église de repli/i,
   "La prochaine action doit passer de l’appel public à la fermeture logistique avec North Hatley.");
+assert.match(poetryProject, /En cas de pluie, l’événement sera déplacé à l’intérieur de l’église/,
+  "Le plan pluie doit indiquer explicitement le repli à l’intérieur de l’église.");
+assert.match(poetryProject, /La pluie seule déclenche le repli à l’intérieur de l’église; elle n’entraîne pas l’annulation/,
+  "La pluie seule ne doit plus laisser entendre une annulation ou un autre lieu de repli.");
+assert.doesNotMatch(poetryProject, /Parc du Quai et Saint-Barthélemy demeurent les premiers replis à étudier/,
+  "Les anciens scénarios de repli doivent être retirés de la fiche active.");
 for (const meetingTopic of ["Lieu et autorité", "Horaire et logistique", "Météo et décision", "Collaboration et visibilité"]) {
   assert.match(meetingBriefBuilder, new RegExp(meetingTopic), `Le PDF municipal doit couvrir : ${meetingTopic}.`);
 }
@@ -933,7 +969,12 @@ const meetingBriefPdf = path.join(root, "cockpit", "project-documents", "Aide_me
 assert.ok(fs.existsSync(meetingBriefPdf), "Le PDF d’aide-mémoire doit être publié avec le cockpit.");
 assert.ok(fs.statSync(meetingBriefPdf).size > 50_000, "Le PDF d’aide-mémoire doit contenir sa mise en page et le logo.");
 assert.match(poetryProject, /https:\/\/forms\.office\.com\/r\/4A2xsMh7st/);
-assert.match(poetryProject, /13 inscriptions recensées/);
+assert.match(poetryProject, /Quatorze personnes uniques recensées; treize contributions actives/);
+assert.match(poetryProject, /Annick a retiré sa lecture et viendra comme spectatrice/);
+assert.match(poetryProject, /ne doit pas être réinséré sans nouvelle confirmation explicite/);
+assert.match(poetryProject, /Aucune prise de parole n’est attribuée à Annie sans son accord/);
+assert.match(poetryProject, /13 h 40/);
+assert.doesNotMatch(poetryProject, /13 h 42/);
 assert.match(poetryProject, /Au_bord_du_bleu_checklist_operationnelle_2026-08-17\.md/);
 assert.match(poetryProject, /Le système de son a été testé avec Denis et fonctionne/);
 assert.match(poetryProject, /Trois personnes pour l’installation; quatre idéalement/);

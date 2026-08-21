@@ -20,7 +20,7 @@ for (const cursor = new Date(`${historicalStart}T12:00:00Z`); cursor <= new Date
 }
 const cadenceWeeks = [
   ["2026-08-17", "2026-08-18", "2026-08-20", "2026-08-21", "2026-08-23"],
-  ["2026-08-24", "2026-08-26", "2026-08-27", "2026-08-29", "2026-08-30"],
+  ["2026-08-24", "2026-08-26", "2026-08-27", "2026-08-28", "2026-08-29"],
   ["2026-09-01", "2026-09-02", "2026-09-04", "2026-09-05", "2026-09-06"],
   ["2026-09-07", "2026-09-08", "2026-09-10", "2026-09-12", "2026-09-13"],
   ["2026-09-14", "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-20"],
@@ -48,6 +48,7 @@ for (const post of horizon.filter((item) => item.dateIso >= "2026-07-29")) {
 }
 
 const newIds = [
+  "poesie-20260821-invitation-public",
   "don-20260909-appel-soutien",
   "nature-20260910-feuille-surface",
   "don-20260911-merci-bilan",
@@ -67,7 +68,7 @@ for (const id of newIds) {
 }
 
 const fundingCheckpoints = [
-  ["don-20260909-appel-soutien", "2026-08-21"],
+  ["don-20260909-appel-soutien", "2026-08-28"],
   ["don-20260911-merci-bilan", "2026-09-04"],
   ["don-20260918-point-soutien", "2026-09-18"]
 ];
@@ -144,5 +145,10 @@ const rejectedSharedSpace = posts.find((item) => item.id === "alt-20260725");
 assert.equal(rejectedSharedSpace?.archivedEditorial, true, "L’angle éditorial refusé doit être archivé sans suppression.");
 const deferredMonitoringPost = posts.find((item) => item.id === "s1d2");
 assert.equal(deferredMonitoringPost?.dateIso, "2026-09-27", "Le suivi du lac et de ses tributaires doit être conservé au 27 septembre.");
+const deferredLivingShorelinePost = posts.find((item) => item.id === "alt-20260723");
+assert.equal(deferredLivingShorelinePost?.dateIso, "2026-09-30", "La capsule intemporelle sur la rive doit être préservée hors du jour de l’événement.");
+const poetryInvitation = posts.find((item) => item.id === "poesie-20260821-invitation-public");
+assert.equal(poetryInvitation?.dateIso, "2026-08-21", "L’invitation Au bord du bleu doit remplacer le point de soutien le 21 août.");
+assert.doesNotMatch(poetryInvitation?.copy || "", /13 h 40|13 h 42|1:40 p\.m\.|1:42 p\.m\./i);
 
-console.log(JSON.stringify({ passed: true, start, end, historicalDaysPreserved: historicalDates.length, completeCadenceWeeks: cadenceWeeks.length, postsPerCompleteWeek: 5, futureScheduledPosts: cadenceWeeks.flat().length + preparedBankDates.length, publications: horizon.length, gapsOnChosenSlots: 0, duplicates: 0, fundingCheckpoints: fundingCheckpoints.length, newPosts: newIds.length }, null, 2));
+console.log(JSON.stringify({ passed: true, start, end, historicalDaysPreserved: historicalDates.length, completeCadenceWeeks: cadenceWeeks.length, postsPerCompleteWeek: 5, futureScheduledPosts: cadenceWeeks.flat().length + preparedBankDates.length, preservedBeyondHorizon: deferredLivingShorelinePost.dateIso, publications: horizon.length, gapsOnChosenSlots: 0, duplicates: 0, fundingCheckpoints: fundingCheckpoints.length, newPosts: newIds.length }, null, 2));
