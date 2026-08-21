@@ -361,8 +361,6 @@ Le public est accueilli librement de 13 h à 16 h. Venez écouter, découvrir de
 🕐 13 h à 16 h
 🎟 Entrée libre
 
-En cas de pluie, l’événement sera déplacé à l’intérieur de l’église; les détails pratiques seront confirmés avant l’événement.
-
 #AuBordDuBleu #BleuMassawippi #Poésie #LacMassawippi
 
 =========================================
@@ -377,8 +375,6 @@ The public is welcome anytime from 1 to 4 p.m. Come listen, discover voices from
 📅 Sunday, August 30, 2026
 🕐 1–4 p.m.
 🎟 Free admission
-
-In case of rain, the event will move inside the church; practical details will be confirmed before the event.
 
 #AuBordDuBleu #BleuMassawippi #Poetry #LakeMassawippi`,
     choiceRequired: false,
