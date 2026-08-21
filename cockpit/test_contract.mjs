@@ -175,6 +175,8 @@ assert.match(poetryInvitation?.copy || "", /13 h à 16 h/);
 assert.match(poetryInvitation?.copy || "", /1–4 p\.m\./);
 assert.doesNotMatch(poetryInvitation?.copy || "", /13 h 40|13 h 42|1:40 p\.m\.|1:42 p\.m\./i,
   "L’heure formelle interne ne doit jamais apparaître dans l’invitation publique.");
+assert.doesNotMatch(poetryInvitation?.copy || "", /En cas de pluie.*église|In case of rain.*church/i,
+  "L’invitation publique ne doit pas présenter l’église comme lieu de repli tant que ce choix n’est pas confirmé.");
 const poetryInvitationMedia = editorialMedia.find((item) => item.id === "editorial-poesie-20260821-invitation-v8");
 assert.equal(poetryInvitationMedia?.eventId, poetryInvitation?.id);
 assert.match(poetryInvitationMedia?.fileName || "", /v8-evenement-bilingue\.png$/);
@@ -934,12 +936,12 @@ assert.match(poetryProject, /Quatorze personnes uniques recensées; treize contr
 assert.match(poetryProject, /Douze personnes contributrices sont prévues sur place; la treizième contribution est le texte final de Heather, lu par Valentin en son absence/i);
 assert.match(poetryProject, /il n’y aura pas de micro ouvert ni d’inscription spontanée sur place/i);
 assert.match(poetryProject, /poesie-rencontre-north-hatley-2026-08-10/);
-assert.match(poetryProject, /Confirmer ensuite avec North Hatley la prise électrique de la station sanitaire, l’accessibilité, les toilettes et la zone autorisée, ainsi que l’ouverture et les accès de l’église de repli/i,
+assert.match(poetryProject, /Confirmer ensuite avec North Hatley la prise électrique de la station sanitaire, l’accessibilité, les toilettes et la zone autorisée, ainsi que le protocole météo; aucun lieu de repli n’est confirmé/i,
   "La prochaine action doit passer de l’appel public à la fermeture logistique avec North Hatley.");
-assert.match(poetryProject, /En cas de pluie, l’événement sera déplacé à l’intérieur de l’église/,
-  "Le plan pluie doit indiquer explicitement le repli à l’intérieur de l’église.");
-assert.match(poetryProject, /La pluie seule déclenche le repli à l’intérieur de l’église; elle n’entraîne pas l’annulation/,
-  "La pluie seule ne doit plus laisser entendre une annulation ou un autre lieu de repli.");
+assert.match(poetryProject, /Aucun lieu de repli n’est confirmé\. Toute décision de maintenir, déplacer, reporter ou annuler requiert une confirmation humaine/,
+  "La fiche interne doit rendre explicite l’absence de plan météo confirmé.");
+assert.doesNotMatch(poetryProject, /église de repli|repli à l’intérieur de l’église|repli retenu est l’intérieur de l’église/i,
+  "La fiche interne ne doit plus présenter l’église comme lieu de repli confirmé.");
 assert.doesNotMatch(poetryProject, /Parc du Quai et Saint-Barthélemy demeurent les premiers replis à étudier/,
   "Les anciens scénarios de repli doivent être retirés de la fiche active.");
 for (const meetingTopic of ["Lieu et autorité", "Horaire et logistique", "Météo et décision", "Collaboration et visibilité"]) {
