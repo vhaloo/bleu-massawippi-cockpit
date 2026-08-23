@@ -79,7 +79,7 @@
     {
       "id": "au-bord-du-bleu-preparation-20260810-0829",
       "title": "Au bord du bleu — préparation finale",
-      "summary": "Consolider les 13 inscriptions reçues au matin du 10 août, sélectionner le plateau, confirmer chaque participation, préparer l’accueil, le déroulé, le son, le repli météo et les communications de rappel.",
+      "summary": "Fermer les rôles, les confirmations, les consentements, le transport, l’implantation des deux tentes, le kiosque, le son, la captation et la décision météo à partir du guide terrain du 23 août.",
       "startDate": "2026-08-10",
       "endDate": "2026-08-29",
       "category": "internal_project",
@@ -94,7 +94,7 @@
     {
       "id": "au-bord-du-bleu-evenement-20260830",
       "title": "Au bord du bleu — poésie, prose et slam au lac Massawippi",
-      "summary": "Première rencontre Au bord du bleu. L’événement et son horaire sont confirmés; l’emplacement précis et les modalités finales seront communiqués aux personnes participantes.",
+      "summary": "Première rencontre Au bord du bleu : accueil libre dès 13 h, programme formel de 13 h 40 à environ 15 h 45, puis échanges jusqu’à 16 h. Deux tentes, un microphone, un haut-parleur et un kiosque d’information, de dons et d’articles disponibles.",
       "startDate": "2026-08-30",
       "endDate": "2026-08-30",
       "startTime": "13:00",
@@ -103,8 +103,8 @@
       "urgency": "important",
       "stage": "confirmed",
       "projectId": "poesie-du-lac",
-      "actionUrl": "https://forms.office.com/r/4A2xsMh7st",
-      "actionLabel": "Voir l’appel aux voix",
+      "actionUrl": "https://www.facebook.com/share/19WBFrmFLP/",
+      "actionLabel": "Voir l’événement public",
       "location": "Parc Lôbadanaki, North Hatley — emplacement exact à confirmer",
       "ownerLabel": "Bleu Massawippi"
     }
