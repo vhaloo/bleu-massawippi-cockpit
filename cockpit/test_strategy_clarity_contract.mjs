@@ -47,6 +47,10 @@ assert.ok(levelDecision.message.includes("le Village de North Hatley a mandaté 
 assert.ok(strategy.includes(`id="${levelDecision.sourceId}"`), "Toute décision stratégique doit avoir une destination réelle dans le cockpit.");
 assert.ok(!strategy.includes("réalisée pour la Municipalité de Hatley"),
   "L’ancienne attribution erronée de l’étude ne doit pas réapparaître.");
+assert.doesNotMatch(strategy, /cartons? de temps|cartes de temps|VERT\s*\/\s*JAUNE\s*\/\s*ROUGE/i,
+  "Le projet Au bord du bleu ne doit plus proposer de cartons ou de signaux colorés aux artistes.");
+assert.doesNotMatch(JSON.stringify(projectDecisions), /cartons? de temps|cartes de temps|VERT\s*\/\s*JAUNE\s*\/\s*ROUGE/i,
+  "Les décisions du projet ne doivent plus demander d’attribuer cette mécanique de chronométrage.");
 assert.ok(!strategy.includes('class="wrap stats"'), "Le bandeau de métriques redondant ne doit pas réapparaître hors de la stratégie.");
 assert.match(strategy, /\.strategic-document-card \{[^}]*scroll-margin-top:/,
   "Les raccourcis vers les documents stratégiques doivent laisser leur titre visible sous le menu fixe.");
