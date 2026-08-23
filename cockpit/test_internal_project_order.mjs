@@ -28,6 +28,7 @@ assert.ok(renderedOrder.indexOf("jardins-pluie-2027") < renderedOrder.indexOf("s
 assert.ok(renderedOrder.indexOf("concours-dessin-jeunesse") < renderedOrder.indexOf("lamproie-du-nord"), "Les deux dossiers 2027 doivent rester regroupés près du bas.");
 assert.ok(ui.indexOf("sortInternalProjectsByUrgency();") < ui.indexOf("decorateInternalProjectDocuments();"), "Le classement doit être appliqué avant les interactions des fiches.");
 assert.equal(document.querySelector(".project-portfolio-links a:nth-of-type(3)")?.getAttribute("href"), "#internal-project-poesie-du-lac", "Le raccourci prioritaire doit mener vers Au bord du bleu.");
+assert.equal(document.querySelector(".project-portfolio-links a:nth-of-type(3) small")?.textContent, "Accueil 13 h · programme dès 13 h 40", "Le raccourci prioritaire ne doit plus présenter l’appel aux voix terminé comme action courante.");
 assert.equal(document.querySelector("[data-internal-project-register]")?.dataset.layoutVersion, "2026-08-11-urgency-order-v2", "Le changement d'ordre doit être signalé comme une nouveauté de mise en page.");
 assert.equal(applicationProject?.dataset.initialStage, "to_frame", "Le cahier annoncé ne doit pas transformer le cadrage en production active ou terminée.");
 assert.equal(applicationProject?.dataset.waitingSource, "functional-spec-pending", "Le dossier doit rester explicitement en attente du cahier des charges annoncé.");
