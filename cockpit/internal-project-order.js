@@ -10,6 +10,7 @@ export const internalProjectUrgencyOrder = Object.freeze([
   "moules-zebrees-continuite",
   "colloque-reseautage-associations",
   "participation-photo-regards-massawippi",
+  "carte-fetes-2026",
   "concours-universitaire-bourse",
   "technicien-un-jour",
   "concours-dessin-jeunesse",

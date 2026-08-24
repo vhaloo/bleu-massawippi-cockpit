@@ -85,18 +85,19 @@ assert.match(read("seed_content_notices.js"), /if \(existing\.exists\)[\s\S]*pre
 assert.match(read("seed_content_notices.js"), /Une version vue ne doit jamais être rouverte/);
 const contentNotices = JSON.parse(read("content_notices.json"));
 assert.equal(contentNotices.schemaVersion, 1);
-assert.equal(contentNotices.notices.length, 19);
+assert.equal(contentNotices.notices.length, 21);
 assert.ok(contentNotices.notices.every((item) => item.audienceRole === "director" && item.assigneeEmail === "dg@bleumassawippi.com"));
-for (const id of ["strategic-zeffy-recurring-gifts-v1", "internal-application-funding-nonmunicipal-v1", "internal-poetry-progress-v2", "internal-poetry-progress-v3", "internal-youth-drawing-toolkit-v1", "strategic-guide-pratiques-aquatiques-2026-v1", "internal-lamproie-report-requested-v1", "internal-poetry-progress-20260810-v1", "internal-rain-garden-v7-20260811-v1", "internal-application-working-layout-20260811-v1", "internal-poetry-operations-20260811-v1", "internal-poetry-guide-terrain-20260823-v1"]) {
+for (const id of ["strategic-zeffy-recurring-gifts-v1", "internal-application-funding-nonmunicipal-v1", "internal-poetry-progress-v2", "internal-poetry-progress-v3", "internal-youth-drawing-toolkit-v1", "strategic-guide-pratiques-aquatiques-2026-v1", "internal-lamproie-report-requested-v1", "internal-poetry-progress-20260810-v1", "internal-rain-garden-v7-20260811-v1", "internal-application-working-layout-20260811-v1", "internal-poetry-operations-20260811-v1", "internal-poetry-guide-terrain-20260824-v1", "internal-holiday-card-20260824-v1", "funding-partnership-register-20260824-v1"]) {
   assert.ok(contentNotices.notices.some((item) => item.id === id), `La nouveauté ${id} doit être versionnée dans le manifeste.`);
 }
 
 const projectDecisions = JSON.parse(read("project_decisions.json"));
 assert.equal(projectDecisions.schemaVersion, 1);
-assert.equal(projectDecisions.decisions.length, 4);
-assert.equal(projectDecisions.decisions.filter((item) => item.audienceRole === "director" && item.assigneeEmail === "dg@bleumassawippi.com").length, 2);
+assert.equal(projectDecisions.decisions.length, 5);
+assert.equal(projectDecisions.decisions.filter((item) => item.audienceRole === "director" && item.assigneeEmail === "dg@bleumassawippi.com").length, 3);
 assert.equal(projectDecisions.decisions.filter((item) => item.audienceRole === "admin" && item.assigneeEmail === "communication@bleumassawippi.com").length, 2);
 assert.ok(projectDecisions.decisions.some((item) => item.id === "suivi-plages-reviser-offre-20260804-v1"), "La révision de l’ébauche Suivi des plages doit rester dans la file Communications.");
+assert.ok(projectDecisions.decisions.some((item) => item.id === "cogesaf-nettoyage-berges-source-20260826-v1"), "La piste COGESAF non vérifiée doit rester une demande de source, jamais un fait acquis.");
 assert.match(read("seed_project_decisions.js"), /if \(existing\.exists\)/, "Le semeur de décisions doit préserver les entrées existantes.");
 assert.match(read("seed_project_decisions.js"), /actionType: "project_decision"/);
 const editorialCycleReconciliation = read("reconcile_editorial_cycle_20260804.js");

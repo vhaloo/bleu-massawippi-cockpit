@@ -451,30 +451,34 @@ Would you like to add your support? Membership or donation: https://www.zeffy.co
     calendarTime: "12:00",
     t: "Nature",
     tier: "Passerelle",
-    title: "Une feuille entre l’eau et la lumière",
-    format: "Photographie réelle naturaliste 4:5",
-    role: "Offrir une pause d’observation simple autour d’une plante aquatique sans identification locale non vérifiée ni consigne professorale.",
-    cta: "Regarder les détails",
-    visual: "Photographie réelle de nénuphar blanc du domaine public, recadrée mécaniquement; aucune affirmation que la photo vient du lac Massawippi.",
-    source: "Thomas G. Barnes, U.S. Fish and Wildlife Service — domaine public; photographie non présentée comme prise au lac Massawippi.",
-    fallback: "Gros plan réel d’une feuille flottante dont le crédit et les droits sont confirmés.",
+    title: "Le castor, architecte des milieux humides",
+    format: "Photographie réelle naturaliste",
+    role: "Offrir une pause d’observation autour d’un mammifère aquatique et de ses traces, sans présenter la photographie comme une observation locale.",
+    cta: "Repérer les traces",
+    visual: "Photographie réelle d’un castor du Canada nageant dans un étang; aucun ajout à la scène et aucune affirmation que la photo vient du lac Massawippi.",
+    source: "Gouvernement du Québec — fiche Castor du Canada; photographie NPS / Mary Lewandowski, parc national de Denali, domaine public.",
+    fallback: "Photographie réelle d’un mammifère aquatique dont l’espèce, le crédit, la licence et le lieu sont confirmés.",
     kpi: "Enregistrements / commentaires d’observation",
-    task: "Conserver la provenance exacte de la photographie, vérifier la nuance naturaliste et préparer un texte alternatif bilingue.",
-    copy: `FR — À la surface, une feuille flotte entre l’eau et la lumière. Autour d’elle, les reflets changent, une ombre se dessine et le moindre mouvement devient visible.
+    task: "Conserver la provenance exacte de la photographie, vérifier les repères naturalistes et préparer un texte alternatif bilingue.",
+    copy: `FR — Un castor ne se remarque pas toujours par sa silhouette. Une branche fraîchement rongée, une hutte ou un changement dans l’écoulement peuvent aussi révéler son passage.
 
-Ces petits détails n’ont pas besoin d’être cueillis pour être découverts. Prenons simplement le temps de regarder : qu’est-ce qui attire votre œil en premier?
+En régulant l’eau avec ses barrages, le castor transforme son milieu et peut créer des habitats dont profitent d’autres espèces. Son rôle varie selon l’endroit : l’observation attentive vient avant toute intervention.
 
-Photo documentaire; elle n’est pas présentée comme ayant été prise au lac Massawippi.
+Cette photo documentaire a été prise au parc national de Denali, en Alaska; elle n’est pas présentée comme une observation au lac Massawippi.
+
+Quel mammifère du bassin versant aimeriez-vous mieux connaître?
 
 #BleuMassawippi #LacMassawippi #CuriositéNature
 
 =========================================
 
-EN — At the surface, a leaf floats between water and light. Reflections shift around it, a patch of shade appears and the smallest movement becomes visible.
+EN — A beaver is not always noticed by its silhouette. A freshly gnawed branch, a lodge or a change in water flow can also reveal its passage.
 
-These details do not need to be picked to be discovered. Let’s simply take time to look: what catches your eye first?
+By regulating water with its dams, a beaver transforms its surroundings and can create habitat used by other species. Its role varies from place to place: careful observation comes before any intervention.
 
-Documentary photograph; it is not presented as having been taken at Lake Massawippi.
+This documentary photograph was taken in Denali National Park, Alaska; it is not presented as an observation from Lake Massawippi.
+
+Which mammal from the watershed would you like to learn more about?
 
 #BleuMassawippi #LakeMassawippi #NatureCuriosity`,
     choiceRequired: false,
@@ -482,8 +486,8 @@ Documentary photograph; it is not presented as having been taken at Lake Massawi
     optionLabel: null,
     isAlternative: false,
     tasksValentin: [
-      "Conserver le crédit du domaine public et vérifier que la légende ne suggère aucune provenance locale.",
-      "Préparer le recadrage 4:5, le texte alternatif bilingue et la lisibilité mobile.",
+      "Conserver le crédit du domaine public et vérifier que la légende ne suggère aucune observation locale.",
+      "Préparer le texte alternatif bilingue et vérifier la lisibilité mobile de la photographie réelle.",
       "Soumettre les validations puis programmer la publication."
     ],
     tasksAnnie: [
@@ -614,26 +618,30 @@ Membership or donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6
     format: "Photographie d’archive + invitation bilingue",
     role: "Inviter la communauté à signaler des archives familiales sans réclamer de cession publique ni reproduire un témoignage sans accord.",
     cta: "Nous écrire avant de partager",
-    visual: "Photographie historique réelle présentée dans un album-souvenir; conserver le crédit, la date approximative et les limites documentaires.",
-    source: "Photographie de Gaétan, 7 mars 2017, licence CC BY-SA 2.0; composition d’album déjà documentée dans le cockpit.",
-    fallback: "Photographie d’archive créditée au complet, sans colorisation ni détail inventé.",
+    visual: "Photographie réelle nocturne du Pub Pilsen éclairé, avec ses reflets sur la rivière Massawippi; aucun ajout ni transformation de la scène.",
+    source: "Guerinf — 55, rue Main, North Hatley, Pub Pilsen, 26 juillet 2025, Wikimedia Commons, CC0; crédit recommandé.",
+    fallback: "Photographie réelle d’un lieu familier autour du lac, créditée au complet et sans détail inventé.",
     kpi: "Messages reçus / archives proposées / renseignements vérifiables",
-    task: "Vérifier le crédit de l’image et préparer une méthode simple pour recevoir une copie et ses renseignements sans publier automatiquement.",
-    copy: `FR — Une vieille photo peut réveiller un lieu, une voix ou une histoire que l’on croyait oubliée.
+    task: "Conserver le crédit recommandé de l’image et préparer une méthode simple pour recevoir une copie et ses renseignements sans publier automatiquement.",
+    copy: `FR — Une photo de soir peut déjà raconter un lieu autrement. Ici, les lumières du Pub Pilsen se reflètent dans la rivière Massawippi, à North Hatley.
 
-Votre famille conserve-t-elle une image du lac Massawippi, de ses villages, de ses rives ou de la rivière? Écrivez-nous avant de la partager publiquement. Nous pourrons prendre le temps de noter la date, le lieu, les personnes, le crédit et les conditions d’utilisation.
+Les images de lieux familiers deviennent peu à peu des repères de mémoire. Votre famille conserve-t-elle une image du lac Massawippi, de ses villages, de ses rives ou de la rivière? Écrivez-nous avant de la partager publiquement. Nous pourrons prendre le temps de noter la date, le lieu, les personnes, le crédit et les conditions d’utilisation.
 
 Chaque détail vérifiable aide à garder la mémoire du territoire bien vivante.
+
+Photo : Guerinf, CC0.
 
 #BleuMassawippi #LacMassawippi #MémoireDuLac
 
 =========================================
 
-EN — An old photograph can bring back a place, a voice or a story we thought had been forgotten.
+EN — An evening photograph can already tell the story of a place differently. Here, the lights of Pub Pilsen are reflected in the Massawippi River in North Hatley.
 
-Does your family have an image of Lake Massawippi, its villages, shorelines or river? Write to us before sharing it publicly. Together, we can record the date, place, people, credit and conditions of use.
+Images of familiar places gradually become markers of memory. Does your family have an image of Lake Massawippi, its villages, shorelines or river? Write to us before sharing it publicly. Together, we can record the date, place, people, credit and conditions of use.
 
 Every verifiable detail helps keep the region’s memory alive.
+
+Photo: Guerinf, CC0.
 
 #BleuMassawippi #LakeMassawippi #LakeMemories`,
     choiceRequired: false,
@@ -641,7 +649,7 @@ Every verifiable detail helps keep the region’s memory alive.
     optionLabel: null,
     isAlternative: false,
     tasksValentin: [
-      "Vérifier la licence, le crédit et la légende de la photographie utilisée.",
+      "Conserver le crédit recommandé, la date et la légende de la photographie CC0 utilisée.",
       "Préparer un texte alternatif bilingue et une réponse-type privée pour recueillir les renseignements d’une archive proposée.",
       "Soumettre les validations puis programmer sans reprendre une archive ou un témoignage sans accord."
     ],
@@ -658,12 +666,12 @@ Every verifiable detail helps keep the region’s memory alive.
     t: "Interaction",
     tier: "Passerelle",
     title: "Quiz du lac : les trois gestes qui voyagent bien",
-    format: "Quiz illustré bilingue 4:5",
+    format: "Photographie réelle + quiz bilingue",
     role: "Réactiver un repère de prévention sous forme de jeu bref et orienter vers le quiz bilingue de Bleu Massawippi.",
     cta: "Répondre puis continuer le quiz",
-    visual: "Planche scolaire vintage déjà documentée montrant nettoyer, vider et sécher; aucune situation locale ni infraction inventée.",
-    source: "Gouvernement du Québec — nettoyage des embarcations; quiz bilingue Bleu Massawippi : https://bleumassawippi.com/quiz",
-    fallback: "Carte-question typographique avec la réponse dans la légende et le lien du quiz.",
+    visual: "Photographie réelle en plan rapproché d’une personne en kayak sur une eau libre; aucun texte incrusté ni affirmation que la scène vient du lac Massawippi.",
+    source: "NPS / Andrew Cattoir — Kayaking Near Boulder Harbor, 19 juin 2020, domaine public; Gouvernement du Québec — nettoyage des embarcations; quiz bilingue Bleu Massawippi : https://bleumassawippi.com/quiz",
+    fallback: "Autre photographie réelle de kayak dont le crédit, la licence et le lieu sont confirmés; la question et la réponse restent dans la légende.",
     kpi: "Réponses / clics vers le quiz / enregistrements",
     task: "Vérifier le lien du quiz et la formulation des trois gestes, puis programmer après validation.",
     copy: `FR — Petit quiz du dimanche. 👀
@@ -704,7 +712,7 @@ Want to keep playing? More than 500 bilingual questions await: https://bleumassa
     contentVariant: "quiz",
     tasksValentin: [
       "Vérifier la source gouvernementale et le lien du quiz bilingue.",
-      "Vérifier le visuel, la réponse, le texte alternatif et la lisibilité mobile.",
+      "Conserver le crédit NPS, vérifier la réponse, le texte alternatif et la lisibilité mobile.",
       "Soumettre les validations puis programmer la publication."
     ],
     tasksAnnie: [
@@ -730,7 +738,7 @@ Want to keep playing? More than 500 bilingual questions await: https://bleumassa
     task: "Vérifier le crédit CC BY-SA 4.0, le texte alternatif et la cohérence bilingue avant programmation.",
     copy: `FR — À la fin du jour, le lac semble se faire plus silencieux. La lumière glisse sur l’eau, les rives deviennent des silhouettes et un paysage familier se révèle autrement.
 
-Cette photographie d’archive, prise en septembre 2024, ne montre pas l’état du lac aujourd’hui. Elle nous rappelle simplement qu’un même lieu ne se regarde jamais tout à fait deux fois.
+Cette photographie d’archive, prise en septembre 2024, ne montre pas l’état du lac aujourd’hui. Elle nous rappelle qu’un lieu n’est jamais identique : il se transforme avec le temps, les saisons et nos yeux.
 
 Quel détail attire votre regard en premier?
 
@@ -791,10 +799,10 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["poesie-20260821-invitation-public", 6, "Vendredi 21 août", "2026-08-21"],
   ["s4d4", 6, "Dimanche 23 août", "2026-08-23"],
   ["s4d3", 7, "Lundi 24 août", "2026-08-24"],
-  ["alt-20260718", 7, "Mercredi 26 août", "2026-08-26"],
+  ["lavage-20260903-sans-moteur", 7, "Mercredi 26 août", "2026-08-26"],
   ["s4d2", 7, "Jeudi 27 août", "2026-08-27"],
   ["don-20260909-appel-soutien", 7, "Vendredi 28 août", "2026-08-28"],
-  ["alt-20260721", 7, "Samedi 29 août", "2026-08-29"],
+  ["alt-20260714", 7, "Samedi 29 août", "2026-08-29"],
   ["alt-20260724", 8, "Mardi 1er septembre", "2026-09-01"],
   ["alt-20260805", 8, "Mercredi 2 septembre", "2026-09-02"],
   ["don-20260911-merci-bilan", 8, "Vendredi 4 septembre", "2026-09-04"],
@@ -804,8 +812,8 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["alt-20260729", 9, "Mardi 8 septembre", "2026-09-08"],
   ["s4d6", 9, "Jeudi 10 septembre", "2026-09-10"],
   ["alt-20260802", 9, "Samedi 12 septembre", "2026-09-12"],
-  ["lavage-20260903-sans-moteur", 9, "Dimanche 13 septembre", "2026-09-13"],
-  ["alt-20260714", 10, "Lundi 14 septembre", "2026-09-14"],
+  ["alt-20260718", 9, "Dimanche 13 septembre", "2026-09-13"],
+  ["alt-20260721", 10, "Lundi 14 septembre", "2026-09-14"],
   ["s4d7b", 10, "Mercredi 16 septembre", "2026-09-16"],
   ["alt-20260806", 10, "Jeudi 17 septembre", "2026-09-17"],
   ["don-20260918-point-soutien", 10, "Vendredi 18 septembre", "2026-09-18"],
@@ -829,6 +837,26 @@ const USER_DIRECTED_RESCHEDULES = new Map([
     from: "2026-08-30",
     to: "2026-09-30",
     reason: "Rééquilibrage du 20 août 2026 : préserver le dimanche 30 août pour Au bord du bleu, conserver la capsule sur la rive sans concurrence le jour de l’événement et la reporter au 30 septembre."
+  }],
+  ["lavage-20260903-sans-moteur", {
+    from: "2026-09-13",
+    to: "2026-08-26",
+    reason: "Demande de la direction du 24 août 2026 : avancer la capsule sur le lavage des embarcations non motorisées pendant que la fréquentation estivale du lac demeure forte."
+  }],
+  ["alt-20260718", {
+    from: "2026-08-26",
+    to: "2026-09-13",
+    reason: "Rééquilibrage du 24 août 2026 : conserver intégralement la capsule sur la vie sous les feuilles au créneau libéré par l’avancement du rappel de lavage."
+  }],
+  ["alt-20260714", {
+    from: "2026-09-14",
+    to: "2026-08-29",
+    reason: "Demande de la direction du 24 août 2026 : avancer à la fin août la capsule pratique sur l’essentiel à emporter afin qu’elle reste saisonnière et utile."
+  }],
+  ["alt-20260721", {
+    from: "2026-08-29",
+    to: "2026-09-14",
+    reason: "Rééquilibrage du 24 août 2026 : conserver intégralement la capsule nature au créneau libéré par l’avancement de la publication saisonnière."
   }]
 ]);
 

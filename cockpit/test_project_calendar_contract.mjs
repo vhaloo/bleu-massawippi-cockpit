@@ -7,6 +7,7 @@ const client = fs.readFileSync(new URL("./firebase-client.js", import.meta.url),
 const rules = fs.readFileSync(new URL("./firestore.rules", import.meta.url), "utf8");
 const sync = fs.readFileSync(new URL("./admin_sync.js", import.meta.url), "utf8");
 const seed = fs.readFileSync(new URL("./project_calendar_events.json", import.meta.url), "utf8");
+const seedData = JSON.parse(seed);
 
 assert.match(ui, /Calendrier des projets et échéances/);
 assert.match(ui, /Proposer un événement/);
@@ -43,6 +44,12 @@ assert.match(sync, /projectEventProposals/);
 assert.match(sync, /projectCalendarEvents/);
 assert.match(seed, /2026-08-30/);
 assert.match(seed, /2026-08-03/);
+const holidayCard = seedData.events.find((event) => event.id === "carte-fetes-2026-preparation");
+assert.ok(holidayCard, "La préparation de la carte des Fêtes doit apparaître dans le calendrier des projets.");
+assert.equal(holidayCard.startDate, "2026-10-01");
+assert.equal(holidayCard.endDate, "2026-12-15");
+assert.equal(holidayCard.stage, "planned");
+assert.match(holidayCard.summary, /n’extraire la liste des membres qu’au début de décembre/);
 assert.doesNotMatch(ui, /\b(?:Codex|ChatGPT|intelligence artificielle|\bAI\b)\b/i);
 assert.doesNotMatch(ui, /firebase storage|téléverser dans firebase/i);
 
