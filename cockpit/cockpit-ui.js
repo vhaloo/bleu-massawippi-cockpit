@@ -36,23 +36,23 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260823-b65";
-import { createEventContextController } from "./event-context-data.js?v=20260823-b65";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260823-b65";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260823-b65";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260823-b65";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260823-b65";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260823-b65";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260823-b65";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260823-b65";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260823-b65";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260823-b65";
-import { setupControlHints } from "./control-hints.js?v=20260823-b65";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260823-b65";
-import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260823-b65";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260823-b65";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260823-b65";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260823-b65";
+} from "./firebase-client.js?v=20260824-b66";
+import { createEventContextController } from "./event-context-data.js?v=20260824-b66";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260824-b66";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260824-b66";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260824-b66";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260824-b66";
+import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260824-b66";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260824-b66";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260824-b66";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260824-b66";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260824-b66";
+import { setupControlHints } from "./control-hints.js?v=20260824-b66";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260824-b66";
+import { sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260824-b66";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260824-b66";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260824-b66";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260824-b66";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
