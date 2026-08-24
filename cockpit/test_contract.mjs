@@ -149,6 +149,64 @@ for (const id of continuityPostIds) {
   assert.ok(media[0].previewUrl, `Le média de ${id} doit afficher un vrai aperçu mobile.`);
   assert.ok(media[0].fileName, `Le média de ${id} doit identifier son fichier source.`);
 }
+const aug24FeedbackCases = [
+  {
+    eventId: "nature-20260910-feuille-surface",
+    activeMediaId: "editorial-nature-20260910-beaver-real-v2",
+    archivedMediaId: "editorial-nature-20260910-water-lily-v1",
+    assetDate: "2026-09-23",
+    titlePattern: /castor, architecte des milieux humides/i,
+    copyPattern: /une branche fraîchement rongée[\s\S]*Denali/i,
+    rightsPattern: /domaine public[\s\S]*NPS \/ Mary Lewandowski/i
+  },
+  {
+    eventId: "archives-20260912-vos-images",
+    activeMediaId: "editorial-archives-20260912-pilsen-night-real-v2",
+    archivedMediaId: "editorial-archives-20260912-album-v1",
+    assetDate: "2026-09-25",
+    titlePattern: /Une photo peut réveiller toute une histoire/i,
+    copyPattern: /Pub Pilsen[\s\S]*rivière Massawippi/i,
+    rightsPattern: /Guerinf[\s\S]*CC0/i
+  },
+  {
+    eventId: "quiz-20260913-trois-gestes",
+    activeMediaId: "editorial-quiz-20260913-kayak-real-v2",
+    archivedMediaId: "editorial-quiz-20260913-three-steps-v1",
+    assetDate: "2026-09-26",
+    titlePattern: /Quiz du lac : les trois gestes qui voyagent bien/i,
+    copyPattern: /Nettoyer[\s\S]*Vider[\s\S]*Sécher/i,
+    rightsPattern: /domaine public[\s\S]*NPS \/ Andrew Cattoir/i
+  }
+];
+for (const feedbackCase of aug24FeedbackCases) {
+  const post = activePosts.find((item) => item.id === feedbackCase.eventId);
+  const activeMedia = editorialMedia.find((item) => item.id === feedbackCase.activeMediaId);
+  const archivedMedia = editorialMedia.find((item) => item.id === feedbackCase.archivedMediaId);
+  assert.match(post?.title || "", feedbackCase.titlePattern,
+    `${feedbackCase.eventId} doit intégrer le cadrage éditorial demandé par la direction le 24 août.`);
+  assert.match(post?.copy || "", feedbackCase.copyPattern,
+    `${feedbackCase.eventId} doit intégrer le texte correspondant à son nouveau visuel réel.`);
+  assert.equal(activeMedia?.eventId, feedbackCase.eventId);
+  assert.equal(activeMedia?.stage, "proposal");
+  assert.equal(activeMedia?.publicationBlocked, false);
+  assert.match(activeMedia?.rightsStatus || "", feedbackCase.rightsPattern);
+  assert.equal(archivedMedia?.stage, "archived",
+    `${feedbackCase.archivedMediaId} doit rester conservé sans demeurer sélectionnable.`);
+  assert.equal(archivedMedia?.archived, true);
+  const previewName = activeMedia.previewUrl.split("/").at(-1);
+  for (const assetName of [activeMedia.fileName, previewName]) {
+    assert.ok(fs.existsSync(path.join(here, "media-previews", feedbackCase.assetDate, assetName)),
+      `Le fichier ${assetName} doit être livré avec le cockpit.`);
+  }
+}
+const pilsenMedia = editorialMedia.find((item) => item.id === "editorial-archives-20260912-pilsen-night-real-v2");
+assert.equal(pilsenMedia?.reuseMediaId, "history-2025-55-rue-main-north-hatley-pub-pilsen",
+  "Le visuel nocturne du Pilsen doit conserver le lien vers la photographie historique déjà documentée.");
+const eveningPhoto = activePosts.find((post) => post.id === "photo-20260915-soir-automne");
+assert.match(eveningPhoto?.copy || "", /Elle nous rappelle qu’un lieu n’est jamais identique : il se transforme avec le temps, les saisons et nos yeux\./,
+  "La phrase française doit reprendre exactement la formulation demandée par la direction le 24 août.");
+assert.doesNotMatch(eveningPhoto?.copy || "", /un même lieu ne se regarde jamais tout à fait deux fois/i,
+  "L’ancienne formulation française ne doit plus apparaître.");
 for (const [eventId, freshMediaId] of [
   ["don-20260911-merci-bilan", "editorial-don-20260911-community-photo-v2"],
   ["don-20260918-point-soutien", "editorial-don-20260918-community-photo-v2"]
@@ -252,8 +310,10 @@ assert.match(restoredCompletedPost.rescheduledReason, /publication déjà progra
 assert.match(radioCanadaArticle.rescheduledReason, /restaurer sans altération/i);
 const nonMotorizedWash = posts.find((post) => post.id === "lavage-20260903-sans-moteur");
 assert.ok(nonMotorizedWash, "La recommandation du 23 juillet sur les embarcations non motorisées doit devenir une publication planifiée.");
-assert.equal(nonMotorizedWash.dateIso, "2026-09-13");
+assert.equal(nonMotorizedWash.dateIso, "2026-08-26",
+  "Le rappel de lavage doit être avancé pendant que la fréquentation estivale du lac demeure forte.");
 assert.equal(nonMotorizedWash.choiceRequired, false);
+assert.match(nonMotorizedWash.rescheduledReason, /direction du 24 août 2026.*fréquentation estivale/i);
 assert.match(nonMotorizedWash.copy, /canot[\s\S]*planche à pagaie[\s\S]*canoe[\s\S]*paddleboard/i);
 assert.match(nonMotorizedWash.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
 assert.ok(nonMotorizedWash.copy.length <= 2200, "La publication bilingue doit respecter la limite Meta convenue.");
@@ -498,12 +558,22 @@ assert.match(deferredBlueMinute.copy, /#InstantBleu/);
 assert.doesNotMatch(`${deferredBlueMinute.title}\n${deferredBlueMinute.visual}\n${deferredBlueMinute.copy}`, /Juste une minute|Une minute bleue|#MinuteBleue/i);
 assert.doesNotMatch(saturdayCommunity.copy, /Nous avons envie de découvrir ce qui fait vivre votre lien/i);
 assert.equal(deferredMemories.date, "Dimanche 6 septembre", "La capsule souvenirs doit rester conservée à une autre date.");
-assert.equal(deferredShoreLife.date, "Mercredi 26 août", "La biodiversité sous les feuilles doit rester conservée à une autre date.");
+assert.equal(deferredShoreLife.date, "Dimanche 13 septembre", "La biodiversité sous les feuilles doit rester conservée au créneau libéré par le rappel de lavage.");
+const seasonalEssentials = posts.find((post) => post.id === "alt-20260714");
+const displacedLoon = posts.find((post) => post.id === "alt-20260721");
+assert.equal(seasonalEssentials.dateIso, "2026-08-29",
+  "La capsule pratique demandée par la direction doit être avancée à la fin août.");
+assert.match(seasonalEssentials.rescheduledReason, /direction du 24 août 2026.*fin août/i);
+assert.equal(displacedLoon.dateIso, "2026-09-14",
+  "La capsule sur le huard doit rester conservée au créneau libéré par l’avancement saisonnier.");
 const frogSeries = posts.find((post) => post.id === "alt-20260802");
-assert.match(frogSeries.title, /voix à documenter autour du bassin/i);
-assert.match(frogSeries.copy, /ne constitue pas encore un inventaire complet du bassin|Ce n’est pas encore un inventaire complet du bassin/i);
+assert.equal(frogSeries.title, "Les voix du bassin");
+assert.match(frogSeries.copy, /Cette première publication présente la série; elle ne constitue pas un inventaire du bassin/i);
 assert.match(frogSeries.copy, /une espèce à la fois/i);
-assert.match(frogSeries.visual, /Ne pas présenter l’affiche comme un inventaire local confirmé/i);
+assert.match(frogSeries.copy, /Quelle voix aimeriez-vous apprendre à reconnaître en premier?/i);
+assert.doesNotMatch(frogSeries.copy, /neuf espèces|nine species|crapaud d’Amérique|ouaouaron/i,
+  "L’ouverture de la série ne doit plus ressembler à un inventaire technique difficile à suivre.");
+assert.match(frogSeries.visual, /Proposition 3.*direction apprécie/i);
 const decidedFirstTwoWeeks = Object.groupBy(posts.filter((post) => post.w <= 2), (post) => post.date);
 assert.equal(Object.keys(decidedFirstTwoWeeks).length, 14, "Les deux semaines arbitrées doivent conserver une publication par jour.");
 assert.ok(Object.values(decidedFirstTwoWeeks).every((items) => items.length === 1), "Chaque journée déjà arbitrée doit afficher une seule publication retenue.");
@@ -638,6 +708,42 @@ const s4d3DirectionPreference = editorialMedia.find((item) => item.id === "edito
 assert.match(s4d3DirectionPreference?.label || "", /Préférence de la direction/i);
 assert.equal(s4d3DirectionPreference?.publicationBlocked, true,
   "Une préférence visuelle de la direction ne doit pas contourner la confirmation des droits.");
+const s4d6ArchivedIllustration = editorialMedia.find((item) => item.id === "editorial-s4d6-behind-scenes-cover-v1");
+assert.equal(s4d6ArchivedIllustration?.stage, "archived",
+  "Le dessin du 10 septembre doit rester conservé comme référence sans demeurer une proposition active.");
+assert.equal(s4d6ArchivedIllustration?.archived, true);
+const s4d6RealPhoto = editorialMedia.find((item) => item.id === "editorial-s4d6-divers-real-photo-v2");
+assert.ok(s4d6RealPhoto, "Le 10 septembre doit proposer une vraie photographie montrant des humains.");
+assert.equal(s4d6RealPhoto.eventId, "s4d6");
+assert.equal(s4d6RealPhoto.stage, "proposal");
+assert.equal(s4d6RealPhoto.publicationBlocked, true,
+  "La nouvelle photographie humaine ne doit pas contourner la confirmation du crédit et des consentements.");
+assert.match(s4d6RealPhoto.altText, /Photographie réelle[\s\S]*deux membres[\s\S]*plongée scientifique/i);
+assert.ok(fs.existsSync(path.join(here, "media-previews", "2026-09-10", s4d6RealPhoto.fileName)),
+  "La photographie réelle du 10 septembre doit être livrée avec le cockpit.");
+const frogSeriesDirectionPreference = natureMedia.find((item) => item.id === "nature-alt-20260802-basin-voices-manuscript-v3");
+assert.match(frogSeriesDirectionPreference?.label || "", /Préférence de la direction/i,
+  "L’intérêt de la direction pour la proposition 3 doit rester visible sans simuler un choix final.");
+assert.equal(frogSeriesDirectionPreference?.stage, "proposal");
+const archivedSharedLakeIllustration = editorialMedia.find((item) => item.id === "editorial-alt-20260806-shared-enjoyment-v2");
+assert.equal(archivedSharedLakeIllustration?.stage, "archived",
+  "Le visuel déjà utilisé pour une publication semblable doit rester conservé sans être reproposé.");
+assert.equal(archivedSharedLakeIllustration?.archived, true);
+const sharedLakeRealPhoto = editorialMedia.find((item) => item.id === "editorial-alt-20260806-shared-lake-real-v3");
+assert.equal(sharedLakeRealPhoto?.rightsStatus, "CC0 1.0 — domaine public");
+assert.equal(sharedLakeRealPhoto?.publicationBlocked, false);
+assert.match(sharedLakeRealPhoto?.note || "", /Josh Trommel.*ne doit pas être présentée comme une vue du lac Massawippi/i);
+assert.ok(fs.existsSync(path.join(here, "media-previews", "2026-09-17", sharedLakeRealPhoto.fileName)),
+  "La photographie documentaire distincte du 17 septembre doit être livrée avec le cockpit.");
+const archivedBehindScenesIllustration = editorialMedia.find((item) => item.id === "editorial-alt-20260808-behind-scenes-v1");
+assert.equal(archivedBehindScenesIllustration?.stage, "archived",
+  "L’ancienne planche des coulisses doit rester conservée après la demande d’un autre visuel.");
+assert.equal(archivedBehindScenesIllustration?.archived, true);
+const behindScenesRealPhoto = editorialMedia.find((item) => item.id === "editorial-alt-20260808-preparation-real-v2");
+assert.equal(behindScenesRealPhoto?.publicationBlocked, true,
+  "La photo interne des coulisses doit attendre la confirmation du crédit et des consentements.");
+assert.ok(fs.existsSync(path.join(here, "media-previews", "2026-09-20", behindScenesRealPhoto.fileName)),
+  "La nouvelle photographie des coulisses doit être livrée avec le cockpit.");
 for (const mediaId of [
   "editorial-s1d4-mon-massawippi-fridge-v5",
   "editorial-alt-20260719-engraving-crop-upscale-v3",
@@ -822,7 +928,7 @@ assert.ok(fs.existsSync(matchedDonationPreview), "L’aperçu WebP du nouveau vi
 assert.ok(fs.statSync(matchedDonationPreview).size < 150_000, "L’aperçu Zeffy doit rester léger sur mobile.");
 assert.doesNotMatch(posts.find((post) => post.id === "s4d7").copy, /bleumassawippi\.com\/quiz/,
   "Un sondage qui mentionne éventuellement un quiz ne doit pas être transformé en publication quiz.");
-assert.equal((source.match(/data-internal-project-id=/g) || []).length, 16, "Le registre privé doit contenir les seize projets internes documentés.");
+assert.equal((source.match(/data-internal-project-id=/g) || []).length, 17, "Le registre privé doit contenir les dix-sept projets internes documentés.");
 assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-08-18-lamproie-stakeholders-v3"/);
 const internalProjectIds = [...source.matchAll(/data-internal-project-id="([a-z0-9-]+)"/g)].map((match) => match[1]).sort();
 const internalProjectSeedIds = [...internalProjectSeed.matchAll(/^  "([a-z0-9-]+)": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm)].map((match) => match[1]).sort();
@@ -882,6 +988,13 @@ assert.match(photoProject, /Consentement et droits/);
 assert.match(photoProject, /data-internal-project-controls/);
 assert.doesNotMatch(source, /<section[^>]*id="photo"/,
   "La participation photo ne doit plus survivre comme section isolée hors des projets internes.");
+const holidayCardProject = source.match(/<details class="internal-project" id="internal-project-carte-fetes-2026"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
+assert.match(holidayCardProject, /Carte des Fêtes 2026 — remercier les membres/);
+assert.match(holidayCardProject, /photographie hivernale réelle/i);
+assert.match(holidayCardProject, /mot d’Annie écrit à la main/i);
+assert.match(holidayCardProject, /environ 200 cartes reste une hypothèse/i);
+assert.match(holidayCardProject, /Aucune donnée personnelle n’est versée dans le cockpit/i);
+assert.match(holidayCardProject, /CARTE_DES_FETES_2026_CADRAGE_INTERNE_2026-08-24\.md/);
 const poetryProject = source.match(/<details class="internal-project" id="internal-project-poesie-du-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
 assert.match(poetryProject, /réseau d’acteurs, de poètes, de slameurs et d’interprètes/,
   "Le réseau professionnel mobilisable doit être décrit sans réduire le projet à un appel public.");
@@ -936,7 +1049,7 @@ assert.match(poetryProject, /Quatorze personnes uniques recensées; treize contr
 assert.match(poetryProject, /Douze personnes contributrices sont prévues sur place; la treizième contribution est le texte final de Heather, lu par Valentin en son absence/i);
 assert.match(poetryProject, /il n’y aura pas de micro ouvert ni d’inscription spontanée sur place/i);
 assert.match(poetryProject, /poesie-rencontre-north-hatley-2026-08-10/);
-assert.match(poetryProject, /attribuer les derniers rôles du guide terrain du 23 août/i,
+assert.match(poetryProject, /fermer vendredi les derniers rôles du guide terrain du 24 août/i,
   "La prochaine action doit mener à la fermeture des responsabilités opérationnelles.");
 assert.match(poetryProject, /aucun lieu de repli n’est confirmé/i,
   "La fiche interne doit rendre explicite l’absence de plan météo confirmé.");
@@ -983,10 +1096,12 @@ assert.match(poetryProject, /Au_bord_du_bleu_checklist_operationnelle_2026-08-17
 assert.match(poetryProject, /Dispositif confirmé : un microphone et un haut-parleur adaptés à l’événement/);
 assert.match(poetryProject, /Deux aides supplémentaires pour le montage des tentes/);
 assert.match(poetryProject, /Deux bénévoles au kiosque à partir de 13 h/);
-assert.match(poetryProject, /AU_BORD_DU_BLEU_GUIDE_TERRAIN_2026-08-23\.pdf/);
-assert.match(poetryProject, /AU_BORD_DU_BLEU_CONDUCTEUR_INTERNE_2026-08-23\.md/);
-assert.match(poetryProject, /AU_BORD_DU_BLEU_REGISTRE_CANONIQUE_2026-08-23\.md/);
-assert.match(poetryProject, /PLAN_IMPLANTATION_SCHEMATIQUE_2026-08-23\.svg/);
+assert.match(poetryProject, /AU_BORD_DU_BLEU_GUIDE_TERRAIN_2026-08-24\.pdf/);
+assert.match(poetryProject, /AU_BORD_DU_BLEU_CONDUCTEUR_INTERNE_2026-08-24\.md/);
+assert.match(poetryProject, /AU_BORD_DU_BLEU_REGISTRE_CANONIQUE_2026-08-24\.md/);
+assert.match(poetryProject, /PLAN_IMPLANTATION_SCHEMATIQUE_2026-08-24\.svg/);
+assert.match(poetryProject, /alimentation autonome sur batterie est le plan de base/i);
+assert.match(poetryProject, /toilette sèche située près de la station de lavage/i);
 assert.match(poetryProject, /IgClI0cmRbRbT6ODUJPWldffAXESMwjOikVa3X9vvn69oSw/,
   "Le projet poésie doit proposer le dépôt public en téléversement seulement, déjà testé sans connexion.");
 assert.match(poetryProject, /Ouvrir le dépôt photos et vidéos ↗/);
@@ -1059,7 +1174,11 @@ assert.match(pagesWorkflow, /cp -R cockpit\/assets public\/assets/,
 for (const stage of ["to_frame", "planned", "active", "blocked", "completed"]) {
   assert.ok(client.includes(`"${stage}"`) && firestoreRules.includes(`'${stage}'`) && internalProjectSeed.includes(`"${stage}"`), `L’étape interne ${stage} doit rester alignée entre client, règles et initialisation.`);
 }
-assert.equal((internalProjectSeed.match(/^  "[a-z0-9-]+": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm) || []).length, 16, "Le seed initial doit couvrir les seize projets internes documentés.");
+assert.equal((internalProjectSeed.match(/^  "[a-z0-9-]+": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm) || []).length, 17, "Le seed initial doit couvrir les dix-sept projets internes documentés.");
+assert.match(source, /REGISTRE_FINANCEMENT_PARTENARIATS_2026-08-24\.md/,
+  "Le registre de financement par projet doit rester accessible depuis les occasions à saisir.");
+assert.match(source, /piste de nettoyage des berges attribuée à COGESAF demeure explicitement <em>à sourcer<\/em>/i,
+  "Le cockpit ne doit pas présenter les montants COGESAF non sourcés comme acquis.");
 assert.equal(internalProjectDocuments.documents.length, 14, "Les quatorze dossiers déjà publiés doivent rester raccordés à leur projet interne.");
 assert.equal(new Set(internalProjectDocuments.documents.map((item) => item.id)).size, 14, "Chaque dossier partageable doit viser un projet distinct.");
 assert.equal(internalProjectDocuments.redaction, "Valentin Wittwe, directeur des communications, Bleu Massawippi");
@@ -1133,4 +1252,4 @@ assert.match(privateContentSeed, /selectedPosts/,
 const mainPostCount = posts.filter((post) => !post.isAlternative).length;
 const postsPerDay = activePosts.reduce((counts, post) => counts.set(post.dateIso, (counts.get(post.dateIso) || 0) + 1), new Map());
 const pairedDayCount = [...postsPerDay.values()].filter((count) => count > 1).length;
-console.log(JSON.stringify({ passed: true, mainPosts: mainPostCount, totalPosts: posts.length, activePairedDays: pairedDayCount, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 16, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 540 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: mainPostCount, totalPosts: posts.length, activePairedDays: pairedDayCount, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 17, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 551 }, null, 2));

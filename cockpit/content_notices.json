@@ -112,15 +112,15 @@
       "message": "La mission officielle transmise par la direction est maintenant reprise mot pour mot dans la stratégie du cockpit."
     },
     {
-      "id": "internal-poetry-guide-terrain-20260823-v1",
+      "id": "internal-poetry-guide-terrain-20260824-v1",
       "audienceRole": "director",
       "assigneeEmail": "dg@bleumassawippi.com",
       "sourceType": "internalProject",
       "sourceId": "poesie-du-lac",
-      "publishedOn": "2026-08-23",
+      "publishedOn": "2026-08-24",
       "priorityKey": 7,
       "title": "Mise à jour — Guide terrain final Au bord du bleu",
-      "message": "Le guide maître du 23 août, le conducteur à 13 h 40, le registre des contributions et le plan des deux tentes sont maintenant réunis dans le projet. Vous pouvez jeter un coup d’œil et attribuer les derniers rôles avant le 28 août."
+      "message": "Le guide maître du 24 août, le conducteur à 13 h 40, le registre des contributions et le plan des deux tentes sont maintenant réunis dans le projet. Les vérifications de toilette sèche, d’accessibilité, de stationnement et d’alimentation autonome y sont explicites. Vous pouvez jeter un coup d’œil et attribuer les derniers rôles avant le 28 août."
     },
     {
       "id": "internal-project-calendar-v1",
@@ -209,6 +209,28 @@
       "priorityKey": 30,
       "title": "Mise à jour — Outils opérationnels Au bord du bleu",
       "message": "Le registre à réconcilier, le conducteur logistique et les brouillons de messages aux artistes sont maintenant réunis dans le projet."
+    },
+    {
+      "id": "internal-holiday-card-20260824-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "carte-fetes-2026",
+      "publishedOn": "2026-08-24",
+      "priorityKey": 52,
+      "title": "Nouveau — Carte des Fêtes 2026",
+      "message": "Le projet de carte postale aux membres est cadré pour l’automne : photo hivernale réelle, mot manuscrit, QR vérifié, devis et protection stricte des adresses. Vous pourrez y jeter un coup d’œil sans action immédiate."
+    },
+    {
+      "id": "funding-partnership-register-20260824-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "section",
+      "sourceId": "registre-financement-partenariats-20260824",
+      "publishedOn": "2026-08-24",
+      "priorityKey": 53,
+      "title": "Nouveau — Registre financement et partenariats",
+      "message": "Un registre interne relie maintenant chaque piste de financement à sa source, son admissibilité, ses partenaires et sa prochaine action. La piste COGESAF non documentée demeure clairement à sourcer."
     }
   ]
 }

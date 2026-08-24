@@ -21,7 +21,7 @@
       "eventDateIso": "2026-08-28",
       "priorityKey": 8,
       "title": "Fermer les derniers rôles — Au bord du bleu",
-      "message": "Le guide terrain du 23 août est prêt. D’ici le 28 août, attribuer le transport, la responsabilité du site et de la météo, les deux personnes au kiosque, les deux aides au montage, le son, la liaison mobile, ainsi que la captation et les consentements. Confirmer aussi toilettes, stationnement, accessibilité, dons et inventaire réel des articles. Environ 20 minutes."
+      "message": "Le guide terrain du 24 août est prêt. D’ici le 28 août, attribuer le transport, la responsabilité du site et de la météo, les deux personnes au kiosque, les deux aides au montage, le son, la liaison mobile, ainsi que la captation et les consentements. Confirmer aussi la toilette sèche, le stationnement, le cheminement accessible, la zone exacte, les dons et l’inventaire réel des articles. L’alimentation autonome sur batterie demeure le plan de base tant qu’une prise n’est pas confirmée. Environ 20 minutes."
     },
     {
       "id": "site-niveau-lac-rapport-2025-v1",
@@ -44,6 +44,17 @@
       "priorityKey": 12,
       "title": "Réviser l’ébauche — Suivi des plages",
       "message": "L’ébauche North Hatley est maintenant classée dans SharePoint. Vérifier notamment l’écart entre 7 760 $ et 7 755 $, puis attendre les modifications et validations internes avant de produire une version présentable ou une communication publique."
+    },
+    {
+      "id": "cogesaf-nettoyage-berges-source-20260826-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "section",
+      "sourceId": "registre-financement-partenariats-20260824",
+      "eventDateIso": "2026-08-26",
+      "priorityKey": 9,
+      "title": "Classer la source — piste COGESAF pour les berges",
+      "message": "Le courriel ou le lien officiel évoqué pendant la rencontre n’a pas été retrouvé dans la boîte Communication. Le déposer ou le transférer permettrait de vérifier l’admissibilité, l’échéance, les dépenses couvertes et les montants avant toute décision. Environ 3 minutes."
     }
   ]
 }

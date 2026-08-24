@@ -79,7 +79,7 @@
     {
       "id": "au-bord-du-bleu-preparation-20260810-0829",
       "title": "Au bord du bleu — préparation finale",
-      "summary": "Fermer les rôles, les confirmations, les consentements, le transport, l’implantation des deux tentes, le kiosque, le son, la captation et la décision météo à partir du guide terrain du 23 août.",
+      "summary": "Fermer les rôles, les confirmations, les consentements, le transport, l’implantation des deux tentes, le kiosque, le son autonome sur batterie, la toilette sèche, l’accessibilité, la captation et la décision météo à partir du guide terrain du 24 août.",
       "startDate": "2026-08-10",
       "endDate": "2026-08-29",
       "category": "internal_project",
@@ -107,6 +107,21 @@
       "actionLabel": "Voir l’événement public",
       "location": "Parc Lôbadanaki, North Hatley — emplacement exact à confirmer",
       "ownerLabel": "Bleu Massawippi"
+    },
+    {
+      "id": "carte-fetes-2026-preparation",
+      "title": "Carte des Fêtes 2026 — préparation et envoi",
+      "summary": "Confirmer le format et le budget en octobre; sélectionner une photographie hivernale réelle, préparer le mot manuscrit et demander les devis en novembre; n’extraire la liste des membres qu’au début de décembre dans un espace privé.",
+      "startDate": "2026-10-01",
+      "endDate": "2026-12-15",
+      "category": "internal_project",
+      "urgency": "normal",
+      "stage": "planned",
+      "projectId": "carte-fetes-2026",
+      "actionUrl": "https://bleumassawippi.sharepoint.com/Documents%20partages/Communications/02%20-%20Pilotage,%20CA%20et%20continuit%C3%A9/01%20-%20Travail%20interne%20-%20Annie%20et%20Valentin/03%20-%20%C3%80%20valider%20ensemble/Carte%20des%20F%C3%AAtes%202026%20-%20cadrage%20-%202026-08-24/CARTE_DES_FETES_2026_CADRAGE_INTERNE_2026-08-24.md",
+      "actionLabel": "Ouvrir le cadrage interne",
+      "location": "Préparation interne",
+      "ownerLabel": "Direction générale et communications"
     }
   ]
 }

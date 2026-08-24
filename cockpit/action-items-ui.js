@@ -1,4 +1,4 @@
-import { setPersonalActionItemState, subscribePersonalActionItems } from "./firebase-client.js?v=20260824-b66";
+import { setPersonalActionItemState, subscribePersonalActionItems } from "./firebase-client.js?v=20260824-b67";
 
 let controller = null;
 let activeProfile = null;

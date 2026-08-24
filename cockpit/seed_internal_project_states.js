@@ -19,7 +19,8 @@ const defaults = {
   "fonds-environnemental-partenarial": "to_frame",
   "colloque-reseautage-associations": "to_frame",
   "concours-universitaire-bourse": "to_frame",
-  "participation-photo-regards-massawippi": "to_frame"
+  "participation-photo-regards-massawippi": "to_frame",
+  "carte-fetes-2026": "planned"
 };
 const projectFilter = process.argv.slice(2).find((arg) => arg.startsWith("--project="))?.slice("--project=".length).trim() || "";
 const selectedDefaults = Object.entries(defaults).filter(([internalProjectId]) => !projectFilter || internalProjectId === projectFilter);
