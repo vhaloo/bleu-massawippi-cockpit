@@ -1603,37 +1603,41 @@ Learn more or support our work: https://bleumassawippi.com/home-1
 #BehindTheScenes #BleuMassawippi #LakeMassawippi #SupportTheLake
 ```
 
-## Mercredi 26 août — Qu’est-ce qui se cache sous nos pas?
+## Mercredi 26 août — Canot, kayak, planche : le lavage compte aussi
 
-**Thème :** Nature
-**Format :** Illustration naturaliste éducative 4:5
-**Objectif :** Bonne idée conservée et reprogrammée après arbitrage; révéler la biodiversité discrète des rives et le rôle protecteur de la végétation sans annoncer une présence locale non vérifiée.
-**CTA :** Observer ce qui vous intrigue
-**Visuel final :** Planche d’exploration façon carnet naturaliste : coupe d’une rive avec feuilles, racines et pierres; invertébrés discrets et petite salamandre abritée sous une roche, sans prétendre identifier une espèce locale. Ajouter deux repères doux « refuge vivant » et « sol protégé ».
+**Thème :** Prévention
+**Format :** Photo réelle autorisée 4:5 ou affiche éducative simple · publication bilingue
+**Objectif :** Intégrer la recommandation de la direction du 23 juillet : rappeler chaleureusement que le lavage obligatoire avant la mise à l’eau concerne aussi les embarcations non motorisées, sans répéter les publications d’août.
+**CTA :** Garder les trois gestes en tête
+**Visuel final :** Privilégier une photographie réelle autorisée d’une embarcation non motorisée et de son équipement. Ajouter seulement un court lettrage manuscrit bilingue « Même sans moteur · No motor, same care ». Ne pas inventer le lieu ni montrer une personne identifiable sans consentement.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Gouvernement du Québec — biodiversité des rives et milieux humides : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/biodiversite/biodiversite-quebec · Gouvernement du Québec — bandes riveraines, habitats et stabilisation des sols : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/agriculture/pratiques-agricoles-environnement/gestion-eau-sols · Parcs Canada — salamandres et litière de feuilles : https://parcs.canada.ca/pn-np/ab/waterton/nature/faune-wildlife/reptiles-amphibians/salamandre-salamander
+**Source de référence :** Régie intermunicipale du Parc régional Massawippi — lavage obligatoire et tarifs 2026 : https://www.lacmassawippi.ca/plage-massawippi/heures-douverture-et-tarifs/ · Gouvernement du Québec — nettoyage des embarcations et équipements : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
 **Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
 
 ### Légende prête à programmer
 
 ```text
-FR — Qu’est-ce qui se cache sous les feuilles, les racines et les pierres d’une rive vivante?
+FR — Un canot, un kayak ou une planche à pagaie n’a pas de moteur… mais peut tout de même transporter de l’eau, de la boue, des fragments de plantes ou de minuscules organismes d’un plan d’eau à l’autre.
 
-Ce couvert forme des refuges pour de nombreux invertébrés et, selon le milieu, pour des amphibiens. La végétation riveraine contribue aussi à retenir le sol, à ralentir le ruissellement et à réduire l’érosion. Toute une communauté discrète participe ainsi à la biodiversité du rivage.
+Avant la mise à l’eau au lac Massawippi, le lavage est obligatoire pour les embarcations motorisées comme non motorisées. Pensons aussi aux pagaies, aux vestes de flottaison, aux cordes et à tout l’équipement qui a touché l’eau.
 
-Lors de votre prochaine promenade, prenez le temps d’observer ce petit monde en laissant feuilles, pierres et animaux à leur place. Quel détail vous intrigue?
+Le bon réflexe tient en trois gestes : nettoyer, vider, sécher. Un petit arrêt qui aide à garder le plaisir de pagayer léger — ici comme au prochain lac.
 
-#BleuMassawippi #LacMassawippi #RiveVivante #NatureDuLac
+Information et tarifs 2026 : https://www.lacmassawippi.ca/plage-massawippi/heures-douverture-et-tarifs/
+
+#BleuMassawippi #LacMassawippi #Estrie
 
 =========================================
 
-EN — What might be hiding beneath the leaves, roots and stones of a living shoreline?
+EN — A canoe, kayak or paddleboard has no motor… but it can still carry water, mud, plant fragments or tiny organisms from one body of water to another.
 
-This cover provides refuge for many invertebrates and, depending on the habitat, amphibians. Shoreline vegetation also helps hold soil in place, slow runoff and reduce erosion. An entire quiet community supports shoreline biodiversity.
+Before launching on Lake Massawippi, cleaning is required for both motorized and non-motorized watercraft. Remember paddles, life jackets, ropes and any equipment that has touched the water.
 
-On your next walk, take time to notice this small world while leaving leaves, stones and animals where they are. Which detail intrigues you?
+Three simple steps: clean, drain, dry. A quick stop that helps keep paddling lighthearted — here and at the next lake.
 
-#BleuMassawippi #LakeMassawippi #LivingShoreline #LakeNature
+2026 information and fees: https://www.lacmassawippi.ca/plage-massawippi/heures-douverture-et-tarifs/
+
+#BleuMassawippi #LakeMassawippi #EasternTownships
 ```
 
 ## Archive éditoriale — Partager le lac, c’est aussi se laisser de l’espace
@@ -1735,37 +1739,33 @@ Would you like to add your support? Membership or donation: https://www.zeffy.co
 #BleuMassawippi #LakeMassawippi #SupportTheLake
 ```
 
-## Samedi 29 août — Le plongeon huard (Gavia immer), voix du lac
+## Samedi 29 août — Votre essentiel avant de partir
 
-**Thème :** Nature
-**Format :** Photographie réelle forte 4:5
-**Objectif :** Bonne idée conservée et reprogrammée après arbitrage; capsule nature à produire avec une photographie réelle correctement identifiée.
-**CTA :** Écouter et observer à bonne distance
-**Visuel final :** Photographie réelle forte, verticale 4:5, d’un plongeon huard adulte sur l’eau, nette et lumineuse, avec beaucoup d’espace respirant. Afficher sobrement « Plongeon huard · Gavia immer ». Aucun rendu aquarelle, aucun décor inventé; crédit et droit d’utilisation documentés.
+**Thème :** Interaction
+**Format :** Question illustrée
+**Objectif :** Bonne idée conservée et reprogrammée à la suite de l’arbitrage du 13 juillet; faire émerger les habitudes utiles de la communauté sans répéter une checklist réglementaire.
+**CTA :** Partager votre essentiel
+**Visuel final :** Nature morte vivante près du quai : VFI, gourde, chapeau et petit sac réutilisable, avec une main qui ajoute son propre essentiel. Garder un espace clair pour la question « Et vous, qu’apportez-vous? ».
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Parcs Canada — le plongeon huard comme indicateur de la santé des lacs, et Environnement et Changement climatique Canada — effets du mercure sur sa reproduction : https://parcs.canada.ca/pn-np/qc/mauricie/nature/conservation/surveillance-integrite-ecologique-ecological-integrity-monitoring/eau-douce-freshwater · https://www.canada.ca/fr/environnement-changement-climatique/services/recherche-faune-science-paysage/sujets-recherche/toxicologie-metaux.html
+**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
 **Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
 
 ### Légende prête à programmer
 
 ```text
-FR — Un appel traverse l’eau, puis une silhouette noire et blanche glisse à la surface : le plongeon huard (Gavia immer) sait rendre un instant au lac inoubliable.
+FR — Avant une sortie sur le Massawippi, il y a toujours un petit geste ou un essentiel qui fait toute la différence. Quel objet ou quelle habitude vous accompagne toujours : un vêtement de flottaison bien ajusté, une gourde, un sac pour ramasser nos déchets… ou autre chose?
 
-Profitons de la rencontre sans la bousculer. Ralentir, lui laisser de l’espace et observer à bonne distance permet d’admirer l’oiseau tout en respectant son rythme. Avez-vous déjà reconnu l’un de ses chants?
+Partagez votre essentiel en commentaire. Votre idée pourrait rendre la prochaine sortie de quelqu’un encore plus agréable.
 
-Le huard est aussi un précieux indicateur de la santé d’un lac. Comme il dépend d’eaux limpides et qu’il est sensible à des pressions comme le mercure, le plomb, l’aménagement des rives et les activités récréatives, sa présence, sa nidification et le succès de ses jeunes aident les scientifiques à suivre l’intégrité écologique des milieux lacustres.
-
-#BleuMassawippi #LacMassawippi #PlongeonHuard #ObservationRespectueuse
+#BleuMassawippi #LacMassawippi #PlaisirSurLeau #Communauté
 
 =========================================
 
-EN — A call travels across the water, then a black-and-white silhouette glides into view: the common loon (Gavia immer) can make a moment on the lake unforgettable.
+EN — Before an outing on Massawippi, one small action or essential item can make all the difference. What item or routine always comes with you: a properly fitted PFD, a water bottle, a bag for collecting our waste—or something else?
 
-Let’s enjoy the encounter without crowding it. Slowing down, leaving space and watching from a respectful distance lets us admire the bird while respecting its rhythm. Have you ever recognized one of its calls?
+Share your essential in the comments. Your idea might make someone else’s next outing even better.
 
-The loon is also a valuable indicator of a lake’s health. Because it depends on clear water and is sensitive to pressures such as mercury, lead, shoreline development and recreational activity, its presence, nesting and the success of its young help scientists monitor the ecological integrity of lake environments.
-
-#BleuMassawippi #LakeMassawippi #CommonLoon #RespectfulWildlifeViewing
+#BleuMassawippi #LakeMassawippi #EnjoyTheLake #Community
 ```
 
 ## Mardi 1er septembre — Le bassin versant relie le paysage
@@ -2020,99 +2020,103 @@ The actions may look simple, but their consistency and the care behind them turn
 #Fieldwork #BleuMassawippi #LakeMassawippi #LakeScience
 ```
 
-## Samedi 12 septembre — Les voix à documenter autour du bassin
+## Samedi 12 septembre — Les voix du bassin
 
 **Thème :** Nature
-**Format :** Affiche-série naturaliste 4:5 · point de départ à valider
+**Format :** Couverture naturaliste 4:5 · lancement d’une série
 **Objectif :** Bonne idée nature conservée et reprogrammée après le choix de la publication sur les cinq réflexes doux pour le 2 août.
-**CTA :** Découvrir la série, une espèce à la fois
-**Visuel final :** Affiche naturaliste vintage 4:5 servant de couverture à une série, avec plusieurs silhouettes réalistes et non localisées d’anoures autour d’un milieu humide; titre manuscrit « Les voix du bassin » et sous-titre structuré « Une espèce à la fois ». Ne pas présenter l’affiche comme un inventaire local confirmé.
+**CTA :** Quelle voix aimeriez-vous reconnaître en premier?
+**Visuel final :** Proposition 3 : affiche naturaliste vintage 4:5 servant de couverture à la série, avec plusieurs silhouettes réalistes et non localisées d’amphibiens autour d’un milieu humide; titre manuscrit « Les voix du bassin » et sous-titre « Une espèce à la fois ». La direction apprécie cette proposition; elle demeure à valider comme choix final et ne doit pas être présentée comme un inventaire local confirmé.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
 **Source de référence :** Gouvernement du Québec — protocole standardisé d’inventaire des anoures (2025) : https://cdn-contenu.quebec.ca/cdn-contenu/environnement/biodiversite/protocoles-standardises/recueil-protocole-inventaire-standardise-anoures.pdf · fiche Grenouille des marais : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/animaux-sauvages-quebec/fiches-especes-fauniques/grenouille-marais · données internes : occurrences de grenouille des marais dans le bassin, emplacements confidentiels.
-**Préparation :** Faire valider la liste et chaque identification par une personne compétente avant diffusion. Pour chaque futur portrait, documenter une observation locale ou une source régionale fiable, le chant, l’habitat et le rôle; ne jamais publier les coordonnées d’une espèce sensible.
+**Préparation :** Présenter clairement cette publication comme l’ouverture d’une série, et non comme un inventaire local. Pour chaque futur portrait, faire confirmer l’identification, documenter une observation locale ou une source régionale fiable, puis expliquer le chant, l’habitat et le rôle sans publier de coordonnées sensibles.
 
 ### Légende prête à programmer
 
 ```text
-FR — Voici notre point de départ pour une nouvelle série sur les grenouilles, rainettes et crapauds. Le protocole québécois vise notamment neuf espèces à rechercher avec méthode : crapaud d’Amérique, grenouille des bois, grenouille des marais, grenouille léopard, rainette crucifère, rainette versicolore, grenouille du Nord, grenouille verte et ouaouaron.
+FR — Au bord d’un étang, d’un ruisseau ou d’un milieu humide, les amphibiens se font souvent entendre avant de se laisser voir.
 
-Ce n’est pas encore un inventaire complet du bassin. Nos données internes confirment au moins la grenouille des marais, sans divulguer les sites sensibles. Avant chaque portrait, nous vérifierons l’observation locale, l’identification et la source. Puis nous découvrirons une espèce à la fois : son chant, son habitat et son rôle.
+Avec Les voix du bassin, nous vous proposerons une série de portraits : une espèce à la fois, son chant, son habitat et ce que des sources vérifiées nous permettent d’en dire. Cette première publication présente la série; elle ne constitue pas un inventaire du bassin.
+
+Quelle voix aimeriez-vous apprendre à reconnaître en premier?
 
 #PortraitDEspèce #BleuMassawippi #BassinVersant #Amphibiens
 
 =========================================
 
-EN — This is our starting point for a new series about frogs, treefrogs and toads. Quebec’s protocol notably targets nine species to search for methodically: American toad, wood frog, pickerel frog, northern leopard frog, spring peeper, gray treefrog, mink frog, green frog and American bullfrog.
+EN — Along a pond, stream or wetland, amphibians are often heard before they are seen.
 
-This is not yet a complete inventory of the watershed. Our internal data confirm at least the pickerel frog, without disclosing sensitive locations. Before each profile, we will verify the local observation, identification and source. Then we will discover one species at a time: its call, habitat and role.
+With Voices of the Watershed, we will share a series of profiles: one species at a time, its call, its habitat and what verified sources allow us to explain. This first post introduces the series; it is not an inventory of the watershed.
+
+Which voice would you like to learn to recognize first?
 
 #SpeciesProfile #BleuMassawippi #Watershed #Amphibians
 ```
 
-## Dimanche 13 septembre — Canot, kayak, planche : le lavage compte aussi
+## Dimanche 13 septembre — Qu’est-ce qui se cache sous nos pas?
 
-**Thème :** Prévention
-**Format :** Photo réelle autorisée 4:5 ou affiche éducative simple · publication bilingue
-**Objectif :** Intégrer la recommandation de la direction du 23 juillet : rappeler chaleureusement que le lavage obligatoire avant la mise à l’eau concerne aussi les embarcations non motorisées, sans répéter les publications d’août.
-**CTA :** Garder les trois gestes en tête
-**Visuel final :** Privilégier une photographie réelle autorisée d’une embarcation non motorisée et de son équipement. Ajouter seulement un court lettrage manuscrit bilingue « Même sans moteur · No motor, same care ». Ne pas inventer le lieu ni montrer une personne identifiable sans consentement.
+**Thème :** Nature
+**Format :** Illustration naturaliste éducative 4:5
+**Objectif :** Bonne idée conservée et reprogrammée après arbitrage; révéler la biodiversité discrète des rives et le rôle protecteur de la végétation sans annoncer une présence locale non vérifiée.
+**CTA :** Observer ce qui vous intrigue
+**Visuel final :** Planche d’exploration façon carnet naturaliste : coupe d’une rive avec feuilles, racines et pierres; invertébrés discrets et petite salamandre abritée sous une roche, sans prétendre identifier une espèce locale. Ajouter deux repères doux « refuge vivant » et « sol protégé ».
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Régie intermunicipale du Parc régional Massawippi — lavage obligatoire et tarifs 2026 : https://www.lacmassawippi.ca/plage-massawippi/heures-douverture-et-tarifs/ · Gouvernement du Québec — nettoyage des embarcations et équipements : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques
+**Source de référence :** Gouvernement du Québec — biodiversité des rives et milieux humides : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/biodiversite/biodiversite-quebec · Gouvernement du Québec — bandes riveraines, habitats et stabilisation des sols : https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/agriculture/pratiques-agricoles-environnement/gestion-eau-sols · Parcs Canada — salamandres et litière de feuilles : https://parcs.canada.ca/pn-np/ab/waterton/nature/faune-wildlife/reptiles-amphibians/salamandre-salamander
 **Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
 
 ### Légende prête à programmer
 
 ```text
-FR — Un canot, un kayak ou une planche à pagaie n’a pas de moteur… mais peut tout de même transporter de l’eau, de la boue, des fragments de plantes ou de minuscules organismes d’un plan d’eau à l’autre.
+FR — Qu’est-ce qui se cache sous les feuilles, les racines et les pierres d’une rive vivante?
 
-Avant la mise à l’eau au lac Massawippi, le lavage est obligatoire pour les embarcations motorisées comme non motorisées. Pensons aussi aux pagaies, aux vestes de flottaison, aux cordes et à tout l’équipement qui a touché l’eau.
+Ce couvert forme des refuges pour de nombreux invertébrés et, selon le milieu, pour des amphibiens. La végétation riveraine contribue aussi à retenir le sol, à ralentir le ruissellement et à réduire l’érosion. Toute une communauté discrète participe ainsi à la biodiversité du rivage.
 
-Le bon réflexe tient en trois gestes : nettoyer, vider, sécher. Un petit arrêt qui aide à garder le plaisir de pagayer léger — ici comme au prochain lac.
+Lors de votre prochaine promenade, prenez le temps d’observer ce petit monde en laissant feuilles, pierres et animaux à leur place. Quel détail vous intrigue?
 
-Information et tarifs 2026 : https://www.lacmassawippi.ca/plage-massawippi/heures-douverture-et-tarifs/
-
-#BleuMassawippi #LacMassawippi #Estrie
+#BleuMassawippi #LacMassawippi #RiveVivante #NatureDuLac
 
 =========================================
 
-EN — A canoe, kayak or paddleboard has no motor… but it can still carry water, mud, plant fragments or tiny organisms from one body of water to another.
+EN — What might be hiding beneath the leaves, roots and stones of a living shoreline?
 
-Before launching on Lake Massawippi, cleaning is required for both motorized and non-motorized watercraft. Remember paddles, life jackets, ropes and any equipment that has touched the water.
+This cover provides refuge for many invertebrates and, depending on the habitat, amphibians. Shoreline vegetation also helps hold soil in place, slow runoff and reduce erosion. An entire quiet community supports shoreline biodiversity.
 
-Three simple steps: clean, drain, dry. A quick stop that helps keep paddling lighthearted — here and at the next lake.
+On your next walk, take time to notice this small world while leaving leaves, stones and animals where they are. Which detail intrigues you?
 
-2026 information and fees: https://www.lacmassawippi.ca/plage-massawippi/heures-douverture-et-tarifs/
-
-#BleuMassawippi #LakeMassawippi #EasternTownships
+#BleuMassawippi #LakeMassawippi #LivingShoreline #LakeNature
 ```
 
-## Lundi 14 septembre — Votre essentiel avant de partir
+## Lundi 14 septembre — Le plongeon huard (Gavia immer), voix du lac
 
-**Thème :** Interaction
-**Format :** Question illustrée
-**Objectif :** Bonne idée conservée et reprogrammée à la suite de l’arbitrage du 13 juillet; faire émerger les habitudes utiles de la communauté sans répéter une checklist réglementaire.
-**CTA :** Partager votre essentiel
-**Visuel final :** Nature morte vivante près du quai : VFI, gourde, chapeau et petit sac réutilisable, avec une main qui ajoute son propre essentiel. Garder un espace clair pour la question « Et vous, qu’apportez-vous? ».
+**Thème :** Nature
+**Format :** Photographie réelle forte 4:5
+**Objectif :** Bonne idée conservée et reprogrammée après arbitrage; capsule nature à produire avec une photographie réelle correctement identifiée.
+**CTA :** Écouter et observer à bonne distance
+**Visuel final :** Photographie réelle forte, verticale 4:5, d’un plongeon huard adulte sur l’eau, nette et lumineuse, avec beaucoup d’espace respirant. Afficher sobrement « Plongeon huard · Gavia immer ». Aucun rendu aquarelle, aucun décor inventé; crédit et droit d’utilisation documentés.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
+**Source de référence :** Parcs Canada — le plongeon huard comme indicateur de la santé des lacs, et Environnement et Changement climatique Canada — effets du mercure sur sa reproduction : https://parcs.canada.ca/pn-np/qc/mauricie/nature/conservation/surveillance-integrite-ecologique-ecological-integrity-monitoring/eau-douce-freshwater · https://www.canada.ca/fr/environnement-changement-climatique/services/recherche-faune-science-paysage/sujets-recherche/toxicologie-metaux.html
 **Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
 
 ### Légende prête à programmer
 
 ```text
-FR — Avant une sortie sur le Massawippi, il y a toujours un petit geste ou un essentiel qui fait toute la différence. Quel objet ou quelle habitude vous accompagne toujours : un vêtement de flottaison bien ajusté, une gourde, un sac pour ramasser nos déchets… ou autre chose?
+FR — Un appel traverse l’eau, puis une silhouette noire et blanche glisse à la surface : le plongeon huard (Gavia immer) sait rendre un instant au lac inoubliable.
 
-Partagez votre essentiel en commentaire. Votre idée pourrait rendre la prochaine sortie de quelqu’un encore plus agréable.
+Profitons de la rencontre sans la bousculer. Ralentir, lui laisser de l’espace et observer à bonne distance permet d’admirer l’oiseau tout en respectant son rythme. Avez-vous déjà reconnu l’un de ses chants?
 
-#BleuMassawippi #LacMassawippi #PlaisirSurLeau #Communauté
+Le huard est aussi un précieux indicateur de la santé d’un lac. Comme il dépend d’eaux limpides et qu’il est sensible à des pressions comme le mercure, le plomb, l’aménagement des rives et les activités récréatives, sa présence, sa nidification et le succès de ses jeunes aident les scientifiques à suivre l’intégrité écologique des milieux lacustres.
+
+#BleuMassawippi #LacMassawippi #PlongeonHuard #ObservationRespectueuse
 
 =========================================
 
-EN — Before an outing on Massawippi, one small action or essential item can make all the difference. What item or routine always comes with you: a properly fitted PFD, a water bottle, a bag for collecting our waste—or something else?
+EN — A call travels across the water, then a black-and-white silhouette glides into view: the common loon (Gavia immer) can make a moment on the lake unforgettable.
 
-Share your essential in the comments. Your idea might make someone else’s next outing even better.
+Let’s enjoy the encounter without crowding it. Slowing down, leaving space and watching from a respectful distance lets us admire the bird while respecting its rhythm. Have you ever recognized one of its calls?
 
-#BleuMassawippi #LakeMassawippi #EnjoyTheLake #Community
+The loon is also a valuable indicator of a lake’s health. Because it depends on clear water and is sensitive to pressures such as mercury, lead, shoreline development and recreational activity, its presence, nesting and the success of its young help scientists monitor the ecological integrity of lake environments.
+
+#BleuMassawippi #LakeMassawippi #CommonLoon #RespectfulWildlifeViewing
 ```
 
 ## Mercredi 16 septembre — Merci de faire vivre la conversation
@@ -2150,9 +2154,9 @@ Every response helps us understand what matters to you and prepare content that 
 **Format :** Mini-BD sobre · trois cases
 **Objectif :** Résumer la cohabitation par des gestes simples plutôt que par un ton moralisateur.
 **CTA :** Garder ces trois réflexes
-**Visuel final :** Mini-BD douce en trois cases illustrant des usages partagés : ralentir au bon moment, repartir avec ses effets, saluer et laisser de l’espace; titre « Trois réflexes pour partager le lac ».
+**Visuel final :** Photographie réelle prise sur un lac canadien : kayaks au premier plan, pagayeurs espacés sur l’eau et embarcations plus loin. L’image illustre le partage calme d’un plan d’eau sans prétendre montrer le lac Massawippi; aucun texte n’est ajouté sur la photo.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
+**Source de référence :** Photographie documentaire réelle : Josh Trommel, « Kayaks on a lake », Deep Cove, Colombie-Britannique, 2016, CC0 1.0 via Wikimedia Commons : https://commons.wikimedia.org/wiki/File:Kayaks_on_a_lake_(Unsplash).jpg
 **Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
 
 ### Légende prête à programmer
@@ -2216,9 +2220,9 @@ Membership or donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6
 **Format :** Sondage quatre options
 **Objectif :** Faire choisir les prochaines coulisses plutôt que supposer ce qui intéresse le public.
 **CTA :** Entrer dans les coulisses
-**Visuel final :** Grille de quatre vignettes accueillantes : sortie terrain, lecture de données, création d’une publication, montage d’un projet; mots manuscrits très lisibles, photographies authentiques ou illustrations cohérentes, titre « Entrez dans les coulisses ».
+**Visuel final :** Photographie réelle des coulisses d’un tournage près du lac : deux personnes préparent le matériel avant l’enregistrement. Le fichier source demeure inchangé; confirmer le crédit et le consentement des personnes identifiables avant diffusion.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
+**Source de référence :** Archive interne Bleu Massawippi — Photos/2025/Tournage_13052025/Tournage_13052025_préparation2.jpg.
 **Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
 
 ### Légende prête à programmer
@@ -2278,35 +2282,39 @@ This carousel brings together their answers, in their own words and with their c
 #BleuMassawippi #BoardOfDirectors #LakeMassawippi #Community
 ```
 
-## Mercredi 23 septembre — Une feuille entre l’eau et la lumière
+## Mercredi 23 septembre — Le castor, architecte des milieux humides
 
 **Thème :** Nature
-**Format :** Photographie réelle naturaliste 4:5
-**Objectif :** Offrir une pause d’observation simple autour d’une plante aquatique sans identification locale non vérifiée ni consigne professorale.
-**CTA :** Regarder les détails
-**Visuel final :** Photographie réelle de nénuphar blanc du domaine public, recadrée mécaniquement; aucune affirmation que la photo vient du lac Massawippi.
+**Format :** Photographie réelle naturaliste
+**Objectif :** Offrir une pause d’observation autour d’un mammifère aquatique et de ses traces, sans présenter la photographie comme une observation locale.
+**CTA :** Repérer les traces
+**Visuel final :** Photographie réelle d’un castor du Canada nageant dans un étang; aucun ajout à la scène et aucune affirmation que la photo vient du lac Massawippi.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Thomas G. Barnes, U.S. Fish and Wildlife Service — domaine public; photographie non présentée comme prise au lac Massawippi.
-**Préparation :** Conserver la provenance exacte de la photographie, vérifier la nuance naturaliste et préparer un texte alternatif bilingue.
+**Source de référence :** Gouvernement du Québec — fiche Castor du Canada; photographie NPS / Mary Lewandowski, parc national de Denali, domaine public.
+**Préparation :** Conserver la provenance exacte de la photographie, vérifier les repères naturalistes et préparer un texte alternatif bilingue.
 
 ### Légende prête à programmer
 
 ```text
-FR — À la surface, une feuille flotte entre l’eau et la lumière. Autour d’elle, les reflets changent, une ombre se dessine et le moindre mouvement devient visible.
+FR — Un castor ne se remarque pas toujours par sa silhouette. Une branche fraîchement rongée, une hutte ou un changement dans l’écoulement peuvent aussi révéler son passage.
 
-Ces petits détails n’ont pas besoin d’être cueillis pour être découverts. Prenons simplement le temps de regarder : qu’est-ce qui attire votre œil en premier?
+En régulant l’eau avec ses barrages, le castor transforme son milieu et peut créer des habitats dont profitent d’autres espèces. Son rôle varie selon l’endroit : l’observation attentive vient avant toute intervention.
 
-Photo documentaire; elle n’est pas présentée comme ayant été prise au lac Massawippi.
+Cette photo documentaire a été prise au parc national de Denali, en Alaska; elle n’est pas présentée comme une observation au lac Massawippi.
+
+Quel mammifère du bassin versant aimeriez-vous mieux connaître?
 
 #BleuMassawippi #LacMassawippi #CuriositéNature
 
 =========================================
 
-EN — At the surface, a leaf floats between water and light. Reflections shift around it, a patch of shade appears and the smallest movement becomes visible.
+EN — A beaver is not always noticed by its silhouette. A freshly gnawed branch, a lodge or a change in water flow can also reveal its passage.
 
-These details do not need to be picked to be discovered. Let’s simply take time to look: what catches your eye first?
+By regulating water with its dams, a beaver transforms its surroundings and can create habitat used by other species. Its role varies from place to place: careful observation comes before any intervention.
 
-Documentary photograph; it is not presented as having been taken at Lake Massawippi.
+This documentary photograph was taken in Denali National Park, Alaska; it is not presented as an observation from Lake Massawippi.
+
+Which mammal from the watershed would you like to learn more about?
 
 #BleuMassawippi #LakeMassawippi #NatureCuriosity
 ```
@@ -2317,29 +2325,33 @@ Documentary photograph; it is not presented as having been taken at Lake Massawi
 **Format :** Photographie d’archive + invitation bilingue
 **Objectif :** Inviter la communauté à signaler des archives familiales sans réclamer de cession publique ni reproduire un témoignage sans accord.
 **CTA :** Nous écrire avant de partager
-**Visuel final :** Photographie historique réelle présentée dans un album-souvenir; conserver le crédit, la date approximative et les limites documentaires.
+**Visuel final :** Photographie réelle nocturne du Pub Pilsen éclairé, avec ses reflets sur la rivière Massawippi; aucun ajout ni transformation de la scène.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Photographie de Gaétan, 7 mars 2017, licence CC BY-SA 2.0; composition d’album déjà documentée dans le cockpit.
-**Préparation :** Vérifier le crédit de l’image et préparer une méthode simple pour recevoir une copie et ses renseignements sans publier automatiquement.
+**Source de référence :** Guerinf — 55, rue Main, North Hatley, Pub Pilsen, 26 juillet 2025, Wikimedia Commons, CC0; crédit recommandé.
+**Préparation :** Conserver le crédit recommandé de l’image et préparer une méthode simple pour recevoir une copie et ses renseignements sans publier automatiquement.
 
 ### Légende prête à programmer
 
 ```text
-FR — Une vieille photo peut réveiller un lieu, une voix ou une histoire que l’on croyait oubliée.
+FR — Une photo de soir peut déjà raconter un lieu autrement. Ici, les lumières du Pub Pilsen se reflètent dans la rivière Massawippi, à North Hatley.
 
-Votre famille conserve-t-elle une image du lac Massawippi, de ses villages, de ses rives ou de la rivière? Écrivez-nous avant de la partager publiquement. Nous pourrons prendre le temps de noter la date, le lieu, les personnes, le crédit et les conditions d’utilisation.
+Les images de lieux familiers deviennent peu à peu des repères de mémoire. Votre famille conserve-t-elle une image du lac Massawippi, de ses villages, de ses rives ou de la rivière? Écrivez-nous avant de la partager publiquement. Nous pourrons prendre le temps de noter la date, le lieu, les personnes, le crédit et les conditions d’utilisation.
 
 Chaque détail vérifiable aide à garder la mémoire du territoire bien vivante.
+
+Photo : Guerinf, CC0.
 
 #BleuMassawippi #LacMassawippi #MémoireDuLac
 
 =========================================
 
-EN — An old photograph can bring back a place, a voice or a story we thought had been forgotten.
+EN — An evening photograph can already tell the story of a place differently. Here, the lights of Pub Pilsen are reflected in the Massawippi River in North Hatley.
 
-Does your family have an image of Lake Massawippi, its villages, shorelines or river? Write to us before sharing it publicly. Together, we can record the date, place, people, credit and conditions of use.
+Images of familiar places gradually become markers of memory. Does your family have an image of Lake Massawippi, its villages, shorelines or river? Write to us before sharing it publicly. Together, we can record the date, place, people, credit and conditions of use.
 
 Every verifiable detail helps keep the region’s memory alive.
+
+Photo: Guerinf, CC0.
 
 #BleuMassawippi #LakeMassawippi #LakeMemories
 ```
@@ -2347,12 +2359,12 @@ Every verifiable detail helps keep the region’s memory alive.
 ## Samedi 26 septembre — Quiz du lac : les trois gestes qui voyagent bien
 
 **Thème :** Interaction
-**Format :** Quiz illustré bilingue 4:5
+**Format :** Photographie réelle + quiz bilingue
 **Objectif :** Réactiver un repère de prévention sous forme de jeu bref et orienter vers le quiz bilingue de Bleu Massawippi.
 **CTA :** Répondre puis continuer le quiz
-**Visuel final :** Planche scolaire vintage déjà documentée montrant nettoyer, vider et sécher; aucune situation locale ni infraction inventée.
+**Visuel final :** Photographie réelle en plan rapproché d’une personne en kayak sur une eau libre; aucun texte incrusté ni affirmation que la scène vient du lac Massawippi.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Gouvernement du Québec — nettoyage des embarcations; quiz bilingue Bleu Massawippi : https://bleumassawippi.com/quiz
+**Source de référence :** NPS / Andrew Cattoir — Kayaking Near Boulder Harbor, 19 juin 2020, domaine public; Gouvernement du Québec — nettoyage des embarcations; quiz bilingue Bleu Massawippi : https://bleumassawippi.com/quiz
 **Préparation :** Vérifier le lien du quiz et la formulation des trois gestes, puis programmer après validation.
 
 ### Légende prête à programmer
@@ -2440,7 +2452,7 @@ Thank you to everyone who makes this patient work possible, season after season.
 ```text
 FR — À la fin du jour, le lac semble se faire plus silencieux. La lumière glisse sur l’eau, les rives deviennent des silhouettes et un paysage familier se révèle autrement.
 
-Cette photographie d’archive, prise en septembre 2024, ne montre pas l’état du lac aujourd’hui. Elle nous rappelle simplement qu’un même lieu ne se regarde jamais tout à fait deux fois.
+Cette photographie d’archive, prise en septembre 2024, ne montre pas l’état du lac aujourd’hui. Elle nous rappelle qu’un lieu n’est jamais identique : il se transforme avec le temps, les saisons et nos yeux.
 
 Quel détail attire votre regard en premier?
 
