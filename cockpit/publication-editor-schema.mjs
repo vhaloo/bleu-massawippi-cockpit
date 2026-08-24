@@ -205,13 +205,67 @@ export function mergePublication(base = {}, row = {}) {
   };
 }
 
+function mondayIso(dateIso) {
+  if (!isoPattern.test(String(dateIso || ""))) return "";
+  const value = new Date(`${dateIso}T12:00:00Z`);
+  const mondayOffset = (value.getUTCDay() + 6) % 7;
+  value.setUTCDate(value.getUTCDate() - mondayOffset);
+  return value.toISOString().slice(0, 10);
+}
+
+function inferredCalendarStartDate(basePosts = []) {
+  const candidates = new Map();
+  basePosts.forEach((post) => {
+    const week = Number(post?.w ?? post?.week);
+    const weekMonday = mondayIso(post?.dateIso);
+    if (!weekMonday || !Number.isInteger(week) || week < 1) return;
+    const start = new Date(`${weekMonday}T12:00:00Z`);
+    start.setUTCDate(start.getUTCDate() - ((week - 1) * 7));
+    const candidate = start.toISOString().slice(0, 10);
+    candidates.set(candidate, (candidates.get(candidate) || 0) + 1);
+  });
+  return [...candidates.entries()]
+    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))[0]?.[0] || "";
+}
+
+function canonicalWeeksByDate(basePosts = []) {
+  const counts = new Map();
+  basePosts.forEach((post) => {
+    const dateIso = String(post?.dateIso || "");
+    const week = Number(post?.w ?? post?.week);
+    if (!isoPattern.test(dateIso) || !Number.isInteger(week) || week < 1) return;
+    if (!counts.has(dateIso)) counts.set(dateIso, new Map());
+    const dateCounts = counts.get(dateIso);
+    dateCounts.set(week, (dateCounts.get(week) || 0) + 1);
+  });
+  return new Map([...counts.entries()].map(([dateIso, dateCounts]) => [
+    dateIso,
+    [...dateCounts.entries()].sort((left, right) => right[1] - left[1] || left[0] - right[0])[0][0]
+  ]));
+}
+
+export function normalizeCalendarWeeks(publications = [], basePosts = []) {
+  const canonical = canonicalWeeksByDate(basePosts);
+  const calendarStart = inferredCalendarStartDate(basePosts);
+  return publications.map((post) => {
+    if (post?.archivedEditorial === true) return post;
+    const dateIso = String(post?.dateIso || "");
+    if (!isoPattern.test(dateIso)) return post;
+    const week = canonical.get(dateIso) || (calendarStart ? weekForDate(dateIso, calendarStart) : Number(post?.w ?? post?.week));
+    if (!Number.isInteger(week) || week < 1) return post;
+    if (Number(post.w) === week && Number(post.week) === week) return post;
+    return { ...post, w: week, week };
+  });
+}
+
 export function mergePostsWithScheduleRows(basePosts = [], rows = []) {
   const rowMap = new Map(rows.map((row) => [row.id, row]));
   const merged = basePosts.map((post) => mergePublication(post, rowMap.get(post.id)));
   const known = new Set(basePosts.map((post) => post.id));
   rows.filter((row) => !known.has(row.id) && row.editorial && typeof row.editorial === "object")
     .forEach((row) => merged.push(mergePublication({}, row)));
-  return merged.sort((left, right) => String(left.dateIso || "").localeCompare(String(right.dateIso || "")) || String(left.id).localeCompare(String(right.id)));
+  return normalizeCalendarWeeks(merged, basePosts)
+    .sort((left, right) => String(left.dateIso || "").localeCompare(String(right.dateIso || "")) || String(left.id).localeCompare(String(right.id)));
 }
 
 export function editorialRowsSignature(rows = []) {
