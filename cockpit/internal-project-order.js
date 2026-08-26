@@ -1,5 +1,6 @@
 export const internalProjectUrgencyOrder = Object.freeze([
   "poesie-du-lac",
+  "nettoyage-berges-2026",
   "bilan-sante-lac",
   "parc-lobadanaki",
   "application-carte-vivante-lac",
@@ -29,7 +30,7 @@ export function sortInternalProjectsByUrgency(root = document) {
     - (ranks.get(right.dataset.internalProjectId) ?? Number.MAX_SAFE_INTEGER)
     || sourceOrder.get(left) - sourceOrder.get(right));
   cards.forEach((card) => list.appendChild(card));
-  register.dataset.layoutVersion = "2026-08-11-urgency-order-v2";
+  register.dataset.layoutVersion = "2026-08-26-nettoyage-berges-v1";
 
   const spotlight = root.querySelector('.project-portfolio-links a[href="#internal-project-lamproie-du-nord"]');
   if (spotlight) {

@@ -928,9 +928,19 @@ assert.ok(fs.existsSync(matchedDonationPreview), "L’aperçu WebP du nouveau vi
 assert.ok(fs.statSync(matchedDonationPreview).size < 150_000, "L’aperçu Zeffy doit rester léger sur mobile.");
 assert.doesNotMatch(posts.find((post) => post.id === "s4d7").copy, /bleumassawippi\.com\/quiz/,
   "Un sondage qui mentionne éventuellement un quiz ne doit pas être transformé en publication quiz.");
-assert.equal((source.match(/data-internal-project-id=/g) || []).length, 17, "Le registre privé doit contenir les dix-sept projets internes documentés.");
-assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-08-18-lamproie-stakeholders-v3"/);
+assert.equal((source.match(/data-internal-project-id=/g) || []).length, 18, "Le registre privé doit contenir les dix-huit projets internes documentés.");
+assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-08-26-nettoyage-berges-v1"/);
 const internalProjectIds = [...source.matchAll(/data-internal-project-id="([a-z0-9-]+)"/g)].map((match) => match[1]).sort();
+assert.ok(internalProjectIds.includes("nettoyage-berges-2026"), "Le projet de nettoyage des berges 2026 doit être présent dans le registre.");
+const shorelineCleanupProject = source.match(/<details class="internal-project urgent" id="internal-project-nettoyage-berges-2026"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
+assert.match(shorelineCleanupProject, /Nettoyage des berges — North Hatley et Ayer’s Cliff/);
+assert.match(shorelineCleanupProject, /19 septembre/);
+assert.match(shorelineCleanupProject, /20 septembre/);
+assert.match(shorelineCleanupProject, /COGESAF/);
+assert.match(shorelineCleanupProject, /North Hatley n’a pas encore répondu/);
+assert.match(shorelineCleanupProject, /NettoyageBerges_projet2026_BM\.docx/);
+assert.equal((shorelineCleanupProject.match(/class="internal-project-document-card"/g) || []).length, 2,
+  "Le projet de nettoyage doit présenter le document maître et le dossier SharePoint sous forme de cartes.");
 const internalProjectSeedIds = [...internalProjectSeed.matchAll(/^  "([a-z0-9-]+)": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm)].map((match) => match[1]).sort();
 assert.deepEqual(internalProjectSeedIds, internalProjectIds, "Les cartes et le seed des projets internes doivent utiliser exactement les mêmes identifiants.");
 assert.match(source, /data-internal-project-id="jeux-provinciaux-peche" data-initial-stage="completed"/,
@@ -1174,7 +1184,7 @@ assert.match(pagesWorkflow, /cp -R cockpit\/assets public\/assets/,
 for (const stage of ["to_frame", "planned", "active", "blocked", "completed"]) {
   assert.ok(client.includes(`"${stage}"`) && firestoreRules.includes(`'${stage}'`) && internalProjectSeed.includes(`"${stage}"`), `L’étape interne ${stage} doit rester alignée entre client, règles et initialisation.`);
 }
-assert.equal((internalProjectSeed.match(/^  "[a-z0-9-]+": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm) || []).length, 17, "Le seed initial doit couvrir les dix-sept projets internes documentés.");
+assert.equal((internalProjectSeed.match(/^  "[a-z0-9-]+": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm) || []).length, 18, "Le seed initial doit couvrir les dix-huit projets internes documentés.");
 assert.match(source, /REGISTRE_FINANCEMENT_PARTENARIATS_2026-08-24\.md/,
   "Le registre de financement par projet doit rester accessible depuis les occasions à saisir.");
 assert.match(source, /piste de nettoyage des berges attribuée à COGESAF demeure explicitement <em>à sourcer<\/em>/i,
@@ -1252,4 +1262,4 @@ assert.match(privateContentSeed, /selectedPosts/,
 const mainPostCount = posts.filter((post) => !post.isAlternative).length;
 const postsPerDay = activePosts.reduce((counts, post) => counts.set(post.dateIso, (counts.get(post.dateIso) || 0) + 1), new Map());
 const pairedDayCount = [...postsPerDay.values()].filter((count) => count > 1).length;
-console.log(JSON.stringify({ passed: true, mainPosts: mainPostCount, totalPosts: posts.length, activePairedDays: pairedDayCount, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 17, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 551 }, null, 2));
+console.log(JSON.stringify({ passed: true, mainPosts: mainPostCount, totalPosts: posts.length, activePairedDays: pairedDayCount, bilingualPosts: posts.length, historicalPosts: 6, attachedHistoricalMedia: historicalMedia.length, naturePosters: natureMedia.length, editorialMedia: editorialMedia.length, opportunities: 8, internalProjectsSeeded: 18, internalProjectDocuments: internalProjectDocuments.documents.length, movedPost: moved.id, volunteerDate: volunteer.date, contractChecks: 551 }, null, 2));
