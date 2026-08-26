@@ -4,6 +4,7 @@ import { dryRunSummary, isDryRun } from "./seed_utils.js";
 
 const allowedStages = new Set(["to_frame", "planned", "active", "blocked", "completed"]);
 const defaults = {
+  "nettoyage-berges-2026": "active",
   "lamproie-du-nord": "planned",
   "application-carte-vivante-lac": "to_frame",
   "jardins-pluie-2027": "to_frame",

@@ -20,6 +20,7 @@ assert.deepEqual(new Set(internalProjectUrgencyOrder), new Set(projectIds), "Cha
 assert.deepEqual(renderedOrder, internalProjectUrgencyOrder, "Le DOM doit suivre exactement le classement déclaré.");
 assert.deepEqual(renderedByRole.get("admin").order, internalProjectUrgencyOrder, "Les communications doivent voir le même portefeuille priorisé.");
 assert.equal(renderedOrder[0], "poesie-du-lac", "Au bord du bleu doit être la première priorité visible.");
+assert.equal(renderedOrder[1], "nettoyage-berges-2026", "Le nettoyage des berges de septembre doit suivre la priorité événementielle immédiate.");
 assert.equal(renderedOrder.at(-2), "lamproie-du-nord", "Lamproie du Nord doit rester presque au bas de la liste.");
 assert.equal(renderedOrder.at(-1), "jeux-provinciaux-peche", "Le dossier clos doit demeurer en dernière position.");
 assert.ok(renderedOrder.indexOf("bilan-sante-lac") < renderedOrder.indexOf("application-carte-vivante-lac"), "Le travail terrain actif doit précéder le cadrage sans échéance.");
@@ -29,7 +30,7 @@ assert.ok(renderedOrder.indexOf("concours-dessin-jeunesse") < renderedOrder.inde
 assert.ok(ui.indexOf("sortInternalProjectsByUrgency();") < ui.indexOf("decorateInternalProjectDocuments();"), "Le classement doit être appliqué avant les interactions des fiches.");
 assert.equal(document.querySelector(".project-portfolio-links a:nth-of-type(3)")?.getAttribute("href"), "#internal-project-poesie-du-lac", "Le raccourci prioritaire doit mener vers Au bord du bleu.");
 assert.equal(document.querySelector(".project-portfolio-links a:nth-of-type(3) small")?.textContent, "Accueil 13 h · programme dès 13 h 40", "Le raccourci prioritaire ne doit plus présenter l’appel aux voix terminé comme action courante.");
-assert.equal(document.querySelector("[data-internal-project-register]")?.dataset.layoutVersion, "2026-08-11-urgency-order-v2", "Le changement d'ordre doit être signalé comme une nouveauté de mise en page.");
+assert.equal(document.querySelector("[data-internal-project-register]")?.dataset.layoutVersion, "2026-08-26-nettoyage-berges-v1", "Le changement d'ordre doit être signalé comme une nouveauté de mise en page.");
 assert.equal(applicationProject?.dataset.initialStage, "to_frame", "Le cahier annoncé ne doit pas transformer le cadrage en production active ou terminée.");
 assert.equal(applicationProject?.dataset.waitingSource, "functional-spec-pending", "Le dossier doit rester explicitement en attente du cahier des charges annoncé.");
 assert.match(applicationProject?.textContent || "", /En attente du cahier/);
