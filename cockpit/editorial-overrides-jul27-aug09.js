@@ -102,7 +102,8 @@ const EDITORIAL_OVERRIDES_JUL27_AUG09 = {
     title: "15 secondes sur le terrain avec nous",
     cta: "Entrer dans les coulisses",
     copy: "FR — Préparer, observer, mesurer, noter, recommencer : voici une journée de terrain résumée en 15 secondes.\n\nLes gestes paraissent simples, mais c’est leur régularité et le soin qu’on y met qui transforment les observations en connaissances utiles. Merci de vous intéresser à ce travail souvent discret; on est heureux de vous en montrer les coulisses.\n\n#Terrain #BleuMassawippi #LacMassawippi #ScienceDuLac\n\n=========================================\n\nEN — Prepare, observe, measure, record and begin again: here is a field day in 15 seconds.\n\nThe actions may look simple, but their consistency and the care behind them turn observations into useful knowledge. Thank you for taking an interest in this often quiet work; we are glad to show you behind the scenes.\n\n#Fieldwork #BleuMassawippi #LakeMassawippi #LakeScience",
-    visual: "Vidéo verticale de 15 secondes, cinq plans réels très courts : préparer, marcher vers le site, observer, noter, ranger; son naturel si exploitable, sous-titres FR/EN et conclusion « Merci de nous accompagner »."
+    source: "Archive interne Bleu Massawippi — Photos/2025/Stagiaires bleu massawippi/IMG_0377.jpg.",
+    visual: "Photographie réelle d’une membre de l’équipe qui manipule un instrument de mesure depuis une embarcation sur le lac. Pour une déclinaison vidéo : cinq plans réels très courts — préparer le matériel, prélever ou mesurer, observer, noter, ranger — sans scène de plongée; sous-titres FR/EN et conclusion « Merci de nous accompagner »."
   },
   s4d7: {
     title: "À vous de choisir la suite",
@@ -188,8 +189,8 @@ const EDITORIAL_OVERRIDES_JUL27_AUG09 = {
     title: "Quatre coulisses à découvrir",
     cta: "Entrer dans les coulisses",
     copy: "FR — Bleu Massawippi, c’est aussi tout ce qui se construit en coulisses, loin de ce qu’on voit dans notre fil d’actualité.\n\nA — Préparer une sortie sur le terrain.\nB — Lire et contextualiser des données.\nC — Transformer un sujet en publication accessible.\nD — Monter un projet avec des partenaires.\n\nAu fil des prochaines capsules, nous ouvrirons ces quatre portes pour montrer le travail, les personnes et les choix qui se trouvent derrière les actions.\n\n#Coulisses #BleuMassawippi #LacMassawippi #VieDeLAssociation\n\n=========================================\n\nEN — Bleu Massawippi is also everything being built behind the scenes, far from what appears in our social media feed.\n\nA — Preparing a field outing.\nB — Reading and contextualizing data.\nC — Turning a topic into an accessible post.\nD — Building a project with partners.\n\nIn upcoming features, we will open these four doors and show the work, people and choices behind the actions.\n\n#BehindTheScenes #BleuMassawippi #LakeMassawippi #AssociationLife",
-    source: "Archive interne Bleu Massawippi — Photos/2025/Tournage_13052025/Tournage_13052025_préparation2.jpg.",
-    visual: "Photographie réelle des coulisses d’un tournage près du lac : deux personnes préparent le matériel avant l’enregistrement. Le fichier source demeure inchangé; confirmer le crédit et le consentement des personnes identifiables avant diffusion."
+    source: "Archive interne Bleu Massawippi — Photos/2025/Tournage_13052025/Tournage_13052025_sur la berge1.jpg.",
+    visual: "Photographie réelle des coulisses d’un tournage au bord du lac : équipe, perche-son, caméras et réflecteur sont visibles dans une même scène documentaire. Le fichier source demeure inchangé; confirmer le crédit et le consentement des personnes identifiables avant diffusion."
   }
 };
 

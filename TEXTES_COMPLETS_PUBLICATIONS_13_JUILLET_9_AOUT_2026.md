@@ -1997,9 +1997,9 @@ A population change is never a verdict on its own. It becomes meaningful when co
 **Format :** Mini-documentaire vertical · cinq plans réels
 **Objectif :** Offrir le format week-end en montrant un vrai rythme de travail, pas une démonstration artificielle.
 **CTA :** Entrer dans les coulisses
-**Visuel final :** Vidéo verticale de 15 secondes, cinq plans réels très courts : préparer, marcher vers le site, observer, noter, ranger; son naturel si exploitable, sous-titres FR/EN et conclusion « Merci de nous accompagner ».
+**Visuel final :** Photographie réelle d’une membre de l’équipe qui manipule un instrument de mesure depuis une embarcation sur le lac. Pour une déclinaison vidéo : cinq plans réels très courts — préparer le matériel, prélever ou mesurer, observer, noter, ranger — sans scène de plongée; sous-titres FR/EN et conclusion « Merci de nous accompagner ».
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** https://bleumassawippi.com/rapports-et-memoires
+**Source de référence :** Archive interne Bleu Massawippi — Photos/2025/Stagiaires bleu massawippi/IMG_0377.jpg.
 **Préparation :** Monter cinq plans réels, garder les instruments lisibles et ne pas afficher de résultat non validé à l’écran.
 
 ### Légende prête à programmer
@@ -2220,9 +2220,9 @@ Membership or donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6
 **Format :** Sondage quatre options
 **Objectif :** Faire choisir les prochaines coulisses plutôt que supposer ce qui intéresse le public.
 **CTA :** Entrer dans les coulisses
-**Visuel final :** Photographie réelle des coulisses d’un tournage près du lac : deux personnes préparent le matériel avant l’enregistrement. Le fichier source demeure inchangé; confirmer le crédit et le consentement des personnes identifiables avant diffusion.
+**Visuel final :** Photographie réelle des coulisses d’un tournage au bord du lac : équipe, perche-son, caméras et réflecteur sont visibles dans une même scène documentaire. Le fichier source demeure inchangé; confirmer le crédit et le consentement des personnes identifiables avant diffusion.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Archive interne Bleu Massawippi — Photos/2025/Tournage_13052025/Tournage_13052025_préparation2.jpg.
+**Source de référence :** Archive interne Bleu Massawippi — Photos/2025/Tournage_13052025/Tournage_13052025_sur la berge1.jpg.
 **Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
 
 ### Légende prête à programmer
