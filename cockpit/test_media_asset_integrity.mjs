@@ -11,7 +11,7 @@ const specs = [
   ["historical_media_manifest.json", "historical-media-links.json"],
   ["nature_media_manifest.json", "nature-media-links.json"]
 ];
-const sharePointPattern = /^https:\/\/bleumassawippi\.sharepoint\.com\/:(?:i|v):\/g\//;
+const sharePointPattern = /^https:\/\/bleumassawippi\.sharepoint\.com\/(?:(?::(?:i|v):\/g\/)|Documents%20partages\/)/;
 const previewPrefix = "https://vhaloo.github.io/bleu-massawippi-cockpit/";
 const requireRegistryCoverage = process.argv.includes("--require-registry-coverage");
 const manifests = [];

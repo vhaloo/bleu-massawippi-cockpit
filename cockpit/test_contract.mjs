@@ -712,15 +712,21 @@ const s4d6ArchivedIllustration = editorialMedia.find((item) => item.id === "edit
 assert.equal(s4d6ArchivedIllustration?.stage, "archived",
   "Le dessin du 10 septembre doit rester conservé comme référence sans demeurer une proposition active.");
 assert.equal(s4d6ArchivedIllustration?.archived, true);
-const s4d6RealPhoto = editorialMedia.find((item) => item.id === "editorial-s4d6-divers-real-photo-v2");
+const s4d6DivingPhoto = editorialMedia.find((item) => item.id === "editorial-s4d6-divers-real-photo-v2");
+assert.equal(s4d6DivingPhoto?.stage, "archived",
+  "La scène de plongée écartée par la direction doit rester conservée sans être proposée.");
+assert.equal(s4d6DivingPhoto?.archived, true);
+const s4d6RealPhoto = editorialMedia.find((item) => item.id === "editorial-s4d6-field-measure-real-v3");
 assert.ok(s4d6RealPhoto, "Le 10 septembre doit proposer une vraie photographie montrant des humains.");
 assert.equal(s4d6RealPhoto.eventId, "s4d6");
 assert.equal(s4d6RealPhoto.stage, "proposal");
 assert.equal(s4d6RealPhoto.publicationBlocked, true,
   "La nouvelle photographie humaine ne doit pas contourner la confirmation du crédit et des consentements.");
-assert.match(s4d6RealPhoto.altText, /Photographie réelle[\s\S]*deux membres[\s\S]*plongée scientifique/i);
+assert.match(s4d6RealPhoto.altText, /Photographie réelle[\s\S]*membre de l’équipe[\s\S]*instrument de mesure/i);
 assert.ok(fs.existsSync(path.join(here, "media-previews", "2026-09-10", s4d6RealPhoto.fileName)),
   "La photographie réelle du 10 septembre doit être livrée avec le cockpit.");
+assert.ok(fs.existsSync(path.join(here, "media-previews", "2026-09-10", "s4d6-terrain-mesure-photo-reelle-v3-preview.webp")),
+  "L’aperçu 4:5 de la nouvelle photographie du 10 septembre doit être livré.");
 const frogSeriesDirectionPreference = natureMedia.find((item) => item.id === "nature-alt-20260802-basin-voices-manuscript-v3");
 assert.match(frogSeriesDirectionPreference?.label || "", /Préférence de la direction/i,
   "L’intérêt de la direction pour la proposition 3 doit rester visible sans simuler un choix final.");
@@ -739,11 +745,17 @@ const archivedBehindScenesIllustration = editorialMedia.find((item) => item.id =
 assert.equal(archivedBehindScenesIllustration?.stage, "archived",
   "L’ancienne planche des coulisses doit rester conservée après la demande d’un autre visuel.");
 assert.equal(archivedBehindScenesIllustration?.archived, true);
-const behindScenesRealPhoto = editorialMedia.find((item) => item.id === "editorial-alt-20260808-preparation-real-v2");
+const behindScenesPreparationPhoto = editorialMedia.find((item) => item.id === "editorial-alt-20260808-preparation-real-v2");
+assert.equal(behindScenesPreparationPhoto?.stage, "archived",
+  "La photographie jugée peu convaincante par la direction doit rester conservée sans être proposée.");
+assert.equal(behindScenesPreparationPhoto?.archived, true);
+const behindScenesRealPhoto = editorialMedia.find((item) => item.id === "editorial-alt-20260808-coulisses-berge-real-v3");
 assert.equal(behindScenesRealPhoto?.publicationBlocked, true,
   "La photo interne des coulisses doit attendre la confirmation du crédit et des consentements.");
 assert.ok(fs.existsSync(path.join(here, "media-previews", "2026-09-20", behindScenesRealPhoto.fileName)),
   "La nouvelle photographie des coulisses doit être livrée avec le cockpit.");
+assert.ok(fs.existsSync(path.join(here, "media-previews", "2026-09-20", "alt-20260808-coulisses-berge-photo-reelle-v3-preview.webp")),
+  "L’aperçu 4:5 de la nouvelle photographie des coulisses doit être livré.");
 for (const mediaId of [
   "editorial-s1d4-mon-massawippi-fridge-v5",
   "editorial-alt-20260719-engraving-crop-upscale-v3",
@@ -1076,11 +1088,11 @@ assert.doesNotMatch(poetryProject, /<details[^>]+id="poesie-rencontre-north-hatl
   "L’aide-mémoire ne doit plus occuper un long encart dans la fiche du projet.");
 assert.match(poetryProject, /Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10\.pdf/);
 assert.match(poetryProject, /Aide-mémoire — rencontre du 10 août/);
-assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 19,
-  "Les dix-neuf ressources du projet poésie doivent être présentées sous forme de cartes homogènes.");
-assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 19,
+assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 21,
+  "Les vingt et une ressources du projet poésie doivent être présentées sous forme de cartes homogènes.");
+assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 21,
   "Chaque carte documentaire doit annoncer clairement son type.");
-assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 18,
+assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 20,
   "Chaque ressource spécialisée doit proposer un bouton d’ouverture explicite.");
 assert.match(poetryProject, /TEXTE_PARTENAIRES_MUNICIPALITES_AU_BORD_DU_BLEU_2026-08-10\.md/,
   "Le texte de coordination avec les partenaires et municipalités doit être accessible depuis le projet poésie.");
@@ -1112,9 +1124,31 @@ assert.match(poetryProject, /AU_BORD_DU_BLEU_REGISTRE_CANONIQUE_2026-08-24\.md/)
 assert.match(poetryProject, /PLAN_IMPLANTATION_SCHEMATIQUE_2026-08-24\.svg/);
 assert.match(poetryProject, /alimentation autonome sur batterie est le plan de base/i);
 assert.match(poetryProject, /toilette sèche située près de la station de lavage/i);
-assert.match(poetryProject, /IgClI0cmRbRbT6ODUJPWldffAXESMwjOikVa3X9vvn69oSw/,
+assert.match(poetryProject, /IgAExHf2zrycTY-KL1qggcPMAXaRvpSpD6eY2vuzbHo68_E/,
   "Le projet poésie doit proposer le dépôt public en téléversement seulement, déjà testé sans connexion.");
+assert.doesNotMatch(poetryProject, /IgClI0cmRbRbT6ODUJPWldffAXESMwjOikVa3X9vvn69oSw/,
+  "L’ancien lien personnel de dépôt ne doit plus rester dans la fiche active.");
 assert.match(poetryProject, /Ouvrir le dépôt photos et vidéos ↗/);
+for (const eventPoster of [
+  "Au_bord_du_bleu_affiche_dons_Zeffy_2026-08-30.pdf",
+  "Au_bord_du_bleu_affiche_depot_photos_videos_2026-08-30.pdf",
+  "affiche-dons-zeffy-au-bord-du-bleu-2026-08-30-preview.webp",
+  "affiche-depot-photos-videos-au-bord-du-bleu-2026-08-30-preview.webp"
+]) {
+  assert.match(poetryProject, new RegExp(eventPoster.replaceAll(".", "\\.")),
+    `La ressource événementielle ${eventPoster} doit rester accessible depuis le projet poésie.`);
+}
+assert.match(poetryProject, /Faire un don à Bleu Massawippi/);
+assert.match(poetryProject, /Partager les photos et vidéos de l’événement/);
+assert.match(poetryProject, /sans voir, modifier ni supprimer ceux des autres/);
+for (const posterPdf of [
+  "project-documents/Au_bord_du_bleu_affiche_dons_Zeffy_2026-08-30.pdf",
+  "project-documents/Au_bord_du_bleu_affiche_depot_photos_videos_2026-08-30.pdf"
+]) {
+  const posterPath = path.join(root, posterPdf);
+  assert.ok(fs.existsSync(posterPath), `L’affiche imprimable doit exister : ${posterPdf}`);
+  assert.ok(fs.statSync(posterPath).size > 50_000, `L’affiche imprimable doit contenir sa mise en page : ${posterPdf}`);
+}
 assert.doesNotMatch(poetryProject, /microphones-cravates|micros-cravates/i,
   "La fiche active ne doit pas réintroduire le micro facultatif non confirmé.");
 assert.match(poetryProject, /forms\.cloud\.microsoft\/Pages\/DesignPageV2\.aspx\?origin=NeoPortalPage&amp;subpage=design&amp;id=[^\"]+&amp;analysis=true/,
@@ -1255,6 +1289,8 @@ assert.match(editorialMediaSeed, /item\.reuseMediaId/,
   "Le seed éditorial doit pouvoir réutiliser explicitement un fichier SharePoint déjà hébergé.");
 assert.match(editorialMediaSeed, /reusedUrls\.has\(item\.reuseMediaId\)/,
   "Les lectures de médias source réutilisés doivent être mises en cache dans le même lot.");
+assert.match(editorialMediaSeed, /Documents%20partages/,
+  "Le semeur éditorial doit accepter les liens directs authentifiés du SharePoint Bleu Massawippi.");
 assert.match(privateContentSeed, /--ids=/,
   "La synchronisation du calendrier doit accepter une liste d’identifiants ciblée pour limiter les lectures Firestore.");
 assert.match(privateContentSeed, /selectedPosts/,

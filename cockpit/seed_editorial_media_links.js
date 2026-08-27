@@ -17,8 +17,9 @@ const linksPath = path.join(here, "secrets", "editorial-media-links.json");
 const requiresLinkRegistry = selectedManifest.some((item) => !item.reuseMediaId);
 if (requiresLinkRegistry && !fs.existsSync(linksPath)) throw new Error("Le registre local secrets/editorial-media-links.json est requis et ne doit jamais être publié.");
 const links = fs.existsSync(linksPath) ? JSON.parse(fs.readFileSync(linksPath, "utf8")) : {};
+const validSharePointUrl = (value) => /^https:\/\/bleumassawippi\.sharepoint\.com\/(?:(?::(?:i|v):\/g\/)|Documents%20partages\/)/.test(value || "");
 for (const item of selectedManifest) {
-  if (!item.reuseMediaId && !/^https:\/\/bleumassawippi\.sharepoint\.com\/:(?:i|v):\/g\//.test(links[item.fileName] || "")) throw new Error(`Lien SharePoint privé manquant pour ${item.fileName}.`);
+  if (!item.reuseMediaId && !validSharePointUrl(links[item.fileName])) throw new Error(`Lien SharePoint privé manquant pour ${item.fileName}.`);
 }
 if (isDryRun()) {
   console.log(JSON.stringify(dryRunSummary("editorial-media", selectedManifest, { eventFilter: eventFilter || null, mediaFilter: mediaFilter || null, events: new Set(selectedManifest.map((item) => item.eventId)).size }), null, 2));
@@ -43,7 +44,7 @@ for (const item of selectedManifest) {
     }
     url = reusedUrls.get(item.reuseMediaId);
   }
-  if (!/^https:\/\/bleumassawippi\.sharepoint\.com\/:(?:i|v):\/g\//.test(url || "")) throw new Error(`Lien SharePoint privé manquant pour ${item.fileName}.`);
+  if (!validSharePointUrl(url)) throw new Error(`Lien SharePoint privé manquant pour ${item.fileName}.`);
   const reference = db.collection("mediaLinks").doc(item.id);
   const existing = await reference.get();
   const contentFields = {
