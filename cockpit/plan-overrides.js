@@ -390,6 +390,118 @@ The public is welcome anytime from 1 to 4 p.m. Come listen, discover voices from
     taskOwnersVersion: "event-task-owners-2026-08-20-poetry-invitation-v1"
   },
   {
+    id: "poesie-20260829-rappel-demain",
+    w: 7,
+    date: "Samedi 29 août",
+    calendarTime: "10:00",
+    t: "Événement",
+    tier: "Pilier",
+    title: "Au bord du bleu, c’est demain!",
+    format: "Affiche bilingue événementielle V8 · rappel de la veille",
+    role: "Rappeler chaleureusement la tenue d’Au bord du bleu le lendemain, avec les informations publiques confirmées et sans rouvrir l’appel aux voix.",
+    cta: "Venir nous rejoindre demain au bord du lac",
+    visual: "Réutiliser exclusivement l’affiche événementielle bilingue V8 confirmée pour Au bord du bleu; aucun appel aux candidatures.",
+    source: "Projet interne Au bord du bleu : événement public confirmé le dimanche 30 août 2026, de 13 h à 16 h, au parc Lôbadanaki à North Hatley; affiche bilingue V8 déjà utilisée pour l’invitation publique.",
+    fallback: "Si l’affiche V8 n’est pas accessible, ne pas substituer une ancienne affiche de recrutement; corriger d’abord l’accès au média confirmé.",
+    kpi: "Portée locale / partages / réponses d’intention / présence du public",
+    task: "Relire les informations pratiques, vérifier l’aperçu mobile de l’affiche V8 et publier manuellement le 29 août après validation; ne pas marquer terminé avant la diffusion réelle.",
+    copy: `FR — 🌊 Au bord du bleu, c’est demain!
+
+Ce dimanche 30 août, poésie, prose et slam se rencontrent au bord du lac Massawippi. Venez écouter les voix réunies pour l’occasion et partager un après-midi simple, libre et chaleureux au parc Lôbadanaki.
+
+Le public est accueilli de 13 h à 16 h et l’entrée est libre. Si vous le souhaitez, apportez une chaise ou une couverture pour vous installer dans l’herbe. Venez nombreux!
+
+📍 Parc Lôbadanaki, North Hatley
+📅 Dimanche 30 août 2026
+🕐 13 h à 16 h
+🎟 Entrée libre
+
+#AuBordDuBleu #BleuMassawippi #Poésie #LacMassawippi
+
+=========================================
+
+EN — 🌊 Au bord du bleu is tomorrow!
+
+This Sunday, August 30, poetry, prose and spoken word will meet by Lake Massawippi. Come hear the voices gathered for the occasion and share a simple, welcoming afternoon at parc Lôbadanaki.
+
+The public is welcome from 1 to 4 p.m. and admission is free. Bring a chair or blanket if you would like to settle on the grass. We hope to see you there!
+
+📍 Parc Lôbadanaki, North Hatley
+📅 Sunday, August 30, 2026
+🕐 1–4 p.m.
+🎟 Free admission
+
+#AuBordDuBleu #BleuMassawippi #Poetry #LakeMassawippi`,
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    isAlternative: false,
+    publicationBlocked: false,
+    tasksValentin: [
+      "Vérifier une dernière fois la date, l’heure, le lieu et l’aperçu mobile de l’affiche V8.",
+      "Publier ou programmer manuellement le 29 août après les validations; ne pas marquer terminé avant la diffusion réelle."
+    ],
+    tasksAnnie: [
+      "Confirmer la légende bilingue et l’affiche V8 du rappel de la veille."
+    ],
+    taskOwnersVersion: "event-task-owners-2026-08-27-poetry-reminder-v1"
+  },
+  {
+    id: "poesie-20260830-rappel-aujourdhui",
+    w: 7,
+    date: "Dimanche 30 août",
+    calendarTime: "09:00",
+    t: "Événement",
+    tier: "Pilier",
+    title: "Au bord du bleu, c’est aujourd’hui!",
+    format: "Affiche bilingue événementielle V8 · rappel du jour",
+    role: "Inviter une dernière fois le public à rejoindre Au bord du bleu le jour même, avec un message immédiat, pratique et accueillant.",
+    cta: "Nous rejoindre aujourd’hui au parc Lôbadanaki",
+    visual: "Réutiliser exclusivement l’affiche événementielle bilingue V8 confirmée pour Au bord du bleu; aucun appel aux candidatures.",
+    source: "Projet interne Au bord du bleu : événement public confirmé le dimanche 30 août 2026, de 13 h à 16 h, au parc Lôbadanaki à North Hatley; affiche bilingue V8 déjà utilisée pour l’invitation publique.",
+    fallback: "Si l’affiche V8 n’est pas accessible, ne pas substituer une ancienne affiche de recrutement; corriger d’abord l’accès au média confirmé.",
+    kpi: "Portée locale le jour même / partages / présence du public",
+    task: "Relire les informations pratiques, vérifier l’aperçu mobile de l’affiche V8 et publier manuellement le 30 août après validation; ne pas marquer terminé avant la diffusion réelle.",
+    copy: `FR — 🌊 Au bord du bleu, c’est aujourd’hui!
+
+On vous accueille cet après-midi au parc Lôbadanaki pour faire entendre poésie, prose et slam au bord du lac Massawippi.
+
+Venez quand vous le souhaitez entre 13 h et 16 h pour écouter les voix réunies pour l’occasion, découvrir des textes d’ici et d’ailleurs et partager un moment chaleureux au bord de l’eau. L’entrée est libre. Une chaise ou une couverture peut être pratique pour vous installer dans l’herbe.
+
+📍 Parc Lôbadanaki, North Hatley
+🕐 Aujourd’hui, de 13 h à 16 h
+🎟 Entrée libre
+
+#AuBordDuBleu #BleuMassawippi #Poésie #LacMassawippi
+
+=========================================
+
+EN — 🌊 Au bord du bleu is today!
+
+Join us this afternoon at parc Lôbadanaki for poetry, prose and spoken word by Lake Massawippi.
+
+Come anytime between 1 and 4 p.m. to hear the voices gathered for the occasion, discover writing from near and far, and share a warm moment by the water. Admission is free. A chair or blanket may be useful if you would like to sit on the grass.
+
+📍 Parc Lôbadanaki, North Hatley
+🕐 Today, 1–4 p.m.
+🎟 Free admission
+
+#AuBordDuBleu #BleuMassawippi #Poetry #LakeMassawippi`,
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    isAlternative: false,
+    publicationBlocked: false,
+    tasksValentin: [
+      "Vérifier une dernière fois l’heure, le lieu et l’aperçu mobile de l’affiche V8.",
+      "Publier manuellement le 30 août après les validations; ne pas marquer terminé avant la diffusion réelle."
+    ],
+    tasksAnnie: [
+      "Confirmer la légende bilingue et l’affiche V8 du rappel du jour."
+    ],
+    taskOwnersVersion: "event-task-owners-2026-08-27-poetry-reminder-v1"
+  },
+  {
     id: "don-20260909-appel-soutien",
     w: 9,
     date: "Mercredi 9 septembre",
@@ -802,7 +914,8 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["lavage-20260903-sans-moteur", 7, "Mercredi 26 août", "2026-08-26"],
   ["s4d2", 7, "Jeudi 27 août", "2026-08-27"],
   ["don-20260909-appel-soutien", 7, "Vendredi 28 août", "2026-08-28"],
-  ["alt-20260714", 7, "Samedi 29 août", "2026-08-29"],
+  ["poesie-20260829-rappel-demain", 7, "Samedi 29 août", "2026-08-29"],
+  ["poesie-20260830-rappel-aujourdhui", 7, "Dimanche 30 août", "2026-08-30"],
   ["alt-20260724", 8, "Mardi 1er septembre", "2026-09-01"],
   ["alt-20260805", 8, "Mercredi 2 septembre", "2026-09-02"],
   ["don-20260911-merci-bilan", 8, "Vendredi 4 septembre", "2026-09-04"],
@@ -823,6 +936,7 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["archives-20260912-vos-images", 11, "Vendredi 25 septembre", "2026-09-25"],
   ["quiz-20260913-trois-gestes", 11, "Samedi 26 septembre", "2026-09-26"],
   ["s1d2", 11, "Dimanche 27 septembre", "2026-09-27"],
+  ["alt-20260714", 12, "Lundi 28 septembre", "2026-09-28"],
   ["photo-20260915-soir-automne", 12, "Mardi 29 septembre", "2026-09-29"],
   ["alt-20260723", 12, "Mercredi 30 septembre", "2026-09-30"]
 ];
@@ -849,9 +963,14 @@ const USER_DIRECTED_RESCHEDULES = new Map([
     reason: "Rééquilibrage du 24 août 2026 : conserver intégralement la capsule sur la vie sous les feuilles au créneau libéré par l’avancement du rappel de lavage."
   }],
   ["alt-20260714", {
-    from: "2026-09-14",
-    to: "2026-08-29",
-    reason: "Demande de la direction du 24 août 2026 : avancer à la fin août la capsule pratique sur l’essentiel à emporter afin qu’elle reste saisonnière et utile."
+    from: "2026-08-29",
+    to: "2026-09-28",
+    reason: "Demande des communications du 27 août 2026 : réserver le samedi 29 août au rappel Au bord du bleu, tout en conservant intégralement la capsule pratique au prochain créneau libre sans collision.",
+    priorHistory: [{
+      from: "2026-09-14",
+      to: "2026-08-29",
+      reason: "Demande de la direction du 24 août 2026 : avancer à la fin août la capsule pratique sur l’essentiel à emporter afin qu’elle reste saisonnière et utile."
+    }]
   }],
   ["alt-20260721", {
     from: "2026-08-29",
@@ -1450,6 +1569,12 @@ export function applyPlanOverridesToPosts(posts) {
     const historyFrom = repairRotation?.from || userDirectedRotation?.from || from;
     const assignmentReason = repairRotation?.reason || userDirectedRotation?.reason || continuityReason;
     const history = Array.isArray(post.rescheduleHistory) ? [...post.rescheduleHistory] : [];
+    for (const previous of userDirectedRotation?.priorHistory || []) {
+      if (previous?.from && previous?.to && previous?.reason
+        && !history.some((entry) => entry?.from === previous.from && entry?.to === previous.to && entry?.reason === previous.reason)) {
+        history.push({ from: previous.from, to: previous.to, reason: previous.reason });
+      }
+    }
     if (userDirectedRotation && from && from !== historyFrom && !history.some((entry) => entry?.from === from && entry?.to === historyFrom && entry?.reason === continuityReason)) {
       history.push({ from, to: historyFrom, reason: continuityReason });
     }

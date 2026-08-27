@@ -20,6 +20,7 @@ const theme = fs.readFileSync(path.join(here, "theme.js"), "utf8");
 const firebaseConfig = fs.readFileSync(path.join(here, "firebase-config.js"), "utf8");
 const firestoreRules = fs.readFileSync(path.join(here, "firestore.rules"), "utf8");
 const privateContentSeed = fs.readFileSync(path.join(here, "seed_private_content.js"), "utf8");
+const poetryReminderCliSync = fs.readFileSync(path.join(here, "sync_poetry_reminders_cli_rest_20260827.mjs"), "utf8");
 const internalProjectSeed = fs.readFileSync(path.join(here, "seed_internal_project_states.js"), "utf8");
 const adminSync = fs.readFileSync(path.join(here, "admin_sync.js"), "utf8");
 const meetingBriefBuilder = fs.readFileSync(path.join(root, "tools", "build_poetry_meeting_brief.py"), "utf8");
@@ -114,23 +115,29 @@ for (const cursor = new Date("2026-07-13T12:00:00Z"); cursor <= new Date("2026-0
 }
 const cadenceWeeks = [
   ["2026-08-17", "2026-08-18", "2026-08-20", "2026-08-21", "2026-08-23"],
-  ["2026-08-24", "2026-08-26", "2026-08-27", "2026-08-28", "2026-08-29"],
+  ["2026-08-24", "2026-08-26", "2026-08-27", "2026-08-28", "2026-08-29", "2026-08-30"],
   ["2026-09-01", "2026-09-02", "2026-09-04", "2026-09-05", "2026-09-06"],
   ["2026-09-07", "2026-09-08", "2026-09-10", "2026-09-12", "2026-09-13"],
   ["2026-09-14", "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-20"],
   ["2026-09-22", "2026-09-23", "2026-09-25", "2026-09-26", "2026-09-27"]
 ];
-const expectedContinuityDates = [...protectedHistoricalDates, ...cadenceWeeks.flat(), "2026-09-29", "2026-09-30"];
+const eventReminderWeek = cadenceWeeks[1];
+const regularCadenceWeeks = cadenceWeeks.filter((_, index) => index !== 1);
+const expectedContinuityDates = [...protectedHistoricalDates, ...cadenceWeeks.flat(), "2026-09-28", "2026-09-29", "2026-09-30"];
 const activePostsByDate = Object.groupBy(activePosts, (post) => post.dateIso);
 assert.deepEqual(Object.keys(activePostsByDate).sort(), expectedContinuityDates,
-  "Le calendrier actif doit préserver l’historique quotidien puis suivre exactement les créneaux fixés de cinq publications par semaine.");
+  "Le calendrier actif doit préserver l’historique quotidien, la cadence régulière et les deux rappels demandés pour Au bord du bleu.");
 assert.ok(Object.values(activePostsByDate).every((items) => items.length === 1),
   "Chaque créneau actif doit afficher exactement une publication.");
-assert.ok(cadenceWeeks.every((week) => week.length === CADENCE_5_POLICY.postsPerCompleteWeek && week.every((date) => activePostsByDate[date]?.length === 1)),
-  "Chaque semaine complète à compter du 17 août doit contenir exactement cinq publications.");
-assert.equal(activePosts.length, 67, "Le calendrier doit conserver 35 publications historiques, 30 publications sur six semaines complètes et deux publications préparées en banque.");
+assert.ok(regularCadenceWeeks.every((week) => week.length === CADENCE_5_POLICY.postsPerCompleteWeek && week.every((date) => activePostsByDate[date]?.length === 1)),
+  "Chaque semaine régulière à compter du 17 août doit contenir exactement cinq publications.");
+assert.equal(eventReminderWeek.length, 6, "La semaine d’Au bord du bleu doit comporter un unique rappel supplémentaire le dimanche de l’événement.");
+assert.ok(eventReminderWeek.every((date) => activePostsByDate[date]?.length === 1), "Les six créneaux de la semaine événementielle doivent rester uniques.");
+assert.equal(activePosts.length, 69, "Le calendrier doit conserver 35 publications historiques, 31 publications sur la période de cadence et trois publications préparées en banque.");
 const continuityPostIds = [
   "poesie-20260821-invitation-public",
+  "poesie-20260829-rappel-demain",
+  "poesie-20260830-rappel-aujourdhui",
   "don-20260909-appel-soutien",
   "nature-20260910-feuille-surface",
   "don-20260911-merci-bilan",
@@ -239,6 +246,26 @@ const poetryInvitationMedia = editorialMedia.find((item) => item.id === "editori
 assert.equal(poetryInvitationMedia?.eventId, poetryInvitation?.id);
 assert.match(poetryInvitationMedia?.fileName || "", /v8-evenement-bilingue\.png$/);
 assert.equal(poetryInvitationMedia?.stage, "proposal");
+const poetryTomorrow = activePosts.find((post) => post.id === "poesie-20260829-rappel-demain");
+const poetryToday = activePosts.find((post) => post.id === "poesie-20260830-rappel-aujourdhui");
+assert.equal(poetryTomorrow?.dateIso, "2026-08-29");
+assert.equal(poetryToday?.dateIso, "2026-08-30");
+assert.match(poetryTomorrow?.copy || "", /c’est demain!/i);
+assert.match(poetryToday?.copy || "", /c’est aujourd’hui!/i);
+for (const reminder of [poetryTomorrow, poetryToday]) {
+  assert.match(reminder?.copy || "", /Parc Lôbadanaki/);
+  assert.match(reminder?.copy || "", /Entrée libre/);
+  assert.doesNotMatch(reminder?.copy || "", /13 h 40|13 h 42|1:40 p\.m\.|1:42 p\.m\.|repli|church/i);
+}
+for (const [eventId, mediaId] of [
+  ["poesie-20260829-rappel-demain", "editorial-poesie-20260829-rappel-demain-v8"],
+  ["poesie-20260830-rappel-aujourdhui", "editorial-poesie-20260830-rappel-aujourdhui-v8"]
+]) {
+  const reminderMedia = editorialMedia.find((item) => item.id === mediaId);
+  assert.equal(reminderMedia?.eventId, eventId);
+  assert.equal(reminderMedia?.reuseMediaId, "editorial-poesie-20260821-invitation-v8");
+  assert.equal(reminderMedia?.publicationBlocked, false);
+}
 const previousFridayThanksMedia = editorialMedia.find((item) => item.id === "editorial-don-20260909-souvenir-v1");
 assert.equal(previousFridayThanksMedia?.stage, "reference", "L’ancienne base du point soutien doit rester conservée comme référence.");
 assert.equal(previousFridayThanksMedia?.publicationBlocked, true, "L’ancienne référence ne doit pas être sélectionnable.");
@@ -279,8 +306,8 @@ assert.ok(volunteer.tasksAnnie.some((task) => /coordonn/i.test(task)));
 assert.ok(volunteer.tasksAnnie.some((task) => /consentement/i.test(task)));
 assert.equal(firstTuesday.choiceRequired, false, "La proposition retenue du mardi est verrouillée et ne demande plus d’arbitrage.");
 assert.equal(firstTuesday.optionGroup, null, "Une proposition verrouillée ne doit plus appartenir à un groupe de choix actif.");
-assert.equal(posts.filter((post) => !post.isAlternative).length, 43);
-assert.equal(posts.length, 74);
+assert.equal(posts.filter((post) => !post.isAlternative).length, 45);
+assert.equal(posts.length, 76);
 const radioCanadaArticle = posts.find((post) => post.id === "actualite-20260804-article-radio-canada-moules-zebrees");
 assert.ok(radioCanadaArticle, "Le nouvel article écrit de Radio-Canada doit devenir une publication distincte.");
 assert.equal(radioCanadaArticle.dateIso, "2026-08-09");
@@ -561,9 +588,11 @@ assert.equal(deferredMemories.date, "Dimanche 6 septembre", "La capsule souvenir
 assert.equal(deferredShoreLife.date, "Dimanche 13 septembre", "La biodiversité sous les feuilles doit rester conservée au créneau libéré par le rappel de lavage.");
 const seasonalEssentials = posts.find((post) => post.id === "alt-20260714");
 const displacedLoon = posts.find((post) => post.id === "alt-20260721");
-assert.equal(seasonalEssentials.dateIso, "2026-08-29",
-  "La capsule pratique demandée par la direction doit être avancée à la fin août.");
-assert.match(seasonalEssentials.rescheduledReason, /direction du 24 août 2026.*fin août/i);
+assert.equal(seasonalEssentials.dateIso, "2026-09-28",
+  "La capsule pratique du samedi doit être conservée au prochain créneau libre sans collision.");
+assert.match(seasonalEssentials.rescheduledReason, /réserver le samedi 29 août au rappel Au bord du bleu/i);
+assert.ok(seasonalEssentials.rescheduleHistory.some((entry) => entry.from === "2026-09-14" && entry.to === "2026-08-29"),
+  "Le déplacement antérieur demandé par la direction doit rester dans l’historique.");
 assert.equal(displacedLoon.dateIso, "2026-09-14",
   "La capsule sur le huard doit rester conservée au créneau libéré par l’avancement saisonnier.");
 const frogSeries = posts.find((post) => post.id === "alt-20260802");
@@ -1295,6 +1324,14 @@ assert.match(privateContentSeed, /--ids=/,
   "La synchronisation du calendrier doit accepter une liste d’identifiants ciblée pour limiter les lectures Firestore.");
 assert.match(privateContentSeed, /selectedPosts/,
   "La synchronisation ciblée doit limiter les documents de calendrier lus et écrits.");
+assert.match(poetryReminderCliSync, /writes\.length > 30/,
+  "La synchronisation REST des rappels doit conserver un plafond d’écritures explicite.");
+assert.match(poetryReminderCliSync, /currentDocument: existing\?\.exists \? \{ updateTime: existing\.updateTime \} : \{ exists: false \}/,
+  "Chaque écriture REST doit refuser d’écraser un document modifié depuis le dry-run.");
+assert.match(poetryReminderCliSync, /completedOrPublishedMoved: false/,
+  "La synchronisation REST ne doit jamais déplacer une publication programmée ou diffusée.");
+assert.match(poetryReminderCliSync, /directionDecisionInvented: false/,
+  "La synchronisation REST ne doit pas inventer une décision de la direction.");
 const mainPostCount = posts.filter((post) => !post.isAlternative).length;
 const postsPerDay = activePosts.reduce((counts, post) => counts.set(post.dateIso, (counts.get(post.dateIso) || 0) + 1), new Map());
 const pairedDayCount = [...postsPerDay.values()].filter((count) => count > 1).length;
