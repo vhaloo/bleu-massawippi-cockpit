@@ -20,6 +20,7 @@ const theme = fs.readFileSync(path.join(here, "theme.js"), "utf8");
 const firebaseConfig = fs.readFileSync(path.join(here, "firebase-config.js"), "utf8");
 const firestoreRules = fs.readFileSync(path.join(here, "firestore.rules"), "utf8");
 const privateContentSeed = fs.readFileSync(path.join(here, "seed_private_content.js"), "utf8");
+const poetryReminderCliSync = fs.readFileSync(path.join(here, "sync_poetry_reminders_cli_rest_20260827.mjs"), "utf8");
 const internalProjectSeed = fs.readFileSync(path.join(here, "seed_internal_project_states.js"), "utf8");
 const adminSync = fs.readFileSync(path.join(here, "admin_sync.js"), "utf8");
 const meetingBriefBuilder = fs.readFileSync(path.join(root, "tools", "build_poetry_meeting_brief.py"), "utf8");
@@ -1323,6 +1324,14 @@ assert.match(privateContentSeed, /--ids=/,
   "La synchronisation du calendrier doit accepter une liste d’identifiants ciblée pour limiter les lectures Firestore.");
 assert.match(privateContentSeed, /selectedPosts/,
   "La synchronisation ciblée doit limiter les documents de calendrier lus et écrits.");
+assert.match(poetryReminderCliSync, /writes\.length > 30/,
+  "La synchronisation REST des rappels doit conserver un plafond d’écritures explicite.");
+assert.match(poetryReminderCliSync, /currentDocument: existing\?\.exists \? \{ updateTime: existing\.updateTime \} : \{ exists: false \}/,
+  "Chaque écriture REST doit refuser d’écraser un document modifié depuis le dry-run.");
+assert.match(poetryReminderCliSync, /completedOrPublishedMoved: false/,
+  "La synchronisation REST ne doit jamais déplacer une publication programmée ou diffusée.");
+assert.match(poetryReminderCliSync, /directionDecisionInvented: false/,
+  "La synchronisation REST ne doit pas inventer une décision de la direction.");
 const mainPostCount = posts.filter((post) => !post.isAlternative).length;
 const postsPerDay = activePosts.reduce((counts, post) => counts.set(post.dateIso, (counts.get(post.dateIso) || 0) + 1), new Map());
 const pairedDayCount = [...postsPerDay.values()].filter((count) => count > 1).length;
