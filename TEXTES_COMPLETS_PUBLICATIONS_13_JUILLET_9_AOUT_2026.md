@@ -1739,33 +1739,88 @@ Would you like to add your support? Membership or donation: https://www.zeffy.co
 #BleuMassawippi #LakeMassawippi #SupportTheLake
 ```
 
-## Samedi 29 août — Votre essentiel avant de partir
+## Samedi 29 août — Au bord du bleu, c’est demain!
 
-**Thème :** Interaction
-**Format :** Question illustrée
-**Objectif :** Bonne idée conservée et reprogrammée à la suite de l’arbitrage du 13 juillet; faire émerger les habitudes utiles de la communauté sans répéter une checklist réglementaire.
-**CTA :** Partager votre essentiel
-**Visuel final :** Nature morte vivante près du quai : VFI, gourde, chapeau et petit sac réutilisable, avec une main qui ajoute son propre essentiel. Garder un espace clair pour la question « Et vous, qu’apportez-vous? ».
+**Thème :** Événement
+**Format :** Affiche bilingue événementielle V8 · rappel de la veille
+**Objectif :** Rappeler chaleureusement la tenue d’Au bord du bleu le lendemain, avec les informations publiques confirmées et sans rouvrir l’appel aux voix.
+**CTA :** Venir nous rejoindre demain au bord du lac
+**Visuel final :** Réutiliser exclusivement l’affiche événementielle bilingue V8 confirmée pour Au bord du bleu; aucun appel aux candidatures.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
-**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+**Source de référence :** Projet interne Au bord du bleu : événement public confirmé le dimanche 30 août 2026, de 13 h à 16 h, au parc Lôbadanaki à North Hatley; affiche bilingue V8 déjà utilisée pour l’invitation publique.
+**Préparation :** Relire les informations pratiques, vérifier l’aperçu mobile de l’affiche V8 et publier manuellement le 29 août après validation; ne pas marquer terminé avant la diffusion réelle.
 
 ### Légende prête à programmer
 
 ```text
-FR — Avant une sortie sur le Massawippi, il y a toujours un petit geste ou un essentiel qui fait toute la différence. Quel objet ou quelle habitude vous accompagne toujours : un vêtement de flottaison bien ajusté, une gourde, un sac pour ramasser nos déchets… ou autre chose?
+FR — 🌊 Au bord du bleu, c’est demain!
 
-Partagez votre essentiel en commentaire. Votre idée pourrait rendre la prochaine sortie de quelqu’un encore plus agréable.
+Ce dimanche 30 août, poésie, prose et slam se rencontrent au bord du lac Massawippi. Venez écouter les voix réunies pour l’occasion et partager un après-midi simple, libre et chaleureux au parc Lôbadanaki.
 
-#BleuMassawippi #LacMassawippi #PlaisirSurLeau #Communauté
+Le public est accueilli de 13 h à 16 h et l’entrée est libre. Si vous le souhaitez, apportez une chaise ou une couverture pour vous installer dans l’herbe. Venez nombreux!
+
+📍 Parc Lôbadanaki, North Hatley
+📅 Dimanche 30 août 2026
+🕐 13 h à 16 h
+🎟 Entrée libre
+
+#AuBordDuBleu #BleuMassawippi #Poésie #LacMassawippi
 
 =========================================
 
-EN — Before an outing on Massawippi, one small action or essential item can make all the difference. What item or routine always comes with you: a properly fitted PFD, a water bottle, a bag for collecting our waste—or something else?
+EN — 🌊 Au bord du bleu is tomorrow!
 
-Share your essential in the comments. Your idea might make someone else’s next outing even better.
+This Sunday, August 30, poetry, prose and spoken word will meet by Lake Massawippi. Come hear the voices gathered for the occasion and share a simple, welcoming afternoon at parc Lôbadanaki.
 
-#BleuMassawippi #LakeMassawippi #EnjoyTheLake #Community
+The public is welcome from 1 to 4 p.m. and admission is free. Bring a chair or blanket if you would like to settle on the grass. We hope to see you there!
+
+📍 Parc Lôbadanaki, North Hatley
+📅 Sunday, August 30, 2026
+🕐 1–4 p.m.
+🎟 Free admission
+
+#AuBordDuBleu #BleuMassawippi #Poetry #LakeMassawippi
+```
+
+## Dimanche 30 août — Au bord du bleu, c’est aujourd’hui!
+
+**Thème :** Événement
+**Format :** Affiche bilingue événementielle V8 · rappel du jour
+**Objectif :** Inviter une dernière fois le public à rejoindre Au bord du bleu le jour même, avec un message immédiat, pratique et accueillant.
+**CTA :** Nous rejoindre aujourd’hui au parc Lôbadanaki
+**Visuel final :** Réutiliser exclusivement l’affiche événementielle bilingue V8 confirmée pour Au bord du bleu; aucun appel aux candidatures.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Projet interne Au bord du bleu : événement public confirmé le dimanche 30 août 2026, de 13 h à 16 h, au parc Lôbadanaki à North Hatley; affiche bilingue V8 déjà utilisée pour l’invitation publique.
+**Préparation :** Relire les informations pratiques, vérifier l’aperçu mobile de l’affiche V8 et publier manuellement le 30 août après validation; ne pas marquer terminé avant la diffusion réelle.
+
+### Légende prête à programmer
+
+```text
+FR — 🌊 Au bord du bleu, c’est aujourd’hui!
+
+On vous accueille cet après-midi au parc Lôbadanaki pour faire entendre poésie, prose et slam au bord du lac Massawippi.
+
+Venez quand vous le souhaitez entre 13 h et 16 h pour écouter les voix réunies pour l’occasion, découvrir des textes d’ici et d’ailleurs et partager un moment chaleureux au bord de l’eau. L’entrée est libre. Une chaise ou une couverture peut être pratique pour vous installer dans l’herbe.
+
+📍 Parc Lôbadanaki, North Hatley
+🕐 Aujourd’hui, de 13 h à 16 h
+🎟 Entrée libre
+
+#AuBordDuBleu #BleuMassawippi #Poésie #LacMassawippi
+
+=========================================
+
+EN — 🌊 Au bord du bleu is today!
+
+Join us this afternoon at parc Lôbadanaki for poetry, prose and spoken word by Lake Massawippi.
+
+Come anytime between 1 and 4 p.m. to hear the voices gathered for the occasion, discover writing from near and far, and share a warm moment by the water. Admission is free. A chair or blanket may be useful if you would like to sit on the grass.
+
+📍 Parc Lôbadanaki, North Hatley
+🕐 Today, 1–4 p.m.
+🎟 Free admission
+
+#AuBordDuBleu #BleuMassawippi #Poetry #LakeMassawippi
 ```
 
 ## Mardi 1er septembre — Le bassin versant relie le paysage
@@ -2434,6 +2489,35 @@ In the field, every observation, sample and measurement adds a data point. Repea
 Thank you to everyone who makes this patient work possible, season after season.
 
 #BleuMassawippi #LakeMassawippi #LakeScience #BehindTheScenes
+```
+
+## Lundi 28 septembre — Votre essentiel avant de partir
+
+**Thème :** Interaction
+**Format :** Question illustrée
+**Objectif :** Bonne idée conservée et reprogrammée à la suite de l’arbitrage du 13 juillet; faire émerger les habitudes utiles de la communauté sans répéter une checklist réglementaire.
+**CTA :** Partager votre essentiel
+**Visuel final :** Nature morte vivante près du quai : VFI, gourde, chapeau et petit sac réutilisable, avec une main qui ajoute son propre essentiel. Garder un espace clair pour la question « Et vous, qu’apportez-vous? ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
+**Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
+
+### Légende prête à programmer
+
+```text
+FR — Avant une sortie sur le Massawippi, il y a toujours un petit geste ou un essentiel qui fait toute la différence. Quel objet ou quelle habitude vous accompagne toujours : un vêtement de flottaison bien ajusté, une gourde, un sac pour ramasser nos déchets… ou autre chose?
+
+Partagez votre essentiel en commentaire. Votre idée pourrait rendre la prochaine sortie de quelqu’un encore plus agréable.
+
+#BleuMassawippi #LacMassawippi #PlaisirSurLeau #Communauté
+
+=========================================
+
+EN — Before an outing on Massawippi, one small action or essential item can make all the difference. What item or routine always comes with you: a properly fitted PFD, a water bottle, a bag for collecting our waste—or something else?
+
+Share your essential in the comments. Your idea might make someone else’s next outing even better.
+
+#BleuMassawippi #LakeMassawippi #EnjoyTheLake #Community
 ```
 
 ## Mardi 29 septembre — Le soir change notre regard
