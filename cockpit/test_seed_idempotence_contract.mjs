@@ -85,9 +85,9 @@ assert.match(read("seed_content_notices.js"), /if \(existing\.exists\)[\s\S]*pre
 assert.match(read("seed_content_notices.js"), /Une version vue ne doit jamais être rouverte/);
 const contentNotices = JSON.parse(read("content_notices.json"));
 assert.equal(contentNotices.schemaVersion, 1);
-assert.equal(contentNotices.notices.length, 22);
+assert.equal(contentNotices.notices.length, 23);
 assert.ok(contentNotices.notices.every((item) => item.audienceRole === "director" && item.assigneeEmail === "dg@bleumassawippi.com"));
-for (const id of ["strategic-zeffy-recurring-gifts-v1", "internal-application-funding-nonmunicipal-v1", "internal-poetry-progress-v2", "internal-poetry-progress-v3", "internal-youth-drawing-toolkit-v1", "strategic-guide-pratiques-aquatiques-2026-v1", "internal-lamproie-report-requested-v1", "internal-poetry-progress-20260810-v1", "internal-rain-garden-v7-20260811-v1", "internal-application-working-layout-20260811-v1", "internal-poetry-operations-20260811-v1", "internal-poetry-guide-terrain-20260824-v1", "internal-poetry-guide-terrain-20260828-v1", "internal-holiday-card-20260824-v1", "funding-partnership-register-20260824-v1"]) {
+for (const id of ["strategic-zeffy-recurring-gifts-v1", "internal-application-funding-nonmunicipal-v1", "internal-poetry-progress-v2", "internal-poetry-progress-v3", "internal-youth-drawing-toolkit-v1", "strategic-guide-pratiques-aquatiques-2026-v1", "internal-lamproie-report-requested-v1", "internal-poetry-progress-20260810-v1", "internal-rain-garden-v7-20260811-v1", "internal-application-working-layout-20260811-v1", "internal-poetry-operations-20260811-v1", "internal-poetry-guide-terrain-20260824-v1", "internal-poetry-guide-terrain-20260828-v1", "internal-poetry-guide-terrain-20260828-start1320-v1", "internal-holiday-card-20260824-v1", "funding-partnership-register-20260824-v1"]) {
   assert.ok(contentNotices.notices.some((item) => item.id === id), `La nouveauté ${id} doit être versionnée dans le manifeste.`);
 }
 

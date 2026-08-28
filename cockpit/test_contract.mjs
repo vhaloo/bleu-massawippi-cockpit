@@ -1095,7 +1095,7 @@ assert.match(poetryProject, /aucune visibilité ne donne un droit de regard sur 
 assert.match(poetryProject, /ADDENDUM_VISUEL_PARTENAIRES_AU_BORD_DU_BLEU_V5\.md/);
 assert.match(poetryProject, /data-initial-stage="active" open/,
   "La fiche poésie en préparation avancée doit rester ouverte afin de rendre l’affiche immédiatement visible.");
-assert.match(poetryProject, /30 AOÛT · ACCUEIL 13 H · PROGRAMME 13 H 40 · FIN 16 H/);
+assert.match(poetryProject, /30 AOÛT · ACCUEIL 13 H · PROGRAMME 13 H 20 · PREMIÈRE LECTURE 13 H 27 · FIN 16 H/);
 assert.match(poetryProject, /Quatorze personnes uniques recensées; treize contributions actives au décompte public/i);
 assert.match(poetryProject, /Douze personnes contributrices sont prévues sur place; la treizième contribution est le texte final de Heather, lu par Valentin en son absence/i);
 assert.match(poetryProject, /Mélissa, la chanteuse, est déjà comprise dans ces douze/i);
@@ -1104,7 +1104,7 @@ assert.match(poetryProject, /treize : douze artistes sur place plus Denis/i);
 assert.match(poetryProject, /Karrie Parent reprend <em>La femme phoque<\/em> à effectif constant/i);
 assert.match(poetryProject, /il n’y aura pas de micro ouvert ni d’inscription spontanée sur place/i);
 assert.match(poetryProject, /poesie-rencontre-north-hatley-2026-08-10/);
-assert.match(poetryProject, /utiliser le guide terrain du 28 août comme référence maîtresse et fermer les derniers éléments encore ouverts/i,
+assert.match(poetryProject, /utiliser la révision horaire du guide terrain du 28 août comme référence maîtresse et fermer les derniers éléments encore ouverts/i,
   "La prochaine action doit mener à la fermeture des responsabilités opérationnelles.");
 assert.match(poetryProject, /aucun lieu de repli n’est confirmé/i,
   "La fiche interne doit rendre explicite l’absence de plan météo confirmé.");
@@ -1145,7 +1145,9 @@ assert.match(poetryProject, /Quatorze personnes uniques recensées; treize contr
 assert.match(poetryProject, /Annick a retiré sa lecture et viendra comme spectatrice/);
 assert.match(poetryProject, /ne doit pas être réinséré sans nouvelle confirmation explicite/);
 assert.match(poetryProject, /Aucune prise de parole n’est attribuée à Annie sans son accord/);
-assert.match(poetryProject, /13 h 40/);
+assert.match(poetryProject, /l’accueil bilingue à 13 h 20 et la première lecture à 13 h 27, au plus tard à 13 h 30/i);
+assert.match(poetryProject, /Le passage de Myriam reste à 14 h 05/i);
+assert.match(poetryProject, /Le programme formel se termine à 15 h 25/i);
 assert.doesNotMatch(poetryProject, /13 h 42/);
 assert.match(poetryProject, /Au_bord_du_bleu_checklist_operationnelle_2026-08-17\.md/);
 assert.match(poetryProject, /Dispositif confirmé : un microphone et un haut-parleur adaptés à l’événement/);
@@ -1158,6 +1160,8 @@ assert.match(poetryProject, /AU_BORD_DU_BLEU_GUIDE_TERRAIN_2026-08-28\.pdf/);
 assert.match(poetryProject, /AU_BORD_DU_BLEU_CONDUCTEUR_INTERNE_2026-08-28\.md/);
 assert.match(poetryProject, /AU_BORD_DU_BLEU_REGISTRE_CANONIQUE_2026-08-28\.md/);
 assert.match(poetryProject, /AU_BORD_DU_BLEU_RECONCILIATION_COURRIELS_2026-08-28\.md/);
+assert.match(poetryProject, /Guide%20terrain%20final%20-%202026-08-28%20-%20r%C3%A9vision%2013%20h%2020/,
+  "Les documents courants doivent ouvrir la révision SharePoint qui commence à 13 h 20.");
 assert.match(poetryProject, /PLAN_IMPLANTATION_SCHEMATIQUE_2026-08-24\.svg/);
 assert.match(poetryProject, /alimentation autonome sur batterie est le plan de base/i);
 assert.match(poetryProject, /toilette sèche située près de la station de lavage/i);

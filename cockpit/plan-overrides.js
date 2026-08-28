@@ -347,7 +347,7 @@ const CONTINUITY_POSTS = [
     cta: "Venir écouter au bord du lac",
     visual: "Dernière affiche événementielle bilingue Au bord du bleu, version V8, déjà conservée dans l’encart interne du projet; aucun appel aux candidatures.",
     source: "Registre canonique interne Au bord du bleu du 20 août 2026 : 15 réponses Forms, 14 personnes uniques, 13 contributions actives, dont 12 personnes sur place et le texte d’une poète absente lu sur place. Affiche V8 du projet interne.",
-    fallback: "Utiliser exclusivement l’affiche événementielle V8 courante; ne pas réutiliser l’affiche V7 de recrutement et ne pas annoncer l’heure interne de 13 h 40.",
+    fallback: "Utiliser exclusivement l’affiche événementielle V8 courante; ne pas réutiliser l’affiche V7 de recrutement et ne pas annoncer le déroulé interne de 13 h 20 dans la publication publique.",
     kpi: "Portée locale / partages / réponses d’intention / présence du public",
     task: "Relire la légende et l’affiche V8, puis publier manuellement le 21 août seulement après la vérification finale; aucune programmation automatique.",
     copy: `FR — 🌊 Au bord du bleu approche!
