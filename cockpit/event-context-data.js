@@ -1,4 +1,4 @@
-import { subscribeCommentsForSection, subscribeMediaLinksForEvent } from "./firebase-client.js?v=20260824-b67";
+import { subscribeCommentsForSection, subscribeMediaLinksForEvent } from "./firebase-client.js?v=20260828-b68";
 
 const validId = (value) => /^[A-Za-z0-9_-]{3,160}$/.test(String(value || ""));
 

@@ -41,7 +41,7 @@ export function sortInternalProjectsByUrgency(root = document) {
     const detail = spotlight.querySelector("small");
     if (marker) marker.textContent = "30/08";
     if (title) title.textContent = "Au bord du bleu";
-    if (detail) detail.textContent = "Accueil 13 h · programme dès 13 h 40";
+    if (detail) detail.textContent = "Accueil 13 h · programme 13 h 20 · première lecture 13 h 27";
   }
   return cards.map((card) => card.dataset.internalProjectId);
 }

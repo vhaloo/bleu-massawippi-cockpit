@@ -7,6 +7,7 @@ const client = fs.readFileSync(new URL("./firebase-client.js", import.meta.url),
 const rules = fs.readFileSync(new URL("./firestore.rules", import.meta.url), "utf8");
 const sync = fs.readFileSync(new URL("./admin_sync.js", import.meta.url), "utf8");
 const seed = fs.readFileSync(new URL("./project_calendar_events.json", import.meta.url), "utf8");
+const restSync = fs.readFileSync(new URL("../tools/sync-project-calendar-event-rest.mjs", import.meta.url), "utf8");
 const seedData = JSON.parse(seed);
 
 assert.match(ui, /Calendrier des projets et échéances/);
@@ -42,6 +43,13 @@ assert.match(rules, /allow delete: if false;/);
 
 assert.match(sync, /projectEventProposals/);
 assert.match(sync, /projectCalendarEvents/);
+assert.match(restSync, /const APPLY = process\.argv\.includes\("--apply"\)/,
+  "La reprise REST doit rester en simulation par défaut.");
+assert.match(restSync, /currentDocument: \{ updateTime: currentResult\.body\.updateTime \}/,
+  "La reprise REST doit refuser d’écraser un événement modifié après sa lecture.");
+assert.match(restSync, /changeArchive/);
+assert.match(restSync, /currentDocument: \{ exists: false \}/,
+  "L’archive transactionnelle ne doit jamais remplacer une preuve existante.");
 assert.match(seed, /2026-08-30/);
 assert.match(seed, /2026-08-03/);
 const holidayCard = seedData.events.find((event) => event.id === "carte-fetes-2026-preparation");
