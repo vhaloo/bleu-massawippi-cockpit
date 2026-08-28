@@ -112,6 +112,17 @@
       "message": "La mission officielle transmise par la direction est maintenant reprise mot pour mot dans la stratégie du cockpit."
     },
     {
+      "id": "internal-poetry-guide-terrain-20260828-v1",
+      "audienceRole": "director",
+      "assigneeEmail": "dg@bleumassawippi.com",
+      "sourceType": "internalProject",
+      "sourceId": "poesie-du-lac",
+      "publishedOn": "2026-08-28",
+      "priorityKey": 6,
+      "title": "Mise à jour — Guide terrain réconcilié Au bord du bleu",
+      "message": "La version du 28 août réunit les souhaits reçus par courriel, le remplacement opérationnel de Petronella par Karrie, les douze artistes sur place dont Mélissa, Denis hors décompte et les treize paniers à préparer. Les derniers éléments non confirmés restent signalés."
+    },
+    {
       "id": "internal-poetry-guide-terrain-20260824-v1",
       "audienceRole": "director",
       "assigneeEmail": "dg@bleumassawippi.com",
