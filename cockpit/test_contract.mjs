@@ -34,6 +34,7 @@ const historicalMedia = JSON.parse(fs.readFileSync(path.join(here, "historical_m
 const natureMedia = JSON.parse(fs.readFileSync(path.join(here, "nature_media_manifest.json"), "utf8"));
 const editorialMedia = JSON.parse(fs.readFileSync(path.join(here, "editorial_media_manifest.json"), "utf8"));
 const internalProjectDocuments = JSON.parse(fs.readFileSync(path.join(here, "internal_project_documents.json"), "utf8"));
+const projectCalendarEvents = JSON.parse(fs.readFileSync(path.join(here, "project_calendar_events.json"), "utf8"));
 const postsJson = source.match(/var posts=(\[[\s\S]*?\]);\s*var meta=/)?.[1];
 assert.ok(postsJson, "Le tableau des publications source doit rester lisible.");
 assert.match(aug5CarouselFixture, /Carrousel « Hier et aujourd’hui »/);
@@ -1054,12 +1055,12 @@ assert.match(poetryProject, /dimanche 30 août/i);
 assert.match(poetryProject, /13 h à 16 h/i);
 assert.match(poetryProject, /programme public d’environ une à deux heures/i);
 assert.match(poetryProject, /Passages de 5 à 15 minutes/);
-assert.match(poetryProject, /partie engazonnée du parc Lôbadanaki/i);
+assert.match(poetryProject, /partie engazonnée du parc distincte/i);
 assert.match(poetryProject, /distincte de la bande riveraine fermée/i);
 assert.match(poetryProject, /Cible : 0 \$/);
 assert.match(poetryProject, /Plafond prudent : 250 \$ maximum/);
-assert.match(poetryProject, /Direction générale — environ 1 h 10 au total/);
-assert.match(poetryProject, /Communications — environ 8 à 12 h au total/);
+assert.match(poetryProject, /Direction générale — fermeture du matin/);
+assert.match(poetryProject, /Communications — conduite et accueil/);
 assert.match(poetryProject, /internal-project-poster-featured/);
 assert.match(poetryProject, /internal-project-poster-pair/,
   "Le projet doit présenter côte à côte l’affiche événementielle et l’appel aux voix archivé.");
@@ -1097,18 +1098,22 @@ assert.match(poetryProject, /data-initial-stage="active" open/,
   "La fiche poésie en préparation avancée doit rester ouverte afin de rendre l’affiche immédiatement visible.");
 assert.match(poetryProject, /30 AOÛT · ACCUEIL 13 H · PROGRAMME 13 H 20 · PREMIÈRE LECTURE 13 H 27 · FIN 16 H/);
 assert.match(poetryProject, /Quatorze personnes uniques recensées; treize contributions actives au décompte public/i);
-assert.match(poetryProject, /Douze personnes contributrices sont prévues sur place; la treizième contribution est le texte final de Heather, lu par Valentin en son absence/i);
+assert.match(poetryProject, /Douze artistes sont prévus sur place; la treizième contribution est le texte final de Heather, lu par Valentin en son absence/i);
 assert.match(poetryProject, /Mélissa, la chanteuse, est déjà comprise dans ces douze/i);
 assert.match(poetryProject, /Denis n’est pas compris dans les douze/i);
-assert.match(poetryProject, /treize : douze artistes sur place plus Denis/i);
-assert.match(poetryProject, /Karrie Parent reprend <em>La femme phoque<\/em> à effectif constant/i);
+assert.match(poetryProject, /douze sacs de collation : un pour chaque artiste sur place/i);
+assert.match(poetryProject, /Karrie Parent a confirmé directement le même soir qu’elle reprend <em>La femme phoque<\/em> à effectif constant/i);
 assert.match(poetryProject, /il n’y aura pas de micro ouvert ni d’inscription spontanée sur place/i);
 assert.match(poetryProject, /poesie-rencontre-north-hatley-2026-08-10/);
-assert.match(poetryProject, /utiliser la révision horaire du guide terrain du 28 août comme référence maîtresse et fermer les derniers éléments encore ouverts/i,
-  "La prochaine action doit mener à la fermeture des responsabilités opérationnelles.");
+assert.match(poetryProject, /appliquer la checklist de clôture du 29 août/i,
+  "La prochaine action doit utiliser la clôture opérationnelle la plus récente.");
+assert.match(poetryProject, /Karrie a confirmé directement le 28 août à 21 h 41/i,
+  "La confirmation directe de la remplaçante doit être reflétée sans ambiguïté.");
+assert.match(poetryProject, /Pour Douce, Florence et François, confirmer oralement présence, titre ou prononciation et durée sans inventer/i,
+  "Les trois absences de réponse individuelle doivent rester visibles comme pointage oral, pas comme désistement.");
 assert.match(poetryProject, /aucun lieu de repli n’est confirmé/i,
   "La fiche interne doit rendre explicite l’absence de plan météo confirmé.");
-assert.match(poetryProject, /Décision météo préliminaire à H−24, confirmation finale le matin même et message unique/,
+assert.match(poetryProject, /Décision météo entre 9 h 40 et 10 h, puis message unique/,
   "La fiche interne doit conserver une chaîne de décision météo explicite.");
 assert.doesNotMatch(poetryProject, /église de repli|repli à l’intérieur de l’église|repli retenu est l’intérieur de l’église/i,
   "La fiche interne ne doit plus présenter l’église comme lieu de repli confirmé.");
@@ -1121,11 +1126,11 @@ assert.doesNotMatch(poetryProject, /<details[^>]+id="poesie-rencontre-north-hatl
   "L’aide-mémoire ne doit plus occuper un long encart dans la fiche du projet.");
 assert.match(poetryProject, /Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10\.pdf/);
 assert.match(poetryProject, /Aide-mémoire — rencontre du 10 août/);
-assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 26,
-  "Les vingt-six ressources du projet poésie doivent être présentées sous forme de cartes homogènes.");
-assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 26,
+assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 27,
+  "Les vingt-sept ressources du projet poésie doivent être présentées sous forme de cartes homogènes.");
+assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 27,
   "Chaque carte documentaire doit annoncer clairement son type.");
-assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 25,
+assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 26,
   "Chaque ressource spécialisée doit proposer un bouton d’ouverture explicite.");
 assert.match(poetryProject, /TEXTE_PARTENAIRES_MUNICIPALITES_AU_BORD_DU_BLEU_2026-08-10\.md/,
   "Le texte de coordination avec les partenaires et municipalités doit être accessible depuis le projet poésie.");
@@ -1156,15 +1161,26 @@ assert.match(poetryProject, /Deux bénévoles au kiosque à partir de 13 h/);
 assert.match(poetryProject, /AU_BORD_DU_BLEU_GUIDE_TERRAIN_2026-08-24\.pdf/);
 assert.match(poetryProject, /AU_BORD_DU_BLEU_CONDUCTEUR_INTERNE_2026-08-24\.md/);
 assert.match(poetryProject, /AU_BORD_DU_BLEU_REGISTRE_CANONIQUE_2026-08-24\.md/);
-assert.match(poetryProject, /AU_BORD_DU_BLEU_GUIDE_TERRAIN_2026-08-28\.pdf/);
-assert.match(poetryProject, /AU_BORD_DU_BLEU_CONDUCTEUR_INTERNE_2026-08-28\.md/);
-assert.match(poetryProject, /AU_BORD_DU_BLEU_REGISTRE_CANONIQUE_2026-08-28\.md/);
-assert.match(poetryProject, /AU_BORD_DU_BLEU_RECONCILIATION_COURRIELS_2026-08-28\.md/);
-assert.match(poetryProject, /Guide%20terrain%20final%20-%202026-08-28%20-%20r%C3%A9vision%2013%20h%2020/,
-  "Les documents courants doivent ouvrir la révision SharePoint qui commence à 13 h 20.");
+assert.match(poetryProject, /AU_BORD_DU_BLEU_GUIDE_TERRAIN_2026-08-29\.pdf/);
+assert.match(poetryProject, /AU_BORD_DU_BLEU_CONDUCTEUR_INTERNE_2026-08-29\.md/);
+assert.match(poetryProject, /AU_BORD_DU_BLEU_REGISTRE_CANONIQUE_2026-08-29\.md/);
+assert.match(poetryProject, /AU_BORD_DU_BLEU_RECONCILIATION_COURRIELS_2026-08-29\.md/);
+assert.match(poetryProject, /AU_BORD_DU_BLEU_CHECKLIST_VEILLE_2026-08-29\.md/);
+assert.match(poetryProject, /Guide%20terrain%20final%20-%202026-08-29%20-%20cl%C3%B4ture%20veille/,
+  "Les documents courants doivent ouvrir la clôture SharePoint du 29 août.");
 assert.match(poetryProject, /PLAN_IMPLANTATION_SCHEMATIQUE_2026-08-24\.svg/);
 assert.match(poetryProject, /alimentation autonome sur batterie est le plan de base/i);
 assert.match(poetryProject, /toilette sèche située près de la station de lavage/i);
+assert.match(poetryProject, /160, rue Main, North Hatley \(Québec\) J0B 2C0/i);
+assert.match(poetryProject, /stationnement municipal gratuit en haut de la rue School/i);
+assert.match(poetryProject, /douze sacs de collation/i);
+assert.match(poetryProject, /ni robinet ni point d’eau potable au parc/i);
+const poetryCalendarEvent = projectCalendarEvents.events.find((event) => event.id === "au-bord-du-bleu-evenement-20260830");
+assert.ok(poetryCalendarEvent, "L’événement Au bord du bleu doit rester relié au calendrier des projets.");
+assert.equal(poetryCalendarEvent.location, "Parc Lôbadanaki, 160, rue Main, North Hatley (Québec) J0B 2C0");
+assert.match(poetryCalendarEvent.summary, /installation à partir de 11 h/i);
+assert.match(poetryCalendarEvent.summary, /douze sacs de collation/i);
+assert.match(poetryCalendarEvent.summary, /aucun lieu de repli n’est confirmé/i);
 assert.match(poetryProject, /IgAExHf2zrycTY-KL1qggcPMAXaRvpSpD6eY2vuzbHo68_E/,
   "Le projet poésie doit proposer le dépôt public en téléversement seulement, déjà testé sans connexion.");
 assert.doesNotMatch(poetryProject, /IgClI0cmRbRbT6ODUJPWldffAXESMwjOikVa3X9vvn69oSw/,
