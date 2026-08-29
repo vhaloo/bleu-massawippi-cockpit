@@ -1126,11 +1126,11 @@ assert.doesNotMatch(poetryProject, /<details[^>]+id="poesie-rencontre-north-hatl
   "L’aide-mémoire ne doit plus occuper un long encart dans la fiche du projet.");
 assert.match(poetryProject, /Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10\.pdf/);
 assert.match(poetryProject, /Aide-mémoire — rencontre du 10 août/);
-assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 27,
-  "Les vingt-sept ressources du projet poésie doivent être présentées sous forme de cartes homogènes.");
-assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 27,
+assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 28,
+  "Les vingt-huit ressources du projet poésie doivent être présentées sous forme de cartes homogènes.");
+assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 28,
   "Chaque carte documentaire doit annoncer clairement son type.");
-assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 26,
+assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 27,
   "Chaque ressource spécialisée doit proposer un bouton d’ouverture explicite.");
 assert.match(poetryProject, /TEXTE_PARTENAIRES_MUNICIPALITES_AU_BORD_DU_BLEU_2026-08-10\.md/,
   "Le texte de coordination avec les partenaires et municipalités doit être accessible depuis le projet poésie.");
@@ -1166,6 +1166,13 @@ assert.match(poetryProject, /AU_BORD_DU_BLEU_CONDUCTEUR_INTERNE_2026-08-29\.md/)
 assert.match(poetryProject, /AU_BORD_DU_BLEU_REGISTRE_CANONIQUE_2026-08-29\.md/);
 assert.match(poetryProject, /AU_BORD_DU_BLEU_RECONCILIATION_COURRIELS_2026-08-29\.md/);
 assert.match(poetryProject, /AU_BORD_DU_BLEU_CHECKLIST_VEILLE_2026-08-29\.md/);
+assert.match(poetryProject, /SOURCES_PRESENTATIONS_ARTISTES_2026-08-29\.md/,
+  "La note de sources des présentations enrichies doit rester accessible depuis le projet.");
+assert.match(poetryProject, /guide terrain PDF de 21 pages/i);
+assert.match(poetryProject, /accueil français-anglais est désormais intégralement paritaire/i);
+assert.match(poetryProject, /transitions-présentations unifiées/i);
+assert.doesNotMatch(poetryProject, /PDF de 20 pages/i);
+assert.doesNotMatch(poetryProject, /treize paniers/i);
 assert.match(poetryProject, /Guide%20terrain%20final%20-%202026-08-29%20-%20cl%C3%B4ture%20veille/,
   "Les documents courants doivent ouvrir la clôture SharePoint du 29 août.");
 assert.match(poetryProject, /PLAN_IMPLANTATION_SCHEMATIQUE_2026-08-24\.svg/);
