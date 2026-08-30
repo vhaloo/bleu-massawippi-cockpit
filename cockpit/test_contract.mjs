@@ -1063,23 +1063,20 @@ assert.match(poetryProject, /Direction générale — fermeture du matin/);
 assert.match(poetryProject, /Communications — conduite et accueil/);
 assert.match(poetryProject, /internal-project-poster-featured/);
 assert.match(poetryProject, /internal-project-poster-pair/,
-  "Le projet doit présenter côte à côte l’affiche événementielle et l’appel aux voix archivé.");
-assert.equal((poetryProject.match(/class="internal-project-poster internal-project-poster-featured"/g) || []).length, 2,
-  "Le projet doit présenter exactement deux affiches clairement distinguées.");
+  "Le projet doit conserver une zone d’affiche finale clairement identifiable.");
+assert.equal((poetryProject.match(/class="internal-project-poster internal-project-poster-featured"/g) || []).length, 1,
+  "Le projet doit exposer exactement une affiche finale, sans afficher les versions archivées.");
 assert.match(source, /\.internal-project-poster-featured \{ grid-template-columns:minmax\(260px,440px\) minmax\(0,1fr\)/,
   "Les affiches doivent conserver une présentation lisible sur ordinateur.");
 assert.match(source, /\.internal-project-poster-pair \{ display:grid; grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/,
   "Les deux affiches doivent être disposées côte à côte lorsque l’espace le permet.");
 assert.match(source, /internal-project-poster-pair\{grid-template-columns:1fr\}/,
   "Les affiches doivent s’empiler sur mobile.");
-assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v7-bilingue-apercu\.webp/);
-assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v7-bilingue\.png/);
-assert.match(poetryProject, /V7 — appel aux voix archivé/);
+assert.doesNotMatch(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v7-bilingue(?:-apercu\.webp|\.png)|appel aux voix archivé/,
+  "L’affiche de recrutement V7 doit rester archivée dans les fichiers sans être exposée dans la fiche active.");
 assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v8-evenement-bilingue-apercu\.webp/);
 assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v8-evenement-bilingue\.png/);
-assert.match(poetryProject, /V8 — affiche de l’événement/);
-assert.match(poetryProject, /v7-bilingue-apercu\.webp[^>]+loading="lazy"/,
-  "L’affiche historique doit être chargée sans concurrencer la version courante.");
+assert.match(poetryProject, /Affiche finale de l’événement/);
 assert.match(poetryProject, /v8-evenement-bilingue-apercu\.webp[^>]+loading="eager"[^>]+fetchpriority="high"/,
   "L’affiche événementielle courante doit être chargée immédiatement.");
 const currentPoetryPoster = poetryProject.match(/<figure class="internal-project-poster internal-project-poster-featured"><a href="[^"]*v8-evenement-bilingue\.png"[\s\S]*?<\/figure>/)?.[0] || "";
@@ -1093,7 +1090,8 @@ assert.doesNotMatch(poetryProject, /v6-fr|v6-en|Affiche française|English poste
   "Les affiches V6 doivent être conservées dans les fichiers sans rester visibles dans le cockpit.");
 assert.match(poetryProject, /Partenaires et commandites — visibilité utile, indépendance préservée/);
 assert.match(poetryProject, /aucune visibilité ne donne un droit de regard sur la sélection artistique/i);
-assert.match(poetryProject, /ADDENDUM_VISUEL_PARTENAIRES_AU_BORD_DU_BLEU_V5\.md/);
+assert.doesNotMatch(poetryProject, /ADDENDUM_VISUEL_PARTENAIRES_AU_BORD_DU_BLEU_V5\.md/,
+  "L’ancien addendum doit demeurer archivé sans encombrer les documents actifs.");
 assert.match(poetryProject, /data-initial-stage="active" open/,
   "La fiche poésie en préparation avancée doit rester ouverte afin de rendre l’affiche immédiatement visible.");
 assert.match(poetryProject, /30 AOÛT · ACCUEIL 13 H · PROGRAMME 13 H 20 · PREMIÈRE LECTURE 13 H 27 · FIN 16 H/);
@@ -1104,7 +1102,8 @@ assert.match(poetryProject, /Denis n’est pas compris dans les douze/i);
 assert.match(poetryProject, /douze sacs de collation : un pour chaque artiste sur place/i);
 assert.match(poetryProject, /Karrie Parent a confirmé directement le même soir qu’elle reprend <em>La femme phoque<\/em> à effectif constant/i);
 assert.match(poetryProject, /il n’y aura pas de micro ouvert ni d’inscription spontanée sur place/i);
-assert.match(poetryProject, /poesie-rencontre-north-hatley-2026-08-10/);
+assert.doesNotMatch(poetryProject, /poesie-rencontre-north-hatley-2026-08-10/,
+  "L’ancienne rencontre doit rester dans l’historique sans être exposée dans le paquet final.");
 assert.match(poetryProject, /appliquer la checklist de clôture du 29 août/i,
   "La prochaine action doit utiliser la clôture opérationnelle la plus récente.");
 assert.match(poetryProject, /Karrie a confirmé directement le 28 août à 21 h 41/i,
@@ -1124,28 +1123,27 @@ for (const meetingTopic of ["Lieu et autorité", "Horaire et logistique", "Mét�
 }
 assert.doesNotMatch(poetryProject, /<details[^>]+id="poesie-rencontre-north-hatley-2026-08-10"/,
   "L’aide-mémoire ne doit plus occuper un long encart dans la fiche du projet.");
-assert.match(poetryProject, /Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10\.pdf/);
-assert.match(poetryProject, /Aide-mémoire — rencontre du 10 août/);
-assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 28,
-  "Les vingt-huit ressources du projet poésie doivent être présentées sous forme de cartes homogènes.");
-assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 28,
+assert.doesNotMatch(poetryProject, /Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10\.pdf|Aide-mémoire — rencontre du 10 août/);
+assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 12,
+  "La fiche active doit présenter exactement les douze ressources du paquet final.");
+assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 12,
   "Chaque carte documentaire doit annoncer clairement son type.");
-assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 27,
+assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 12,
   "Chaque ressource spécialisée doit proposer un bouton d’ouverture explicite.");
-assert.match(poetryProject, /TEXTE_PARTENAIRES_MUNICIPALITES_AU_BORD_DU_BLEU_2026-08-10\.md/,
-  "Le texte de coordination avec les partenaires et municipalités doit être accessible depuis le projet poésie.");
-for (const operationalDocument of [
+for (const archivedOperationalDocument of [
+  "TEXTE_PARTENAIRES_MUNICIPALITES_AU_BORD_DU_BLEU_2026-08-10.md",
   "AU_BORD_DU_BLEU_REGISTRE_CANDIDATURES_2026-08-11.md",
   "AU_BORD_DU_BLEU_LOGISTIQUE_ET_CONDUCTEUR_2026-08-11.md",
   "AU_BORD_DU_BLEU_MESSAGES_ARTISTES_BROUILLONS_2026-08-11.md"
 ]) {
-  assert.match(poetryProject, new RegExp(operationalDocument.replaceAll(".", "\\.")),
-    `Le nouvel outil opérationnel ${operationalDocument} doit rester relié au projet poésie.`);
+  assert.doesNotMatch(poetryProject, new RegExp(archivedOperationalDocument.replaceAll(".", "\\.")),
+    `L’outil antérieur ${archivedOperationalDocument} doit rester archivé sans être exposé dans le paquet final.`);
 }
 const meetingBriefPdf = path.join(root, "cockpit", "project-documents", "Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10.pdf");
 assert.ok(fs.existsSync(meetingBriefPdf), "Le PDF d’aide-mémoire doit être publié avec le cockpit.");
 assert.ok(fs.statSync(meetingBriefPdf).size > 50_000, "Le PDF d’aide-mémoire doit contenir sa mise en page et le logo.");
-assert.match(poetryProject, /https:\/\/forms\.office\.com\/r\/4A2xsMh7st/);
+assert.doesNotMatch(poetryProject, /https:\/\/forms\.office\.com\/r\/4A2xsMh7st/,
+  "Le formulaire public clos ne doit plus être exposé comme document courant.");
 assert.match(poetryProject, /Quatorze personnes uniques recensées; treize contributions actives/);
 assert.match(poetryProject, /Annick a retiré sa lecture et viendra comme spectatrice/);
 assert.match(poetryProject, /ne doit pas être réinséré sans nouvelle confirmation explicite/);
@@ -1154,33 +1152,37 @@ assert.match(poetryProject, /l’accueil bilingue à 13 h 20 et la première lec
 assert.match(poetryProject, /Le passage de Myriam reste à 14 h 05/i);
 assert.match(poetryProject, /Le programme formel se termine à 15 h 25/i);
 assert.doesNotMatch(poetryProject, /13 h 42/);
-assert.match(poetryProject, /Au_bord_du_bleu_checklist_operationnelle_2026-08-17\.md/);
+assert.doesNotMatch(poetryProject, /Au_bord_du_bleu_checklist_operationnelle_2026-08-17\.md/);
 assert.match(poetryProject, /Dispositif confirmé : un microphone et un haut-parleur adaptés à l’événement/);
 assert.match(poetryProject, /Deux aides supplémentaires pour le montage des tentes/);
 assert.match(poetryProject, /Deux bénévoles au kiosque à partir de 13 h/);
-assert.match(poetryProject, /AU_BORD_DU_BLEU_GUIDE_TERRAIN_2026-08-24\.pdf/);
-assert.match(poetryProject, /AU_BORD_DU_BLEU_CONDUCTEUR_INTERNE_2026-08-24\.md/);
-assert.match(poetryProject, /AU_BORD_DU_BLEU_REGISTRE_CANONIQUE_2026-08-24\.md/);
+assert.doesNotMatch(poetryProject, /AU_BORD_DU_BLEU_GUIDE_TERRAIN_2026-08-24\.pdf/);
+assert.doesNotMatch(poetryProject, /AU_BORD_DU_BLEU_CONDUCTEUR_INTERNE_2026-08-24\.md/);
+assert.doesNotMatch(poetryProject, /AU_BORD_DU_BLEU_REGISTRE_CANONIQUE_2026-08-24\.md/);
 assert.match(poetryProject, /AU_BORD_DU_BLEU_GUIDE_TERRAIN_2026-08-29\.pdf/);
 assert.match(poetryProject, /AU_BORD_DU_BLEU_CONDUCTEUR_INTERNE_2026-08-29\.md/);
 assert.match(poetryProject, /AU_BORD_DU_BLEU_REGISTRE_CANONIQUE_2026-08-29\.md/);
 assert.match(poetryProject, /AU_BORD_DU_BLEU_RECONCILIATION_COURRIELS_2026-08-29\.md/);
 assert.match(poetryProject, /AU_BORD_DU_BLEU_CHECKLIST_VEILLE_2026-08-29\.md/);
+assert.match(poetryProject, /AU_BORD_DU_BLEU_MANIFESTE_LIVRABLES_COURANTS_2026-08-29\.md/);
 assert.match(poetryProject, /SOURCES_PRESENTATIONS_ARTISTES_2026-08-29\.md/,
   "La note de sources des présentations enrichies doit rester accessible depuis le projet.");
-assert.match(poetryProject, /guide terrain PDF de 23 pages/i);
-assert.match(poetryProject, /accueil français-anglais(?: est désormais)? intégralement paritaire/i);
-assert.match(poetryProject, /transitions-présentations unifiées/i);
+assert.match(poetryProject, /guide terrain final de 23 pages est verrouillé/i);
+assert.match(poetryProject, /accueil bilingue/i);
+assert.match(poetryProject, /transitions-présentations/i);
 assert.match(poetryProject, /Guide personnel de Valentin — conduite chronologique complète/i);
-assert.match(poetryProject, /texte complet de <em>Sanctuary<\/em> se trouve immédiatement après la présentation de Heather, à 14 h 31/i);
-assert.match(poetryProject, /conclusion bilingue annonce les deux affiches QR déjà imprimées/i);
-assert.match(poetryProject, /sans régénérer ni remplacer leurs codes/i);
+assert.match(poetryProject, /<em>Sanctuary<\/em>/i);
+assert.match(poetryProject, /deux affiches QR déjà imprimées/i);
+assert.match(poetryProject, /conservent leurs codes et leurs destinations/i);
 assert.doesNotMatch(poetryProject, /guide terrain PDF de 21 pages/i);
 assert.doesNotMatch(poetryProject, /PDF de 20 pages/i);
 assert.doesNotMatch(poetryProject, /treize paniers/i);
 assert.match(poetryProject, /Guide%20terrain%20final%20-%202026-08-29%20-%20cl%C3%B4ture%20veille/,
   "Les documents courants doivent ouvrir la clôture SharePoint du 29 août.");
-assert.match(poetryProject, /PLAN_IMPLANTATION_SCHEMATIQUE_2026-08-24\.svg/);
+assert.match(poetryProject, /PLAN_IMPLANTATION_SCHEMATIQUE_2026-08-23\.svg/);
+assert.match(poetryProject, /Textes%20finaux%20re%C3%A7us/);
+assert.doesNotMatch(poetryProject, /Guide%20terrain%20final%20-%202026-08-28/,
+  "Les textes finaux doivent désormais ouvrir le sous-dossier du paquet courant, pas celui du 28 août.");
 assert.match(poetryProject, /alimentation autonome sur batterie est le plan de base/i);
 assert.match(poetryProject, /toilette sèche située près de la station de lavage/i);
 assert.match(poetryProject, /160, rue Main, North Hatley \(Québec\) J0B 2C0/i);
@@ -1209,7 +1211,7 @@ for (const eventPoster of [
 }
 assert.match(poetryProject, /Faire un don à Bleu Massawippi/);
 assert.match(poetryProject, /Partager les photos et vidéos de l’événement/);
-assert.match(poetryProject, /sans voir, modifier ni supprimer ceux des autres/);
+assert.match(poetryProject, /boîte de dépôt SharePoint/i);
 for (const posterPdf of [
   "project-documents/Au_bord_du_bleu_affiche_dons_Zeffy_2026-08-30.pdf",
   "project-documents/Au_bord_du_bleu_affiche_depot_photos_videos_2026-08-30.pdf"
