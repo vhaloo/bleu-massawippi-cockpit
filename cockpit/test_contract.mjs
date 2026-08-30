@@ -1168,9 +1168,14 @@ assert.match(poetryProject, /AU_BORD_DU_BLEU_RECONCILIATION_COURRIELS_2026-08-29
 assert.match(poetryProject, /AU_BORD_DU_BLEU_CHECKLIST_VEILLE_2026-08-29\.md/);
 assert.match(poetryProject, /SOURCES_PRESENTATIONS_ARTISTES_2026-08-29\.md/,
   "La note de sources des présentations enrichies doit rester accessible depuis le projet.");
-assert.match(poetryProject, /guide terrain PDF de 21 pages/i);
-assert.match(poetryProject, /accueil français-anglais est désormais intégralement paritaire/i);
+assert.match(poetryProject, /guide terrain PDF de 23 pages/i);
+assert.match(poetryProject, /accueil français-anglais(?: est désormais)? intégralement paritaire/i);
 assert.match(poetryProject, /transitions-présentations unifiées/i);
+assert.match(poetryProject, /Guide personnel de Valentin — conduite chronologique complète/i);
+assert.match(poetryProject, /texte complet de <em>Sanctuary<\/em> se trouve immédiatement après la présentation de Heather, à 14 h 31/i);
+assert.match(poetryProject, /conclusion bilingue annonce les deux affiches QR déjà imprimées/i);
+assert.match(poetryProject, /sans régénérer ni remplacer leurs codes/i);
+assert.doesNotMatch(poetryProject, /guide terrain PDF de 21 pages/i);
 assert.doesNotMatch(poetryProject, /PDF de 20 pages/i);
 assert.doesNotMatch(poetryProject, /treize paniers/i);
 assert.match(poetryProject, /Guide%20terrain%20final%20-%202026-08-29%20-%20cl%C3%B4ture%20veille/,
