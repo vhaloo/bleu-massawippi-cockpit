@@ -502,6 +502,61 @@ Come anytime between 1 and 4 p.m. to hear the voices gathered for the occasion, 
     taskOwnersVersion: "event-task-owners-2026-08-27-poetry-reminder-v1"
   },
   {
+    id: "poesie-20260831-remerciement-public-artistes",
+    w: 8,
+    date: "Lundi 31 août",
+    calendarTime: "18:30",
+    t: "Événement",
+    tier: "Pilier",
+    title: "Au bord du bleu — merci pour cette journée!",
+    format: "Photographie réelle de groupe · remerciement bilingue",
+    role: "Remercier le public et nommer les douze artistes présents, tout en soulignant la contribution de Heather Ross dont le poème a été lu sur place en son absence.",
+    cta: "Partager le souvenir et suivre Bleu Massawippi",
+    visual: "Photographie réelle de groupe choisie par les communications le 31 août 2026, conservée sans ajout de texte ni altération de la scène.",
+    source: "Registre canonique Au bord du bleu du 29 août 2026, courriels de suivi du 31 août et photographie d’événement fournie par les communications. Crédit : Marimay Loubier Photographe · @marimayloubierphotographe.",
+    fallback: "Conserver cette photographie comme visuel principal; ne pas la remplacer par une affiche antérieure.",
+    kpi: "Portée / réactions / commentaires / partages / nouveaux abonnements",
+    task: "Relire les graphies, vérifier le crédit et l’aperçu mobile, puis publier manuellement seulement après la relecture finale; ne pas marquer terminé avant la diffusion réelle.",
+    copy: `FR — 💙 Merci pour Au bord du bleu!
+
+Vous avez été nombreux à nous rejoindre au parc Lôbadanaki, et votre écoute a donné aux textes, aux voix et à la musique un écrin exceptionnel au bord du lac.
+
+Merci aux artistes qui ont partagé cette journée avec nous : Elisabeth Levac, Heidi Monk, Douce Sévigny, Myriam Bouchard, Florence Morin, Fabrice Larue, François Louis Laurin — Franchanteur, Malaurie Champagne, Mélissa Connolly Soprano, Marianne Lacharité-Lemieux, Karrie Parent et Normand Delinelle — MC June.
+
+Une pensée toute particulière pour Heather Ross : même en son absence, son poème *Sanctuary* a rejoint le public grâce à une lecture sur place.
+
+Merci à toutes et à tous d’avoir fait circuler la poésie au bord du bleu.
+
+=========================================
+
+EN — 💙 Thank you for Au bord du bleu!
+
+So many of you joined us at parc Lôbadanaki, and your attentive presence gave the words, voices and music a beautiful home by the lake.
+
+Our heartfelt thanks to the artists who shared the day with us: Elisabeth Levac, Heidi Monk, Douce Sévigny, Myriam Bouchard, Florence Morin, Fabrice Larue, François Louis Laurin — Franchanteur, Malaurie Champagne, Mélissa Connolly Soprano, Marianne Lacharité-Lemieux, Karrie Parent and Normand Delinelle — MC June.
+
+A special thought for Heather Ross: although she could not attend, her poem *Sanctuary* reached the audience through a reading at the event.
+
+Thank you all for helping poetry travel along the blue.
+
+Photo : Marimay Loubier Photographe · @marimayloubierphotographe
+
+#AuBordDuBleu #BleuMassawippi #Poésie #Poetry #LacMassawippi`,
+    choiceRequired: false,
+    optionGroup: null,
+    optionLabel: null,
+    isAlternative: false,
+    publicationBlocked: false,
+    tasksValentin: [
+      "Vérifier une dernière fois la graphie des noms, le crédit photo et l’aperçu mobile.",
+      "Publier manuellement après la relecture finale; ne pas marquer terminé avant la diffusion réelle."
+    ],
+    tasksAnnie: [
+      "Relire le remerciement bilingue et signaler seulement une correction factuelle ou nominale nécessaire."
+    ],
+    taskOwnersVersion: "event-task-owners-2026-08-31-poetry-thanks-v1"
+  },
+  {
     id: "don-20260909-appel-soutien",
     w: 9,
     date: "Mercredi 9 septembre",
@@ -916,6 +971,7 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["don-20260909-appel-soutien", 7, "Vendredi 28 août", "2026-08-28"],
   ["poesie-20260829-rappel-demain", 7, "Samedi 29 août", "2026-08-29"],
   ["poesie-20260830-rappel-aujourdhui", 7, "Dimanche 30 août", "2026-08-30"],
+  ["poesie-20260831-remerciement-public-artistes", 8, "Lundi 31 août", "2026-08-31"],
   ["alt-20260724", 8, "Mardi 1er septembre", "2026-09-01"],
   ["alt-20260805", 8, "Mercredi 2 septembre", "2026-09-02"],
   ["don-20260911-merci-bilan", 8, "Vendredi 4 septembre", "2026-09-04"],
