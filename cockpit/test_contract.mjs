@@ -293,13 +293,16 @@ assert.equal(poetryThanksMedia?.eventId, poetryThanks?.id);
 assert.equal(poetryThanksMedia?.fileName, "au-bord-du-bleu-photo-groupe-remerciement-2026-08-31.png");
 assert.equal(poetryThanksMedia?.publicationBlocked, false);
 assert.match(poetryThanksMedia?.label || "", /Visuel retenu par les communications/);
+assert.match(poetryThanksMedia?.previewUrl || "", /\/media-previews\/2026-08-31\/au-bord-du-bleu-photo-groupe-remerciement-2026-08-31-preview\.jpg$/,
+  "L’aperçu doit utiliser le répertoire public autorisé par le Cockpit.");
 assert.doesNotMatch(JSON.stringify(poetryThanksMedia || {}), /photos\.app\.goo\.gl|Google Photos/i,
   "Le manifeste du Cockpit ne doit pas exposer le lien de l’album interne.");
-for (const assetName of [poetryThanksMedia.fileName, "au-bord-du-bleu-photo-groupe-remerciement-2026-08-31-apercu.jpg"]) {
-  const assetPath = path.join(here, "assets", "projects", "poesie-du-lac", assetName);
-  assert.ok(fs.existsSync(assetPath), `Le média de remerciement doit exister : ${assetName}.`);
-  assert.ok(fs.statSync(assetPath).size > 100_000, `Le média de remerciement doit contenir de vraies données : ${assetName}.`);
-}
+const poetryThanksOriginalPath = path.join(here, "assets", "projects", "poesie-du-lac", poetryThanksMedia.fileName);
+const poetryThanksPreviewPath = path.join(here, "media-previews", "2026-08-31", "au-bord-du-bleu-photo-groupe-remerciement-2026-08-31-preview.jpg");
+assert.ok(fs.existsSync(poetryThanksOriginalPath), "La photographie originale de remerciement doit être conservée.");
+assert.ok(fs.statSync(poetryThanksOriginalPath).size > 100_000, "La photographie originale doit contenir de vraies données.");
+assert.ok(fs.existsSync(poetryThanksPreviewPath), "L’aperçu public du remerciement doit exister.");
+assert.ok(fs.statSync(poetryThanksPreviewPath).size > 100_000, "L’aperçu public doit contenir de vraies données.");
 const previousFridayThanksMedia = editorialMedia.find((item) => item.id === "editorial-don-20260909-souvenir-v1");
 assert.equal(previousFridayThanksMedia?.stage, "reference", "L’ancienne base du point soutien doit rester conservée comme référence.");
 assert.equal(previousFridayThanksMedia?.publicationBlocked, true, "L’ancienne référence ne doit pas être sélectionnable.");
