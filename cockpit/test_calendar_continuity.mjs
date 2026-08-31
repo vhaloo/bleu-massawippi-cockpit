@@ -27,9 +27,11 @@ const cadenceWeeks = [
   ["2026-09-22", "2026-09-23", "2026-09-25", "2026-09-26", "2026-09-27"]
 ];
 const eventReminderWeek = cadenceWeeks[1];
-const regularCadenceWeeks = cadenceWeeks.filter((_, index) => index !== 1);
+const postEventThanksDate = "2026-08-31";
+const postEventThanksWeek = cadenceWeeks[2];
+const regularCadenceWeeks = cadenceWeeks.filter((_, index) => index !== 1 && index !== 2);
 const preparedBankDates = ["2026-09-28", "2026-09-29"];
-const expectedDates = [...historicalDates, ...cadenceWeeks.flat(), ...preparedBankDates];
+const expectedDates = [...historicalDates, ...cadenceWeeks.flat(), postEventThanksDate, ...preparedBankDates].sort();
 const horizon = posts.filter((post) => post.archivedEditorial !== true && post.dateIso >= start && post.dateIso <= end);
 const byDate = Object.groupBy(horizon, (post) => post.dateIso);
 
@@ -40,6 +42,9 @@ assert.ok(horizon.every((post) => post.choiceRequired !== true && !post.optionGr
 assert.ok(regularCadenceWeeks.every((week) => week.length === 5), "Chaque semaine régulière à compter du 17 août doit contenir cinq publications.");
 assert.equal(eventReminderWeek.length, 6, "La semaine de l’événement doit ajouter uniquement le rappel du dimanche à la cadence régulière.");
 assert.ok(cadenceWeeks.every((week) => week.every((date) => byDate[date]?.length === 1)), "Tous les créneaux retenus doivent être occupés une seule fois.");
+assert.equal(byDate[postEventThanksDate]?.length, 1, "Le remerciement post-événement du 31 août doit occuper un créneau unique.");
+assert.equal(postEventThanksWeek.filter((date) => byDate[date]?.length === 1).length + byDate[postEventThanksDate].length, 6,
+  "La semaine du 31 août doit conserver cinq créneaux réguliers et le remerciement explicitement demandé.");
 const weekdaySignatures = regularCadenceWeeks.map((week) => week.map((date) => new Date(`${date}T12:00:00Z`).getUTCDay()).join("-"));
 assert.ok(new Set(weekdaySignatures).size > 1, "Les jours de diffusion doivent varier d’une semaine à l’autre.");
 
@@ -54,6 +59,7 @@ const newIds = [
   "poesie-20260821-invitation-public",
   "poesie-20260829-rappel-demain",
   "poesie-20260830-rappel-aujourdhui",
+  "poesie-20260831-remerciement-public-artistes",
   "don-20260909-appel-soutien",
   "nature-20260910-feuille-surface",
   "don-20260911-merci-bilan",

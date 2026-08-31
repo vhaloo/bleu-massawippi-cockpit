@@ -123,8 +123,10 @@ const cadenceWeeks = [
   ["2026-09-22", "2026-09-23", "2026-09-25", "2026-09-26", "2026-09-27"]
 ];
 const eventReminderWeek = cadenceWeeks[1];
-const regularCadenceWeeks = cadenceWeeks.filter((_, index) => index !== 1);
-const expectedContinuityDates = [...protectedHistoricalDates, ...cadenceWeeks.flat(), "2026-09-28", "2026-09-29", "2026-09-30"];
+const postEventThanksDate = "2026-08-31";
+const postEventThanksWeek = cadenceWeeks[2];
+const regularCadenceWeeks = cadenceWeeks.filter((_, index) => index !== 1 && index !== 2);
+const expectedContinuityDates = [...protectedHistoricalDates, ...cadenceWeeks.flat(), postEventThanksDate, "2026-09-28", "2026-09-29", "2026-09-30"].sort();
 const activePostsByDate = Object.groupBy(activePosts, (post) => post.dateIso);
 assert.deepEqual(Object.keys(activePostsByDate).sort(), expectedContinuityDates,
   "Le calendrier actif doit préserver l’historique quotidien, la cadence régulière et les deux rappels demandés pour Au bord du bleu.");
@@ -134,11 +136,15 @@ assert.ok(regularCadenceWeeks.every((week) => week.length === CADENCE_5_POLICY.p
   "Chaque semaine régulière à compter du 17 août doit contenir exactement cinq publications.");
 assert.equal(eventReminderWeek.length, 6, "La semaine d’Au bord du bleu doit comporter un unique rappel supplémentaire le dimanche de l’événement.");
 assert.ok(eventReminderWeek.every((date) => activePostsByDate[date]?.length === 1), "Les six créneaux de la semaine événementielle doivent rester uniques.");
-assert.equal(activePosts.length, 69, "Le calendrier doit conserver 35 publications historiques, 31 publications sur la période de cadence et trois publications préparées en banque.");
+assert.equal(activePostsByDate[postEventThanksDate]?.length, 1, "Le remerciement post-événement du 31 août doit occuper son propre créneau.");
+assert.equal(postEventThanksWeek.filter((date) => activePostsByDate[date]?.length === 1).length + activePostsByDate[postEventThanksDate].length, 6,
+  "La semaine du 31 août doit conserver cinq créneaux réguliers et le remerciement explicitement demandé.");
+assert.equal(activePosts.length, 70, "Le calendrier doit conserver 35 publications historiques, 32 publications sur la période de cadence et trois publications préparées en banque.");
 const continuityPostIds = [
   "poesie-20260821-invitation-public",
   "poesie-20260829-rappel-demain",
   "poesie-20260830-rappel-aujourdhui",
+  "poesie-20260831-remerciement-public-artistes",
   "don-20260909-appel-soutien",
   "nature-20260910-feuille-surface",
   "don-20260911-merci-bilan",
@@ -267,6 +273,33 @@ for (const [eventId, mediaId] of [
   assert.equal(reminderMedia?.reuseMediaId, "editorial-poesie-20260821-invitation-v8");
   assert.equal(reminderMedia?.publicationBlocked, false);
 }
+const poetryThanks = activePosts.find((post) => post.id === "poesie-20260831-remerciement-public-artistes");
+assert.equal(poetryThanks?.dateIso, "2026-08-31");
+assert.equal(poetryThanks?.w, 8);
+assert.equal(poetryThanks?.publicationBlocked, false);
+assert.ok((poetryThanks?.copy || "").length <= 2200, "Le remerciement bilingue doit rester sous 2 200 caractères.");
+for (const artist of [
+  "Elisabeth Levac", "Heidi Monk", "Douce Sévigny", "Myriam Bouchard", "Florence Morin", "Fabrice Larue",
+  "François Louis Laurin", "Malaurie Champagne", "Mélissa Connolly Soprano", "Marianne Lacharité-Lemieux",
+  "Karrie Parent", "Normand Delinelle", "Heather Ross", "Sanctuary"
+]) {
+  assert.match(poetryThanks?.copy || "", new RegExp(artist), `Le remerciement doit conserver ${artist}.`);
+}
+assert.match(poetryThanks?.copy || "", /Marimay Loubier Photographe/);
+assert.doesNotMatch(JSON.stringify(poetryThanks || {}), /photos\.app\.goo\.gl|Google Photos/i,
+  "Le lien de l’album est réservé à la consultation interne dans Codex.");
+const poetryThanksMedia = editorialMedia.find((item) => item.id === "editorial-poesie-20260831-remerciement-groupe-v1");
+assert.equal(poetryThanksMedia?.eventId, poetryThanks?.id);
+assert.equal(poetryThanksMedia?.fileName, "au-bord-du-bleu-photo-groupe-remerciement-2026-08-31.png");
+assert.equal(poetryThanksMedia?.publicationBlocked, false);
+assert.match(poetryThanksMedia?.label || "", /Visuel retenu par les communications/);
+assert.doesNotMatch(JSON.stringify(poetryThanksMedia || {}), /photos\.app\.goo\.gl|Google Photos/i,
+  "Le manifeste du Cockpit ne doit pas exposer le lien de l’album interne.");
+for (const assetName of [poetryThanksMedia.fileName, "au-bord-du-bleu-photo-groupe-remerciement-2026-08-31-apercu.jpg"]) {
+  const assetPath = path.join(here, "assets", "projects", "poesie-du-lac", assetName);
+  assert.ok(fs.existsSync(assetPath), `Le média de remerciement doit exister : ${assetName}.`);
+  assert.ok(fs.statSync(assetPath).size > 100_000, `Le média de remerciement doit contenir de vraies données : ${assetName}.`);
+}
 const previousFridayThanksMedia = editorialMedia.find((item) => item.id === "editorial-don-20260909-souvenir-v1");
 assert.equal(previousFridayThanksMedia?.stage, "reference", "L’ancienne base du point soutien doit rester conservée comme référence.");
 assert.equal(previousFridayThanksMedia?.publicationBlocked, true, "L’ancienne référence ne doit pas être sélectionnable.");
@@ -307,8 +340,8 @@ assert.ok(volunteer.tasksAnnie.some((task) => /coordonn/i.test(task)));
 assert.ok(volunteer.tasksAnnie.some((task) => /consentement/i.test(task)));
 assert.equal(firstTuesday.choiceRequired, false, "La proposition retenue du mardi est verrouillée et ne demande plus d’arbitrage.");
 assert.equal(firstTuesday.optionGroup, null, "Une proposition verrouillée ne doit plus appartenir à un groupe de choix actif.");
-assert.equal(posts.filter((post) => !post.isAlternative).length, 45);
-assert.equal(posts.length, 76);
+assert.equal(posts.filter((post) => !post.isAlternative).length, 46);
+assert.equal(posts.length, 77);
 const radioCanadaArticle = posts.find((post) => post.id === "actualite-20260804-article-radio-canada-moules-zebrees");
 assert.ok(radioCanadaArticle, "Le nouvel article écrit de Radio-Canada doit devenir une publication distincte.");
 assert.equal(radioCanadaArticle.dateIso, "2026-08-09");
