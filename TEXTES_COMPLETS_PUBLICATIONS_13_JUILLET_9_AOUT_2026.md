@@ -1823,6 +1823,47 @@ Come anytime between 1 and 4 p.m. to hear the voices gathered for the occasion, 
 #AuBordDuBleu #BleuMassawippi #Poetry #LakeMassawippi
 ```
 
+## Lundi 31 août — Au bord du bleu — merci pour cette journée!
+
+**Thème :** Événement
+**Format :** Photographie réelle de groupe · remerciement bilingue
+**Objectif :** Remercier le public et nommer les douze artistes présents, tout en soulignant la contribution de Heather Ross dont le poème a été lu sur place en son absence.
+**CTA :** Partager le souvenir et suivre Bleu Massawippi
+**Visuel final :** Photographie réelle de groupe choisie par les communications le 31 août 2026, conservée sans ajout de texte ni altération de la scène.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Registre canonique Au bord du bleu du 29 août 2026, courriels de suivi du 31 août et photographie d’événement fournie par les communications. Crédit : Marimay Loubier Photographe · @marimayloubierphotographe.
+**Préparation :** Relire les graphies, vérifier le crédit et l’aperçu mobile, puis publier manuellement seulement après la relecture finale; ne pas marquer terminé avant la diffusion réelle.
+
+### Légende prête à programmer
+
+```text
+FR — 💙 Merci pour Au bord du bleu!
+
+Vous avez été nombreux à nous rejoindre au parc Lôbadanaki, et votre écoute a donné aux textes, aux voix et à la musique un écrin exceptionnel au bord du lac.
+
+Merci aux artistes qui ont partagé cette journée avec nous : Elisabeth Levac, Heidi Monk, Douce Sévigny, Myriam Bouchard, Florence Morin, Fabrice Larue, François Louis Laurin — Franchanteur, Malaurie Champagne, Mélissa Connolly Soprano, Marianne Lacharité-Lemieux, Karrie Parent et Normand Delinelle — MC June.
+
+Une pensée toute particulière pour Heather Ross : même en son absence, son poème *Sanctuary* a rejoint le public grâce à une lecture sur place.
+
+Merci à toutes et à tous d’avoir fait circuler la poésie au bord du bleu.
+
+=========================================
+
+EN — 💙 Thank you for Au bord du bleu!
+
+So many of you joined us at parc Lôbadanaki, and your attentive presence gave the words, voices and music a beautiful home by the lake.
+
+Our heartfelt thanks to the artists who shared the day with us: Elisabeth Levac, Heidi Monk, Douce Sévigny, Myriam Bouchard, Florence Morin, Fabrice Larue, François Louis Laurin — Franchanteur, Malaurie Champagne, Mélissa Connolly Soprano, Marianne Lacharité-Lemieux, Karrie Parent and Normand Delinelle — MC June.
+
+A special thought for Heather Ross: although she could not attend, her poem *Sanctuary* reached the audience through a reading at the event.
+
+Thank you all for helping poetry travel along the blue.
+
+Photo : Marimay Loubier Photographe · @marimayloubierphotographe
+
+#AuBordDuBleu #BleuMassawippi #Poésie #Poetry #LacMassawippi
+```
+
 ## Mardi 1er septembre — Le bassin versant relie le paysage
 
 **Thème :** Communauté
