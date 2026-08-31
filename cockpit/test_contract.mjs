@@ -981,8 +981,10 @@ assert.match(shorelineCleanupProject, /20 septembre/);
 assert.match(shorelineCleanupProject, /COGESAF/);
 assert.match(shorelineCleanupProject, /North Hatley n’a pas encore répondu/);
 assert.match(shorelineCleanupProject, /NettoyageBerges_projet2026_BM\.docx/);
-assert.equal((shorelineCleanupProject.match(/class="internal-project-document-card"/g) || []).length, 2,
-  "Le projet de nettoyage doit présenter le document maître et le dossier SharePoint sous forme de cartes.");
+assert.equal((shorelineCleanupProject.match(/class="internal-project-document-card"/g) || []).length, 4,
+  "Le projet de nettoyage doit présenter le document maître, le dossier SharePoint, son index et le gabarit réutilisable sous forme de cartes.");
+assert.match(shorelineCleanupProject, /LIRE_DABORD_Nettoyage_des_berges_2026\.md/);
+assert.match(shorelineCleanupProject, /Gabarit%20dossier%20projet%20-%20%C3%A0%20copier/);
 const internalProjectSeedIds = [...internalProjectSeed.matchAll(/^  "([a-z0-9-]+)": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm)].map((match) => match[1]).sort();
 assert.deepEqual(internalProjectSeedIds, internalProjectIds, "Les cartes et le seed des projets internes doivent utiliser exactement les mêmes identifiants.");
 assert.match(source, /data-internal-project-id="jeux-provinciaux-peche" data-initial-stage="completed"/,
@@ -1051,6 +1053,11 @@ const poetryProject = source.match(/<details class="internal-project" id="intern
 assert.match(poetryProject, /réseau d’acteurs, de poètes, de slameurs et d’interprètes/,
   "Le réseau professionnel mobilisable doit être décrit sans réduire le projet à un appel public.");
 assert.match(poetryProject, /Au bord du bleu/);
+assert.match(poetryProject, /ÉVÉNEMENT TENU/);
+assert.match(poetryProject, /Suivi post-événement/);
+assert.match(poetryProject, /Prochaine action post-événement/);
+assert.match(poetryProject, /Registre_consentements_post-evenement_2026-08-31\.md/);
+assert.match(poetryProject, /Suivi_post-evenement_2026-08-31\.md/);
 assert.match(poetryProject, /dimanche 30 août/i);
 assert.match(poetryProject, /13 h à 16 h/i);
 assert.match(poetryProject, /programme public d’environ une à deux heures/i);
@@ -1072,6 +1079,8 @@ assert.match(source, /\.internal-project-poster-pair \{ display:grid; grid-templ
   "Les deux affiches doivent être disposées côte à côte lorsque l’espace le permet.");
 assert.match(source, /internal-project-poster-pair\{grid-template-columns:1fr\}/,
   "Les affiches doivent s’empiler sur mobile.");
+assert.match(source, /internal-project>summary \.internal-project-priority\{max-width:100%;white-space:normal;overflow-wrap:anywhere\}/,
+  "Les libellés de priorité longs doivent se replier sur mobile sans être tronqués.");
 assert.doesNotMatch(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v7-bilingue(?:-apercu\.webp|\.png)|appel aux voix archivé/,
   "L’affiche de recrutement V7 doit rester archivée dans les fichiers sans être exposée dans la fiche active.");
 assert.match(poetryProject, /affiche-au-bord-du-bleu-photo-reelle-v8-evenement-bilingue-apercu\.webp/);
@@ -1118,17 +1127,21 @@ assert.doesNotMatch(poetryProject, /église de repli|repli à l’intérieur de 
   "La fiche interne ne doit plus présenter l’église comme lieu de repli confirmé.");
 assert.doesNotMatch(poetryProject, /Parc du Quai et Saint-Barthélemy demeurent les premiers replis à étudier/,
   "Les anciens scénarios de repli doivent être retirés de la fiche active.");
+assert.match(source, /Registre_operationnel_donateurs_et_adherents_2025-09-01_au_2026-08-31\.xlsx/);
+assert.match(source, /Audit_et_corrections_Zeffy_2026-08-31\.md/);
+assert.match(source, /id="soutien-mission-20260920"/);
+assert.match(source, /Dossier_soutien_mission_2026-09-20\.md/);
 for (const meetingTopic of ["Lieu et autorité", "Horaire et logistique", "Météo et décision", "Collaboration et visibilité"]) {
   assert.match(meetingBriefBuilder, new RegExp(meetingTopic), `Le PDF municipal doit couvrir : ${meetingTopic}.`);
 }
 assert.doesNotMatch(poetryProject, /<details[^>]+id="poesie-rencontre-north-hatley-2026-08-10"/,
   "L’aide-mémoire ne doit plus occuper un long encart dans la fiche du projet.");
 assert.doesNotMatch(poetryProject, /Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10\.pdf|Aide-mémoire — rencontre du 10 août/);
-assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 12,
-  "La fiche active doit présenter exactement les douze ressources du paquet final.");
-assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 12,
+assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 15,
+  "La fiche active doit présenter les douze ressources du paquet final et les trois entrées de suivi post-événement.");
+assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 15,
   "Chaque carte documentaire doit annoncer clairement son type.");
-assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 12,
+assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 15,
   "Chaque ressource spécialisée doit proposer un bouton d’ouverture explicite.");
 for (const archivedOperationalDocument of [
   "TEXTE_PARTENAIRES_MUNICIPALITES_AU_BORD_DU_BLEU_2026-08-10.md",
