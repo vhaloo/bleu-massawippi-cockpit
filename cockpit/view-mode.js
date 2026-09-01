@@ -7,7 +7,7 @@
  * intact.
  */
 
-import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260901-b69";
+import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260901-b70";
 
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
@@ -504,7 +504,7 @@ function ensureStylesheet() {
   if (document.querySelector(`link[data-module="${MODULE_ID}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = new URL("./view-mode.css?v=20260901-b69", import.meta.url).href;
+  link.href = new URL("./view-mode.css?v=20260901-b70", import.meta.url).href;
   link.dataset.module = MODULE_ID;
   document.head.appendChild(link);
 }
@@ -734,6 +734,32 @@ function ensureEssentialNav() {
     wrap.append(messages);
   }
   return wrap;
+}
+
+const dashboardPanelIds = Object.freeze({
+  decision: "vm-panel-decision",
+  today: "vm-panel-today",
+  messages: "vm-panel-message"
+});
+
+function openDashboardPanel(name) {
+  const panelId = dashboardPanelIds[name];
+  if (!panelId) return false;
+  if (runtime.mode !== "essential") {
+    runtime.explicitMode = true;
+    applyMode("essential", { persist: true });
+    renderDashboard(runtime.options.now instanceof Date ? runtime.options.now : new Date());
+  }
+  const panel = document.querySelector(`#${panelId}`);
+  if (!panel) return false;
+  panel.setAttribute("tabindex", "-1");
+  try { globalThis.history?.replaceState?.(null, "", `#${panelId}`); } catch {}
+  requestAnimationFrame(() => {
+    panel.scrollIntoView?.({ behavior: "auto", block: "start" });
+    try { panel.focus?.({ preventScroll: true }); } catch { panel.focus?.(); }
+    if (name === "decision") scheduleAttentionReview();
+  });
+  return true;
 }
 
 function modeLabel(mode) {
@@ -1863,9 +1889,10 @@ function handleClick(event) {
     scheduleAttentionReview();
     return;
   }
-  const decisionNav = event.target.closest('[data-vm-nav="decision"]');
-  if (decisionNav) {
-    setTimeout(scheduleAttentionReview, 0);
+  const dashboardNav = event.target.closest("[data-vm-nav]");
+  if (dashboardNav && dashboardPanelIds[dashboardNav.dataset.vmNav]) {
+    event.preventDefault();
+    openDashboardPanel(dashboardNav.dataset.vmNav);
     return;
   }
   const cardHeader = event.target.closest("[data-vm-header-toggle]");
