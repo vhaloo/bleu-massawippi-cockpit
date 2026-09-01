@@ -18,6 +18,8 @@ assert.match(tool, /workflowStage === "completed"/, "Une publication terminée d
 assert.match(tool, /documents\/changeArchive/, "Toute mutation doit être archivée.");
 assert.match(tool, /currentDocument: updateTime \? \{ updateTime \}/, "Les mises à jour doivent utiliser une précondition optimiste.");
 assert.match(tool, /writes: 0/, "Le mode de contrôle doit annoncer explicitement zéro écriture.");
+assert.match(tool, /post\.publicationBlocked === true/, "La réconciliation ciblée doit pouvoir conserver un verrou éditorial explicite.");
+assert.match(tool, /blockedReason:/, "La raison du verrou doit accompagner la publication reportée.");
 
 const staleRows = [
   {
