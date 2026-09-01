@@ -156,8 +156,14 @@ const rejectedSharedSpace = posts.find((item) => item.id === "alt-20260725");
 assert.equal(rejectedSharedSpace?.archivedEditorial, true, "L’angle éditorial refusé doit être archivé sans suppression.");
 const deferredMonitoringPost = posts.find((item) => item.id === "s1d2");
 assert.equal(deferredMonitoringPost?.dateIso, "2026-09-27", "Le suivi du lac et de ses tributaires doit être conservé au 27 septembre.");
-const deferredLivingShorelinePost = posts.find((item) => item.id === "alt-20260723");
-assert.equal(deferredLivingShorelinePost?.dateIso, "2026-09-30", "La capsule intemporelle sur la rive doit être préservée hors du jour de l’événement.");
+const advancedLivingShorelinePost = posts.find((item) => item.id === "alt-20260723");
+assert.equal(advancedLivingShorelinePost?.dateIso, "2026-09-01", "La capsule approuvée sur la rive doit remplacer le contenu reporté le 1er septembre.");
+assert.notEqual(advancedLivingShorelinePost?.publicationBlocked, true, "La publication de remplacement déjà approuvée doit rester publiable.");
+const fundingDeferredPost = posts.find((item) => item.id === "alt-20260724");
+assert.equal(fundingDeferredPost?.dateIso, "2026-09-30", "Le contenu en attente du financement doit être conservé au dernier créneau disponible.");
+assert.equal(fundingDeferredPost?.publicationBlocked, true, "Le contenu reporté doit rester bloqué jusqu’à confirmation explicite du financement.");
+assert.equal(fundingDeferredPost?.requiresFundingReadyConfirmation, true);
+assert.match(fundingDeferredPost?.blockedReason || "", /financement est prêt/i);
 const deferredSeasonalEssentials = posts.find((item) => item.id === "alt-20260714");
 assert.equal(deferredSeasonalEssentials?.dateIso, "2026-09-28", "La capsule du samedi doit être conservée au prochain créneau libre sans collision.");
 const poetryInvitation = posts.find((item) => item.id === "poesie-20260821-invitation-public");
@@ -176,4 +182,4 @@ for (const reminder of [poetryTomorrow, poetryToday]) {
   assert.doesNotMatch(reminder?.copy || "", /13 h 40|13 h 42|1:40 p\.m\.|1:42 p\.m\.|repli|church/i);
 }
 
-console.log(JSON.stringify({ passed: true, start, end, historicalDaysPreserved: historicalDates.length, regularCadenceWeeks: regularCadenceWeeks.length, postsPerRegularWeek: 5, eventReminderWeekPosts: eventReminderWeek.length, futureScheduledPosts: cadenceWeeks.flat().length + preparedBankDates.length, preservedBeyondHorizon: deferredLivingShorelinePost.dateIso, publications: horizon.length, gapsOnChosenSlots: 0, duplicates: 0, fundingCheckpoints: fundingCheckpoints.length, newPosts: newIds.length }, null, 2));
+console.log(JSON.stringify({ passed: true, start, end, historicalDaysPreserved: historicalDates.length, regularCadenceWeeks: regularCadenceWeeks.length, postsPerRegularWeek: 5, eventReminderWeekPosts: eventReminderWeek.length, futureScheduledPosts: cadenceWeeks.flat().length + preparedBankDates.length, replacementOnSeptember1: advancedLivingShorelinePost.id, deferredFundingPostDate: fundingDeferredPost.dateIso, publications: horizon.length, gapsOnChosenSlots: 0, duplicates: 0, fundingCheckpoints: fundingCheckpoints.length, newPosts: newIds.length }, null, 2));

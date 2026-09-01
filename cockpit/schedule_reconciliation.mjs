@@ -193,15 +193,22 @@ async function applySelected(posts, audit, headers) {
     const workflowStage = audit.workflowById.get(id)?.stage || "proposal";
     if (workflowStage === "completed") throw new Error(`Refus de déplacer ${id} : publication terminée.`);
     const fullScheduleFields = scheduleFields(post);
+    const guardedPublicationFields = post.publicationBlocked === true
+      ? {
+          publicationBlocked: true,
+          blockedReason: String(post.blockedReason || "Publication bloquée en attente d’une confirmation explicite.").slice(0, 1000)
+        }
+      : {};
     const desired = post.archivedEditorial === true
       ? { "editorial.archivedEditorial": true }
       : before
         ? {
             dateKey: fullScheduleFields.dateKey,
             dateIso: fullScheduleFields.dateIso,
-            calendarTime: fullScheduleFields.calendarTime
+            calendarTime: fullScheduleFields.calendarTime,
+            ...guardedPublicationFields
           }
-        : fullScheduleFields;
+        : { ...fullScheduleFields, ...guardedPublicationFields };
     const changedPaths = Object.keys(desired).filter((fieldPath) => JSON.stringify(valueAtPath(before, fieldPath) ?? null) !== JSON.stringify(desired[fieldPath] ?? null));
     if (changedPaths.length === 0) continue;
     const afterForArchive = Object.fromEntries(changedPaths.map((fieldPath) => [fieldPath, desired[fieldPath]]));

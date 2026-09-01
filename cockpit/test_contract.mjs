@@ -84,6 +84,22 @@ assert.equal(editorialCycleAug12Posts["alt-20260724"].title, "Le bassin versant 
   "L’atelier non financé doit être remplacé sans laisser de trou dans le calendrier.");
 assert.doesNotMatch(editorialCycleAug12Posts["alt-20260724"].copy, /atelier|workshop/i,
   "La publication de remplacement ne doit pas publiciser l’atelier reporté.");
+assert.equal(editorialCycleAug12Posts["alt-20260723"].dateIso, "2026-09-01",
+  "La capsule approuvée sur la rive doit occuper le mardi 1er septembre.");
+assert.notEqual(editorialCycleAug12Posts["alt-20260723"].publicationBlocked, true,
+  "Le remplacement déjà approuvé du 1er septembre doit rester publiable.");
+assert.equal(editorialCycleAug12Posts["alt-20260724"].dateIso, "2026-09-30",
+  "La publication en attente du financement doit être repoussée au dernier créneau courant.");
+assert.equal(editorialCycleAug12Posts["alt-20260724"].publicationBlocked, true,
+  "La publication reportée ne doit pas revenir en diffusion avant confirmation du financement.");
+assert.match(editorialCycleAug12Posts["alt-20260724"].blockedReason || "", /financement est prêt/i);
+const twiceOverriddenFundingPost = applyPlanOverridesToPosts(applyPlanOverridesToPosts(JSON.parse(postsJson)))
+  .find((post) => post.id === "alt-20260724");
+assert.equal(
+  twiceOverriddenFundingPost.tasksValentin.filter((task) => /confirmation explicite que le financement est prêt/i.test(task)).length,
+  1,
+  "Le garde-fou financement doit rester unique même lorsque le plan est préparé plusieurs fois."
+);
 const editorialCycleAug12Media = editorialMedia.filter((media) => ["s3d7", "alt-20260723", "alt-20260724"].includes(media.eventId));
 for (const mediaId of [
   "editorial-s3d7-five-gentle-real-photo-v2",

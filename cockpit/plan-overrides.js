@@ -972,7 +972,7 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["poesie-20260829-rappel-demain", 7, "Samedi 29 août", "2026-08-29"],
   ["poesie-20260830-rappel-aujourdhui", 7, "Dimanche 30 août", "2026-08-30"],
   ["poesie-20260831-remerciement-public-artistes", 8, "Lundi 31 août", "2026-08-31"],
-  ["alt-20260724", 8, "Mardi 1er septembre", "2026-09-01"],
+  ["alt-20260723", 8, "Mardi 1er septembre", "2026-09-01"],
   ["alt-20260805", 8, "Mercredi 2 septembre", "2026-09-02"],
   ["don-20260911-merci-bilan", 8, "Vendredi 4 septembre", "2026-09-04"],
   ["alt-20260728", 8, "Samedi 5 septembre", "2026-09-05"],
@@ -994,7 +994,7 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["s1d2", 11, "Dimanche 27 septembre", "2026-09-27"],
   ["alt-20260714", 12, "Lundi 28 septembre", "2026-09-28"],
   ["photo-20260915-soir-automne", 12, "Mardi 29 septembre", "2026-09-29"],
-  ["alt-20260723", 12, "Mercredi 30 septembre", "2026-09-30"]
+  ["alt-20260724", 12, "Mercredi 30 septembre", "2026-09-30"]
 ];
 
 const USER_DIRECTED_RESCHEDULES = new Map([
@@ -1004,9 +1004,19 @@ const USER_DIRECTED_RESCHEDULES = new Map([
     reason: "Demande des communications du 20 août 2026 : céder le créneau du vendredi 21 août à l’invitation Au bord du bleu et reporter intégralement le point de soutien Zeffy au vendredi suivant."
   }],
   ["alt-20260723", {
-    from: "2026-08-30",
+    from: "2026-09-30",
+    to: "2026-09-01",
+    reason: "Demande des communications du 31 août 2026 : avancer au mardi 1er septembre la capsule déjà approuvée « Retenir. Ralentir. Accueillir. » afin de remplacer sans trou le contenu reporté en attente du financement.",
+    priorHistory: [{
+      from: "2026-08-30",
+      to: "2026-09-30",
+      reason: "Rééquilibrage du 20 août 2026 : préserver le dimanche 30 août pour Au bord du bleu, conserver la capsule sur la rive sans concurrence le jour de l’événement et la reporter au 30 septembre."
+    }]
+  }],
+  ["alt-20260724", {
+    from: "2026-09-01",
     to: "2026-09-30",
-    reason: "Rééquilibrage du 20 août 2026 : préserver le dimanche 30 août pour Au bord du bleu, conserver la capsule sur la rive sans concurrence le jour de l’événement et la reporter au 30 septembre."
+    reason: "Demande des communications du 31 août 2026 : reporter au dernier créneau du calendrier le contenu lié au financement et le conserver intégralement jusqu’à confirmation explicite que le financement est prêt."
   }],
   ["lavage-20260903-sans-moteur", {
     from: "2026-09-13",
@@ -1652,6 +1662,19 @@ export function applyPlanOverridesToPosts(posts) {
       } : {})
     });
   });
+  const fundingDeferredUntilExplicitConfirmation = finalPosts.find((post) => post.id === "alt-20260724");
+  if (fundingDeferredUntilExplicitConfirmation) {
+    const fundingReleaseTask = "Conserver cette publication au dernier créneau et ne la rapprocher qu’après confirmation explicite que le financement est prêt.";
+    const existingTasks = Array.isArray(fundingDeferredUntilExplicitConfirmation.tasksValentin)
+      ? fundingDeferredUntilExplicitConfirmation.tasksValentin
+      : [fundingDeferredUntilExplicitConfirmation.task].filter(Boolean);
+    Object.assign(fundingDeferredUntilExplicitConfirmation, {
+      publicationBlocked: true,
+      requiresFundingReadyConfirmation: true,
+      blockedReason: "Publication reportée au 30 septembre : ne pas la remettre en diffusion avant que les communications confirment explicitement que le financement est prêt.",
+      tasksValentin: existingTasks.includes(fundingReleaseTask) ? existingTasks : [...existingTasks, fundingReleaseTask]
+    });
+  }
   const deferredWaterLily = finalPosts.find((post) => post.id === "alt-20260805");
   if (deferredWaterLily) Object.assign(deferredWaterLily, {
     editorialFamily: "flore-aquatique",
