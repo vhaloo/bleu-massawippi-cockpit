@@ -510,7 +510,7 @@ Come anytime between 1 and 4 p.m. to hear the voices gathered for the occasion, 
     tier: "Pilier",
     title: "Au bord du bleu — merci pour cette journée!",
     format: "Photographie réelle de groupe · remerciement bilingue",
-    role: "Remercier le public et nommer les douze artistes présents, tout en soulignant la contribution de Heather Ross dont le poème a été lu sur place en son absence.",
+    role: "Remercier le public, distinguer avec tact les créations originales des lectures et interprétations, et nommer toutes les personnes qui ont porté l’événement, dont Heather Ross en son absence.",
     cta: "Partager le souvenir et suivre Bleu Massawippi",
     visual: "Photographie réelle de groupe choisie par les communications le 31 août 2026, conservée sans ajout de texte ni altération de la scène.",
     source: "Registre canonique Au bord du bleu du 29 août 2026, courriels de suivi du 31 août et photographie d’événement fournie par les communications. Crédit : Marimay Loubier Photographe · @marimayloubierphotographe.",
@@ -519,11 +519,11 @@ Come anytime between 1 and 4 p.m. to hear the voices gathered for the occasion, 
     task: "Relire les graphies, vérifier le crédit et l’aperçu mobile, puis publier manuellement seulement après la relecture finale; ne pas marquer terminé avant la diffusion réelle.",
     copy: `FR — 💙 Merci pour Au bord du bleu!
 
-Vous avez été nombreux à nous rejoindre au parc Lôbadanaki, et votre écoute a donné aux textes, aux voix et à la musique un écrin exceptionnel au bord du lac.
+Vous avez été nombreux à nous rejoindre au parc Lôbadanaki. Votre écoute a offert aux textes, aux voix et à la musique un écrin exceptionnel au bord du lac.
 
-Merci aux artistes qui ont partagé cette journée avec nous : Elisabeth Levac, Heidi Monk, Douce Sévigny, Myriam Bouchard, Florence Morin, Fabrice Larue, François Louis Laurin — Franchanteur, Malaurie Champagne, Mélissa Connolly Soprano, Marianne Lacharité-Lemieux, Karrie Parent et Normand Delinelle — MC June.
+Merci aux autrices et auteurs qui ont partagé leurs propres mots : Elisabeth Levac, Heidi Monk, Douce Sévigny, Myriam Bouchard, Florence Morin, Fabrice Larue, François Louis Laurin — Franchanteur, Malaurie Champagne, Marianne Lacharité-Lemieux, Normand Delinelle — MC June, ainsi que Heather Ross, autrice de *Sanctuary*.
 
-Une pensée toute particulière pour Heather Ross : même en son absence, son poème *Sanctuary* a rejoint le public grâce à une lecture sur place.
+Merci également aux interprètes qui ont prêté leur voix à des œuvres d’autres auteurs, par le conte, le chant ou la lecture : Karrie Parent, Mélissa Connolly Soprano, Denis Petitclerc, président de Bleu Massawippi, et Valentin Wittwe, directeur des communications. C’est Valentin qui a lu *Sanctuary* au nom de Heather Ross.
 
 Merci à toutes et à tous d’avoir fait circuler la poésie au bord du bleu.
 
@@ -531,11 +531,11 @@ Merci à toutes et à tous d’avoir fait circuler la poésie au bord du bleu.
 
 EN — 💙 Thank you for Au bord du bleu!
 
-So many of you joined us at parc Lôbadanaki, and your attentive presence gave the words, voices and music a beautiful home by the lake.
+So many of you joined us at parc Lôbadanaki. Your attentive presence gave the words, voices and music a beautiful home by the lake.
 
-Our heartfelt thanks to the artists who shared the day with us: Elisabeth Levac, Heidi Monk, Douce Sévigny, Myriam Bouchard, Florence Morin, Fabrice Larue, François Louis Laurin — Franchanteur, Malaurie Champagne, Mélissa Connolly Soprano, Marianne Lacharité-Lemieux, Karrie Parent and Normand Delinelle — MC June.
+Our heartfelt thanks to the writers who shared their own words: Elisabeth Levac, Heidi Monk, Douce Sévigny, Myriam Bouchard, Florence Morin, Fabrice Larue, François Louis Laurin — Franchanteur, Malaurie Champagne, Marianne Lacharité-Lemieux, Normand Delinelle — MC June, and Heather Ross, author of *Sanctuary*.
 
-A special thought for Heather Ross: although she could not attend, her poem *Sanctuary* reached the audience through a reading at the event.
+We also thank the performers who lent their voices to works by other authors through storytelling, song or reading: Karrie Parent, Mélissa Connolly Soprano, Denis Petitclerc, president of Bleu Massawippi, and Valentin Wittwe, communications director. Valentin read *Sanctuary* on Heather Ross’s behalf.
 
 Thank you all for helping poetry travel along the blue.
 
