@@ -291,7 +291,13 @@ assert.match(poetryThanks?.copy || "", /interprètes qui ont prêté leur voix �
   "Le texte français doit distinguer les lectures, chants et interprétations d’autres œuvres.");
 assert.match(poetryThanks?.copy || "", /Denis Petitclerc, président de Bleu Massawippi/);
 assert.match(poetryThanks?.copy || "", /Valentin Wittwe, directeur des communications/);
-assert.match(poetryThanks?.copy || "", /Valentin qui a lu \*Sanctuary\* au nom de Heather Ross/);
+assert.match(poetryThanks?.copy || "", /Valentin Wittwe, directeur des communications, qui a lu \*Sanctuary\* au nom de Heather Ross/);
+assert.match(poetryThanks?.copy || "", /communications director Valentin Wittwe, who read \*Sanctuary\* on Heather Ross’s behalf/);
+const [poetryThanksFr = "", poetryThanksEn = ""] = String(poetryThanks?.copy || "").split("=========================================");
+assert.equal((poetryThanksFr.match(/\bValentin\b/g) || []).length, 1,
+  "Le remerciement français doit nommer Valentin une seule fois.");
+assert.equal((poetryThanksEn.match(/\bValentin\b/g) || []).length, 1,
+  "Le remerciement anglais doit nommer Valentin une seule fois.");
 assert.match(poetryThanks?.copy || "", /Marimay Loubier Photographe/);
 assert.doesNotMatch(JSON.stringify(poetryThanks || {}), /photos\.app\.goo\.gl|Google Photos/i,
   "Le lien de l’album est réservé à la consultation interne dans Codex.");
