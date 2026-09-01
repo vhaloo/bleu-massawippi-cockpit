@@ -1036,7 +1036,7 @@ assert.ok(fs.statSync(matchedDonationPreview).size < 150_000, "L’aperçu Zeffy
 assert.doesNotMatch(posts.find((post) => post.id === "s4d7").copy, /bleumassawippi\.com\/quiz/,
   "Un sondage qui mentionne éventuellement un quiz ne doit pas être transformé en publication quiz.");
 assert.equal((source.match(/data-internal-project-id=/g) || []).length, 18, "Le registre privé doit contenir les dix-huit projets internes documentés.");
-assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-08-26-nettoyage-berges-v1"/);
+assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-09-01-archives-v1"/);
 const internalProjectIds = [...source.matchAll(/data-internal-project-id="([a-z0-9-]+)"/g)].map((match) => match[1]).sort();
 assert.ok(internalProjectIds.includes("nettoyage-berges-2026"), "Le projet de nettoyage des berges 2026 doit être présent dans le registre.");
 const shorelineCleanupProject = source.match(/<details class="internal-project urgent" id="internal-project-nettoyage-berges-2026"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
@@ -1058,6 +1058,12 @@ assert.match(source, /Jeux provinciaux de pêche — événement terminé[\s\S]{
   "La fiche des Jeux provinciaux de pêche doit annoncer clairement sa clôture.");
 assert.match(internalProjectSeed, /"jeux-provinciaux-peche": "completed"/,
   "Le seed ne doit jamais recréer les Jeux provinciaux de pêche comme projet actif ou bloqué.");
+assert.match(source, /data-internal-project-id="poesie-du-lac" data-initial-stage="completed"/,
+  "Au bord du bleu doit rester classé comme projet terminé dans la source de repli.");
+assert.match(source, /AU_BORD_DU_BLEU_INDEX_CLOTURE_ARCHIVES_2026-09-01\.md/,
+  "La fiche archivée doit exposer son index final de clôture.");
+assert.match(source, /ARCHIVES%20-%20cl%C3%B4ture%20finale%20-%202026-09-01/,
+  "La fiche archivée doit mener au dossier SharePoint final sans exposer le lien photo privé.");
 const applicationProject = source.match(/<details class="internal-project" id="internal-project-application-carte-vivante-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
 assert.match(applicationProject, /data-waiting-source="functional-spec-pending"/);
 assert.match(applicationProject, /CADRAGE SEULEMENT · PRODUCTION NON AUTORISÉE/);
@@ -1120,7 +1126,8 @@ assert.match(poetryProject, /réseau d’acteurs, de poètes, de slameurs et d�
 assert.match(poetryProject, /Au bord du bleu/);
 assert.match(poetryProject, /ÉVÉNEMENT TENU/);
 assert.match(poetryProject, /Suivi post-événement/);
-assert.match(poetryProject, /Prochaine action post-événement/);
+assert.match(poetryProject, /Aucune action opérationnelle ouverte/,
+  "La fiche archivée ne doit plus afficher une action opérationnelle comme encore ouverte.");
 assert.match(poetryProject, /Registre_consentements_post-evenement_2026-08-31\.md/);
 assert.match(poetryProject, /Suivi_post-evenement_2026-08-31\.md/);
 assert.match(poetryProject, /dimanche 30 août/i);
@@ -1166,9 +1173,9 @@ assert.match(poetryProject, /Partenaires et commandites — visibilité utile, i
 assert.match(poetryProject, /aucune visibilité ne donne un droit de regard sur la sélection artistique/i);
 assert.doesNotMatch(poetryProject, /ADDENDUM_VISUEL_PARTENAIRES_AU_BORD_DU_BLEU_V5\.md/,
   "L’ancien addendum doit demeurer archivé sans encombrer les documents actifs.");
-assert.match(poetryProject, /data-initial-stage="active" open/,
-  "La fiche poésie en préparation avancée doit rester ouverte afin de rendre l’affiche immédiatement visible.");
-assert.match(poetryProject, /30 AOÛT · ACCUEIL 13 H · PROGRAMME 13 H 20 · PREMIÈRE LECTURE 13 H 27 · FIN 16 H/);
+assert.match(poetryProject, /data-initial-stage="completed"/,
+  "La fiche poésie doit être archivée sans être forcée ouverte dans le registre courant.");
+assert.match(poetryProject, /ARCHIVÉ · ÉVÉNEMENT TENU LE 30 AOÛT 2026 · SUCCÈS CONFIRMÉ/);
 assert.match(poetryProject, /Quatorze personnes uniques recensées; treize contributions actives au décompte public/i);
 assert.match(poetryProject, /Douze artistes sont prévus sur place; la treizième contribution est le texte final de Heather, lu par Valentin en son absence/i);
 assert.match(poetryProject, /Mélissa, la chanteuse, est déjà comprise dans ces douze/i);
@@ -1206,11 +1213,11 @@ for (const meetingTopic of ["Lieu et autorité", "Horaire et logistique", "Mét�
 assert.doesNotMatch(poetryProject, /<details[^>]+id="poesie-rencontre-north-hatley-2026-08-10"/,
   "L’aide-mémoire ne doit plus occuper un long encart dans la fiche du projet.");
 assert.doesNotMatch(poetryProject, /Aide_memoire_rencontre_North_Hatley_Au_bord_du_bleu_2026-08-10\.pdf|Aide-mémoire — rencontre du 10 août/);
-assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 15,
-  "La fiche active doit présenter les douze ressources du paquet final et les trois entrées de suivi post-événement.");
-assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 15,
+assert.equal((poetryProject.match(/class="internal-project-document-card"/g) || []).length, 17,
+  "La fiche archivée doit présenter les douze ressources finales, les trois suivis post-événement et les deux accès de clôture.");
+assert.equal((poetryProject.match(/class="internal-project-document-kind"/g) || []).length, 17,
   "Chaque carte documentaire doit annoncer clairement son type.");
-assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 15,
+assert.equal((poetryProject.match(/class="internal-project-document-action"/g) || []).length, 17,
   "Chaque ressource spécialisée doit proposer un bouton d’ouverture explicite.");
 for (const archivedOperationalDocument of [
   "TEXTE_PARTENAIRES_MUNICIPALITES_AU_BORD_DU_BLEU_2026-08-10.md",
@@ -1249,13 +1256,13 @@ assert.match(poetryProject, /AU_BORD_DU_BLEU_CHECKLIST_VEILLE_2026-08-29\.md/);
 assert.match(poetryProject, /AU_BORD_DU_BLEU_MANIFESTE_LIVRABLES_COURANTS_2026-08-29\.md/);
 assert.match(poetryProject, /SOURCES_PRESENTATIONS_ARTISTES_2026-08-29\.md/,
   "La note de sources des présentations enrichies doit rester accessible depuis le projet.");
-assert.match(poetryProject, /guide terrain final de 23 pages est verrouillé/i);
+assert.match(poetryProject, /PDF · 29 août · 23 pages · verrouillé/i);
 assert.match(poetryProject, /accueil bilingue/i);
 assert.match(poetryProject, /transitions-présentations/i);
 assert.match(poetryProject, /Guide personnel de Valentin — conduite chronologique complète/i);
 assert.match(poetryProject, /<em>Sanctuary<\/em>/i);
-assert.match(poetryProject, /deux affiches QR déjà imprimées/i);
-assert.match(poetryProject, /conservent leurs codes et leurs destinations/i);
+assert.match(poetryProject, /affiches QR et matériel du remerciement restent conservés/i,
+  "La clôture doit conserver les supports imprimés sans réécrire leurs destinations.");
 assert.doesNotMatch(poetryProject, /guide terrain PDF de 21 pages/i);
 assert.doesNotMatch(poetryProject, /PDF de 20 pages/i);
 assert.doesNotMatch(poetryProject, /treize paniers/i);
