@@ -1,8 +1,9 @@
 import fs from "node:fs/promises";
+import { execFile } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
 import crypto from "node:crypto";
-import os from "node:os";
+import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { applicationDefault, initializeApp } from "firebase-admin/app";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
@@ -95,10 +96,15 @@ async function synchronizePrivateContentWithFirebaseCli() {
   if (!contentOnly) {
     throw new Error("--firebase-cli-rest exige --content-only afin de ne jamais toucher aux publications ni à leur workflow.");
   }
-  const configPath = path.join(os.homedir(), ".config", "configstore", "firebase-tools.json");
-  const config = JSON.parse(await fs.readFile(configPath, "utf8"));
-  const accessToken = config.tokens?.access_token;
-  if (!accessToken || Number(config.tokens?.expires_at || 0) < Date.now() + 120_000) {
+  const execFileAsync = promisify(execFile);
+  const firebaseCommand = process.platform === "win32" ? (process.env.ComSpec || "cmd.exe") : "npx";
+  const firebaseArgs = process.platform === "win32"
+    ? ["/d", "/s", "/c", "npx firebase-tools@15.23.0 login:list --json"]
+    : ["firebase-tools@15.23.0", "login:list", "--json"];
+  const { stdout } = await execFileAsync(firebaseCommand, firebaseArgs, { windowsHide: true, maxBuffer: 2_000_000 });
+  const session = (JSON.parse(stdout)?.result || []).find((entry) => entry?.tokens?.access_token && entry?.user?.email);
+  const accessToken = session?.tokens?.access_token;
+  if (!accessToken || Number(session.tokens?.expires_at || 0) < Date.now() + 120_000) {
     throw new Error("Session Firebase CLI expirée; renouveler la session avant cette synchronisation bornée.");
   }
   const projectId = process.env.GOOGLE_CLOUD_PROJECT || "bleu-massawippi-cockpit-5d860";
