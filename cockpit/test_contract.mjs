@@ -1196,6 +1196,10 @@ assert.match(source, /Registre_operationnel_donateurs_et_adherents_2025-09-01_au
 assert.match(source, /Audit_et_corrections_Zeffy_2026-08-31\.md/);
 assert.match(source, /id="soutien-mission-20260920"/);
 assert.match(source, /Dossier_soutien_mission_2026-09-20\.md/);
+assert.match(source, /Liste_membres_demande_subvention_INTERNE_2025-09-01_au_2026-08-31\.xlsx/);
+assert.match(source, /123 personnes retenues/);
+assert.match(source, /quatre courriels absents des sources restent à confirmer/);
+assert.match(source, /Canada Helps est exclu comme intermédiaire de paiement/);
 for (const meetingTopic of ["Lieu et autorité", "Horaire et logistique", "Météo et décision", "Collaboration et visibilité"]) {
   assert.match(meetingBriefBuilder, new RegExp(meetingTopic), `Le PDF municipal doit couvrir : ${meetingTopic}.`);
 }
