@@ -281,10 +281,17 @@ assert.ok((poetryThanks?.copy || "").length <= 2200, "Le remerciement bilingue d
 for (const artist of [
   "Elisabeth Levac", "Heidi Monk", "Douce Sévigny", "Myriam Bouchard", "Florence Morin", "Fabrice Larue",
   "François Louis Laurin", "Malaurie Champagne", "Mélissa Connolly Soprano", "Marianne Lacharité-Lemieux",
-  "Karrie Parent", "Normand Delinelle", "Heather Ross", "Sanctuary"
+  "Karrie Parent", "Normand Delinelle", "Heather Ross", "Sanctuary", "Denis Petitclerc", "Valentin Wittwe"
 ]) {
   assert.match(poetryThanks?.copy || "", new RegExp(artist), `Le remerciement doit conserver ${artist}.`);
 }
+assert.match(poetryThanks?.copy || "", /autrices et auteurs qui ont partagé leurs propres mots/,
+  "Le texte français doit distinguer les créations originales.");
+assert.match(poetryThanks?.copy || "", /interprètes qui ont prêté leur voix à des œuvres d’autres auteurs/,
+  "Le texte français doit distinguer les lectures, chants et interprétations d’autres œuvres.");
+assert.match(poetryThanks?.copy || "", /Denis Petitclerc, président de Bleu Massawippi/);
+assert.match(poetryThanks?.copy || "", /Valentin Wittwe, directeur des communications/);
+assert.match(poetryThanks?.copy || "", /Valentin qui a lu \*Sanctuary\* au nom de Heather Ross/);
 assert.match(poetryThanks?.copy || "", /Marimay Loubier Photographe/);
 assert.doesNotMatch(JSON.stringify(poetryThanks || {}), /photos\.app\.goo\.gl|Google Photos/i,
   "Le lien de l’album est réservé à la consultation interne dans Codex.");
