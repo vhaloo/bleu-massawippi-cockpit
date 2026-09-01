@@ -1864,37 +1864,37 @@ Photo : Marimay Loubier Photographe · @marimayloubierphotographe
 #AuBordDuBleu #BleuMassawippi #Poésie #Poetry #LacMassawippi
 ```
 
-## Mardi 1er septembre — Le bassin versant relie le paysage
+## Mardi 1er septembre — Retenir. Ralentir. Accueillir.
 
-**Thème :** Communauté
-**Format :** Semi-promo chaleureuse · détails à venir
-**Objectif :** Publication de remplacement préparée après le report de l’atelier : montrer avec une photographie réelle que le lac, les collines, les sols, les fossés, les milieux humides et les cours d’eau appartiennent à un même bassin versant.
-**CTA :** Regarder au-delà de la rive
-**Visuel final :** Photographie aérienne réelle du lac et des collines environnantes, sans texte ajouté ni limite de bassin inventée. Le paysage sert à faire comprendre visuellement que le lac est relié à un territoire plus vaste.
+**Thème :** Éducation
+**Format :** Carrousel illustré · trois fonctions
+**Objectif :** Bonne idée conservée et reprogrammée après arbitrage; capsule sur les fonctions d’une rive végétalisée à renforcer en français.
+**CTA :** Voir la rive autrement
+**Visuel final :** Photographie documentaire réelle d’une rive naturelle où l’eau, le sol, les rochers et la végétation demeurent lisibles. Privilégier une image interne distincte des vues aériennes déjà répétées; aucun décor ni espèce inventés.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Gouvernement du Québec — Gestion intégrée des ressources en eau : https://www.quebec.ca/habitation-territoire/amenagement-developpement-territoires/amenagement-territoire/guide-prise-decision-urbanisme/protection-environnement/gestion-integree-ressources-eau
+**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
 **Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
 
 ### Légende prête à programmer
 
 ```text
-FR — Le lac ne s’arrête pas à sa rive. Autour de lui, les collines, les sols, les fossés, les milieux humides et les cours d’eau font partie d’un même réseau : le bassin versant.
+FR — Retenir le sol. Ralentir l’eau. Accueillir la faune.
 
-L’eau qui tombe sur ce territoire finit par suivre un chemin vers un cours d’eau ou le lac. Regarder le paysage comme un tout aide à comprendre pourquoi les gestes posés en amont comptent aussi pour le Massawippi.
+Trois gestes, une même rive vivante. Ses racines stabilisent le sol, sa végétation freine une partie du ruissellement et ses différentes hauteurs créent des abris pour de nombreuses espèces.
 
-La prochaine fois que vous regardez le lac, jusqu’où imaginez-vous son bassin versant autour de vous?
+La prochaine fois que vous longez le lac, lequel de ces rôles remarquerez-vous en premier?
 
-#BleuMassawippi #LacMassawippi #BassinVersant #Eau
+#BleuMassawippi #LacMassawippi #RiveVivante #NatureDuLac
 
 =========================================
 
-EN — The lake does not end at its shoreline. Around it, hills, soils, ditches, wetlands and waterways are part of the same network: the watershed.
+EN — Hold the soil. Slow the water. Welcome wildlife.
 
-Water that falls across this territory eventually follows a path toward a waterway or the lake. Seeing the landscape as a whole helps explain why actions taken upstream also matter for Massawippi.
+Three actions, one living shoreline. Its roots stabilize soil, its vegetation slows some runoff and its different layers create shelter for many species.
 
-Next time you look at the lake, how far can you imagine its watershed extending around you?
+Next time you travel along the lake, which of these roles will you notice first?
 
-#BleuMassawippi #LakeMassawippi #Watershed #Water
+#BleuMassawippi #LakeMassawippi #LivingShoreline #LakeNature
 ```
 
 ## Mercredi 2 septembre — Le nénuphar, un petit habitat à la surface
@@ -2598,35 +2598,35 @@ Photo: Philzzz77, CC BY-SA 4.0.
 #BleuMassawippi #LakeMassawippi #AlongTheLake
 ```
 
-## Mercredi 30 septembre — Retenir. Ralentir. Accueillir.
+## Mercredi 30 septembre — Le bassin versant relie le paysage
 
-**Thème :** Éducation
-**Format :** Carrousel illustré · trois fonctions
-**Objectif :** Bonne idée conservée et reprogrammée après arbitrage; capsule sur les fonctions d’une rive végétalisée à renforcer en français.
-**CTA :** Voir la rive autrement
-**Visuel final :** Photographie documentaire réelle d’une rive naturelle où l’eau, le sol, les rochers et la végétation demeurent lisibles. Privilégier une image interne distincte des vues aériennes déjà répétées; aucun décor ni espèce inventés.
+**Thème :** Communauté
+**Format :** Semi-promo chaleureuse · détails à venir
+**Objectif :** Publication de remplacement préparée après le report de l’atelier : montrer avec une photographie réelle que le lac, les collines, les sols, les fossés, les milieux humides et les cours d’eau appartiennent à un même bassin versant.
+**CTA :** Regarder au-delà de la rive
+**Visuel final :** Photographie aérienne réelle du lac et des collines environnantes, sans texte ajouté ni limite de bassin inventée. Le paysage sert à faire comprendre visuellement que le lac est relié à un territoire plus vaste.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Contenu institutionnel; vérifier tout fait ou consigne auprès d’une source primaire avant diffusion.
+**Source de référence :** Gouvernement du Québec — Gestion intégrée des ressources en eau : https://www.quebec.ca/habitation-territoire/amenagement-developpement-territoires/amenagement-territoire/guide-prise-decision-urbanisme/protection-environnement/gestion-integree-ressources-eau
 **Préparation :** Finaliser le texte bilingue, vérifier les faits et produire le visuel avant les deux validations.
 
 ### Légende prête à programmer
 
 ```text
-FR — Retenir le sol. Ralentir l’eau. Accueillir la faune.
+FR — Le lac ne s’arrête pas à sa rive. Autour de lui, les collines, les sols, les fossés, les milieux humides et les cours d’eau font partie d’un même réseau : le bassin versant.
 
-Trois gestes, une même rive vivante. Ses racines stabilisent le sol, sa végétation freine une partie du ruissellement et ses différentes hauteurs créent des abris pour de nombreuses espèces.
+L’eau qui tombe sur ce territoire finit par suivre un chemin vers un cours d’eau ou le lac. Regarder le paysage comme un tout aide à comprendre pourquoi les gestes posés en amont comptent aussi pour le Massawippi.
 
-La prochaine fois que vous longez le lac, lequel de ces rôles remarquerez-vous en premier?
+La prochaine fois que vous regardez le lac, jusqu’où imaginez-vous son bassin versant autour de vous?
 
-#BleuMassawippi #LacMassawippi #RiveVivante #NatureDuLac
+#BleuMassawippi #LacMassawippi #BassinVersant #Eau
 
 =========================================
 
-EN — Hold the soil. Slow the water. Welcome wildlife.
+EN — The lake does not end at its shoreline. Around it, hills, soils, ditches, wetlands and waterways are part of the same network: the watershed.
 
-Three actions, one living shoreline. Its roots stabilize soil, its vegetation slows some runoff and its different layers create shelter for many species.
+Water that falls across this territory eventually follows a path toward a waterway or the lake. Seeing the landscape as a whole helps explain why actions taken upstream also matter for Massawippi.
 
-Next time you travel along the lake, which of these roles will you notice first?
+Next time you look at the lake, how far can you imagine its watershed extending around you?
 
-#BleuMassawippi #LakeMassawippi #LivingShoreline #LakeNature
+#BleuMassawippi #LakeMassawippi #Watershed #Water
 ```
