@@ -342,6 +342,20 @@ assert.match(document.querySelector(".vm-queue-end").textContent, /toutes vos d�
   assert.equal(adminIdentityCard.querySelector(':scope > .post-head').getAttribute('role'), 'button',
     'La carte doit rester ouvrable dans la vue complète des communications.');
   assert.match(document.querySelector(".vm-decisions").textContent, /Action réservée aux communications/);
+  for (const [navName, panelId] of [["decision", "vm-panel-decision"], ["today", "vm-panel-today"], ["messages", "vm-panel-message"]]) {
+    document.querySelector('#cockpit-view-mode-toggle [data-view-mode="complete"]').click();
+    await wait(20);
+    const scrollCountBefore = scrollCalls.length;
+    document.querySelector(`[data-vm-nav="${navName}"]`).click();
+    await wait(30);
+    const targetPanel = document.querySelector(`#${panelId}`);
+    assert.equal(document.body.classList.contains("cockpit-view-essential"), true,
+      `Le raccourci ${navName} doit révéler le tableau de bord même depuis la vue complète.`);
+    assert.ok(scrollCalls.length > scrollCountBefore && scrollCalls.at(-1)?.element === targetPanel,
+      `Le raccourci ${navName} doit positionner la page sur son panneau réel.`);
+    assert.equal(targetPanel.dataset.testFocused, "true",
+      `Le panneau ${navName} doit recevoir le focus après la navigation.`);
+  }
   document.body.dataset.workflowSync = "pending";
   window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
   await wait();
