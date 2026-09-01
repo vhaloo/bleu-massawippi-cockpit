@@ -1843,7 +1843,7 @@ Vous avez été nombreux à nous rejoindre au parc Lôbadanaki. Votre écoute a 
 
 Merci aux autrices et auteurs qui ont partagé leurs propres mots : Elisabeth Levac, Heidi Monk, Douce Sévigny, Myriam Bouchard, Florence Morin, Fabrice Larue, François Louis Laurin — Franchanteur, Malaurie Champagne, Marianne Lacharité-Lemieux, Normand Delinelle — MC June, ainsi que Heather Ross, autrice de *Sanctuary*.
 
-Merci également aux interprètes qui ont prêté leur voix à des œuvres d’autres auteurs, par le conte, le chant ou la lecture : Karrie Parent, Mélissa Connolly Soprano, Denis Petitclerc, président de Bleu Massawippi, et Valentin Wittwe, directeur des communications. C’est Valentin qui a lu *Sanctuary* au nom de Heather Ross.
+Merci également aux interprètes qui ont prêté leur voix à des œuvres d’autres auteurs, par le conte, le chant ou la lecture : Karrie Parent, Mélissa Connolly Soprano, Denis Petitclerc, président de Bleu Massawippi, et Valentin Wittwe, directeur des communications, qui a lu *Sanctuary* au nom de Heather Ross.
 
 Merci à toutes et à tous d’avoir fait circuler la poésie au bord du bleu.
 
@@ -1855,7 +1855,7 @@ So many of you joined us at parc Lôbadanaki. Your attentive presence gave the w
 
 Our heartfelt thanks to the writers who shared their own words: Elisabeth Levac, Heidi Monk, Douce Sévigny, Myriam Bouchard, Florence Morin, Fabrice Larue, François Louis Laurin — Franchanteur, Malaurie Champagne, Marianne Lacharité-Lemieux, Normand Delinelle — MC June, and Heather Ross, author of *Sanctuary*.
 
-We also thank the performers who lent their voices to works by other authors through storytelling, song or reading: Karrie Parent, Mélissa Connolly Soprano, Denis Petitclerc, president of Bleu Massawippi, and Valentin Wittwe, communications director. Valentin read *Sanctuary* on Heather Ross’s behalf.
+We also thank the performers who lent their voices to works by other authors through storytelling, song or reading: Karrie Parent, Mélissa Connolly Soprano, Denis Petitclerc, president of Bleu Massawippi, and communications director Valentin Wittwe, who read *Sanctuary* on Heather Ross’s behalf.
 
 Thank you all for helping poetry travel along the blue.
 
