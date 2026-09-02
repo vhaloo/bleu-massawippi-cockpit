@@ -4,6 +4,25 @@
 
 Ce document rassemble les besoins évoqués avec la direction afin de préserver les idées sans transformer une exploration en engagement. Il ne constitue ni un devis accepté, ni un échéancier de livraison, ni une autorisation de développement.
 
+## Mise à jour du 2 septembre — ÉcoAction volet 2
+
+Annie a transmis l’appel 2027 d’ÉcoAction volet 2 en proposant d’évaluer la « carte vivante ». Cette transmission crée une **décision de préqualification**, pas une autorisation de déposer une demande.
+
+L’adéquation la plus crédible est un **nouveau pilote 2027 d’interopérabilité, d’accès et d’utilisation des données sur l’eau douce**, conçu localement mais documenté pour pouvoir être repris dans d’autres régions. Le projet doit produire des résultats mesurables; il ne peut pas être présenté comme une simple application locale ni comme un projet principalement consacré à l’échantillonnage ou à la collecte de données.
+
+Repères officiels vérifiés le 2 septembre :
+
+- dépôt au plus tard le 23 septembre 2026 à 15 h, heure de l’Est;
+- contribution demandée de 25 000 $ à 200 000 $;
+- contrepartie non fédérale minimale de 50 % du coût total;
+- démarrage pendant l’exercice 2027-2028, durée maximale de deux ans et fin au plus tard le 31 mars 2029;
+- projet non déjà en cours, d’intérêt national ou local mais adaptable ailleurs au Canada;
+- au moins un indicateur chiffré, par exemple le nombre d’utilisateurs ayant un meilleur accès aux données et connaissances.
+
+Conséquence budgétaire : avec une contribution minimale de 25 000 $ et une contrepartie 1:1, le projet admissible doit totaliser au moins 50 000 $. Le scénario pilote actuel de 45 770 $ ne suffit donc pas tel quel pour demander le minimum fédéral. Il faut revoir le montage sans gonfler artificiellement la portée.
+
+Les travaux Alpha déjà réalisés peuvent servir de preuve de préparation, mais ne doivent pas être inclus comme activités futures ni laisser croire que le nouveau pilote ÉcoAction a commencé. Le cahier fonctionnel annoncé le 20 août, l’inventaire des sept livrables, les partenaires, la contrepartie, les indicateurs et la gouvernance doivent être réconciliés avant toute décision go / no-go.
+
 ## Source de la direction reçue le 17 août
 
 Annie a transmis le document Word **« Résumé pour le projet Application — Prototype Alpha 0.0.1 »**. L’original est conservé dans le dossier de travail privé avec son empreinte SHA-256. Les éléments ci-dessous en reprennent la substance; les formulations d’avancement sont traitées comme une proposition de la direction à vérifier, pas comme une preuve technique.
@@ -135,9 +154,23 @@ Ces étapes restent hypothétiques jusqu’à une autorisation ultérieure.
 - Quelle municipalité ou quel partenaire accepte un pilote limité?
 - Quels critères entraînent une pause, un retrait ou l’arrêt du service?
 - Quelle expérience minimale demeure utile sans boutique d’applications?
+- La direction veut-elle consacrer du temps à une préqualification ÉcoAction avant le 23 septembre?
+- Quel nouveau pilote 2027 peut être distingué sans ambiguïté des travaux préparatoires déjà réalisés?
+- Quelle contribution non fédérale en argent ou en nature rend la contrepartie de 50 % réaliste?
+- Quelle méthode ou quel livrable rend le pilote transférable à d’autres lacs au Canada?
+- Quel indicateur ÉcoAction sera mesuré, avec quelle valeur de départ et quelle cible?
 
 ## Statut
 
 **Cadrage documentaire seulement.** Les idées sont préservées et structurées. La programmation, la maquette fonctionnelle, l’achat de services, l’engagement d’un partenaire et l’annonce d’une date exigent une autorisation distincte.
 
 **Réconciliation requise :** comparer chaque livrable que le résumé décrit comme déjà avancé aux fichiers réellement disponibles. Le pourcentage de 60–80 %, la gratuité de la phase 0 et la conclusion « prête à développer » restent non confirmés jusqu’à cette vérification.
+
+## Chronologie consolidée
+
+- **10 août 2026** — compte rendu : budget approximatif par phase à préparer par Annie et Valentin; page couverture à produire par Valentin.
+- **17 août 2026** — réception du résumé « Prototype Alpha 0.0.1 » et de ses sept livrables proposés.
+- **20 août 2026** — cahier fonctionnel annoncé comme transmis à Denis; fichier encore non reçu dans communication@ ni dans le Cockpit.
+- **2 septembre 2026** — réception de l’appel ÉcoAction volet 2; piste à préqualifier, sans décision de dépôt.
+
+Source officielle : https://www.canada.ca/fr/agence-eau-canada/financement/programme-communautaire-ecoaction/volet2.html
