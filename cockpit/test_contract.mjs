@@ -1066,16 +1066,18 @@ assert.match(source, /ARCHIVES%20-%20cl%C3%B4ture%20finale%20-%202026-09-01/,
   "La fiche archivée doit mener au dossier SharePoint final sans exposer le lien photo privé.");
 const applicationProject = source.match(/<details class="internal-project" id="internal-project-application-carte-vivante-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
 assert.match(applicationProject, /data-waiting-source="functional-spec-pending"/);
-assert.match(applicationProject, /CADRAGE SEULEMENT · PRODUCTION NON AUTORISÉE/);
-assert.match(applicationProject, /En attente du cahier/);
+assert.match(applicationProject, /ÉCOACTION À QUALIFIER · 23 SEPT\. · AUCUNE PRODUCTION/);
+assert.match(applicationProject, /Décision de préqualification/);
 assert.match(applicationProject, /Aucun fichier ni contenu correspondant n’a été reçu dans communication@ ou dans le Cockpit/);
 assert.match(applicationProject, /aucune validation, approbation ou action de production n’est déduite/);
 assert.match(applicationProject, /Cahier des charges fonctionnel/);
-assert.match(applicationProject, /Annonce · 20 août · fichier non reçu/);
+assert.match(applicationProject, /Rétroaction · 19–20 août · fichier non reçu/);
 assert.match(applicationProject, /résumé « Prototype Alpha 0\.0\.1 » reçu d’Annie est maintenant intégré au cadrage/);
 assert.match(applicationProject, /estimation de 60–80 % doit être vérifiée livrable par livrable/);
 assert.match(applicationProject, /Aucun code, prototype fonctionnel, achat, partenaire, échéance publique ni lancement n’est autorisé/);
 assert.match(applicationProject, /Cadrage_application_Massawippi_en_partage_2026-08-17\.md/);
+assert.match(applicationProject, /Note_decision_EcoAction_carte_vivante_2026-09-02\.md/);
+assert.match(applicationProject, /Inventaire_courriels_Annie_application_2026-09-02\.md/);
 assert.match(applicationProject, /Découverte à documenter, pas à développer/);
 assert.match(applicationProject, /application-reference-lakepulse/);
 assert.match(applicationProject, /dernière date de prélèvement au 11 juillet 2017/,
@@ -1375,6 +1377,14 @@ assert.match(beachMonitoringProject, /aucun service n’est présenté comme con
 const pagesWorkflow = fs.readFileSync(path.join(root, ".github/workflows/deploy-pages.yml"), "utf8");
 assert.match(pagesWorkflow, /cp -R cockpit\/assets public\/assets/,
   "GitHub Pages doit publier les visuels des projets internes.");
+for (const applicationDocument of [
+  "Cadrage_application_Massawippi_en_partage_2026-08-17.md",
+  "Note_decision_EcoAction_carte_vivante_2026-09-02.md",
+  "Inventaire_courriels_Annie_application_2026-09-02.md"
+]) {
+  assert.ok(fs.existsSync(path.join(root, "project-documents", applicationDocument)), `Le document d’application doit exister : ${applicationDocument}`);
+  assert.ok(pagesWorkflow.includes(`cp project-documents/${applicationDocument} public/project-documents/`), `Le document d’application doit être livré par GitHub Pages : ${applicationDocument}`);
+}
 for (const stage of ["to_frame", "planned", "active", "blocked", "completed"]) {
   assert.ok(client.includes(`"${stage}"`) && firestoreRules.includes(`'${stage}'`) && internalProjectSeed.includes(`"${stage}"`), `L’étape interne ${stage} doit rester alignée entre client, règles et initialisation.`);
 }

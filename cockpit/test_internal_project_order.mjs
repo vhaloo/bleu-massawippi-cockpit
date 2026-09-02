@@ -14,6 +14,7 @@ const renderedByRole = new Map(["director", "admin"].map((role) => {
 }));
 const { document, order: renderedOrder } = renderedByRole.get("director");
 const applicationProject = document.querySelector('[data-internal-project-id="application-carte-vivante-lac"]');
+const ecoActionOpportunity = document.querySelector('[data-opportunity-id="ecoaction-freshwater"]');
 
 assert.equal(new Set(internalProjectUrgencyOrder).size, internalProjectUrgencyOrder.length, "Le classement ne doit contenir aucun doublon.");
 assert.deepEqual(new Set(internalProjectUrgencyOrder), new Set(projectIds), "Chaque projet existant doit être classé une seule fois.");
@@ -42,8 +43,38 @@ assert.equal(document.querySelector("[data-internal-project-archive-summary]")?.
 assert.match(document.querySelector("[data-internal-project-archive-summary]")?.textContent || "", /2 projets archivés affichés en premier/);
 assert.equal(applicationProject?.dataset.initialStage, "to_frame", "Le cahier annoncé ne doit pas transformer le cadrage en production active ou terminée.");
 assert.equal(applicationProject?.dataset.waitingSource, "functional-spec-pending", "Le dossier doit rester explicitement en attente du cahier des charges annoncé.");
-assert.match(applicationProject?.textContent || "", /En attente du cahier/);
+assert.match(applicationProject?.textContent || "", /Décision de préqualification/);
 assert.match(applicationProject?.textContent || "", /Aucun fichier ni contenu correspondant n’a été reçu/);
 assert.match(applicationProject?.textContent || "", /aucune validation, approbation ou action de production n’est déduite/);
+assert.match(applicationProject?.textContent || "", /ÉcoAction volet 2/);
+assert.match(applicationProject?.textContent || "", /23 septembre 2026 à 15 h/);
+assert.match(applicationProject?.textContent || "", /25 000 \$ à 200 000 \$/);
+assert.match(applicationProject?.textContent || "", /contrepartie non fédérale minimale de 50 %/);
+assert.match(applicationProject?.textContent || "", /aucune demande, production, dépense ou promesse de partenariat n’est autorisée/);
+assert.equal(
+  applicationProject?.querySelector('[href="./project-documents/Note_decision_EcoAction_carte_vivante_2026-09-02.md"]')?.textContent,
+  "Ouvrir la note ÉcoAction ↗",
+  "La note de préqualification datée doit rester accessible depuis le projet."
+);
+assert.equal(
+  applicationProject?.querySelector('[href="./project-documents/Cadrage_application_Massawippi_en_partage_2026-08-17.md"]')?.textContent,
+  "Ouvrir le cadrage consolidé ↗",
+  "Le cadrage consolidé doit utiliser la copie livrée avec le cockpit plutôt qu’un lien SharePoint 404."
+);
+assert.equal(
+  applicationProject?.querySelector('[href="./project-documents/Inventaire_courriels_Annie_application_2026-09-02.md"]')?.textContent,
+  "Ouvrir l’inventaire des courriels ↗",
+  "L’inventaire daté des courriels d’Annie doit rester accessible depuis le projet."
+);
+assert.match(ecoActionOpportunity?.textContent || "", /23 SEPTEMBRE · 15 H/);
+assert.match(ecoActionOpportunity?.textContent || "", /25 000 \$ à 200 000 \$/);
+assert.match(ecoActionOpportunity?.textContent || "", /nouveau pilote 2027/);
+assert.doesNotMatch(ecoActionOpportunity?.textContent || "", /RONDE ACTUELLE FERMÉE|25 000 \$ à 100 000 \$/);
+assert.doesNotMatch(applicationProject?.innerHTML || "", /Application%20Massawippi%20en%20partage.*Cadrage_application_Massawippi/);
+assert.equal(
+  ecoActionOpportunity?.querySelector('a[href*="programme-communautaire-ecoaction/volet2.html"]')?.textContent,
+  "Appel officiel — volet 2 ↗",
+  "Le registre des occasions doit pointer vers l’appel 2027 actuellement ouvert."
+);
 
 console.log("✓ projets internes classés par urgence, sans perte de fiche");
