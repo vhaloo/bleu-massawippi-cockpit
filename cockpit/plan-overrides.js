@@ -950,7 +950,7 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["alt-20260731", 4, "Mardi 4 août", "2026-08-04"],
   ["alt-20260801", 4, "Mercredi 5 août", "2026-08-05"],
   ["barbotte-20260730-signalement", 4, "Jeudi 6 août", "2026-08-06"],
-  ["don-20260807-merci-bilan", 4, "Vendredi 7 août", "2026-08-07"],
+  ["don-20260807-merci-bilan", 12, "Vendredi 2 octobre", "2026-10-02"],
   ["actualite-20260808-denis-radio-canada-moules-zebrees", 4, "Samedi 8 août", "2026-08-08"],
   ["actualite-20260804-article-radio-canada-moules-zebrees", 4, "Dimanche 9 août", "2026-08-09"],
   ["alt-20260717", 5, "Lundi 10 août", "2026-08-10"],
@@ -968,7 +968,7 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["s4d3", 7, "Lundi 24 août", "2026-08-24"],
   ["lavage-20260903-sans-moteur", 7, "Mercredi 26 août", "2026-08-26"],
   ["s4d2", 7, "Jeudi 27 août", "2026-08-27"],
-  ["don-20260909-appel-soutien", 7, "Vendredi 28 août", "2026-08-28"],
+  ["don-20260909-appel-soutien", 14, "Vendredi 16 octobre", "2026-10-16"],
   ["poesie-20260829-rappel-demain", 7, "Samedi 29 août", "2026-08-29"],
   ["poesie-20260830-rappel-aujourdhui", 7, "Dimanche 30 août", "2026-08-30"],
   ["poesie-20260831-remerciement-public-artistes", 8, "Lundi 31 août", "2026-08-31"],
@@ -994,14 +994,20 @@ const CONTINUITY_CALENDAR_ASSIGNMENTS = [
   ["s1d2", 11, "Dimanche 27 septembre", "2026-09-27"],
   ["alt-20260714", 12, "Lundi 28 septembre", "2026-09-28"],
   ["photo-20260915-soir-automne", 12, "Mardi 29 septembre", "2026-09-29"],
-  ["alt-20260724", 12, "Mercredi 30 septembre", "2026-09-30"]
+  ["alt-20260724", 14, "Dimanche 18 octobre", "2026-10-18"]
 ];
 
 const USER_DIRECTED_RESCHEDULES = new Map([
+  ["don-20260807-merci-bilan", {
+    from: "2026-08-07",
+    to: "2026-10-02",
+    reason: "Demande des communications du 3 septembre 2026 : conserver le bilan en retard au prochain vendredi libre dans la cadence de soutien aux deux semaines, sans changer le texte, les médias ni les validations; les chiffres devront être vérifiés à nouveau avant diffusion."
+  }],
   ["don-20260909-appel-soutien", {
-    from: "2026-08-21",
-    to: "2026-08-28",
-    reason: "Demande des communications du 20 août 2026 : céder le créneau du vendredi 21 août à l’invitation Au bord du bleu et reporter intégralement le point de soutien Zeffy au vendredi suivant."
+    from: "2026-08-28",
+    to: "2026-10-16",
+    reason: "Demande des communications du 3 septembre 2026 : conserver le point de soutien en retard, avec ses textes, médias et validations, au vendredi suivant dans la cadence aux deux semaines; le total sera actualisé avant diffusion.",
+    priorHistory: [{ from: "2026-08-21", to: "2026-08-28", reason: "Demande des communications du 20 août 2026 : céder le créneau du vendredi 21 août à l’invitation Au bord du bleu et reporter intégralement le point de soutien Zeffy au vendredi suivant." }]
   }],
   ["alt-20260723", {
     from: "2026-09-30",
@@ -1014,9 +1020,10 @@ const USER_DIRECTED_RESCHEDULES = new Map([
     }]
   }],
   ["alt-20260724", {
-    from: "2026-09-01",
-    to: "2026-09-30",
-    reason: "Demande des communications du 31 août 2026 : reporter au dernier créneau du calendrier le contenu lié au financement et le conserver intégralement jusqu’à confirmation explicite que le financement est prêt."
+    from: "2026-09-30",
+    to: "2026-10-18",
+    reason: "Prolongement du calendrier le 3 septembre 2026 : maintenir le contenu lié au financement tout à la fin, conformément à la consigne du 31 août, sans lever le blocage ni modifier son contenu.",
+    priorHistory: [{ from: "2026-09-01", to: "2026-09-30", reason: "Demande des communications du 31 août 2026 : reporter au dernier créneau du calendrier le contenu lié au financement et le conserver intégralement jusqu’à confirmation explicite que le financement est prêt." }]
   }],
   ["lavage-20260903-sans-moteur", {
     from: "2026-09-13",
@@ -1671,7 +1678,7 @@ export function applyPlanOverridesToPosts(posts) {
     Object.assign(fundingDeferredUntilExplicitConfirmation, {
       publicationBlocked: true,
       requiresFundingReadyConfirmation: true,
-      blockedReason: "Publication reportée au 30 septembre : ne pas la remettre en diffusion avant que les communications confirment explicitement que le financement est prêt.",
+      blockedReason: "Publication conservée au dernier créneau, le 18 octobre : ne pas la remettre en diffusion avant que les communications confirment explicitement que le financement est prêt.",
       tasksValentin: existingTasks.includes(fundingReleaseTask) ? existingTasks : [...existingTasks, fundingReleaseTask]
     });
   }

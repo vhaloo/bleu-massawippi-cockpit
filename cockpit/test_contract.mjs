@@ -88,7 +88,7 @@ assert.equal(editorialCycleAug12Posts["alt-20260723"].dateIso, "2026-09-01",
   "La capsule approuvée sur la rive doit occuper le mardi 1er septembre.");
 assert.notEqual(editorialCycleAug12Posts["alt-20260723"].publicationBlocked, true,
   "Le remplacement déjà approuvé du 1er septembre doit rester publiable.");
-assert.equal(editorialCycleAug12Posts["alt-20260724"].dateIso, "2026-09-30",
+assert.equal(editorialCycleAug12Posts["alt-20260724"].dateIso, "2026-10-18",
   "La publication en attente du financement doit être repoussée au dernier créneau courant.");
 assert.equal(editorialCycleAug12Posts["alt-20260724"].publicationBlocked, true,
   "La publication reportée ne doit pas revenir en diffusion avant confirmation du financement.");
@@ -128,11 +128,12 @@ assert.equal(CADENCE_5_POLICY.effectiveFrom, "2026-08-17");
 assert.equal(CADENCE_5_POLICY.postsPerCompleteWeek, 5);
 const protectedHistoricalDates = [];
 for (const cursor = new Date("2026-07-13T12:00:00Z"); cursor <= new Date("2026-08-16T12:00:00Z"); cursor.setUTCDate(cursor.getUTCDate() + 1)) {
-  protectedHistoricalDates.push(cursor.toISOString().slice(0, 10));
+  const date = cursor.toISOString().slice(0, 10);
+  if (date !== "2026-08-07") protectedHistoricalDates.push(date);
 }
 const cadenceWeeks = [
   ["2026-08-17", "2026-08-18", "2026-08-20", "2026-08-21", "2026-08-23"],
-  ["2026-08-24", "2026-08-26", "2026-08-27", "2026-08-28", "2026-08-29", "2026-08-30"],
+  ["2026-08-24", "2026-08-26", "2026-08-27", "2026-08-29", "2026-08-30"],
   ["2026-09-01", "2026-09-02", "2026-09-04", "2026-09-05", "2026-09-06"],
   ["2026-09-07", "2026-09-08", "2026-09-10", "2026-09-12", "2026-09-13"],
   ["2026-09-14", "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-20"],
@@ -142,7 +143,7 @@ const eventReminderWeek = cadenceWeeks[1];
 const postEventThanksDate = "2026-08-31";
 const postEventThanksWeek = cadenceWeeks[2];
 const regularCadenceWeeks = cadenceWeeks.filter((_, index) => index !== 1 && index !== 2);
-const expectedContinuityDates = [...protectedHistoricalDates, ...cadenceWeeks.flat(), postEventThanksDate, "2026-09-28", "2026-09-29", "2026-09-30"].sort();
+const expectedContinuityDates = [...protectedHistoricalDates, ...cadenceWeeks.flat(), postEventThanksDate, "2026-09-28", "2026-09-29", "2026-10-02", "2026-10-16", "2026-10-18"].sort();
 const activePostsByDate = Object.groupBy(activePosts, (post) => post.dateIso);
 assert.deepEqual(Object.keys(activePostsByDate).sort(), expectedContinuityDates,
   "Le calendrier actif doit préserver l’historique quotidien, la cadence régulière et les deux rappels demandés pour Au bord du bleu.");
@@ -150,8 +151,8 @@ assert.ok(Object.values(activePostsByDate).every((items) => items.length === 1),
   "Chaque créneau actif doit afficher exactement une publication.");
 assert.ok(regularCadenceWeeks.every((week) => week.length === CADENCE_5_POLICY.postsPerCompleteWeek && week.every((date) => activePostsByDate[date]?.length === 1)),
   "Chaque semaine régulière à compter du 17 août doit contenir exactement cinq publications.");
-assert.equal(eventReminderWeek.length, 6, "La semaine d’Au bord du bleu doit comporter un unique rappel supplémentaire le dimanche de l’événement.");
-assert.ok(eventReminderWeek.every((date) => activePostsByDate[date]?.length === 1), "Les six créneaux de la semaine événementielle doivent rester uniques.");
+assert.equal(eventReminderWeek.length, 5, "Les cinq publications réellement diffusées restent en place après le report du bilan non publié.");
+assert.ok(eventReminderWeek.every((date) => activePostsByDate[date]?.length === 1), "Les créneaux de la semaine événementielle doivent rester uniques.");
 assert.equal(activePostsByDate[postEventThanksDate]?.length, 1, "Le remerciement post-événement du 31 août doit occuper son propre créneau.");
 assert.equal(postEventThanksWeek.filter((date) => activePostsByDate[date]?.length === 1).length + activePostsByDate[postEventThanksDate].length, 6,
   "La semaine du 31 août doit conserver cinq créneaux réguliers et le remerciement explicitement demandé.");
@@ -335,7 +336,7 @@ assert.ok(fs.statSync(poetryThanksPreviewPath).size > 100_000, "L’aperçu publ
 const previousFridayThanksMedia = editorialMedia.find((item) => item.id === "editorial-don-20260909-souvenir-v1");
 assert.equal(previousFridayThanksMedia?.stage, "reference", "L’ancienne base du point soutien doit rester conservée comme référence.");
 assert.equal(previousFridayThanksMedia?.publicationBlocked, true, "L’ancienne référence ne doit pas être sélectionnable.");
-for (const [id, dateIso] of [["don-20260909-appel-soutien", "2026-08-28"], ["don-20260911-merci-bilan", "2026-09-04"], ["don-20260918-point-soutien", "2026-09-18"]]) {
+for (const [id, dateIso] of [["don-20260909-appel-soutien", "2026-10-16"], ["don-20260911-merci-bilan", "2026-09-04"], ["don-20260918-point-soutien", "2026-09-18"]]) {
   const checkpoint = activePosts.find((post) => post.id === id);
   assert.equal(checkpoint?.dateIso, dateIso);
   assert.equal(checkpoint?.publicationBlocked, true, "Chaque point de soutien doit rester bloqué tant que le total et sa date ne sont pas confirmés.");
@@ -453,7 +454,7 @@ assert.equal(donationThanks.publicationBlocked, true, "Le remerciement doit rest
 assert.equal(donationThanks.requiresConfirmedDonationAmount, true);
 assert.deepEqual(donationThanks.requiredPlaceholders, ["[DATE DE L’APPEL]", "[MONTANT NET CONFIRMÉ]", "[APPEAL DATE]", "[CONFIRMED NET AMOUNT]"]);
 assert.match(donationThanks.source, /Paiements filtré par date de paiement/i);
-assert.deepEqual(posts.filter((post) => post.dateIso === "2026-08-07").map((post) => post.id), [donationThanks.id], "Le 7 août doit être réservé au bilan Zeffy.");
+assert.deepEqual(posts.filter((post) => post.dateIso === "2026-10-02").map((post) => post.id), [donationThanks.id], "Le bilan non publié du 7 août doit être conservé au 2 octobre.");
 const displacedRainPost = posts.find((post) => post.id === "s3d4");
 assert.equal(displacedRainPost.dateIso, "2026-08-12", "Le post pluie doit occuper un créneau unique dans le calendrier continu.");
 assert.equal(displacedRainPost.rescheduledFrom, "2026-08-15");
@@ -593,11 +594,13 @@ assert.doesNotMatch(lexiconPost.copy, /Quel autre mot lié au lac aimeriez-vous 
 assert.doesNotMatch(lexiconPost.copy, /Which other lake-related word would you like us to explain in plain language/i,
   "La version anglaise doit rester symétrique après le retrait demandé par la direction.");
 const firstFourWeeks = Object.groupBy(posts.filter((post) => post.w <= 4), (post) => post.date);
-assert.equal(Object.keys(firstFourWeeks).length, 28);
+assert.equal(Object.keys(firstFourWeeks).length, 27,
+  "Le bilan financier non publié du 7 août est reporté; les 27 autres dates historiques restent inchangées.");
 assert.equal(Object.values(firstFourWeeks).filter((items) => items.length >= 2).length, 0,
   "Chaque date des quatre premières semaines doit désormais contenir une seule publication active.");
 assert.ok(firstFourWeeks["Mercredi 22 juillet"].some((post) => post.id === donationAppeal.id));
-assert.ok(firstFourWeeks["Vendredi 7 août"].some((post) => post.id === donationThanks.id));
+assert.equal(firstFourWeeks["Vendredi 7 août"], undefined);
+assert.equal(donationThanks.dateIso, "2026-10-02");
 const deferredBoatWash = posts.find((post) => post.id === "s4d1");
 assert.equal(deferredBoatWash.date, "Mardi 11 août");
 assert.equal(deferredBoatWash.w, 5);
@@ -814,7 +817,13 @@ assert.equal(s4d6DivingPhoto?.archived, true);
 const s4d6RealPhoto = editorialMedia.find((item) => item.id === "editorial-s4d6-field-measure-real-v3");
 assert.ok(s4d6RealPhoto, "Le 10 septembre doit proposer une vraie photographie montrant des humains.");
 assert.equal(s4d6RealPhoto.eventId, "s4d6");
-assert.equal(s4d6RealPhoto.stage, "proposal");
+assert.equal(s4d6RealPhoto.stage, "reference");
+const s4d6UsableAlternative = editorialMedia.find(item => item.id === "editorial-s4d6-usgs-water-sampling-v4");
+assert.equal(s4d6UsableAlternative.stage, "proposal");
+assert.equal(s4d6UsableAlternative.publicationBlocked, false);
+assert.match(s4d6UsableAlternative.rightsStatus, /Domaine public/);
+assert.match(posts.find(post => post.id === "s4d6").copy, /ce n’est pas le lac Massawippi/);
+assert.match(posts.find(post => post.id === "s4d6").copy, /this is not Lake Massawippi/);
 assert.equal(s4d6RealPhoto.publicationBlocked, true,
   "La nouvelle photographie humaine ne doit pas contourner la confirmation du crédit et des consentements.");
 assert.match(s4d6RealPhoto.altText, /Photographie réelle[\s\S]*membre de l’équipe[\s\S]*instrument de mesure/i);

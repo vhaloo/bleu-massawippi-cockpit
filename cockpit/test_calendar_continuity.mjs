@@ -11,16 +11,17 @@ assert.ok(postsJson, "Le calendrier source doit rester lisible.");
 
 const posts = applyPlanOverridesToPosts(JSON.parse(postsJson));
 const start = "2026-07-13";
-const end = "2026-09-29";
+const end = "2026-10-17";
 const historicalStart = "2026-07-13";
 const historicalEnd = "2026-08-16";
 const historicalDates = [];
 for (const cursor = new Date(`${historicalStart}T12:00:00Z`); cursor <= new Date(`${historicalEnd}T12:00:00Z`); cursor.setUTCDate(cursor.getUTCDate() + 1)) {
-  historicalDates.push(cursor.toISOString().slice(0, 10));
+  const date = cursor.toISOString().slice(0, 10);
+  if (date !== "2026-08-07") historicalDates.push(date); // Bilan jamais publié, report explicite du 3 septembre.
 }
 const cadenceWeeks = [
   ["2026-08-17", "2026-08-18", "2026-08-20", "2026-08-21", "2026-08-23"],
-  ["2026-08-24", "2026-08-26", "2026-08-27", "2026-08-28", "2026-08-29", "2026-08-30"],
+  ["2026-08-24", "2026-08-26", "2026-08-27", "2026-08-29", "2026-08-30"],
   ["2026-09-01", "2026-09-02", "2026-09-04", "2026-09-05", "2026-09-06"],
   ["2026-09-07", "2026-09-08", "2026-09-10", "2026-09-12", "2026-09-13"],
   ["2026-09-14", "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-20"],
@@ -30,7 +31,7 @@ const eventReminderWeek = cadenceWeeks[1];
 const postEventThanksDate = "2026-08-31";
 const postEventThanksWeek = cadenceWeeks[2];
 const regularCadenceWeeks = cadenceWeeks.filter((_, index) => index !== 1 && index !== 2);
-const preparedBankDates = ["2026-09-28", "2026-09-29"];
+const preparedBankDates = ["2026-09-28", "2026-09-29", "2026-10-02", "2026-10-16"];
 const expectedDates = [...historicalDates, ...cadenceWeeks.flat(), postEventThanksDate, ...preparedBankDates].sort();
 const horizon = posts.filter((post) => post.archivedEditorial !== true && post.dateIso >= start && post.dateIso <= end);
 const byDate = Object.groupBy(horizon, (post) => post.dateIso);
@@ -40,7 +41,7 @@ assert.deepEqual(Object.keys(byDate).sort(), expectedDates, "Les dates actives d
 assert.ok(Object.values(byDate).every((items) => items.length === 1), "Chaque créneau retenu doit contenir exactement une publication active.");
 assert.ok(horizon.every((post) => post.choiceRequired !== true && !post.optionGroup), "Les anciens choix séparés doivent devenir des dates autonomes.");
 assert.ok(regularCadenceWeeks.every((week) => week.length === 5), "Chaque semaine régulière à compter du 17 août doit contenir cinq publications.");
-assert.equal(eventReminderWeek.length, 6, "La semaine de l’événement doit ajouter uniquement le rappel du dimanche à la cadence régulière.");
+assert.equal(eventReminderWeek.length, 5, "Les cinq publications réellement diffusées restent en place; le bilan non publié est conservé dans le futur.");
 assert.ok(cadenceWeeks.every((week) => week.every((date) => byDate[date]?.length === 1)), "Tous les créneaux retenus doivent être occupés une seule fois.");
 assert.equal(byDate[postEventThanksDate]?.length, 1, "Le remerciement post-événement du 31 août doit occuper un créneau unique.");
 assert.equal(postEventThanksWeek.filter((date) => byDate[date]?.length === 1).length + byDate[postEventThanksDate].length, 6,
@@ -79,7 +80,7 @@ for (const id of newIds) {
 }
 
 const fundingCheckpoints = [
-  ["don-20260909-appel-soutien", "2026-08-28"],
+  ["don-20260909-appel-soutien", "2026-10-16"],
   ["don-20260911-merci-bilan", "2026-09-04"],
   ["don-20260918-point-soutien", "2026-09-18"]
 ];
@@ -160,7 +161,11 @@ const advancedLivingShorelinePost = posts.find((item) => item.id === "alt-202607
 assert.equal(advancedLivingShorelinePost?.dateIso, "2026-09-01", "La capsule approuvée sur la rive doit remplacer le contenu reporté le 1er septembre.");
 assert.notEqual(advancedLivingShorelinePost?.publicationBlocked, true, "La publication de remplacement déjà approuvée doit rester publiable.");
 const fundingDeferredPost = posts.find((item) => item.id === "alt-20260724");
-assert.equal(fundingDeferredPost?.dateIso, "2026-09-30", "Le contenu en attente du financement doit être conservé au dernier créneau disponible.");
+assert.equal(fundingDeferredPost?.dateIso, "2026-10-18", "Le contenu en attente du financement doit être conservé au dernier créneau disponible.");
+assert.equal(posts.filter(p => !p.archivedEditorial).at(-1).id, fundingDeferredPost.id);
+const preservedOverdue = posts.find(p => p.id === "don-20260807-merci-bilan");
+assert.equal(preservedOverdue.dateIso, "2026-10-02");
+assert.ok(preservedOverdue.rescheduleHistory.some(h => h.from === "2026-08-07" && h.to === "2026-10-02"));
 assert.equal(fundingDeferredPost?.publicationBlocked, true, "Le contenu reporté doit rester bloqué jusqu’à confirmation explicite du financement.");
 assert.equal(fundingDeferredPost?.requiresFundingReadyConfirmation, true);
 assert.match(fundingDeferredPost?.blockedReason || "", /financement est prêt/i);
