@@ -23,6 +23,21 @@ Conséquence budgétaire : avec une contribution minimale de 25 000 $ et une con
 
 Les travaux Alpha déjà réalisés peuvent servir de preuve de préparation, mais ne doivent pas être inclus comme activités futures ni laisser croire que le nouveau pilote ÉcoAction a commencé. Le cahier fonctionnel annoncé le 20 août, l’inventaire des sept livrables, les partenaires, la contrepartie, les indicateurs et la gouvernance doivent être réconciliés avant toute décision go / no-go.
 
+## Mise à jour du 3 septembre — se distinguer de l’Atlas de l’eau
+
+Annie a transmis l’**Atlas de l’eau du Québec** comme exemple d’un service qui couvre déjà une partie du besoin à l’échelle provinciale. Cette référence fixe une frontière : Massawippi en partage ne doit pas devenir un autre catalogue de données ou une carte générique.
+
+| Atlas de l’eau du Québec | Massawippi en partage |
+|---|---|
+| Consultation provinciale de connaissances et de cartes | Service local centré sur le lac et ses tributaires |
+| Catalogues de données et applications thématiques | Parcours bilingue guidé selon l’observation ou le besoin |
+| Mise à disposition d’informations officielles | Validation humaine, acheminement et retour de statut |
+| Portée générale | Contexte, partenaires, ressources et actions du territoire |
+
+**Critère go / no-go :** si le pilote ne peut pas offrir une boucle locale complète — réception, validation, acheminement et suivi — que l’Atlas ne fournit pas, il ne doit pas être développé. Les données ouvertes de l’Atlas peuvent être reliées ou réutilisées seulement après vérification de la licence, du format et de la fraîcheur.
+
+Les archives confirment par ailleurs cinq activités de Bleu Massawippi au **Camp Massawippi en 2024**, aucune en 2025, ainsi que des interventions à Zone Youhou, North Hatley Club, Québec Lodge, Collège Massawippi et École Saint-Barthélemy. Ces preuves démontrent une capacité historique de mobilisation jeunesse; elles ne constituent pas un appui actuel. Le Camp doit être présenté comme hôte historique et partenaire potentiel tant que sa direction actuelle n’a pas confirmé un rôle pour 2027.
+
 ## Source de la direction reçue le 17 août
 
 Annie a transmis le document Word **« Résumé pour le projet Application — Prototype Alpha 0.0.1 »**. L’original est conservé dans le dossier de travail privé avec son empreinte SHA-256. Les éléments ci-dessous en reprennent la substance; les formulations d’avancement sont traitées comme une proposition de la direction à vérifier, pas comme une preuve technique.
@@ -81,7 +96,7 @@ Pour chaque source potentielle, consigner : propriétaire, couverture, format, f
 - niveau actuel et historique du lac;
 - résultats ou études dont la diffusion est autorisée;
 - informations municipales et régionales;
-- outils gouvernementaux existants, dont Sentinelle;
+- outils gouvernementaux existants, dont Sentinelle et l’Atlas de l’eau du Québec;
 - données de plages, de tributaires, de météo et de cartographie;
 - formulaires, listes et processus internes déjà utilisés;
 - ressources des organismes partenaires;
@@ -159,6 +174,8 @@ Ces étapes restent hypothétiques jusqu’à une autorisation ultérieure.
 - Quelle contribution non fédérale en argent ou en nature rend la contrepartie de 50 % réaliste?
 - Quelle méthode ou quel livrable rend le pilote transférable à d’autres lacs au Canada?
 - Quel indicateur ÉcoAction sera mesuré, avec quelle valeur de départ et quelle cible?
+- Quelle boucle locale apporte une valeur démontrable au-delà de l’Atlas de l’eau?
+- La direction actuelle du Camp Massawippi souhaite-t-elle soutenir ou tester le pilote 2027?
 
 ## Statut
 
@@ -172,5 +189,8 @@ Ces étapes restent hypothétiques jusqu’à une autorisation ultérieure.
 - **17 août 2026** — réception du résumé « Prototype Alpha 0.0.1 » et de ses sept livrables proposés.
 - **20 août 2026** — cahier fonctionnel annoncé comme transmis à Denis; fichier encore non reçu dans communication@ ni dans le Cockpit.
 - **2 septembre 2026** — réception de l’appel ÉcoAction volet 2; piste à préqualifier, sans décision de dépôt.
+- **3 septembre 2026** — réception de l’Atlas de l’eau comme référence; différenciation locale et opérationnelle ajoutée comme critère go / no-go. Les preuves historiques d’activités jeunesse ont aussi été réconciliées.
 
 Source officielle : https://www.canada.ca/fr/agence-eau-canada/financement/programme-communautaire-ecoaction/volet2.html
+
+Atlas de l’eau du Québec : https://www.environnement.gouv.qc.ca/eau/atlas/index.htm

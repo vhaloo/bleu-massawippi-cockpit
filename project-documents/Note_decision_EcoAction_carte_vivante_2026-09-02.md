@@ -1,6 +1,6 @@
 # Carte vivante du lac — décision de préqualification ÉcoAction
 
-**Mise à jour :** 2 septembre 2026  
+**Mise à jour :** 3 septembre 2026
 **Statut :** cadrage seulement; aucune demande, production, dépense ou promesse de partenariat autorisée.
 
 ## Lecture rapide
@@ -28,6 +28,16 @@ Un pilote bilingue qui :
 5. documente un modèle de catégories, métadonnées et gouvernance réutilisable;
 6. mesure l’accès amélioré aux données, la mobilisation des partenaires et l’usage pour la décision.
 
+## Différenciation par rapport à l’Atlas de l’eau
+
+L’Atlas de l’eau du Québec couvre déjà la consultation provinciale de connaissances et de données sur l’eau. Le pilote ne doit donc pas être présenté comme une nouvelle carte de données publiques. Son apport distinct doit être une **boucle de service locale** : signalement guidé et bilingue, validation humaine, acheminement, retour de statut, publication assainie et renvoi visible vers les sources officielles.
+
+Si cette boucle ne peut pas être dotée, mesurée et maintenue, l’application ferait double emploi et le dossier devrait être considéré no-go.
+
+## Preuves jeunesse à mobiliser avec prudence
+
+Les archives confirment cinq activités au Camp Massawippi en 2024, aucune en 2025, ainsi que des interventions historiques à Zone Youhou, North Hatley Club, Québec Lodge, Collège Massawippi et École Saint-Barthélemy. Elles étayent l’expérience éducative de Bleu Massawippi, mais ne valent pas appui actuel. Le Camp doit être décrit comme hôte historique et partenaire potentiel jusqu’à confirmation de sa direction actuelle.
+
 ## Écarts à fermer
 
 - cahier fonctionnel annoncé le 20 août non reçu;
@@ -36,7 +46,9 @@ Un pilote bilingue qui :
 - partenaire de territoire et partenaire scientifique ou de données non confirmés;
 - contrepartie non fédérale et contributions en nature non documentées;
 - budget admissible, indicateurs, cibles, calendrier et responsabilités non arrêtés;
-- potentiel de réplication à d’autres lacs non démontré.
+- potentiel de réplication à d’autres lacs non démontré;
+- différenciation avec l’Atlas de l’eau à convertir en fonctions, indicateurs et responsabilités vérifiables;
+- intérêt actuel du Camp Massawippi et des autres partenaires jeunesse non confirmé.
 
 ## Porte go / no-go
 
@@ -50,8 +62,12 @@ Avant toute saisie dans SGESC :
 6. choisir les indicateurs et cibles;
 7. faire confirmer par Annie le go / no-go.
 
+Un go suppose aussi que la boucle locale de validation, d’acheminement et de suivi apporte une valeur démontrable au-delà de l’Atlas de l’eau. Un produit limité à recopier ou réafficher des données déjà disponibles doit être écarté.
+
 ## Seuil budgétaire
 
 La contribution minimale de 25 000 $ combinée à la contrepartie 1:1 exige un projet admissible d’au moins **50 000 $**. Le scénario pilote actuel de 45 770 $ doit être revu avant de pouvoir soutenir une demande minimale.
 
 Source officielle : https://www.canada.ca/fr/agence-eau-canada/financement/programme-communautaire-ecoaction/volet2.html
+
+Atlas de l’eau du Québec : https://www.environnement.gouv.qc.ca/eau/atlas/index.htm
