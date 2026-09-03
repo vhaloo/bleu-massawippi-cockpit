@@ -31,6 +31,12 @@
 - L’Atlas devient une source officielle à relier, non un produit à copier. Toute réutilisation de données devra confirmer licence, format, fréquence et fraîcheur.
 - Critère go / no-go ajouté : ne pas développer le pilote s’il ne démontre pas un service local complet que l’Atlas ne fournit pas.
 
+## Évolution complémentaire du cadrage — 3 septembre
+
+À la suite de la référence transmise par Annie, le cadrage évolue vers un service de synthèse locale : réunir et rapprocher les données officielles et locales, montrer leur provenance et leur fraîcheur, puis fournir une lecture bilingue utile. Cette évolution complète le parcours de signalement sans effacer les idées antérieures.
+
+Le critère de décision devient une utilité locale mesurable et maintenable, pas la seule présence d’une nouvelle carte. Si le signalement est retenu, sa boucle de validation et de suivi doit être complète. La [note de synthèse des données lacustres](./Note_cadrage_synthese_donnees_lacustres_2026-09-03.md) conserve les sources à qualifier et l’ordre des étapes; aucune production n’est lancée.
+
 ## Trace complémentaire à réconcilier
 
 Le cockpit conserve une rétroaction soumise par Annie le 19 août puis traitée le 20 août : elle indique avoir préparé un cahier des charges fonctionnel et l’avoir transmis à Denis pour suggestions. Aucun message ni fichier correspondant n’a été retrouvé dans la boîte communication@ pendant la recherche du 2 septembre. Cette trace demeure donc une information d’attente; il faut obtenir le fichier avant d’en déduire une portée, un avancement ou une décision.

@@ -10,6 +10,17 @@ Oui, Bleu Massawippi a réellement mené des activités au **Camp Massawippi**. 
 
 La formulation défendable est donc : **« hôte historique d’activités éducatives de Bleu Massawippi en 2024 et partenaire potentiel à recontacter pour 2027 »**. Il ne faut pas écrire « partenaire actuel », « collaboration annuelle » ou « appui confirmé » sans nouvelle validation.
 
+## Corroboration par les courriels de 2024
+
+La boîte `communication@bleumassawippi.com` conserve aussi une chaîne cohérente d’échanges entre l’ancienne coordination de Bleu Massawippi et l’équipe du Camp. Elle documente la préparation réelle de la collaboration :
+
+- le 12 mars, une offre d’ateliers sur la biodiversité, la conservation et les bonnes pratiques nautiques est transmise après un échange avec Marc-Olivier Naraynsingh;
+- les 14 et 26 mars, Laïla confirme l’intérêt du Camp, une rencontre a lieu et des adaptations pour les groupes sont consignées;
+- le 22 avril, l’équipe prévoit des visites répétées pendant l’été et décrit les besoins particuliers des groupes;
+- du 15 mai au 5 juin, les échanges portent aussi sur des projets de sensibilisation plus permanents et une visite des installations.
+
+Ces courriels corroborent une relation de travail préparée et suivie. Ils ne suffisent pas, à eux seuls, à prouver que chaque atelier a eu lieu; cette preuve d’exécution vient du registre des activités 2024 ci-dessous.
+
 ## Camp Massawippi — activités confirmées en 2024
 
 | Date | Thème documenté | Groupes ou participation consignés | Statut |
@@ -51,6 +62,7 @@ Le fichier interne « Informations supplémentaires sur les camps - 2025 » indi
 - « Compte rendu camp de jour.docx ».
 - « Rapport des camps d'été 2022.docx ».
 - « Compte rendu camp de jour 2023.docx ».
+- Chaîne de courriels « Biodiversity workshops », « Bleu Massawippi - Camp Massawippi » et « Rencontre du 15 mai 2024 », de février à juin 2024.
 - Courriel de Renée du 23 avril 2026 concernant l’École Saint-Barthélemy.
 
 ## Points encore ouverts
