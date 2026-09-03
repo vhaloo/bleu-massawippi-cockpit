@@ -1,7 +1,7 @@
 # Textes complets finalisés — Cockpit Communication Bleu Massawippi
 
-**Calendrier actif :** une publication par jour du lundi 13 juillet au dimanche 13 septembre 2026, sans trou ni doublon actif.
-**Usage :** textes bilingues prêts à programmer sur Facebook et Instagram, séparés par la ligne réglementaire du plan.
+**Calendrier :** historique conservé; cinq publications par semaine à compter du 17 août, sur les jours variés retenus dans le cockpit. Les créneaux futurs de réserve ne constituent pas des engagements de diffusion.
+**Usage :** registre bilingue de travail pour Facebook et Instagram. Vérifier le statut actuel dans le cockpit : ce document ne vaut pas approbation, et les contenus financiers incomplets demeurent bloqués.
 **Voix :** chaleureuse, invitante et curieuse; les précautions techniques demeurent dans les notes de préparation plutôt que dans le message public.
 **Langues :** le français est rédigé d’abord avec naturel; l’anglais en est une adaptation fidèle au sens et au ton, jamais une traduction mot à mot.
 **Règle :** chaque légende demeure sous 2 200 caractères au total; les visuels doivent être authentiques, autorisés et accompagnés d’un texte alternatif descriptif.
@@ -1052,43 +1052,6 @@ We are simply gathering reports. A photo alone cannot determine their cause. Tha
 #BleuMassawippi #LakeMassawippi #BrownBullhead #CommunityObservation
 ```
 
-## Vendredi 7 août — Merci de faire grandir l’élan autour du lac
-
-**Thème :** Gratitude
-**Format :** Photo réelle + bilan de dons bilingue
-**Objectif :** Remercier avec précision et transparence le vendredi de la semaine suivant l’appel, en utilisant uniquement le montant net réellement confirmé.
-**CTA :** Remercier et montrer la suite
-**Visuel final :** Photographie réelle et autorisée du lac ou d’une action concrète; courte mention manuscrite « Merci d’être là pour le lac ».
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Zeffy — rapport Paiements filtré par date de paiement, statut Réussi et formulaire; exclure remboursements, litiges et paiements hors ligne non reçus.
-**Préparation :** Remplacer les deux champs entre crochets par des données Zeffy vérifiées, faire relire le contexte et ne programmer qu’après disparition complète des champs temporaires.
-
-### Légende prête à programmer
-
-```text
-FR — Merci d’être là pour le lac.
-
-Depuis notre appel du [DATE DE L’APPEL], votre générosité a permis de réunir [MONTANT NET CONFIRMÉ] pour soutenir le travail de Bleu Massawippi.
-
-Derrière ce résultat, il y a des personnes qui choisissent d’agir à leur mesure. Chaque contribution nourrit un effort collectif : mieux suivre le lac, mieux partager les connaissances et mieux préparer les actions à venir.
-
-Merci pour votre confiance.
-
-#BleuMassawippi #LacMassawippi #Merci #SoutenirLeLac
-
-=========================================
-
-EN — Thank you for being there for the lake.
-
-Since our appeal on [APPEAL DATE], your generosity has raised [CONFIRMED NET AMOUNT] to support Bleu Massawippi’s work.
-
-Behind this result are people choosing to act in ways that are right for them. Every contribution strengthens a shared effort: monitoring the lake, sharing knowledge and preparing the actions ahead.
-
-Thank you for your trust.
-
-#BleuMassawippi #LakeMassawippi #ThankYou #SupportTheLake
-```
-
 ## Samedi 8 août — Denis Petitclerc à Radio-Canada Estrie — les moules zébrées au lac Massawippi
 
 **Thème :** Actualité
@@ -1702,43 +1665,6 @@ Small gestures that make the water more welcoming for everyone.
 #SharedEnjoyment #BleuMassawippi #ResponsibleBoating #LakeMassawippi
 ```
 
-## Vendredi 28 août — Le point soutien — merci d’avancer avec nous
-
-**Thème :** Soutien
-**Format :** Souvenir sur le frigo + photographie réelle · point bilingue
-**Objectif :** Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.
-**CTA :** Voir le point et soutenir la mission
-**Visuel final :** Photographie réelle du lac présentée comme un souvenir familier sur un réfrigérateur, avec le remerciement bilingue Merci pour vos dons / Thank you for your donation en lettres aimantées colorées. Aucun chiffre dans l’image.
-**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Campagne Zeffy officielle de Bleu Massawippi : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
-**Préparation :** Vérifier le total de campagne et sa date dans Zeffy, remplacer les quatre champs temporaires, vérifier les deux liens et programmer seulement après les validations du texte et du média.
-
-### Légende prête à programmer
-
-```text
-FR — 💙 Le point soutien.
-
-Au [DATE DE VÉRIFICATION], le total confirmé de notre campagne s’élève à [MONTANT TOTAL CONFIRMÉ]. Merci à toutes les personnes qui font avancer la mission de Bleu Massawippi, à leur mesure.
-
-Ces contributions nous aident à mieux connaître le lac et ses tributaires, à partager des repères accessibles et à préparer des actions concrètes avec la communauté.
-
-Vous souhaitez ajouter votre geste? Adhésion ou don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
-
-#BleuMassawippi #LacMassawippi #SoutenirLeLac
-
-=========================================
-
-EN — 💙 Support update.
-
-As of [VERIFICATION DATE], the confirmed campaign total is [CONFIRMED CAMPAIGN TOTAL]. Thank you to everyone helping Bleu Massawippi move its mission forward, in the way that is right for them.
-
-These contributions help us better understand the lake and its tributaries, share accessible knowledge and prepare practical action with the community.
-
-Would you like to add your support? Membership or donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
-
-#BleuMassawippi #LakeMassawippi #SupportTheLake
-```
-
 ## Samedi 29 août — Au bord du bleu, c’est demain!
 
 **Thème :** Événement
@@ -2087,33 +2013,41 @@ A population change is never a verdict on its own. It becomes meaningful when co
 #LakeTrout #LakeScience #BleuMassawippi #LakeMassawippi
 ```
 
-## Jeudi 10 septembre — 15 secondes sur le terrain avec nous
+## Jeudi 10 septembre — Sur le terrain, une mesure à la fois
 
 **Thème :** Coulisses
-**Format :** Mini-documentaire vertical · cinq plans réels
-**Objectif :** Offrir le format week-end en montrant un vrai rythme de travail, pas une démonstration artificielle.
-**CTA :** Entrer dans les coulisses
-**Visuel final :** Photographie réelle d’une membre de l’équipe qui manipule un instrument de mesure depuis une embarcation sur le lac. Pour une déclinaison vidéo : cinq plans réels très courts — préparer le matériel, prélever ou mesurer, observer, noter, ranger — sans scène de plongée; sous-titres FR/EN et conclusion « Merci de nous accompagner ».
+**Format :** Photographie documentaire + légende bilingue
+**Objectif :** Faire découvrir la précision et la régularité du suivi de l’eau, sans présenter cette photographie extérieure comme une activité de Bleu Massawippi.
+**CTA :** Découvrir les gestes du suivi de l’eau
+**Visuel final :** Photographie documentaire USGS non modifiée montrant deux scientifiques qui mesurent l’eau depuis une embarcation. Légende obligatoire : lieu extérieur au Massawippi, crédit Jerry Cox / USGS. L’ancienne photographie interne demeure en référence, avec ses droits non confirmés.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Archive interne Bleu Massawippi — Photos/2025/Stagiaires bleu massawippi/IMG_0377.jpg.
-**Préparation :** Monter cinq plans réels, garder les instruments lisibles et ne pas afficher de résultat non validé à l’écran.
+**Source de référence :** Jerry Cox, USGS, Upper Midwest Environmental Sciences Center; photographie de terrain du haut Mississippi, vers 2007, domaine public. https://www.usgs.gov/media/images/usgs-scientists-collecting-water-samples-a-lake
+**Préparation :** Conserver le crédit et le lieu explicites dans la légende, faire relire le texte adapté et choisir le média autorisé. Ne pas reprendre l’ancienne photo interne tant que ses droits ne sont pas confirmés.
 
 ### Légende prête à programmer
 
 ```text
-FR — Préparer, observer, mesurer, noter, recommencer : voici une journée de terrain résumée en 15 secondes.
+FR — Préparer, observer, mesurer, noter, recommencer.
 
-Les gestes paraissent simples, mais c’est leur régularité et le soin qu’on y met qui transforment les observations en connaissances utiles. Merci de vous intéresser à ce travail souvent discret; on est heureux de vous en montrer les coulisses.
+Le suivi de l’eau repose sur des gestes précis, répétés avec soin. Une mesure prend tout son sens lorsqu’on sait où, quand et comment elle a été recueillie, et qu’on peut la comparer à d’autres observations.
 
-#Terrain #BleuMassawippi #LacMassawippi #ScienceDuLac
+Derrière les données, il y a ce travail patient. Merci de vous intéresser à ce qui nous aide à mieux comprendre les milieux aquatiques.
+
+Photo d’illustration : scientifiques de l’USGS sur le haut Mississippi, aux États-Unis; ce n’est pas le lac Massawippi. Crédit : Jerry Cox, USGS — domaine public.
+
+#Terrain #BleuMassawippi #ScienceDeLEau
 
 =========================================
 
-EN — Prepare, observe, measure, record and begin again: here is a field day in 15 seconds.
+EN — Prepare, observe, measure, record and begin again.
 
-The actions may look simple, but their consistency and the care behind them turn observations into useful knowledge. Thank you for taking an interest in this often quiet work; we are glad to show you behind the scenes.
+Water monitoring relies on careful, repeated steps. A measurement becomes meaningful when we know where, when and how it was taken, and can compare it with other observations.
 
-#Fieldwork #BleuMassawippi #LakeMassawippi #LakeScience
+Behind the data is patient fieldwork. Thank you for taking an interest in what helps us better understand aquatic environments.
+
+Illustrative photograph: USGS scientists on the Upper Mississippi River, United States; this is not Lake Massawippi. Credit: Jerry Cox, USGS — public domain.
+
+#Fieldwork #BleuMassawippi #WaterScience
 ```
 
 ## Samedi 12 septembre — Les voix du bassin
@@ -2598,7 +2532,81 @@ Photo: Philzzz77, CC BY-SA 4.0.
 #BleuMassawippi #LakeMassawippi #AlongTheLake
 ```
 
-## Mercredi 30 septembre — Le bassin versant relie le paysage
+## Vendredi 2 octobre — Merci de faire grandir l’élan autour du lac
+
+**Thème :** Gratitude
+**Format :** Photo réelle + bilan de dons bilingue
+**Objectif :** Remercier avec précision et transparence le vendredi de la semaine suivant l’appel, en utilisant uniquement le montant net réellement confirmé.
+**CTA :** Remercier et montrer la suite
+**Visuel final :** Photographie réelle et autorisée du lac ou d’une action concrète; courte mention manuscrite « Merci d’être là pour le lac ».
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Zeffy — rapport Paiements filtré par date de paiement, statut Réussi et formulaire; exclure remboursements, litiges et paiements hors ligne non reçus.
+**Préparation :** Remplacer les deux champs entre crochets par des données Zeffy vérifiées, faire relire le contexte et ne programmer qu’après disparition complète des champs temporaires.
+
+### Légende prête à programmer
+
+```text
+FR — Merci d’être là pour le lac.
+
+Depuis notre appel du [DATE DE L’APPEL], votre générosité a permis de réunir [MONTANT NET CONFIRMÉ] pour soutenir le travail de Bleu Massawippi.
+
+Derrière ce résultat, il y a des personnes qui choisissent d’agir à leur mesure. Chaque contribution nourrit un effort collectif : mieux suivre le lac, mieux partager les connaissances et mieux préparer les actions à venir.
+
+Merci pour votre confiance.
+
+#BleuMassawippi #LacMassawippi #Merci #SoutenirLeLac
+
+=========================================
+
+EN — Thank you for being there for the lake.
+
+Since our appeal on [APPEAL DATE], your generosity has raised [CONFIRMED NET AMOUNT] to support Bleu Massawippi’s work.
+
+Behind this result are people choosing to act in ways that are right for them. Every contribution strengthens a shared effort: monitoring the lake, sharing knowledge and preparing the actions ahead.
+
+Thank you for your trust.
+
+#BleuMassawippi #LakeMassawippi #ThankYou #SupportTheLake
+```
+
+## Vendredi 16 octobre — Le point soutien — merci d’avancer avec nous
+
+**Thème :** Soutien
+**Format :** Souvenir sur le frigo + photographie réelle · point bilingue
+**Objectif :** Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.
+**CTA :** Voir le point et soutenir la mission
+**Visuel final :** Photographie réelle du lac présentée comme un souvenir familier sur un réfrigérateur, avec le remerciement bilingue Merci pour vos dons / Thank you for your donation en lettres aimantées colorées. Aucun chiffre dans l’image.
+**Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
+**Source de référence :** Campagne Zeffy officielle de Bleu Massawippi : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+**Préparation :** Vérifier le total de campagne et sa date dans Zeffy, remplacer les quatre champs temporaires, vérifier les deux liens et programmer seulement après les validations du texte et du média.
+
+### Légende prête à programmer
+
+```text
+FR — 💙 Le point soutien.
+
+Au [DATE DE VÉRIFICATION], le total confirmé de notre campagne s’élève à [MONTANT TOTAL CONFIRMÉ]. Merci à toutes les personnes qui font avancer la mission de Bleu Massawippi, à leur mesure.
+
+Ces contributions nous aident à mieux connaître le lac et ses tributaires, à partager des repères accessibles et à préparer des actions concrètes avec la communauté.
+
+Vous souhaitez ajouter votre geste? Adhésion ou don : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LacMassawippi #SoutenirLeLac
+
+=========================================
+
+EN — 💙 Support update.
+
+As of [VERIFICATION DATE], the confirmed campaign total is [CONFIRMED CAMPAIGN TOTAL]. Thank you to everyone helping Bleu Massawippi move its mission forward, in the way that is right for them.
+
+These contributions help us better understand the lake and its tributaries, share accessible knowledge and prepare practical action with the community.
+
+Would you like to add your support? Membership or donation: https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
+
+#BleuMassawippi #LakeMassawippi #SupportTheLake
+```
+
+## Dimanche 18 octobre — Le bassin versant relie le paysage
 
 **Thème :** Communauté
 **Format :** Semi-promo chaleureuse · détails à venir

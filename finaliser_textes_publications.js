@@ -4,6 +4,17 @@ import { fileURLToPath } from "node:url";
 import { applyPlanOverridesToPosts, planDateIsoFromLabel } from "./cockpit/plan-overrides.js";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
+const checkOnly = process.argv.includes("--check");
+function writeOrVerify(file, content) {
+  if (checkOnly) {
+    const existing = fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n");
+    if (existing !== content.replace(/\r\n/g, "\n")) {
+      throw new Error("Registre généré désynchronisé : " + path.basename(file) + ". Exécuter finaliser_textes_publications.js puis vérifier le diff.");
+    }
+    return;
+  }
+  fs.writeFileSync(file, content, "utf8");
+}
 const separator = "=========================================";
 const quebecBoatCleaning = "https://www.quebec.ca/agriculture-environnement-et-ressources-naturelles/faune/gestion-faune-habitats-fauniques/gestion-especes-exotiques-envahissantes-animales/lutte/nettoyage-embarcations-nautiques";
 const reportPage = "https://bleumassawippi.com/rapports-et-memoires";
@@ -377,7 +388,7 @@ function synchronizeHtml(file) {
     /Object\.keys\(days\)\.forEach\(function\(day\)\{/,
     "Object.keys(days).sort(function(a,b){return postDate(days[a][0])-postDate(days[b][0])}).forEach(function(day){"
   );
-  fs.writeFileSync(file, html, "utf8");
+  writeOrVerify(file, html);
 }
 
 function renderMarkdown(posts) {
@@ -389,8 +400,8 @@ function renderMarkdown(posts) {
   const headings = [
     "# Textes complets finalisés — Cockpit Communication Bleu Massawippi",
     "",
-    "**Calendrier actif :** une publication par jour du lundi 13 juillet au dimanche 13 septembre 2026, sans trou ni doublon actif.",
-    "**Usage :** textes bilingues prêts à programmer sur Facebook et Instagram, séparés par la ligne réglementaire du plan.",
+    "**Calendrier :** historique conservé; cinq publications par semaine à compter du 17 août, sur les jours variés retenus dans le cockpit. Les créneaux futurs de réserve ne constituent pas des engagements de diffusion.",
+    "**Usage :** registre bilingue de travail pour Facebook et Instagram. Vérifier le statut actuel dans le cockpit : ce document ne vaut pas approbation, et les contenus financiers incomplets demeurent bloqués.",
     "**Voix :** chaleureuse, invitante et curieuse; les précautions techniques demeurent dans les notes de préparation plutôt que dans le message public.",
     "**Langues :** le français est rédigé d’abord avec naturel; l’anglais en est une adaptation fidèle au sens et au ton, jamais une traduction mot à mot.",
     "**Règle :** chaque légende demeure sous 2 200 caractères au total; les visuels doivent être authentiques, autorisés et accompagnés d’un texte alternatif descriptif.",
@@ -431,11 +442,12 @@ for (const item of final) if (!ids.has(item.id)) throw new Error("Identifiant in
 synchronizeHtml(planHtml);
 const updatedPosts = applyPlanOverridesToPosts(readPosts(planHtml));
 const markdownPath = path.join(directory, "TEXTES_COMPLETS_PUBLICATIONS_13_JUILLET_9_AOUT_2026.md");
-fs.writeFileSync(markdownPath, renderMarkdown(updatedPosts), "utf8");
+writeOrVerify(markdownPath, renderMarkdown(updatedPosts));
 
 const invalid = updatedPosts.filter((post) => post.copy.length > 2200 || /\[(?:CITATION|PRÉNOM|LIEN|APPROVED|NAME|VERIFIED|ANNÉE|CANAL)/i.test(post.copy));
 if (invalid.length) throw new Error("Texte final incomplet ou trop long : " + invalid.map((post) => post.id).join(", "));
 console.log(JSON.stringify({
+  checkOnly,
   synchronized: [planHtml],
   markdownPath,
   posts: updatedPosts.length,
