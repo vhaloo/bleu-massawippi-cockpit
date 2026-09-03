@@ -1,7 +1,7 @@
 # Carte vivante du lac — inventaire des courriels d’Annie
 
 **Boîte vérifiée :** communication@bleumassawippi.com  
-**Vérification :** 2 septembre 2026  
+**Vérification :** 3 septembre 2026
 **Portée :** messages d’Annie directement liés au projet d’application, à son Prototype Alpha ou à la piste ÉcoAction.
 
 ## Courriels centraux retrouvés
@@ -24,10 +24,17 @@
 - Cette transmission ouvre une préqualification seulement : elle n’autorise ni demande, ni développement, ni dépense, ni engagement de partenaire.
 - L’adéquation à étudier est un nouveau pilote transférable d’accès, d’utilisation et d’interopérabilité des données sur l’eau douce, avec résultats mesurables.
 
+### 3 septembre 2026 — « carte vivante ... on dirait qu'ils font un peu ca ... mais à plus grosse échelle »
+
+- Annie transmet l’Atlas de l’eau du Québec comme exemple d’un service gouvernemental qui couvre déjà une partie du besoin à l’échelle provinciale.
+- Effet de cadrage : Massawippi en partage ne doit pas reproduire un catalogue de données ou une carte générique. Sa valeur propre doit être locale et opérationnelle : parcours bilingue, validation humaine, acheminement au bon interlocuteur, suivi compréhensible et publication assainie.
+- L’Atlas devient une source officielle à relier, non un produit à copier. Toute réutilisation de données devra confirmer licence, format, fréquence et fraîcheur.
+- Critère go / no-go ajouté : ne pas développer le pilote s’il ne démontre pas un service local complet que l’Atlas ne fournit pas.
+
 ## Trace complémentaire à réconcilier
 
 Le cockpit conserve une rétroaction soumise par Annie le 19 août puis traitée le 20 août : elle indique avoir préparé un cahier des charges fonctionnel et l’avoir transmis à Denis pour suggestions. Aucun message ni fichier correspondant n’a été retrouvé dans la boîte communication@ pendant la recherche du 2 septembre. Cette trace demeure donc une information d’attente; il faut obtenir le fichier avant d’en déduire une portée, un avancement ou une décision.
 
 ## Conclusion de recherche
 
-Les recherches par expressions exactes et variantes — « PROJET APPLICATION », « Prototype Alpha », « carte vivante », « carte interactive », « cartographie des données », « module de signalement » et « cahier des charges fonctionnel » — n’ont pas fait ressortir d’autre courriel central d’Annie sur ce projet. Les résultats sans lien avec l’application ont été écartés.
+Les recherches par expressions exactes et variantes — « PROJET APPLICATION », « Prototype Alpha », « carte vivante », « carte interactive », « cartographie des données », « module de signalement », « cahier des charges fonctionnel » et « Atlas de l’eau » — n’ont pas fait ressortir d’autre courriel central d’Annie sur ce projet. Les résultats sans lien avec l’application ont été écartés. Le courriel GiveWise du 3 septembre a été traité séparément dans le suivi des dons; il ne relève pas du dossier d’application.

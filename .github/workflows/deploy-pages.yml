@@ -126,6 +126,7 @@ jobs:
           cp project-documents/Cadrage_application_Massawippi_en_partage_2026-08-17.md public/project-documents/
           cp project-documents/Note_decision_EcoAction_carte_vivante_2026-09-02.md public/project-documents/
           cp project-documents/Inventaire_courriels_Annie_application_2026-09-02.md public/project-documents/
+          cp project-documents/Note_preuves_activites_jeunesse_partenaires_2026-09-03.md public/project-documents/
           cp SOURCES_ET_GARDES_FOUS.md public/
       - name: Préparer l’artefact Pages
         uses: actions/upload-pages-artifact@v3
