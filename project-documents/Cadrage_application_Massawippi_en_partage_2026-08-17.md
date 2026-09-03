@@ -34,7 +34,17 @@ Annie a transmis l’**Atlas de l’eau du Québec** comme exemple d’un servic
 | Mise à disposition d’informations officielles | Validation humaine, acheminement et retour de statut |
 | Portée générale | Contexte, partenaires, ressources et actions du territoire |
 
-**Critère go / no-go :** si le pilote ne peut pas offrir une boucle locale complète — réception, validation, acheminement et suivi — que l’Atlas ne fournit pas, il ne doit pas être développé. Les données ouvertes de l’Atlas peuvent être reliées ou réutilisées seulement après vérification de la licence, du format et de la fraîcheur.
+**Critère go / no-go révisé :** le pilote doit démontrer une utilité locale mesurable au-delà du réaffichage des mêmes cartes : synthèse compréhensible de sources complémentaires, contexte, historique et suivi. Si le signalement est inclus, sa boucle — réception, validation, acheminement et retour de statut — doit être complète et dotée. Les données de l’Atlas ne peuvent être réutilisées qu’après vérification de la licence, du format et de la fraîcheur.
+
+### Complément du 3 septembre — un service de synthèse des données
+
+Le cadrage s’élargit à un point d’entrée local qui rassemble et rapproche les informations déjà disponibles : Atlas et données ouvertes, niveau du lac, météo, études et observations locales, puis éventuellement satellite pour un usage démontré. Le service n’est ni un nouvel Atlas, ni un outil de surveillance universelle, ni un diagnostic automatique.
+
+La première hypothèse reste bornée : **Massawippi et son bassin versant, deux ou trois usages, trois à cinq sources**. Les lacs voisins constituent une extension après preuve d’utilité. Chaque information devra montrer la source, les dates d’observation et de récupération, la méthode, les unités, la précision géographique, la licence et le statut de validation. « Récent » ne doit pas être confondu avec « temps réel »; une corrélation ne prouve pas une cause.
+
+Ordre proposé : besoins concrets → qualification des sources → modèle commun → parcours de synthèse et validation → décision de pilote → élargissement éventuel. **Aucune production n’a commencé.** Les idées précédentes sont conservées; tourisme, contenus familiaux et boutiques d’applications restent secondaires.
+
+La [note de faisabilité et de séquencement du 3 septembre](./Note_cadrage_synthese_donnees_lacustres_2026-09-03.md) précise les sources officielles, les limites et les portes de décision.
 
 Les archives confirment par ailleurs cinq activités de Bleu Massawippi au **Camp Massawippi en 2024**, aucune en 2025, ainsi que des interventions à Zone Youhou, North Hatley Club, Québec Lodge, Collège Massawippi et École Saint-Barthélemy. Ces preuves démontrent une capacité historique de mobilisation jeunesse; elles ne constituent pas un appui actuel. Le Camp doit être présenté comme hôte historique et partenaire potentiel tant que sa direction actuelle n’a pas confirmé un rôle pour 2027.
 
@@ -174,7 +184,7 @@ Ces étapes restent hypothétiques jusqu’à une autorisation ultérieure.
 - Quelle contribution non fédérale en argent ou en nature rend la contrepartie de 50 % réaliste?
 - Quelle méthode ou quel livrable rend le pilote transférable à d’autres lacs au Canada?
 - Quel indicateur ÉcoAction sera mesuré, avec quelle valeur de départ et quelle cible?
-- Quelle boucle locale apporte une valeur démontrable au-delà de l’Atlas de l’eau?
+- Quelle synthèse locale apporte une valeur démontrable au-delà de l’Atlas de l’eau, et quel suivi humain est nécessaire si le signalement est retenu?
 - La direction actuelle du Camp Massawippi souhaite-t-elle soutenir ou tester le pilote 2027?
 
 ## Statut
@@ -190,6 +200,7 @@ Ces étapes restent hypothétiques jusqu’à une autorisation ultérieure.
 - **20 août 2026** — cahier fonctionnel annoncé comme transmis à Denis; fichier encore non reçu dans communication@ ni dans le Cockpit.
 - **2 septembre 2026** — réception de l’appel ÉcoAction volet 2; piste à préqualifier, sans décision de dépôt.
 - **3 septembre 2026** — réception de l’Atlas de l’eau comme référence; différenciation locale et opérationnelle ajoutée comme critère go / no-go. Les preuves historiques d’activités jeunesse ont aussi été réconciliées.
+- **3 septembre 2026, complément** — évolution vers une synthèse de données lacustres complémentaires : sources officielles et locales, rapprochements temporels et géographiques, fraîcheur explicite, pilote limité avant extension. Les fonctions antérieures restent consignées, sans autorisation de produire.
 
 Source officielle : https://www.canada.ca/fr/agence-eau-canada/financement/programme-communautaire-ecoaction/volet2.html
 
