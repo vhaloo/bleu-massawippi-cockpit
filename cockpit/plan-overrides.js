@@ -674,13 +674,13 @@ Which mammal from the watershed would you like to learn more about?
     role: "Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.",
     cta: "Voir le point et soutenir la mission",
     visual: "Roue de progression simple et très lisible, associée à une photographie réelle du lac Massawippi. Afficher seulement le total confirmé, sa date de vérification et l’objectif de campagne confirmé. Ne jamais déduire ni afficher un pourcentage sans dénominateur vérifié.",
-    source: "Zeffy — rapport Paiements de la campagne, statut Réussi; exclure remboursements, litiges et paiements non reçus. Liens : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007",
-    fallback: "Si le total ou sa date ne sont pas confirmés, reporter ce point de soutien et utiliser une publication de réserve; ne jamais diffuser les champs temporaires.",
+    source: "Relevé Zeffy vérifié le 4 septembre 2026 : base validée au 8 août de 34 606 $ + 4 220 $ de paiements réussis ultérieurs + 700 $ de contrepartie des adhésions « Doublez votre impact » = 39 526 $. Aucun remboursement ou litige de cette période; paiement abandonné exclu. Cumul de soutien, contrepartie comprise, et non solde bancaire encaissé.",
+    fallback: "Si ce texte est déplacé à une autre date, refaire le relevé et le rapprochement. Ne pas présenter le cumul incluant la contrepartie comme un solde bancaire ni lui appliquer un objectif de campagne d’un autre périmètre.",
     kpi: "Total confirmé / date de vérification / clics vers Zeffy / adhésions et dons confirmés",
-    task: "Vérifier le total de campagne, l’objectif qui sert de dénominateur et la date du relevé dans Zeffy; produire ensuite la roue de progression, remplacer les quatre champs temporaires, vérifier les deux liens et lever le blocage seulement après double vérification.",
+    task: "Montant et date intégrés le 4 septembre : 39 526 $, contrepartie comprise. Conserver le visuel existant sans pourcentage financier; relire la légende actualisée et obtenir le choix du média avant diffusion.",
     copy: `FR — 💙 Chaque geste compte.
 
-Au [DATE DE VÉRIFICATION], le total confirmé de notre campagne s’élève à [MONTANT TOTAL CONFIRMÉ]. Merci à toutes les personnes qui choisissent de soutenir le lac et la mission de Bleu Massawippi.
+Au 4 septembre 2026, votre soutien atteint 39 526 $, dons et adhésions compris, avec la contrepartie de la campagne « Doublez votre impact » incluse. Merci à toutes les personnes qui choisissent de soutenir le lac et la mission de Bleu Massawippi.
 
 Cet élan nous aide à mieux suivre le territoire, à rendre les connaissances accessibles et à préparer la suite avec soin.
 
@@ -692,7 +692,7 @@ Vous souhaitez participer? Adhésion ou don : https://www.zeffy.com/fr-CA/ticket
 
 EN — 💙 Every contribution matters.
 
-As of [VERIFICATION DATE], the confirmed campaign total is [CONFIRMED CAMPAIGN TOTAL]. Thank you to everyone choosing to support the lake and Bleu Massawippi’s mission.
+As of September 4, 2026, your support totals $39,526, including donations, memberships and matching contributions from the “Double your impact” campaign. Thank you to everyone choosing to support the lake and Bleu Massawippi’s mission.
 
 This momentum helps us monitor the region, make knowledge accessible and prepare the next steps with care.
 
@@ -703,16 +703,15 @@ Would you like to take part? Membership or donation: https://www.zeffy.com/en-CA
     optionGroup: null,
     optionLabel: null,
     isAlternative: false,
-    publicationBlocked: true,
-    requiresConfirmedDonationAmount: true,
+    publicationBlocked: false,
+    requiresConfirmedDonationAmount: false,
     donationCadence: "biweekly-friday-update",
-    requiredPlaceholders: ["[DATE DE VÉRIFICATION]", "[MONTANT TOTAL CONFIRMÉ]", "[VERIFICATION DATE]", "[CONFIRMED CAMPAIGN TOTAL]"],
+    requiredPlaceholders: [],
+    donationSnapshot: { asOf: "2026-09-04", currency: "CAD", total: 39526, baselineDate: "2026-08-08", baseline: 34606, successfulPayments: 4220, matchingContribution: 700, successfulPaymentCount: 16, eligibleMembershipCount: 7, includesOfflinePayments: true, basis: "recorded-support-including-matching-not-bank-balance" },
     tasksValentin: [
-      "Vérifier dans Zeffy le total confirmé, la date exacte du relevé et l’objectif de campagne qui sert de dénominateur.",
-      "Produire la roue de progression demandée par la direction seulement après validation de ces trois données; conserver la photographie réelle comme base ou référence visuelle.",
-      "Remplacer les quatre champs temporaires dans le texte.",
-      "Vérifier les deux formulaires Zeffy et documenter le relevé utilisé.",
-      "Finaliser le média, soumettre les validations et programmer seulement après la levée du blocage."
+      "Relevé et calcul terminés le 4 septembre : 39 526 $, dons, adhésions et contrepartie comprise; détail conservé dans le dossier de travail privé.",
+      "Conserver la proposition visuelle existante. Ne pas ajouter de pourcentage sans objectif vérifié pour le même périmètre.",
+      "Relire le texte actualisé avec la direction, finaliser le choix du média puis programmer la publication."
     ],
     tasksAnnie: [
       "Confirmer le total, la date et le ton du rappel, puis approuver le texte et le média avant diffusion."

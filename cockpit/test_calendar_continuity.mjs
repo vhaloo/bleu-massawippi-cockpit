@@ -89,8 +89,20 @@ for (const [id, dateIso] of fundingCheckpoints) {
   assert.equal(post?.dateIso, dateIso, `${id} doit occuper son vendredi aux deux semaines.`);
   assert.equal(new Date(`${dateIso}T12:00:00Z`).getUTCDay(), 5, `${dateIso} doit être un vendredi.`);
   assert.equal(post?.donationCadence, "biweekly-friday-update");
-  assert.equal(post?.publicationBlocked, true, "Un point financier doit rester bloqué tant que le total et sa date ne sont pas confirmés.");
-  assert.deepEqual(post?.requiredPlaceholders, ["[DATE DE VÉRIFICATION]", "[MONTANT TOTAL CONFIRMÉ]", "[VERIFICATION DATE]", "[CONFIRMED CAMPAIGN TOTAL]"]);
+  const reconciled = id === "don-20260911-merci-bilan";
+  assert.equal(post?.publicationBlocked, !reconciled, "Seul le point rapproché du 4 septembre peut quitter le blocage financier.");
+  assert.deepEqual(post?.requiredPlaceholders, reconciled ? [] : ["[DATE DE VÉRIFICATION]", "[MONTANT TOTAL CONFIRMÉ]", "[VERIFICATION DATE]", "[CONFIRMED CAMPAIGN TOTAL]"]);
+  if (reconciled) {
+    assert.equal(post.donationSnapshot.asOf, "2026-09-04");
+    assert.equal(post.donationSnapshot.total, 39526);
+    assert.equal(post.donationSnapshot.baseline + post.donationSnapshot.successfulPayments + post.donationSnapshot.matchingContribution, post.donationSnapshot.total);
+    assert.equal(post.donationSnapshot.successfulPaymentCount, 16);
+    assert.equal(post.donationSnapshot.eligibleMembershipCount, 7);
+    assert.match(post.copy, /39 526 \$/);
+    assert.match(post.copy, /\$39,526/);
+    assert.match(post.copy, /contrepartie[\s\S]*matching contributions/);
+    assert.doesNotMatch(post.copy, /\[(?:DATE|MONTANT|VERIFICATION|CONFIRMED)/);
+  }
   assert.match(post?.copy || "", /zeffy\.com\/fr-CA/);
   assert.match(post?.copy || "", /zeffy\.com\/en-CA/);
 }

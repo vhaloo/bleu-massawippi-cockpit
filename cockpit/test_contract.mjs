@@ -339,8 +339,10 @@ assert.equal(previousFridayThanksMedia?.publicationBlocked, true, "L’ancienne 
 for (const [id, dateIso] of [["don-20260909-appel-soutien", "2026-10-16"], ["don-20260911-merci-bilan", "2026-09-04"], ["don-20260918-point-soutien", "2026-09-18"]]) {
   const checkpoint = activePosts.find((post) => post.id === id);
   assert.equal(checkpoint?.dateIso, dateIso);
-  assert.equal(checkpoint?.publicationBlocked, true, "Chaque point de soutien doit rester bloqué tant que le total et sa date ne sont pas confirmés.");
-  assert.deepEqual(checkpoint?.requiredPlaceholders, ["[DATE DE VÉRIFICATION]", "[MONTANT TOTAL CONFIRMÉ]", "[VERIFICATION DATE]", "[CONFIRMED CAMPAIGN TOTAL]"]);
+  const reconciled = id === "don-20260911-merci-bilan";
+  assert.equal(checkpoint?.publicationBlocked, !reconciled, "Les points futurs sans relevé doivent rester bloqués.");
+  assert.deepEqual(checkpoint?.requiredPlaceholders, reconciled ? [] : ["[DATE DE VÉRIFICATION]", "[MONTANT TOTAL CONFIRMÉ]", "[VERIFICATION DATE]", "[CONFIRMED CAMPAIGN TOTAL]"]);
+  if (reconciled) assert.equal(checkpoint.donationSnapshot.total, 39526);
   assert.equal(checkpoint?.donationCadence, "biweekly-friday-update");
 }
 assert.match(activePosts.find((post) => post.id === "quiz-20260913-trois-gestes").copy, /https:\/\/bleumassawippi\.com\/quiz/);
