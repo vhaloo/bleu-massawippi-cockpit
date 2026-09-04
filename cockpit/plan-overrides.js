@@ -673,11 +673,11 @@ Which mammal from the watershed would you like to learn more about?
     format: "Photographie réelle + point de campagne bilingue",
     role: "Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.",
     cta: "Voir le point et soutenir la mission",
-    visual: "Roue de progression simple et très lisible, associée à une photographie réelle du lac Massawippi. Afficher seulement le total confirmé, sa date de vérification et l’objectif de campagne confirmé. Ne jamais déduire ni afficher un pourcentage sans dénominateur vérifié.",
+    visual: "Variante V3 du tirage photographique choisi par les communications : anneau bleu à deux parts, 39 526 $ amassés et 87 589 $ à combler sur l’objectif global historique de 127 115 $, soit 31,1 %, au 4 septembre 2026. Dons, adhésions et contrepartie compris. Conserver les variantes antérieures; ne pas confondre l’objectif global avec celui d’un seul formulaire Zeffy.",
     source: "Relevé Zeffy vérifié le 4 septembre 2026 : base validée au 8 août de 34 606 $ + 4 220 $ de paiements réussis ultérieurs + 700 $ de contrepartie des adhésions « Doublez votre impact » = 39 526 $. Aucun remboursement ou litige de cette période; paiement abandonné exclu. Cumul de soutien, contrepartie comprise, et non solde bancaire encaissé.",
     fallback: "Si ce texte est déplacé à une autre date, refaire le relevé et le rapprochement. Ne pas présenter le cumul incluant la contrepartie comme un solde bancaire ni lui appliquer un objectif de campagne d’un autre périmètre.",
     kpi: "Total confirmé / date de vérification / clics vers Zeffy / adhésions et dons confirmés",
-    task: "Montant et date intégrés le 4 septembre : 39 526 $, contrepartie comprise. Conserver le visuel existant sans pourcentage financier; relire la légende actualisée et obtenir le choix du média avant diffusion.",
+    task: "Montant de 39 526 $ intégré le 4 septembre et légende déjà validée, conservée sans modification. Nouvelle variante chiffrée V3 du visuel demandé : objectif 127 115 $, reste 87 589 $, progression 31,1 %. Choix communications actualisé; validation du nouveau média par la direction distincte, avant diffusion.",
     copy: `FR — 💙 Chaque geste compte.
 
 Au 4 septembre 2026, votre soutien atteint 39 526 $, dons et adhésions compris, avec la contrepartie de la campagne « Doublez votre impact » incluse. Merci à toutes les personnes qui choisissent de soutenir le lac et la mission de Bleu Massawippi.
@@ -707,11 +707,11 @@ Would you like to take part? Membership or donation: https://www.zeffy.com/en-CA
     requiresConfirmedDonationAmount: false,
     donationCadence: "biweekly-friday-update",
     requiredPlaceholders: [],
-    donationSnapshot: { asOf: "2026-09-04", currency: "CAD", total: 39526, baselineDate: "2026-08-08", baseline: 34606, successfulPayments: 4220, matchingContribution: 700, successfulPaymentCount: 16, eligibleMembershipCount: 7, includesOfflinePayments: true, basis: "recorded-support-including-matching-not-bank-balance" },
+    donationSnapshot: { asOf: "2026-09-04", currency: "CAD", total: 39526, baselineDate: "2026-08-08", baseline: 34606, successfulPayments: 4220, matchingContribution: 700, successfulPaymentCount: 16, eligibleMembershipCount: 7, includesOfflinePayments: true, basis: "recorded-support-including-matching-not-bank-balance", goal: 127115, remaining: 87589, progressPercent: 31.1, goalBasis: "historical-global-campaign-confirmed-by-user-video-and-campaign-record" },
     tasksValentin: [
       "Relevé et calcul terminés le 4 septembre : 39 526 $, dons, adhésions et contrepartie comprise; détail conservé dans le dossier de travail privé.",
-      "Conserver la proposition visuelle existante. Ne pas ajouter de pourcentage sans objectif vérifié pour le même périmètre.",
-      "Relire le texte actualisé avec la direction, finaliser le choix du média puis programmer la publication."
+      "Variante V3 chiffrée ajoutée au tirage choisi, avec l’objectif global historique de 127 115 $. Les variantes V1 et V2 restent conservées.",
+      "Conserver la validation acquise du texte; faire valider le nouveau visuel puis programmer la publication."
     ],
     tasksAnnie: [
       "Confirmer le total, la date et le ton du rappel, puis approuver le texte et le média avant diffusion."
