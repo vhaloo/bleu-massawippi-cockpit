@@ -51,3 +51,7 @@ html[data-motion="on"] .cockpit-workflow-gate:not(:disabled):hover{transform:tra
 [data-theme="dark"] .cockpit-history-status{color:#bfd1d7}
 [data-theme="dark"] .cockpit-task-completed{color:#dffff3;background:#1e443b;border-color:#76c8aa}
 [data-theme="dark"] .cockpit-task-lock{color:#c8dadd}
+
+/* La jauge chiffrée verticale doit rester lisible en entier dans la galerie. */
+.cockpit-media-card[data-media-id="editorial-don-20260911-community-gauge-v3"] .cockpit-media-preview { aspect-ratio:2 / 3; grid-template-rows:minmax(0, 1fr); }
+.cockpit-media-card[data-media-id="editorial-don-20260911-community-gauge-v3"] .cockpit-media-preview img { min-height:0; }
