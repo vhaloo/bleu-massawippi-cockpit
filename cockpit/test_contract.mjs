@@ -349,10 +349,16 @@ for (const [id, dateIso] of [["don-20260909-appel-soutien", "2026-10-16"], ["don
     assert.equal(checkpoint.donationSnapshot.goal, 127115);
     assert.equal(checkpoint.donationSnapshot.remaining, 127115 - 39526);
     assert.equal(checkpoint.donationSnapshot.progressPercent, Math.round(39526 / 127115 * 1000) / 10);
+    assert.equal(checkpoint.donationSnapshot.includesMatchingContribution, false);
+    assert.equal(checkpoint.donationSnapshot.matchingContributionReceived, 0);
+    assert.match(checkpoint.copy, /n’inclut pas encore la contrepartie[\s\S]*does not yet include the matching contribution/);
+    assert.doesNotMatch(checkpoint.copy, /contrepartie[^.]*incluse|including donations, memberships and matching contributions/i);
     const gauge = editorialMedia.find(item => item.id === "editorial-don-20260911-community-gauge-v3");
     assert.equal(gauge.eventId, id);
-    assert.deepEqual(gauge.donationGraphic, {asOf: "2026-09-04", currency: "CAD", total: 39526, goal: 127115, remaining: 87589, progressPercent: 31.1, parts: 2, sourceMediaId: "editorial-don-20260911-community-photo-v2"});
-    assert.equal(gauge.publicationBlocked, false);
+    assert.deepEqual(gauge.donationGraphic, {asOf: "2026-09-04", currency: "CAD", total: 39526, goal: 127115, remaining: 87589, progressPercent: 31.1, includesMatchingContribution: false, sourceMediaId: "editorial-don-20260911-community-photo-v2"});
+    assert.equal(gauge.publicationBlocked, true, "Le fichier publié avec la mention intégrée périmée doit rester visible comme preuve, mais ne plus être réutilisable.");
+    assert.equal(gauge.stage, "published");
+    assert.equal(gauge.correctionStatus, "embedded-matching-mention-outdated-do-not-reuse");
     assert.ok(editorialMedia.some(item => item.id === gauge.donationGraphic.sourceMediaId), "Le visuel choisi d’origine doit rester conservé.");
     assert.ok(editorialMedia.some(item => item.id === "editorial-don-20260911-lake-real-v1"), "L’ancienne référence doit également rester conservée.");
     assert.ok(fs.existsSync(path.join(here, "media-previews", "2026-09-04", "point-soutien-jauge-39526-20260904-v3-preview.webp")));

@@ -1862,17 +1862,17 @@ This feature explains the general role of water lilies in an aquatic plant bed. 
 **Format :** Photographie réelle + point de campagne bilingue
 **Objectif :** Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.
 **CTA :** Voir le point et soutenir la mission
-**Visuel final :** Variante V3 du tirage photographique choisi par les communications : anneau bleu à deux parts, 39 526 $ amassés et 87 589 $ à combler sur l’objectif global historique de 127 115 $, soit 31,1 %, au 4 septembre 2026. Dons, adhésions et contrepartie compris. Conserver les variantes antérieures; ne pas confondre l’objectif global avec celui d’un seul formulaire Zeffy.
+**Visuel final :** Variante V3 effectivement publiée : anneau bleu à deux parts, 39 526 $ amassés et 87 589 $ à combler sur l’objectif global historique de 127 115 $, soit 31,1 %, au 4 septembre 2026. Correction reçue après publication : la petite mention intégrée « contrepartie incluse » est périmée; ne pas réutiliser ce fichier sans correction.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Relevé Zeffy vérifié le 4 septembre 2026 : base validée au 8 août de 34 606 $ + 4 220 $ de paiements réussis ultérieurs + 700 $ de contrepartie des adhésions « Doublez votre impact » = 39 526 $. Aucun remboursement ou litige de cette période; paiement abandonné exclu. Cumul de soutien, contrepartie comprise, et non solde bancaire encaissé.
-**Préparation :** Montant de 39 526 $ intégré le 4 septembre et légende déjà validée, conservée sans modification. Nouvelle variante chiffrée V3 du visuel demandé : objectif 127 115 $, reste 87 589 $, progression 31,1 %. Choix communications actualisé; validation du nouveau média par la direction distincte, avant diffusion.
+**Source de référence :** Correction factuelle demandée par Denis Petitclerc le 4 septembre à 14 h 11 : le total de 39 526 $ n’inclut pas la contrepartie de la campagne « Doublez votre impact », qui n’a pas encore été versée. Cette confirmation remplace l’hypothèse de calcul antérieure; ne pas ajouter une contrepartie potentielle avant sa réception confirmée.
+**Préparation :** Correctif post-publication demandé par Denis le 4 septembre : conserver 39 526 $, mais préciser que ce montant n’inclut pas encore la contrepartie de « Doublez votre impact ». La V3 publiée comporte une petite mention intégrée désormais périmée et ne doit pas être réutilisée telle quelle.
 
 ### Légende prête à programmer
 
 ```text
 FR — 💙 Chaque geste compte.
 
-Au 4 septembre 2026, votre soutien atteint 39 526 $, dons et adhésions compris, avec la contrepartie de la campagne « Doublez votre impact » incluse. Merci à toutes les personnes qui choisissent de soutenir le lac et la mission de Bleu Massawippi.
+Au 4 septembre 2026, votre soutien atteint 39 526 $, en dons et adhésions. Ce montant n’inclut pas encore la contrepartie de la campagne « Doublez votre impact », qui n’a pas encore été versée. Merci à toutes les personnes qui choisissent de soutenir le lac et la mission de Bleu Massawippi.
 
 Cet élan nous aide à mieux suivre le territoire, à rendre les connaissances accessibles et à préparer la suite avec soin.
 
@@ -1884,7 +1884,7 @@ Vous souhaitez participer? Adhésion ou don : https://www.zeffy.com/fr-CA/ticket
 
 EN — 💙 Every contribution matters.
 
-As of September 4, 2026, your support totals $39,526, including donations, memberships and matching contributions from the “Double your impact” campaign. Thank you to everyone choosing to support the lake and Bleu Massawippi’s mission.
+As of September 4, 2026, your support totals $39,526 in donations and memberships. This amount does not yet include the matching contribution from the “Double your impact” campaign, which has not yet been received. Thank you to everyone choosing to support the lake and Bleu Massawippi’s mission.
 
 This momentum helps us monitor the region, make knowledge accessible and prepare the next steps with care.
 
