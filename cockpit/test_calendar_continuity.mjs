@@ -75,8 +75,9 @@ for (const id of newIds) {
   assert.match(post.copy, /^FR —[\s\S]*=========================================[\s\S]*EN —/);
   assert.ok(post.copy.length <= 2200);
   const media = manifests.filter((item) => item.eventId === id);
-  assert.equal(media.length, 1);
-  assert.ok(media[0].previewUrl, `L’aperçu réel de ${id} doit être disponible sur mobile.`);
+  assert.equal(media.length, id === "don-20260911-merci-bilan" ? 2 : 1);
+  if (id === "don-20260911-merci-bilan") assert.deepEqual(media.map(item => item.id).sort(), ["editorial-don-20260911-community-gauge-v3", "editorial-don-20260911-community-photo-v2"]);
+  assert.ok(media.every(item => item.previewUrl), `Tous les aperçus de ${id} doivent être disponibles sur mobile.`);
 }
 
 const fundingCheckpoints = [
