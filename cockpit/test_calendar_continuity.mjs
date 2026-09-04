@@ -96,12 +96,13 @@ for (const [id, dateIso] of fundingCheckpoints) {
   if (reconciled) {
     assert.equal(post.donationSnapshot.asOf, "2026-09-04");
     assert.equal(post.donationSnapshot.total, 39526);
-    assert.equal(post.donationSnapshot.baseline + post.donationSnapshot.successfulPayments + post.donationSnapshot.matchingContribution, post.donationSnapshot.total);
-    assert.equal(post.donationSnapshot.successfulPaymentCount, 16);
-    assert.equal(post.donationSnapshot.eligibleMembershipCount, 7);
+    assert.equal(post.donationSnapshot.includesMatchingContribution, false);
+    assert.equal(post.donationSnapshot.matchingContributionReceived, 0);
+    assert.equal(post.donationSnapshot.matchingContributionStatus, "pending-not-received");
     assert.match(post.copy, /39 526 \$/);
     assert.match(post.copy, /\$39,526/);
-    assert.match(post.copy, /contrepartie[\s\S]*matching contributions/);
+    assert.match(post.copy, /n’inclut pas encore la contrepartie[\s\S]*does not yet include the matching contribution/);
+    assert.doesNotMatch(post.copy, /contrepartie[^.]*incluse|including donations, memberships and matching contributions/i);
     assert.doesNotMatch(post.copy, /\[(?:DATE|MONTANT|VERIFICATION|CONFIRMED)/);
   }
   assert.match(post?.copy || "", /zeffy\.com\/fr-CA/);

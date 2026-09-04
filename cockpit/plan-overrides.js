@@ -673,14 +673,14 @@ Which mammal from the watershed would you like to learn more about?
     format: "Photographie réelle + point de campagne bilingue",
     role: "Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.",
     cta: "Voir le point et soutenir la mission",
-    visual: "Variante V3 du tirage photographique choisi par les communications : anneau bleu à deux parts, 39 526 $ amassés et 87 589 $ à combler sur l’objectif global historique de 127 115 $, soit 31,1 %, au 4 septembre 2026. Dons, adhésions et contrepartie compris. Conserver les variantes antérieures; ne pas confondre l’objectif global avec celui d’un seul formulaire Zeffy.",
-    source: "Relevé Zeffy vérifié le 4 septembre 2026 : base validée au 8 août de 34 606 $ + 4 220 $ de paiements réussis ultérieurs + 700 $ de contrepartie des adhésions « Doublez votre impact » = 39 526 $. Aucun remboursement ou litige de cette période; paiement abandonné exclu. Cumul de soutien, contrepartie comprise, et non solde bancaire encaissé.",
-    fallback: "Si ce texte est déplacé à une autre date, refaire le relevé et le rapprochement. Ne pas présenter le cumul incluant la contrepartie comme un solde bancaire ni lui appliquer un objectif de campagne d’un autre périmètre.",
+    visual: "Variante V3 effectivement publiée : anneau bleu à deux parts, 39 526 $ amassés et 87 589 $ à combler sur l’objectif global historique de 127 115 $, soit 31,1 %, au 4 septembre 2026. Correction reçue après publication : la petite mention intégrée « contrepartie incluse » est périmée; ne pas réutiliser ce fichier sans correction.",
+    source: "Correction factuelle demandée par Denis Petitclerc le 4 septembre à 14 h 11 : le total de 39 526 $ n’inclut pas la contrepartie de la campagne « Doublez votre impact », qui n’a pas encore été versée. Cette confirmation remplace l’hypothèse de calcul antérieure; ne pas ajouter une contrepartie potentielle avant sa réception confirmée.",
+    fallback: "Si ce texte est déplacé à une autre date, refaire le relevé et le rapprochement. Conserver la formulation « n’inclut pas encore la contrepartie » tant que son versement n’est pas confirmé.",
     kpi: "Total confirmé / date de vérification / clics vers Zeffy / adhésions et dons confirmés",
-    task: "Montant de 39 526 $ intégré le 4 septembre et légende déjà validée, conservée sans modification. Nouvelle variante chiffrée V3 du visuel demandé : objectif 127 115 $, reste 87 589 $, progression 31,1 %. Choix communications actualisé; validation du nouveau média par la direction distincte, avant diffusion.",
+    task: "Correctif post-publication demandé par Denis le 4 septembre : conserver 39 526 $, mais préciser que ce montant n’inclut pas encore la contrepartie de « Doublez votre impact ». La V3 publiée comporte une petite mention intégrée désormais périmée et ne doit pas être réutilisée telle quelle.",
     copy: `FR — 💙 Chaque geste compte.
 
-Au 4 septembre 2026, votre soutien atteint 39 526 $, dons et adhésions compris, avec la contrepartie de la campagne « Doublez votre impact » incluse. Merci à toutes les personnes qui choisissent de soutenir le lac et la mission de Bleu Massawippi.
+Au 4 septembre 2026, votre soutien atteint 39 526 $, en dons et adhésions. Ce montant n’inclut pas encore la contrepartie de la campagne « Doublez votre impact », qui n’a pas encore été versée. Merci à toutes les personnes qui choisissent de soutenir le lac et la mission de Bleu Massawippi.
 
 Cet élan nous aide à mieux suivre le territoire, à rendre les connaissances accessibles et à préparer la suite avec soin.
 
@@ -692,7 +692,7 @@ Vous souhaitez participer? Adhésion ou don : https://www.zeffy.com/fr-CA/ticket
 
 EN — 💙 Every contribution matters.
 
-As of September 4, 2026, your support totals $39,526, including donations, memberships and matching contributions from the “Double your impact” campaign. Thank you to everyone choosing to support the lake and Bleu Massawippi’s mission.
+As of September 4, 2026, your support totals $39,526 in donations and memberships. This amount does not yet include the matching contribution from the “Double your impact” campaign, which has not yet been received. Thank you to everyone choosing to support the lake and Bleu Massawippi’s mission.
 
 This momentum helps us monitor the region, make knowledge accessible and prepare the next steps with care.
 
@@ -707,14 +707,14 @@ Would you like to take part? Membership or donation: https://www.zeffy.com/en-CA
     requiresConfirmedDonationAmount: false,
     donationCadence: "biweekly-friday-update",
     requiredPlaceholders: [],
-    donationSnapshot: { asOf: "2026-09-04", currency: "CAD", total: 39526, baselineDate: "2026-08-08", baseline: 34606, successfulPayments: 4220, matchingContribution: 700, successfulPaymentCount: 16, eligibleMembershipCount: 7, includesOfflinePayments: true, basis: "recorded-support-including-matching-not-bank-balance", goal: 127115, remaining: 87589, progressPercent: 31.1, goalBasis: "historical-global-campaign-confirmed-by-user-video-and-campaign-record" },
+    donationSnapshot: { asOf: "2026-09-04", currency: "CAD", total: 39526, includesMatchingContribution: false, matchingContributionReceived: 0, matchingContributionStatus: "pending-not-received", correctedBy: "Denis Petitclerc", correctedAt: "2026-09-04T18:11:39Z", correctionSource: "Gmail personnel de Valentin — Doublez votre adhesion", includesOfflinePayments: true, basis: "confirmed-support-excluding-pending-matching", goal: 127115, remaining: 87589, progressPercent: 31.1, goalBasis: "historical-global-campaign-confirmed-by-user-video-and-campaign-record" },
     tasksValentin: [
-      "Relevé et calcul terminés le 4 septembre : 39 526 $, dons, adhésions et contrepartie comprise; détail conservé dans le dossier de travail privé.",
-      "Variante V3 chiffrée ajoutée au tirage choisi, avec l’objectif global historique de 127 115 $. Les variantes V1 et V2 restent conservées.",
-      "Conserver la validation acquise du texte; faire valider le nouveau visuel puis programmer la publication."
+      "Correction de Denis reçue le 4 septembre à 14 h 11 : 39 526 $ n’inclut pas encore la contrepartie, qui n’a pas été versée.",
+      "Corriger la légende française et anglaise de la publication déjà diffusée; conserver la version publiée dans l’historique.",
+      "Ne pas réutiliser la V3 telle quelle : sa petite mention intégrée « contrepartie incluse » est désormais périmée."
     ],
     tasksAnnie: [
-      "Confirmer le total, la date et le ton du rappel, puis approuver le texte et le média avant diffusion."
+      "Aucune action : correction factuelle transmise par Denis après publication et traitée par les communications."
     ],
     taskOwnersVersion: "event-task-owners-2026-07-29-continuity-v1"
   },
