@@ -176,9 +176,11 @@ for (const id of continuityPostIds) {
     `La publication de continuité ${id} doit être bilingue.`);
   assert.ok(post.copy.length <= 2200, `La publication de continuité ${id} doit respecter la limite Meta.`);
   const media = editorialMedia.filter((item) => item.eventId === id && !["archived", "reference"].includes(item.stage) && item.archived !== true);
-  assert.equal(media.length, 1, `La publication de continuité ${id} doit avoir un média actif clair.`);
-  assert.ok(media[0].previewUrl, `Le média de ${id} doit afficher un vrai aperçu mobile.`);
-  assert.ok(media[0].fileName, `Le média de ${id} doit identifier son fichier source.`);
+  const keepsSelectedOriginal = id === "don-20260911-merci-bilan";
+  assert.equal(media.length, keepsSelectedOriginal ? 2 : 1, `La publication de continuité ${id} doit conserver ses variantes attendues.`);
+  if (keepsSelectedOriginal) assert.deepEqual(media.map(item => item.id).sort(), ["editorial-don-20260911-community-gauge-v3", "editorial-don-20260911-community-photo-v2"]);
+  assert.ok(media.every(item => item.previewUrl), `Chaque média de ${id} doit afficher un vrai aperçu mobile.`);
+  assert.ok(media.every(item => item.fileName), `Chaque média de ${id} doit identifier son fichier source.`);
 }
 const aug24FeedbackCases = [
   {
@@ -342,7 +344,19 @@ for (const [id, dateIso] of [["don-20260909-appel-soutien", "2026-10-16"], ["don
   const reconciled = id === "don-20260911-merci-bilan";
   assert.equal(checkpoint?.publicationBlocked, !reconciled, "Les points futurs sans relevé doivent rester bloqués.");
   assert.deepEqual(checkpoint?.requiredPlaceholders, reconciled ? [] : ["[DATE DE VÉRIFICATION]", "[MONTANT TOTAL CONFIRMÉ]", "[VERIFICATION DATE]", "[CONFIRMED CAMPAIGN TOTAL]"]);
-  if (reconciled) assert.equal(checkpoint.donationSnapshot.total, 39526);
+  if (reconciled) {
+    assert.equal(checkpoint.donationSnapshot.total, 39526);
+    assert.equal(checkpoint.donationSnapshot.goal, 127115);
+    assert.equal(checkpoint.donationSnapshot.remaining, 127115 - 39526);
+    assert.equal(checkpoint.donationSnapshot.progressPercent, Math.round(39526 / 127115 * 1000) / 10);
+    const gauge = editorialMedia.find(item => item.id === "editorial-don-20260911-community-gauge-v3");
+    assert.equal(gauge.eventId, id);
+    assert.deepEqual(gauge.donationGraphic, {asOf: "2026-09-04", currency: "CAD", total: 39526, goal: 127115, remaining: 87589, progressPercent: 31.1, parts: 2, sourceMediaId: "editorial-don-20260911-community-photo-v2"});
+    assert.equal(gauge.publicationBlocked, false);
+    assert.ok(editorialMedia.some(item => item.id === gauge.donationGraphic.sourceMediaId), "Le visuel choisi d’origine doit rester conservé.");
+    assert.ok(editorialMedia.some(item => item.id === "editorial-don-20260911-lake-real-v1"), "L’ancienne référence doit également rester conservée.");
+    assert.ok(fs.existsSync(path.join(here, "media-previews", "2026-09-04", "point-soutien-jauge-39526-20260904-v3-preview.webp")));
+  }
   assert.equal(checkpoint?.donationCadence, "biweekly-friday-update");
 }
 assert.match(activePosts.find((post) => post.id === "quiz-20260913-trois-gestes").copy, /https:\/\/bleumassawippi\.com\/quiz/);

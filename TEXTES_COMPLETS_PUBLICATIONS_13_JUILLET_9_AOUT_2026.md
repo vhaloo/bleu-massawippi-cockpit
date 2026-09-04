@@ -1862,10 +1862,10 @@ This feature explains the general role of water lilies in an aquatic plant bed. 
 **Format :** Photographie réelle + point de campagne bilingue
 **Objectif :** Présenter le total de campagne et sa date de vérification, remercier puis rappeler doucement qu’il est toujours possible de soutenir Bleu Massawippi.
 **CTA :** Voir le point et soutenir la mission
-**Visuel final :** Roue de progression simple et très lisible, associée à une photographie réelle du lac Massawippi. Afficher seulement le total confirmé, sa date de vérification et l’objectif de campagne confirmé. Ne jamais déduire ni afficher un pourcentage sans dénominateur vérifié.
+**Visuel final :** Variante V3 du tirage photographique choisi par les communications : anneau bleu à deux parts, 39 526 $ amassés et 87 589 $ à combler sur l’objectif global historique de 127 115 $, soit 31,1 %, au 4 septembre 2026. Dons, adhésions et contrepartie compris. Conserver les variantes antérieures; ne pas confondre l’objectif global avec celui d’un seul formulaire Zeffy.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
 **Source de référence :** Relevé Zeffy vérifié le 4 septembre 2026 : base validée au 8 août de 34 606 $ + 4 220 $ de paiements réussis ultérieurs + 700 $ de contrepartie des adhésions « Doublez votre impact » = 39 526 $. Aucun remboursement ou litige de cette période; paiement abandonné exclu. Cumul de soutien, contrepartie comprise, et non solde bancaire encaissé.
-**Préparation :** Montant et date intégrés le 4 septembre : 39 526 $, contrepartie comprise. Conserver le visuel existant sans pourcentage financier; relire la légende actualisée et obtenir le choix du média avant diffusion.
+**Préparation :** Montant de 39 526 $ intégré le 4 septembre et légende déjà validée, conservée sans modification. Nouvelle variante chiffrée V3 du visuel demandé : objectif 127 115 $, reste 87 589 $, progression 31,1 %. Choix communications actualisé; validation du nouveau média par la direction distincte, avant diffusion.
 
 ### Légende prête à programmer
 
