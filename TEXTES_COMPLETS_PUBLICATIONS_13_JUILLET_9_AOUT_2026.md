@@ -1864,15 +1864,15 @@ This feature explains the general role of water lilies in an aquatic plant bed. 
 **CTA :** Voir le point et soutenir la mission
 **Visuel final :** Roue de progression simple et très lisible, associée à une photographie réelle du lac Massawippi. Afficher seulement le total confirmé, sa date de vérification et l’objectif de campagne confirmé. Ne jamais déduire ni afficher un pourcentage sans dénominateur vérifié.
 **Texte alternatif :** Décrire précisément le visuel retenu et son contexte.
-**Source de référence :** Zeffy — rapport Paiements de la campagne, statut Réussi; exclure remboursements, litiges et paiements non reçus. Liens : https://www.zeffy.com/fr-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007 · https://www.zeffy.com/en-CA/ticketing/42ba0194-3043-44a6-a194-b6e7e6b43007
-**Préparation :** Vérifier le total de campagne, l’objectif qui sert de dénominateur et la date du relevé dans Zeffy; produire ensuite la roue de progression, remplacer les quatre champs temporaires, vérifier les deux liens et lever le blocage seulement après double vérification.
+**Source de référence :** Relevé Zeffy vérifié le 4 septembre 2026 : base validée au 8 août de 34 606 $ + 4 220 $ de paiements réussis ultérieurs + 700 $ de contrepartie des adhésions « Doublez votre impact » = 39 526 $. Aucun remboursement ou litige de cette période; paiement abandonné exclu. Cumul de soutien, contrepartie comprise, et non solde bancaire encaissé.
+**Préparation :** Montant et date intégrés le 4 septembre : 39 526 $, contrepartie comprise. Conserver le visuel existant sans pourcentage financier; relire la légende actualisée et obtenir le choix du média avant diffusion.
 
 ### Légende prête à programmer
 
 ```text
 FR — 💙 Chaque geste compte.
 
-Au [DATE DE VÉRIFICATION], le total confirmé de notre campagne s’élève à [MONTANT TOTAL CONFIRMÉ]. Merci à toutes les personnes qui choisissent de soutenir le lac et la mission de Bleu Massawippi.
+Au 4 septembre 2026, votre soutien atteint 39 526 $, dons et adhésions compris, avec la contrepartie de la campagne « Doublez votre impact » incluse. Merci à toutes les personnes qui choisissent de soutenir le lac et la mission de Bleu Massawippi.
 
 Cet élan nous aide à mieux suivre le territoire, à rendre les connaissances accessibles et à préparer la suite avec soin.
 
@@ -1884,7 +1884,7 @@ Vous souhaitez participer? Adhésion ou don : https://www.zeffy.com/fr-CA/ticket
 
 EN — 💙 Every contribution matters.
 
-As of [VERIFICATION DATE], the confirmed campaign total is [CONFIRMED CAMPAIGN TOTAL]. Thank you to everyone choosing to support the lake and Bleu Massawippi’s mission.
+As of September 4, 2026, your support totals $39,526, including donations, memberships and matching contributions from the “Double your impact” campaign. Thank you to everyone choosing to support the lake and Bleu Massawippi’s mission.
 
 This momentum helps us monitor the region, make knowledge accessible and prepare the next steps with care.
 
