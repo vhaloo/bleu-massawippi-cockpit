@@ -77,3 +77,9 @@ for (const script of ["test:shell", "test:motion-install", "test:control-hints",
 }
 
 console.log(`✓ shell ${release}, cache v${cacheMatch[1]} et suite de régression intégrée`);
+for (const asset of ["workspace-adapter.js","workspace-v2.js","workspace-model.mjs","workspace-v2.css"]) {
+  assert(worker.includes(asset),asset+" doit être disponible dans le cache public.");
+  assert(deploymentWorkflow.includes("cp cockpit/"+asset+" public/"),asset+" doit être livré.");
+}
+assert(deploymentWorkflow.includes("test:workspace-v2"),"La parité V2 est une porte CI.");
+assert(!deploymentWorkflow.includes("cp cockpit/workspace-fixture"),"Les données de démonstration ne doivent pas être publiées.");

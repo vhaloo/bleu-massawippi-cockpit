@@ -36,29 +36,30 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260901-b70";
-import { createEventContextController } from "./event-context-data.js?v=20260901-b70";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260901-b70";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260901-b70";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260901-b70";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260901-b70";
-import { actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260901-b70";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260901-b70";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260901-b70";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260901-b70";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260901-b70";
-import { setupControlHints } from "./control-hints.js?v=20260901-b70";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260901-b70";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260901-b70";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260901-b70";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260901-b70";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260901-b70";
+} from "./firebase-client.js?v=20260907-b71";
+import { createEventContextController } from "./event-context-data.js?v=20260907-b71";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260907-b71";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260907-b71";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260907-b71";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260907-b71";
+import { workflowMarkup, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260907-b71";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260907-b71";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260907-b71";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260907-b71";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260907-b71";
+import { setupControlHints } from "./control-hints.js?v=20260907-b71";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260907-b71";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260907-b71";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260907-b71";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260907-b71";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260907-b71";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
 const DATE_ELEVATOR_COMPACT_MAX = 1599;
 const state = { user: null, profile: null, rows: new Map(), basePosts: [], editorialSignature: "[]", mediaByEvent: new Map(), mediaContextLoading: new Set(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
 let eventContextController = null;
+let workspaceV2 = null;
 let activeRecognition = null;
 let activeTextarea = null;
 let recognitionRestart = false;
@@ -2022,9 +2023,7 @@ function mediaControlsMarkup(planItem) {
 const workflowOrder = ["proposal", "content_review", "changes_requested", "content_approved", "media_review", "final_approved", "scheduled", "published"];
 function workflowRank(stage) { return workflowOrder.indexOf(stage || "proposal"); }
 
-function workflowMarkup(planItem) {
-  return `<section class="cockpit-workflow" data-workflow><h5><span>Les 3 feux verts</span><small class="cockpit-workflow-path">📝 Texte → 🖼️ Visuel → ✓ Publication</small></h5><details class="cockpit-workflow-help"><summary>Comment ça marche ?</summary><p>Le texte et le visuel peuvent avancer en parallèle. Chacun peut choisir un visuel; le choix de la direction le marque prêt et un même choix des deux rôles affiche leur accord. Cliquez de nouveau pour retirer votre choix : l’historique est conservé. La publication demeure réservée aux communications et exige les deux feux verts.</p></details><div class="cockpit-workflow-gates"><button type="button" class="cockpit-workflow-gate" data-gate="content" aria-pressed="false"><b>📝 1 · Texte</b><span data-gate-label>À valider</span></button><button type="button" class="cockpit-workflow-gate" data-gate="media" aria-pressed="false"><b>🖼️ 2 · Visuel</b><span data-gate-label>Choix en attente</span></button><button type="button" class="cockpit-workflow-gate" data-gate="publication" aria-pressed="false"><b>✓ 3 · Terminé</b><span data-gate-label>Publié ou programmé</span></button></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
-}
+
 
 function editorialDecisionMarkup(planItem) {
   if (planItem.decisionLocked === true) return `<section class="cockpit-editorial-decision locked"><b>✓ Publication déjà confirmée pour cette journée</b><p class="cockpit-editorial-help">L’arbitrage rapide est masqué pour cet événement certain. Les validations du texte et du visuel restent disponibles ci-dessous.</p></section>`;
@@ -2115,8 +2114,8 @@ function renderWorkflow(card) {
   if (state.profile?.role === "admin") {
     if (["proposal","changes_requested"].includes(stage)) buttons.push(["content_review","Texte prêt — envoyer à la direction","primary"]);
     if (["proposal","content_review","changes_requested"].includes(stage)) buttons.push(["content_approved","✓ Valider le texte avec l’aval de la direction","primary"]);
-    if (["content_approved"].includes(stage)) buttons.push(["media_review","Visuel prêt — envoyer à la direction","primary"]);
-    if (["final_approved","scheduled"].includes(stage)) buttons.push(["published","✓ Terminer — publié ou programmé","primary"]);
+    if (stage === "content_approved" && !mediaDone) buttons.push(["media_review","Visuel prêt — envoyer à la direction","primary"]);
+    if (publicationReady && !publicationDone) buttons.push(["published","✓ Terminer — publié ou programmé","primary"]);
   }
   if (state.profile?.role === "director") {
     if (["content_review","proposal","changes_requested"].includes(stage)) buttons.push(["content_approved","✓ Approuver le texte et le concept","primary"]);
@@ -2124,7 +2123,7 @@ function renderWorkflow(card) {
     if (stage === "media_review" && !structuredMediaAgreement) buttons.push(["","Choisir et approuver un média ci-dessus","disabled"]);
     if (stage === "media_review") buttons.push(["changes_requested","Correction demandée au visuel","correction"]);
   }
-  const waiting = state.profile?.role === "director" && stage === "content_approved" ? "Le texte est approuvé. Les communications produisent maintenant le visuel." : state.profile?.role === "director" && mediaDone ? "Le visuel est approuvé. Les communications peuvent programmer ou publier." : publicationDone ? "Événement terminé; rien ne disparaît de la base de données." : `Étape actuelle : ${stage.replaceAll("_", " ")}`;
+  const waiting = publicationDone ? "Événement terminé; rien ne disparaît de la base de données." : state.profile?.role === "director" && publicationReady ? "Le texte et le visuel sont approuvés. Les communications peuvent programmer ou publier." : state.profile?.role === "director" && stage === "content_approved" ? "Le texte est approuvé. Le choix du visuel reste à confirmer dans la galerie." : `Étape actuelle : ${stage.replaceAll("_", " ")}`;
   actions.innerHTML = buttons.map(([value,label,kind]) => `<button type="button" class="${kind}" ${value ? `data-workflow-stage="${value}"` : "disabled"}>${label}</button>`).join("") || `<span class="cockpit-media-note">${esc(waiting)}</span>`;
 }
 
@@ -2923,6 +2922,8 @@ async function loadPrivateContent() {
 }
 
 function clearPrivateContent() {
+  workspaceV2?.destroy();
+  workspaceV2 = null;
   document.querySelector("#cockpit-content")?.replaceChildren();
   document.querySelector("#cockpit-private-style")?.remove();
   document.querySelector("#cockpit-date-elevator")?.remove();
@@ -2998,7 +2999,15 @@ async function applyProfile(profile) {
     toast
   });
   syncCardAccess();
+  workspaceV2?.destroy(); workspaceV2 = null;
+  if (new URLSearchParams(location.search).get("interface") === "v2") {
+    try {
+      const { setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20260907-v2.1");
+      workspaceV2 = await setupWorkspaceV2(profile, { state, enhanceCards, toast });
+    } catch { toast("La V2 est indisponible; le cockpit classique reste actif.", true); }
+  }
 }
+
 
 function applySignedOut(message = "") {
   if (activeRecognition) stopDictation("Session fermée.");

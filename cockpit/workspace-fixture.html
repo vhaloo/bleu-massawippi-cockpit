@@ -1,0 +1,8 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cockpit V2 · essai local</title><style>*{box-sizing:border-box}body{margin:0}button,input,textarea{font:inherit;padding:10px;border:1px solid #ccd9d5;border-radius:7px;background:#fff;color:#17424a}button{cursor:pointer}.cockpit-workflow-gates{display:grid;gap:10px}.cockpit-media-preview{display:block}.cockpit-media-info-body{padding:12px}.vm-panel{padding:20px}#cockpit-session{display:flex;color:white}#cockpit-announcer{position:absolute;width:1px;height:1px;overflow:hidden}.copy button{float:right}.copy p{margin-top:12px}.cockpit-comment-row{display:grid;gap:10px}</style></head><body><script type="module">
+import { fixtureHTML, mockAPI } from "./workspace-test-fixture.mjs";
+import { mountWorkspace } from "./workspace-v2.js";
+document.body.insertAdjacentHTML("afterbegin", fixtureHTML);
+const api = mockAPI(document, window);
+const workspace = mountWorkspace(api);
+document.addEventListener("click", event => { const b = event.target.closest("[data-choose]"); if (b) { b.textContent = b.textContent === "Choisir ce visuel" ? "Choix local enregistré · retirer" : "Choisir ce visuel"; } });
+</script></body></html>

@@ -22,3 +22,9 @@ if (!summary.title.includes("Dossier Lamproie")) throw new Error("Le résumé n�
 if (!open.title.includes("Publication du mardi")) throw new Error("Le bouton générique n’utilise pas son contexte.");
 if (close.getAttribute("aria-label") !== "Fermer le panneau") throw new Error("Un libellé explicite a été écrasé.");
 console.log("✓ Infobulles contextuelles et libellés accessibles : test réussi.");
+const dynamic = document.createElement("button"); dynamic.textContent = "Mes tâches · 4"; document.body.append(dynamic);
+applyControlHints(document);
+dynamic.textContent = "Mes tâches · 2"; applyControlHints(document);
+if (dynamic.title.includes("4") || !dynamic.title.includes("2")) throw new Error("Infobulle périmée après changement du compteur.");
+dynamic.title = "Aide personnalisée"; dynamic.textContent = "Mes tâches · 1"; applyControlHints(document);
+if (dynamic.title !== "Aide personnalisée") throw new Error("Aide manuelle remplacée.");

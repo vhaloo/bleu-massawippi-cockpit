@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { parseHTML } from "linkedom";
 import { positionStrategyContextAtBottom } from "./content-layout.js";
+import { workflowMarkup } from "./task-progress-ui.js";
 
 const strategy = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const projectDecisions = JSON.parse(fs.readFileSync(new URL("./project_decisions.json", import.meta.url), "utf8"));
@@ -87,7 +88,8 @@ for (const marker of [
   "📝 1 · Texte",
   "🖼️ 2 · Visuel",
   "✓ 3 · Terminé"
-]) assert.ok(cockpitUi.includes(marker), `Le parcours de validation doit conserver : ${marker}`);
+]) assert.ok(workflowMarkup({id:"test"}).includes(marker), `Le parcours de validation doit conserver : ${marker}`);
+assert.match(cockpitUi, /import \{ workflowMarkup,/, "Le contrôleur conserve le générateur partagé du workflow.");
 for (const marker of ["cockpit-workflow-path", "cockpit-workflow-help", 'data-gate="content"', 'data-gate="media"', 'data-gate="publication"']) {
   assert.ok(clarity.includes(marker), `La feuille de clarté doit conserver : ${marker}`);
 }

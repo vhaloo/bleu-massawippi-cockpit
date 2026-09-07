@@ -7,7 +7,7 @@
  * intact.
  */
 
-import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260901-b70";
+import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260907-b71";
 
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
@@ -504,7 +504,7 @@ function ensureStylesheet() {
   if (document.querySelector(`link[data-module="${MODULE_ID}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = new URL("./view-mode.css?v=20260901-b70", import.meta.url).href;
+  link.href = new URL("./view-mode.css?v=20260907-b71", import.meta.url).href;
   link.dataset.module = MODULE_ID;
   document.head.appendChild(link);
 }
@@ -947,6 +947,7 @@ async function waitForEntityTarget(type, id, navigationToken) {
 }
 
 function shouldUseCompleteView(target, type) {
+  if (document.documentElement.dataset.workspace === "v2") return false;
   if (runtime.mode !== "essential") return false;
   if (normaliseTargetType(type) !== "section") return false;
   const section = target.matches?.("section, details") ? target : target.closest?.("section, details");
@@ -1050,7 +1051,8 @@ export async function navigateToEntity({ type = "schedule", id = "", mediaId = "
 
   const navigationToken = ++runtime.navigationToken;
   clearNavigationError();
-  if (targetType === "schedule") prepareCalendarTarget(targetId);
+  window.dispatchEvent(new CustomEvent("cockpit:entity-will-open", { detail: { type: targetType, id: targetId, mediaId } }));
+  if (targetType === "schedule" && document.documentElement.dataset.workspace !== "v2") prepareCalendarTarget(targetId);
   let target = await waitForEntityTarget(targetType, targetId, navigationToken);
   if (!target) {
     reportNavigationError(

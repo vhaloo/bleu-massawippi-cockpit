@@ -52,6 +52,7 @@ jobs:
           npm --prefix cockpit run test:editor-studio
           npm --prefix cockpit run test:editor-cli
           npm --prefix cockpit run test:editor-rules
+          npm --prefix cockpit run test:workspace-v2
       - name: Vérifier l’absence de secrets locaux
         run: |
           ! git ls-files | grep -E '(^|/)(service-account[^/]*\.json|[^/]*-service-account[^/]*\.json|firebase-config\.local\.js)$'
@@ -88,6 +89,10 @@ jobs:
           cp cockpit/index.html public/
           cp cockpit/actualiser.html public/
           cp cockpit/cockpit-ui.js public/
+          cp cockpit/workspace-adapter.js public/
+          cp cockpit/workspace-v2.js public/
+          cp cockpit/workspace-model.mjs public/
+          cp cockpit/workspace-v2.css public/
           cp cockpit/content-layout.js public/
           cp cockpit/calendar-export-tools.js public/
           cp cockpit/project-calendar.js public/

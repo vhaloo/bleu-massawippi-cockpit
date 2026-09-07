@@ -35,8 +35,8 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260901-b70";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20260901-b70";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260907-b71";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20260907-b71";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -446,6 +446,10 @@ export async function savePublicationContent(draft, profile, { expectedRevision 
   const archiveReference = doc(db, "changeArchive", `publication-${normalized.id}-${mutationId}`.slice(0, 160));
   const result = await runTransaction(db, async (transaction) => {
     const snapshot = await transaction.get(reference);
+    const workflow = await transaction.get(doc(db, "workflowStates", normalized.id));
+    if (["scheduled", "published"].includes(workflow.data()?.stage)) {
+      throw new Error("Cette publication est déjà terminée ou programmée. Conservez-la et préparez une correction distincte plutôt que d’écraser son texte.");
+    }
     if (mustCreate && snapshot.exists()) {
       throw new Error("Cet identifiant vient d’être utilisé. Modifiez légèrement le titre ou la date, puis réessayez.");
     }
@@ -481,7 +485,7 @@ export async function savePublicationContent(draft, profile, { expectedRevision 
   return result;
 }
 
-export async function fetchPublicationHistory(itemId, { pageSize = 20 } = {}) {
+export async function fetchPublicationHistoryPage(itemId, { pageSize = 20, cursor = null } = {}) {
   requireConfigured();
   const id = String(itemId || "").trim();
   if (!id.match(/^[a-z0-9-]{3,80}$/i)) throw new Error("Identifiant de publication invalide.");
@@ -490,10 +494,16 @@ export async function fetchPublicationHistory(itemId, { pageSize = 20 } = {}) {
     where("entityType", "==", "publicationContent"),
     where("entityId", "==", id),
     orderBy("createdAt", "desc"),
+    ...(cursor ? [startAfter(cursor)] : []),
     limit(Math.min(40, Math.max(1, Number(pageSize) || 20)))
   );
   const snapshot = await getDocs(historyQuery);
-  return snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+  const maximum = Math.min(40, Math.max(1, Number(pageSize) || 20));
+  return { items: snapshot.docs.map((item) => ({ id: item.id, ...item.data() })), cursor: snapshot.docs.at(-1) || null, hasMore: snapshot.size === maximum };
+}
+
+export async function fetchPublicationHistory(itemId, options = {}) {
+  return (await fetchPublicationHistoryPage(itemId, options)).items;
 }
 
 export async function setScheduleSelection(itemId, groupIds, selected, profile) {

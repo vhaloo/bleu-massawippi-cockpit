@@ -3,6 +3,10 @@ const finalStages = new Set(["final_approved","scheduled","published"]);
 const publicationStages = new Set(["scheduled","published"]);
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" })[character]);
 
+export function workflowMarkup(planItem) {
+  return `<section class="cockpit-workflow" data-workflow><h5><span>Les 3 feux verts</span><small class="cockpit-workflow-path">📝 Texte → 🖼️ Visuel → ✓ Publication</small></h5><details class="cockpit-workflow-help"><summary>Comment ça marche ?</summary><p>Le texte et le visuel peuvent avancer en parallèle. Chacun peut choisir un visuel; le choix de la direction le marque prêt et un même choix des deux rôles affiche leur accord. Cliquez de nouveau pour retirer votre choix : l’historique est conservé. La publication demeure réservée aux communications et exige les deux feux verts.</p></details><div class="cockpit-workflow-gates"><button type="button" class="cockpit-workflow-gate" data-gate="content" aria-pressed="false"><b>📝 1 · Texte</b><span data-gate-label>À valider</span></button><button type="button" class="cockpit-workflow-gate" data-gate="media" aria-pressed="false"><b>🖼️ 2 · Visuel</b><span data-gate-label>Choix en attente</span></button><button type="button" class="cockpit-workflow-gate" data-gate="publication" aria-pressed="false"><b>✓ 3 · Terminé</b><span data-gate-label>Publié ou programmé</span></button></div><div class="cockpit-workflow-actions" data-workflow-actions data-event-id="${esc(planItem.id)}"></div><p class="cockpit-workflow-complete" data-workflow-complete hidden>Tout est terminé. Cet événement reste conservé et consultable.</p></section>`;
+}
+
 export function buildTaskProgressPresentation(workflow = {}, mediaDecision = null) {
   const stage = workflow?.stage || "proposal";
   const text = textStages.has(stage);

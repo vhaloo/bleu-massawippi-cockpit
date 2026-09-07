@@ -1,4 +1,4 @@
-import { fetchPublicationHistory, savePublicationContent } from "./firebase-client.js?v=20260901-b70";
+import { fetchPublicationHistory, savePublicationContent } from "./firebase-client.js?v=20260907-b71";
 import {
   PUBLICATION_TEMPLATES,
   normalizePublicationDraft,
@@ -6,7 +6,7 @@ import {
   resolvePublicationId,
   validatePublicationDraft,
   weekForDate
-} from "./publication-editor-schema.mjs?v=20260901-b70";
+} from "./publication-editor-schema.mjs?v=20260907-b71";
 
 const runtime = { profile: null, getPosts: () => [], getRows: () => new Map(), button: null, panel: null, form: null, selectedId: "", stableId: "", isNew: false, revision: 0, returnFocus: null };
 
@@ -81,6 +81,7 @@ function updatePreview() {
   preview.querySelector("p").textContent = draft.copy || "Le texte bilingue apparaîtra ici.";
 }
 function loadDraft(item, { revision = null, isNew = false } = {}) {
+  if (!mayReplaceDraft()) return false;
   const row = rowFor(item.id);
   runtime.isNew = isNew === true;
   runtime.stableId = runtime.isNew ? "" : String(item.id || "");
@@ -98,7 +99,12 @@ function loadDraft(item, { revision = null, isNew = false } = {}) {
   setStatus(runtime.isNew ? "Nouvelle publication non enregistrée. L’identifiant se construit automatiquement." : "Prêt à modifier. Rien n’est enregistré avant le bouton Enregistrer.");
   updatePreview();
   refreshList();
+  runtime.savedDraft = JSON.stringify(formDraft());
+  return true;
 }
+function hasUnsavedDraft() { return Boolean(runtime.form && runtime.savedDraft && JSON.stringify(formDraft()) !== runtime.savedDraft); }
+function mayReplaceDraft() { return !hasUnsavedDraft() || window.confirm("Des modifications ne sont pas enregistrées. Les abandonner pour continuer ?"); }
+function protectUnsavedDraft(event) { if (runtime.panel && !runtime.panel.hidden && hasUnsavedDraft()) { event.preventDefault(); event.returnValue = ""; } }
 function blankDraft(templateId = "blank") {
   const template = PUBLICATION_TEMPLATES[templateId] || PUBLICATION_TEMPLATES.blank;
   const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
@@ -198,6 +204,7 @@ async function saveForm(event) {
     const result = await savePublicationContent(draft, runtime.profile, { expectedRevision: runtime.revision, action, mustCreate: creating });
     runtime.selectedId = result.id; runtime.stableId = result.id; runtime.isNew = false; runtime.revision = result.revision;
     runtime.panel.querySelector("[data-studio-revision]").textContent = `Version ${result.revision}`;
+    runtime.savedDraft = JSON.stringify(formDraft());
     setStatus("Version enregistrée. Le calendrier se mettra à jour dès confirmation de Firebase.");
   } catch (error) { setStatus(error.message || "Enregistrement impossible.", true); }
   finally { submit.disabled = false; submit.removeAttribute("aria-busy"); }
@@ -220,7 +227,8 @@ async function showHistory() {
       restore.disabled = !entry.after?.editorial;
       restore.addEventListener("click", () => {
         const restored = publicationFromScheduleRow({ id: formDraft().id, ...entry.after });
-        loadDraft(restored, { revision: runtime.revision });
+        if (!loadDraft(restored, { revision: runtime.revision })) return;
+        runtime.savedDraft = "__restored_unsaved__"; // Restore still requires explicit save.
         panel.hidden = true;
         setStatus("Version chargée dans le formulaire. Cliquez sur Enregistrer pour créer une nouvelle révision.");
       });
@@ -236,16 +244,21 @@ async function showHistory() {
   }
 }
 
-function openStudio() {
+function openStudio(itemId = "") {
+  if (!runtime.panel || runtime.profile?.role !== "admin") return;
+  if (typeof itemId !== "string") itemId = "";
   runtime.returnFocus = document.activeElement;
   runtime.panel.hidden = false;
   document.documentElement.style.overflow = "hidden";
   refreshList();
-  const selected = currentPosts().find((item) => item.id === runtime.selectedId) || currentPosts()[0] || blankDraft();
+  const selected = currentPosts().find((item) => item.id === (itemId || runtime.selectedId)) || currentPosts()[0] || blankDraft();
   loadDraft(selected);
   runtime.panel.querySelector("[data-studio-search]").focus();
 }
+export function openPublicationStudio(itemId = "") { openStudio(itemId); }
 function closeStudio() {
+  if (!mayReplaceDraft()) return;
+  runtime.savedDraft = "";
   runtime.panel.hidden = true;
   runtime.panel.querySelector("[data-studio-history-panel]").hidden = true;
   document.documentElement.style.overflow = "";
@@ -261,11 +274,14 @@ export function initPublicationStudio({ profile, getPosts, getRows } = {}) {
   const button = document.createElement("button"); button.id = "cockpit-studio-launch"; button.type = "button"; button.textContent = "✎ Studio"; button.title = "Créer, dupliquer, replanifier ou corriger une publication"; button.setAttribute("aria-label", button.title); button.addEventListener("click", openStudio);
   session?.insertBefore(button, session.querySelector("#cockpit-logout") || null); runtime.button = button;
   document.addEventListener("keydown", onKeydown);
+  window.addEventListener("beforeunload", protectUnsavedDraft);
   refreshList();
 }
 function onKeydown(event) { if (event.key === "Escape" && runtime.panel && !runtime.panel.hidden) closeStudio(); }
 export function refreshPublicationStudio() { if (runtime.panel) refreshList(); }
 export function destroyPublicationStudio() {
+  window.removeEventListener("beforeunload", protectUnsavedDraft);
+  runtime.savedDraft = "";
   document.removeEventListener("keydown", onKeydown);
   runtime.button?.remove(); runtime.panel?.remove();
   Object.assign(runtime, { profile:null, getPosts:()=>[], getRows:()=>new Map(), button:null, panel:null, form:null, selectedId:"", stableId:"", isNew:false, revision:0, returnFocus:null });
