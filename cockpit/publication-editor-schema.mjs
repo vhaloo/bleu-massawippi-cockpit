@@ -14,13 +14,19 @@ export const PUBLICATION_TEMPLATES = Object.freeze({
   blank: { label: "Publication libre", theme: "Actualité", tier: "Passerelle", format: "Publication bilingue", cta: "En savoir plus" }
 });
 
-const cleanText = (value, limit, fallback = "") => String(value ?? fallback).trim().slice(0, limit);
+// Normalization must never silently discard the user's text; validation rejects overflow.
+const cleanText = (value, limit, fallback = "") => String(value ?? fallback).trim();
 const cleanList = (value) => (Array.isArray(value) ? value : String(value || "").split(/\r?\n/))
-  .map((item) => cleanText(item, 1000)).filter(Boolean).slice(0, 8);
+  .map((item) => cleanText(item, 1000)).filter(Boolean);
 const isoPattern = /^\d{4}-\d{2}-\d{2}$/;
+export function validPublicationDate(value) {
+  if (!isoPattern.test(String(value || ""))) return false;
+  const date = new Date(String(value) + "T12:00:00Z");
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
 
 export function frenchDateLabel(dateIso) {
-  if (!isoPattern.test(String(dateIso || ""))) return "";
+  if (!validPublicationDate(dateIso)) return "";
   const [year, month, day] = dateIso.split("-").map(Number);
   const value = new Date(Date.UTC(year, month - 1, day, 12));
   const text = new Intl.DateTimeFormat("fr-CA", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(value);
@@ -62,7 +68,12 @@ export function resolvePublicationId({ draft = {}, existingIds = [], stableId = 
 export function validatePublicationDraft(input) {
   const errors = [];
   if (!cleanText(input?.title, TEXT_LIMITS.title)) errors.push("Le titre est obligatoire.");
-  if (!isoPattern.test(String(input?.dateIso || ""))) errors.push("La date doit utiliser le format AAAA-MM-JJ.");
+  if (!validPublicationDate(input?.dateIso)) errors.push("La date doit être une date réelle au format AAAA-MM-JJ.");
+  for (const [key, maximum] of Object.entries(TEXT_LIMITS)) if (String(input?.[key] || "").length > maximum) errors.push(`Le champ ${key} dépasse ${maximum} caractères; le texte a été conservé.`);
+  for (const key of ["tasksValentin", "tasksAnnie"]) {
+    const values = Array.isArray(input?.[key]) ? input[key] : String(input?.[key] || "").split(/\r?\n/).filter(Boolean);
+    if (values.length > 8 || values.some(value => String(value).length > 1000)) errors.push(`La liste ${key} dépasse huit tâches ou 1 000 caractères par tâche; aucune tâche n’a été supprimée.`);
+  }
   if (!cleanText(input?.copy, TEXT_LIMITS.copy)) errors.push("Le texte de publication est obligatoire.");
   if (String(input?.copy || "").length > TEXT_LIMITS.copy) errors.push("Le texte dépasse la limite permise.");
   if (String(input?.copy || "") && !/\bFR\s*[—-]/i.test(String(input.copy))) errors.push("La version française doit commencer par « FR — ».");

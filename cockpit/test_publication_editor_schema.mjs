@@ -89,3 +89,8 @@ assert.ok(validatePublicationDraft({ title: "", dateIso: "12 août", copy: "" })
 assert.ok(validatePublicationDraft({ ...draft, copy: "x".repeat(10001) }).some((message) => /dépasse/.test(message)));
 
 console.log("✓ schéma d’édition : normalisation, calendrier, fusion et validations");
+const tooLong = normalizePublicationDraft({ title: "Titre", dateIso:"2026-02-30", copy: "FR — " + "x".repeat(10020) + "\nEN — Text", tasksValentin:Array.from({length:9},(_,i)=>"Tâche "+i) });
+assert.equal(tooLong.tasksValentin.length,9,"La normalisation doit conserver toutes les tâches.");
+assert.ok(tooLong.copy.length>10000,"La normalisation ne doit pas tronquer un texte.");
+assert.ok(validatePublicationDraft(tooLong).some(e=>e.includes("date réelle")),"Une date impossible est refusée.");
+assert.ok(validatePublicationDraft(tooLong).some(e=>e.includes("huit tâches")),"Une liste trop longue est signalée.");

@@ -567,12 +567,18 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    function publicationContentIsEditable(itemId) {
+      return !exists(/databases/$(database)/documents/workflowStates/$(itemId))
+        || !(get(/databases/$(database)/documents/workflowStates/$(itemId)).data.stage in ['scheduled', 'published']);
+    }
+
     match /scheduleItems/{itemId} {
       allow read: if activeUser();
       allow create: if validSchedule(request.resource.data)
         && ((isEditor() && !('editorial' in request.resource.data))
           || (isAdmin()
             && ('editorial' in request.resource.data)
+            && publicationContentIsEditable(itemId)
             && request.resource.data.editorial.revision == 1
             && request.resource.data.editorial.createdBy == request.auth.uid));
       allow update: if isEditor()
@@ -580,6 +586,7 @@ service cloud.firestore {
         && (request.resource.data.diff(resource.data).affectedKeys()
             .hasOnly(['status', 'deleted', 'selected', 'updatedAt', 'updatedBy'])
           || (isAdmin()
+            && publicationContentIsEditable(itemId)
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
               'title', 'dateKey', 'dateIso', 'format', 'role', 'cta', 'source',
               'tasksValentin', 'tasksAnnie', 'calendarTime', 'calendarDurationMinutes',
@@ -826,7 +833,8 @@ service cloud.firestore {
     }
 
     match /changeArchive/{archiveId} {
-      allow read: if isAdmin();
+      // The DG may read text revisions, not administrative logs or other archives.
+      allow read: if isAdmin() || (isEditor() && resource.data.entityType == 'publicationContent');
       allow create: if isEditor()
         && request.resource.data.keys().hasAll(['entityType', 'entityId', 'action', 'before', 'after', 'actorUid', 'actorLabel', 'createdAt'])
         && request.resource.data.keys().hasOnly(['entityType', 'entityId', 'action', 'before', 'after', 'actorUid', 'actorLabel', 'createdAt'])

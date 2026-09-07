@@ -37,7 +37,11 @@ export function applyControlHints(root = document) {
   controls.forEach((control) => {
     const label = actionLabel(control);
     if (!label) return;
-    if (!control.hasAttribute("title")) control.title = label;
+    const previous = control.dataset.cockpitGeneratedHint;
+    if (!control.hasAttribute("title") || (previous && control.title === previous)) {
+      control.title = label;
+      control.dataset.cockpitGeneratedHint = label;
+    }
     const visibleText = compactText(control.textContent);
     if (!control.hasAttribute("aria-label") && (visibleText.length <= 2 || genericLabels.has(visibleText.toLocaleLowerCase("fr-CA")))) {
       control.setAttribute("aria-label", label);

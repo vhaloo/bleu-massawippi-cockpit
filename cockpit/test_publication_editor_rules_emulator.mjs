@@ -9,6 +9,11 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
+  collection,
+  query,
+  where,
+  limit,
   setDoc,
   Timestamp,
   writeBatch
@@ -111,7 +116,14 @@ try {
 
   await check("direction lit la publication", getDoc(doc(directorDb, "scheduleItems", ids.publication)));
   await check("compte lecture lit la publication", getDoc(doc(viewerDb, "scheduleItems", ids.publication)));
-  await check("direction ne lit pas l’historique admin", getDoc(doc(directorDb, "changeArchive", "create-v1")), false);
+  await check("direction consulte les anciennes versions du texte", getDoc(doc(directorDb, "changeArchive", "create-v1")));
+  await check("lecture seule n’accède pas aux versions", getDoc(doc(viewerDb, "changeArchive", "create-v1")), false);
+  await check("direction peut paginer les versions de cette publication", getDocs(query(collection(directorDb, "changeArchive"), where("entityType", "==", "publicationContent"), where("entityId", "==", ids.publication), limit(12))));
+  await environment.withSecurityRulesDisabled(async context => {
+    await setDoc(doc(context.firestore(), "changeArchive", "admin-private"), { ...archive(ids.admin, ids.publication), entityType: "privateAdminAction" });
+  });
+  await check("les autres journaux administratifs restent interdits à la direction", getDoc(doc(directorDb, "changeArchive", "admin-private")), false);
+  await check("la direction ne peut pas demander tout le journal", getDocs(query(collection(directorDb, "changeArchive"), limit(12))), false);
   await check("admin lit l’historique", getDoc(doc(adminDb, "changeArchive", "create-v1")));
 
   const directorCreate = schedule(ids.director, 1);
@@ -171,6 +183,17 @@ try {
   );
 
   await check("aucun rôle ne supprime une publication", deleteDoc(publicationRef), false);
+  for (const stage of ["scheduled", "published"]) {
+    await environment.withSecurityRulesDisabled(async context => {
+      await setDoc(doc(context.firestore(), "workflowStates", ids.publication), { stage });
+    });
+    await check(`contenu ${stage} protégé même contre une modification admin directe`, setDoc(publicationRef, {
+      ...(await getDoc(publicationRef)).data(),
+      title: "Une modification qui doit être refusée",
+      editorial: { ...version2.editorial, revision: 3 },
+      updatedBy: ids.admin, updatedAt: Timestamp.now()
+    }), false);
+  }
   console.log(results.join("\n"));
   console.log(`✓ ${results.length} scénarios de règles Studio vérifiés dans l’émulateur.`);
 } finally {
