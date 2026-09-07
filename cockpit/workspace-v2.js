@@ -1,4 +1,4 @@
-import { SPACES, WORKSPACE_VERSION, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, monthDays, shiftMonth, filterPublications, publicationState, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs";
+import { SPACES, WORKSPACE_VERSION, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs";
 
 /** Opt-in presentation adapter. Existing DOM controls remain the only writers. */
 export function mountWorkspace(api) {
@@ -12,6 +12,7 @@ export function mountWorkspace(api) {
   const all = (selector, root = doc) => [...root.querySelectorAll(selector)];
   const anchor = (label, space, id = "", view = "", help = "", symbol = "") => `<a href="${esc(routeHash(space, id, view))}" data-v2-route title="${esc(help || label)}">${symbol ? icon(symbol) : ""}<span>${esc(label)}</span></a>`;
   const statusMarkup = item => `<span class="v2-state" data-tone="${esc(item.state.tone)}">${esc(item.state.label)}</span>`;
+  const progressMarkup = (item, compact = false) => `<span class="v2-progress${compact ? " v2-progress-compact" : ""}" data-progress-tone="${item.progress.tone}" role="progressbar" aria-label="Validations de cette publication" aria-valuemin="0" aria-valuemax="3" aria-valuenow="${item.progress.completed}" aria-valuetext="${esc(item.progress.description)}" title="${esc(item.progress.description)}">${item.progress.steps.map(step => `<span class="v2-progress-step" data-step="${step.key}" data-complete="${step.complete}" aria-hidden="true"><b>${step.complete ? "✓" : "—"}</b><span>${esc(compact ? step.compactLabel : step.label)}</span></span>`).join("")}</span>`;
   const announce = text => { const node = doc.querySelector("#cockpit-announcer"); if (node) node.textContent = text; };
   let css = doc.querySelector("#workspace-v2-style");
   if (!css) { css = doc.createElement("link"); css.id = "workspace-v2-style"; css.rel = "stylesheet"; css.href = new URL(`./workspace-v2.css?v=${WORKSPACE_VERSION}`, import.meta.url).href; doc.head.append(css); }
@@ -39,7 +40,8 @@ export function mountWorkspace(api) {
       const stage = wf.stage || card?.dataset.workflowStage || "proposal";
       const contentApproved = api.contentApproved?.(item.id) ?? card?.querySelector('[data-gate="content"]')?.getAttribute("aria-pressed") === "true";
       const mediaApproved = api.mediaApproved?.(item.id) ?? card?.querySelector('[data-gate="media"]')?.getAttribute("aria-pressed") === "true";
-      return { ...item, dateIso: api.dateIso?.(item) || item.dateIso || "", decision, state: publicationState({ stage, contentApproved, mediaApproved, decision }) };
+      const approval = { stage, contentApproved, mediaApproved, decision };
+      return { ...item, dateIso: api.dateIso?.(item) || item.dateIso || "", decision, state: publicationState(approval), progress: publicationProgress(approval) };
     });
   }
   function subtabs(tabs, view) { return `<nav class="v2-tabs" aria-label="Vues">${tabs.map(([id, label, help]) => `<a data-v2-route href="${routeHash(state.route.space, "", id)}" ${view === id ? 'aria-current="page"' : ""} title="${esc(help || label)}">${icon(id === "calendrier" ? state.route.space === "projets" ? "projectCalendar" : "socialCalendar" : { liste: "list", archives: "archive", reserve: "history", actifs: "folder", occasions: "leaf", documents: "document", medias: "publications", guides: "library" }[id])}<span>${esc(label)}</span></a>`).join("")}</nav>`; }
@@ -184,12 +186,12 @@ export function mountWorkspace(api) {
     const background = items.length === 1 ? previewFor(items[0]) : null;
     return `<section class="v2-day${day.startsWith(state.month) ? "" : " v2-outside"}${background ? " v2-has-photo" : ""}" ${day === todayKey() ? 'data-today="true"' : ""} aria-label="${esc(prettyDate(day))}">${previewImage(background)}<span class="v2-day-number">${Number(day.slice(-2))}</span>${items.map(item => {
       const preview = background || previewFor(item);
-      return `<a data-v2-route class="v2-calendar-post${preview ? " v2-has-photo" : ""}" data-tone="${esc(item.state.tone)}" href="${routeHash("publications", item.id)}" title="${esc(`${item.title} · ${item.state.label}${preview ? ` · ${preview.label}` : " · aperçu non chargé"}`)}">${background ? "" : previewImage(preview)}<span>${esc(item.title)}<small>${esc(item.state.label)}</small></span></a>`;
+      return `<a data-v2-route class="v2-calendar-post${preview ? " v2-has-photo" : ""}" data-tone="${esc(item.state.tone)}" data-progress-tone="${item.progress.tone}" href="${routeHash("publications", item.id)}" title="${esc(`${item.title} · ${item.state.label}. ${item.progress.description}${preview ? ` · ${preview.label}` : " · aperçu non chargé"}`)}">${background ? "" : previewImage(preview)}<span>${esc(item.title)}<small class="v2-calendar-status">${esc(item.state.label)}</small></span>${progressMarkup(item, true)}</a>`;
     }).join("")}</section>`;
   }
   function agendaItem(item) {
     const preview = previewFor(item);
-    return `<a data-v2-route class="${preview ? "v2-has-photo" : ""}" href="${routeHash("publications", item.id)}" title="${esc(`${prettyDate(item.dateIso)} — ${item.title}${preview ? ` · ${preview.label}` : ""}`)}">${previewImage(preview)}<span class="v2-agenda-copy"><small>${esc(prettyDate(item.dateIso))}</small><b>${esc(item.title)}</b>${statusMarkup(item)}</span></a>`;
+    return `<a data-v2-route class="v2-agenda-post${preview ? " v2-has-photo" : ""}" data-progress-tone="${item.progress.tone}" href="${routeHash("publications", item.id)}" title="${esc(`${prettyDate(item.dateIso)} — ${item.title}. ${item.progress.description}${preview ? ` · ${preview.label}` : ""}`)}">${previewImage(preview)}<span class="v2-agenda-copy"><small>${esc(prettyDate(item.dateIso))}</small><b>${esc(item.title)}</b>${statusMarkup(item)}${progressMarkup(item)}</span></a>`;
   }
   function renderPublicationList(view) {
     const items = filterPublications(publications(), { view, query: state.query, status: state.status });
@@ -199,6 +201,10 @@ export function mountWorkspace(api) {
       const byDay = new Map(); items.forEach(item => { const list = byDay.get(item.dateIso) || []; list.push(item); byDay.set(item.dateIso, list); });
       panel.innerHTML = `<div class="v2-calendar-heading"><div><h2>Calendrier des publications</h2><p>Un jour peut contenir des options à arbitrer; cela ne signifie pas plusieurs publications confirmées.</p></div><div><button type="button" data-v2-month="-1" title="Mois précédent">←</button><strong>${esc(prettyDate(`${state.month}-01`, { month: "long", year: "numeric" }))}</strong><button type="button" data-v2-month="1" title="Mois suivant">→</button><button type="button" data-v2-today title="Revenir au mois courant">Aujourd’hui</button></div></div><div class="v2-calendar" aria-label="Calendrier mensuel des publications">${["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map(d => `<div class="v2-weekday">${d}</div>`).join("")}${monthDays(state.month).map(day => calendarDay(day, byDay.get(day) || [])).join("")}</div>`;
       const calendar = panel.querySelector(".v2-calendar");
+      const legend = doc.createElement("div"); legend.className = "v2-calendar-legend";
+      legend.setAttribute("aria-label", "Code couleur et étapes de validation");
+      legend.innerHTML = `<div>${[["waiting", "À valider"], ["partial", "Accord partiel"], ["ready", "Prêt à programmer"], ["done", "Publié / programmé"], ["attention", "À ajuster"]].map(([tone, label]) => `<span data-progress-tone="${tone}"><i aria-hidden="true"></i>${label}</span>`).join("")}</div><p>Trois repères : <b>Texte</b> approuvé · <b>Image</b> retenue · <b>Fait</b> = publié ou programmé. ✓ acquis, — à faire. La date seule ne termine jamais un post.</p>`;
+      calendar.before(legend);
       const scroll = doc.createElement("div"); scroll.className = "v2-calendar-scroll"; scroll.tabIndex = 0; scroll.setAttribute("aria-label", "Calendrier mensuel, défilement horizontal sur petit écran"); calendar.before(scroll); scroll.append(calendar);
       const agenda = doc.createElement("section"); agenda.className = "v2-mobile-agenda";
       const list = items.filter(item => item.dateIso.startsWith(state.month));

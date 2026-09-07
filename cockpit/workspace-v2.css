@@ -75,7 +75,8 @@ html[data-workspace="v2"] .v2-utility-buttons>button:hover{border-color:var(--v2
 .v2-result-count,.v2-intro{color:var(--v2-muted);font-size:13px}
 .v2-state{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid var(--v2-line);border-radius:999px;background:var(--v2-soft);font-size:11px;font-weight:700;line-height:1.35;color:var(--v2-ink)}
 .v2-state:before{content:"";width:6px;height:6px;flex-shrink:0;border-radius:50%;background:#977833}
-.v2-state[data-tone="ready"]:before,.v2-state[data-tone="done"]:before{background:#367952}
+.v2-state[data-tone="ready"]:before{background:#287bbb}
+.v2-state[data-tone="done"]:before{background:#367952}
 .v2-state[data-tone="attention"]:before{background:#b86543}
 .v2-state[data-tone="muted"]:before{background:#819293}
 .v2-publication-list{display:grid;gap:9px}
@@ -201,6 +202,29 @@ html[data-workspace="v2"] .project-calendar-shell[data-v2-target]{padding:12px;b
 .v2-day.v2-has-photo>.v2-day-number{display:inline-flex;padding:2px 6px;border-radius:6px;background:#0c283fc7;min-width:23px;justify-content:center}
 .v2-day.v2-has-photo>.v2-calendar-post:before{display:none}
 .v2-calendar-post.v2-has-photo{min-height:84px}
+/* Read-only progress: colors always have text and check/dash equivalents. */
+#workspace-v2 [data-progress-tone]{--v2-progress-color:#60747e}
+#workspace-v2 [data-progress-tone="partial"]{--v2-progress-color:#9a620e}
+#workspace-v2 [data-progress-tone="ready"]{--v2-progress-color:#287bbb}
+#workspace-v2 [data-progress-tone="done"]{--v2-progress-color:#287047}
+#workspace-v2 [data-progress-tone="attention"]{--v2-progress-color:#ad4a36}
+#workspace-v2 :is(.v2-calendar-post,.v2-agenda-post)[data-progress-tone]{border-left:4px solid var(--v2-progress-color)!important}
+#workspace-v2 .v2-calendar-status{display:block;margin-top:6px;line-height:1.35}
+#workspace-v2 .v2-progress{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin-top:10px;min-width:0;background:#fffefa;padding:4px;border-radius:6px;box-shadow:0 1px 3px #0a273026;line-height:1.2}
+#workspace-v2 .v2-progress-step{display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 0 0;border-top:5px solid #c7d1d3;color:#465e67!important;font-size:10px;font-weight:600;min-width:0}
+#workspace-v2 .v2-progress-step b{font-size:11px;line-height:1.05;color:inherit!important}
+#workspace-v2 .v2-progress-step[data-complete="true"]{border-color:var(--v2-progress-color);color:#173b44!important}
+#workspace-v2 .v2-progress-compact .v2-progress-step{font-size:9px;letter-spacing:-.02em}
+#workspace-v2 .v2-calendar-legend{margin:0 0 14px;padding:11px 14px;border:1px solid var(--v2-line);border-radius:11px;background:var(--v2-paper);font-size:11px}
+#workspace-v2 .v2-calendar-legend>div{display:flex;flex-wrap:wrap;gap:7px 16px}
+#workspace-v2 .v2-calendar-legend>div>span{display:flex;align-items:center;gap:6px}
+#workspace-v2 .v2-calendar-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--v2-progress-color)}
+#workspace-v2 .v2-calendar-legend p{margin:7px 0 0;color:var(--v2-muted);font-size:11px;line-height:1.5}
+html[data-workspace="v2"][data-theme="dark"] #workspace-v2 .v2-calendar-legend [data-progress-tone="waiting"]{--v2-progress-color:#a1b5bd}
+html[data-workspace="v2"][data-theme="dark"] #workspace-v2 .v2-calendar-legend [data-progress-tone="partial"]{--v2-progress-color:#dfb66d}
+html[data-workspace="v2"][data-theme="dark"] #workspace-v2 .v2-calendar-legend [data-progress-tone="ready"]{--v2-progress-color:#78b6e5}
+html[data-workspace="v2"][data-theme="dark"] #workspace-v2 .v2-calendar-legend [data-progress-tone="done"]{--v2-progress-color:#7bbf91}
+html[data-workspace="v2"][data-theme="dark"] #workspace-v2 .v2-calendar-legend [data-progress-tone="attention"]{--v2-progress-color:#e3927e}
 .v2-date-tile.v2-has-photo b,.v2-date-tile.v2-has-photo small{position:relative;z-index:2;color:#fff!important}
 .v2-agenda-copy{display:grid;gap:7px;position:relative;z-index:2}
 .v2-agenda-copy>small{font-size:12px}.v2-agenda-copy>b{font-size:15px}

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { parseHTML } from "linkedom";
-import { monthDays, validCivilDate, sortPublications, parseRoute, routeHash, filterPublications, todayKey, publicationState, safeLink, publicationNeighbours, previewCandidates, interfaceUrl, workspaceIcon } from "./workspace-model.mjs";
+import { monthDays, validCivilDate, sortPublications, parseRoute, routeHash, filterPublications, todayKey, publicationState, publicationProgress, safeLink, publicationNeighbours, previewCandidates, interfaceUrl, workspaceIcon } from "./workspace-model.mjs";
 import { fixtures, fixtureHTML, mockAPI } from "./workspace-test-fixture.mjs";
 import { mountWorkspace } from "./workspace-v2.js";
 let checks = 0;
@@ -14,6 +14,30 @@ check("routes stables et anciennes ancres", () => { assert.equal(parseRoute(rout
 check("calendrier conserve le passé sans archives éditoriales", () => { const ids=filterPublications(fixtures,{view:"calendrier",today:"2026-09-07"}).map(p=>p.id); assert(ids.includes("test-past")); assert(!ids.includes("test-archived")); assert(!ids.includes("test-reserve")); });
 check("archives et réserve demeurent accessibles", () => { assert(filterPublications(fixtures,{view:"reserve"}).some(p=>p.id==="test-reserve")); assert(filterPublications(fixtures,{view:"archives"}).some(p=>p.id==="test-archived")); });
 check("pas de fausse approbation et liens externes sûrs", () => { assert.equal(publicationState({contentApproved:true,mediaApproved:false}).tone,"waiting"); assert.equal(safeLink("javascript:alert(1)"),""); });
+check("progression : trois accords indépendants, sans fausse validation", () => {
+  assert.equal(publicationProgress().completed, 0);
+  const text = publicationProgress({ contentApproved: true });
+  assert.equal(text.completed, 1); assert.equal(text.tone, "partial");
+  const media = publicationProgress({ mediaApproved: true });
+  assert.equal(media.completed, 1); assert.equal(media.steps[0].complete, false);
+  assert.equal(publicationProgress({ contentApproved: "false", mediaApproved: "true" }).completed, 0);
+});
+check("prêt ne signifie pas programmé, même après la date prévue", () => {
+  for (const stage of ["content_approved", "final_approved"]) {
+    const ready = publicationProgress({ stage, contentApproved: true, mediaApproved: true, dateIso: "2020-01-01" });
+    assert.equal(ready.completed, 2); assert.equal(ready.tone, "ready"); assert.equal(ready.steps[2].complete, false);
+  }
+  for (const stage of ["scheduled", "published"]) {
+    const done = publicationProgress({ stage, contentApproved: true, mediaApproved: true });
+    assert.equal(done.completed, 3); assert.equal(done.tone, "done");
+  }
+});
+check("ajustements et historique incomplet restent explicites", () => {
+  assert.equal(publicationProgress({ stage: "media_changes_requested", contentApproved: true }).tone, "attention");
+  assert.equal(publicationProgress({ decision: "rejected" }).tone, "muted");
+  const historical = publicationProgress({ stage: "published", contentApproved: true, mediaApproved: false });
+  assert.equal(historical.completed, 2); assert.equal(historical.steps[1].complete, false); assert.equal(historical.steps[2].complete, true);
+});
 check("frise chronologique, bornée et sans bouclage aux extrémités", () => {
   const input = [{ id: "last", dateIso: "2027-01-03" }, { id: "first", dateIso: "2026-12-30" }, { id: "reserve", dateIso: "2026-12-31", decision: "deferred" }, { id: "invalid", dateIso: "bad" }];
   const before = JSON.stringify(input);
@@ -85,6 +109,33 @@ check("historique avant/après en lecture seule",()=>{const content=document.que
 workspace.navigate("#/publications?vue=calendrier");
 check("calendrier social distinct et agenda mobile",()=>{assert.equal(document.querySelectorAll(".v2-day").length,42);assert(document.querySelector(".v2-mobile-agenda"));assert(document.querySelector(".project-calendar-shell").closest("[data-v2-concealed]"));});
 check("calendrier illustré et mobile conservent les dates et états lisibles",()=>{assert(document.querySelector(".v2-day.v2-has-photo .v2-background-photo"));assert(document.querySelector(".v2-mobile-agenda .v2-background-photo"));assert(document.querySelector('.v2-tabs [data-icon="socialCalendar"]'));});
+check("légende et trois repères accessibles dans le calendrier et l’agenda", () => {
+  assert.equal(document.querySelectorAll('.v2-calendar-legend [data-progress-tone]').length, 5);
+  for (const selector of ['.v2-calendar-post', '.v2-agenda-post']) {
+    const row = document.querySelector(`${selector}[href="#/publications/test-first"]`);
+    assert.equal(row.dataset.progressTone, "partial");
+    assert.equal(row.querySelectorAll('.v2-progress-step').length, 3);
+    assert.equal(row.querySelector('[role="progressbar"]').getAttribute('aria-valuenow'), '1');
+    assert(row.querySelector('[role="progressbar"]').getAttribute('aria-valuetext').includes('Texte approuvé'));
+    assert.equal(row.querySelector('[data-step="finished"]').dataset.complete, 'false');
+  }
+});
+check("le calendrier reflète les nouveaux états sans écrire ni anticiper la publication", () => {
+  const oldMedia = api.mediaApproved, oldWorkflow = api.getWorkflow;
+  api.mediaApproved = () => true;
+  workspace.navigate("#/publications?vue=calendrier");
+  let row = document.querySelector('.v2-calendar-post[href="#/publications/test-first"]');
+  assert.equal(row.dataset.progressTone, 'ready');
+  assert.equal(row.querySelector('[role="progressbar"]').getAttribute('aria-valuenow'), '2');
+  api.getWorkflow = () => ({ stage: "scheduled" });
+  workspace.navigate("#/publications?vue=calendrier");
+  row = document.querySelector('.v2-calendar-post[href="#/publications/test-first"]');
+  assert.equal(row.dataset.progressTone, 'done');
+  assert.equal(row.querySelector('[role="progressbar"]').getAttribute('aria-valuenow'), '3');
+  assert.equal(JSON.stringify(fixtures), sourceJSON);
+  api.mediaApproved = oldMedia; api.getWorkflow = oldWorkflow;
+  workspace.navigate("#/publications?vue=calendrier");
+});
 workspace.navigate("#/projets?vue=calendrier");
 check("calendrier projet original conservé",()=>{assert(document.querySelector(".project-calendar-shell").hasAttribute("data-v2-target"));assert.equal(document.querySelectorAll(".v2-day").length,0);});
 workspace.navigate("#/projets?vue=archives");

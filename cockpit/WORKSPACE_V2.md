@@ -44,6 +44,8 @@ Le contexte ciblé de la publication ouverte reste prioritaire sur la fenêtre g
 
 Les icônes des calendriers social et projets sont distinctes. Les aides détaillées au survol sont conservées après dépliage d’un panneau. Les effets du bouton de mouvements restent confinés à son contrôle lorsqu’il est déplacé dans « Outils et préférences ».
 
+Le calendrier des publications et son agenda mobile affichent un code couleur accompagné d’une légende et d’une barre à trois repères : texte approuvé, visuel retenu, publication terminée. Gris = à valider, ocre = accord partiel, bleu = prêt à programmer, vert = publié/programmé, terre cuite = ajustement demandé. Les coches, tirets et libellés accessibles doublent toujours la couleur. Un accord texte + visuel donne 2/3, jamais 3/3 : le dernier repère dépend exclusivement d’un workflow `scheduled` ou `published`, pas de la date ni d’une supposition concernant Meta. Si les anciens accords sont incomplets, ils ne sont pas inventés.
+
 ## Garde-fous
 
 - Dates civiles réelles, tri stable, aucune modification automatique du planning par les filtres.
