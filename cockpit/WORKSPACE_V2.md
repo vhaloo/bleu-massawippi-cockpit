@@ -48,6 +48,10 @@ Le calendrier des publications et son agenda mobile affichent un code couleur ac
 
 ## Garde-fous
 
+Les repères d’approbation utilisent un fond translucide flouté, clair ou sombre selon le thème, avec une couleur de repli lisible si le navigateur ne gère pas le flou. Le voile sur les aperçus est allégé sans modifier les fichiers médias. Sur une largeur de 960 px ou moins, l’ordre visuel suit aussi l’ordre du document : texte, galerie, approbations, conversation, puis informations complémentaires.
+
+Les dates antérieures au jour civil de Toronto sont visuellement atténuées dans le calendrier, l’agenda, la frise et les listes : aperçus presque désaturés et repère « Passé ». Les couleurs des validations restent indépendantes. Rien n’est masqué, archivé, approuvé ni terminé par ce classement. Aujourd’hui, les dates futures et les éléments sans date valide ne sont pas atténués.
+
 - Dates civiles réelles, tri stable, aucune modification automatique du planning par les filtres.
 - Les contrôles de rôle restent ceux du cockpit. Le Studio n’est pas ouvert à la direction par cette V2.
 - Les règles n’ouvrent à la direction que les archives de type `publicationContent`; les autres journaux administratifs restent privés.

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { parseHTML } from "linkedom";
-import { monthDays, validCivilDate, sortPublications, parseRoute, routeHash, filterPublications, todayKey, publicationState, publicationProgress, safeLink, publicationNeighbours, previewCandidates, interfaceUrl, workspaceIcon } from "./workspace-model.mjs";
+import { monthDays, validCivilDate, sortPublications, parseRoute, routeHash, filterPublications, todayKey, isPastDate, publicationState, publicationProgress, safeLink, publicationNeighbours, previewCandidates, interfaceUrl, workspaceIcon } from "./workspace-model.mjs";
 import { fixtures, fixtureHTML, mockAPI } from "./workspace-test-fixture.mjs";
 import { mountWorkspace } from "./workspace-v2.js";
 let checks = 0;
@@ -10,6 +10,13 @@ check("dates civiles et années bissextiles", () => { assert(validCivilDate("202
 check("calendrier de 42 jours, du lundi au dimanche", () => { for (const month of ["2026-09","2026-12","2027-01","2028-02"]) { const days = monthDays(month); assert.equal(days.length,42); assert.equal(new Date(days[0]+"T12:00Z").getUTCDay(),1); assert.equal(new Set(days).size,42); } });
 check("tri sans mutation et dates invalides en fin", () => { const input = [{id:"z",dateIso:"2026-09-13"},{id:"b",dateIso:"2026-09-01"},{id:"a",dateIso:"2026-09-01"},{id:"invalid",dateIso:"bad"}]; const before=JSON.stringify(input); assert.deepEqual(sortPublications(input).map(p=>p.id),["a","b","z","invalid"]); assert.equal(JSON.stringify(input),before); });
 check("jour civil de Toronto près de minuit UTC", () => assert.equal(todayKey(new Date("2026-09-08T01:00Z")),"2026-09-07"));
+check("passé visuel : hier seulement, jamais aujourd’hui, le futur ni une date invalide", () => {
+  const today = todayKey(new Date("2026-09-08T01:00Z"));
+  assert(isPastDate("2026-09-06", today));
+  for (const date of [today, "2026-09-08", "", "bad", "2026-02-29"]) assert.equal(isPastDate(date, today), false);
+  assert.equal(isPastDate("2026-09-06", "bad"), false);
+  assert(isPastDate("2026-12-31", "2027-01-01"));
+});
 check("routes stables et anciennes ancres", () => { assert.equal(parseRoute(routeHash("publications","id / é")).id,"id / é"); assert.equal(parseRoute("#sources").legacy,"sources"); assert.doesNotThrow(()=>parseRoute("#/publications/%oops")); });
 check("calendrier conserve le passé sans archives éditoriales", () => { const ids=filterPublications(fixtures,{view:"calendrier",today:"2026-09-07"}).map(p=>p.id); assert(ids.includes("test-past")); assert(!ids.includes("test-archived")); assert(!ids.includes("test-reserve")); });
 check("archives et réserve demeurent accessibles", () => { assert(filterPublications(fixtures,{view:"reserve"}).some(p=>p.id==="test-reserve")); assert(filterPublications(fixtures,{view:"archives"}).some(p=>p.id==="test-archived")); });
@@ -80,6 +87,17 @@ const workspace=mountWorkspace(api);
 check("montage opt-in et quatre espaces",()=>{assert.equal(document.documentElement.dataset.workspace,"v2");assert.equal(document.querySelectorAll("[data-v2-space]").length,4);});
 check("outils originaux regroupés sans superposition ni perte de gestionnaire",()=>{assert(utility.closest('.v2-utilities'));utility.click();assert.equal(utilityClicks,1);assert(!utility.closest('details').open);});
 workspace.navigate("#/publications/test-first");
+check("ordre DOM texte, médias, décisions, conversation et détails préservés", () => {
+  const body = document.querySelector('[data-item-id="test-first"] .v2-publication-body');
+  assert.deepEqual([...body.children].map(n => n.className), ["v2-reading", "v2-gallery-column", "v2-decisions", "v2-conversation", "v2-more"]);
+});
+check("la frise distingue le passé sans désactiver ses liens", () => {
+  for (const frame of document.querySelectorAll('.v2-date-frame')) {
+    assert.equal(frame.dataset.past, String(isPastDate(frame.dataset.date)));
+    assert.equal(Boolean(frame.querySelector('.v2-past-label')), isPastDate(frame.dataset.date));
+    assert(!frame.hasAttribute('aria-disabled')); assert(frame.hasAttribute('href'));
+  }
+});
 check("le choix DG tardif devient visible sans figer le premier aperçu", () => {
   const card = document.querySelector('[data-item-id="test-first"]');
   const second = card.querySelector('[data-media-id="two"]');
@@ -136,6 +154,25 @@ check("le calendrier reflète les nouveaux états sans écrire ni anticiper la p
   api.mediaApproved = oldMedia; api.getWorkflow = oldWorkflow;
   workspace.navigate("#/publications?vue=calendrier");
 });
+check("calendrier, agenda et archives atténuent la date sans toucher aux accords ni aux sources", () => {
+  const oldDate = api.dateIso;
+  api.dateIso = item => item.id === "test-past" ? "2026-09-01" : item.dateIso;
+  workspace.navigate("#/publications?vue=calendrier");
+  for (const selector of ['.v2-calendar-post', '.v2-agenda-post']) {
+    const row = document.querySelector(`${selector}[href="#/publications/test-past"]`);
+    assert.equal(row.dataset.past, String(isPastDate("2026-09-01")));
+    assert.equal(row.querySelector('[data-step="finished"]').dataset.complete, "true");
+    assert.equal(row.querySelector('[data-step="media"]').dataset.complete, "false");
+  }
+  for (const row of document.querySelectorAll('.v2-calendar-post')) assert.equal(row.dataset.past, row.closest('.v2-day').dataset.past);
+  workspace.navigate("#/publications?vue=archives");
+  const row = document.querySelector('.v2-publication-row[href="#/publications/test-past"]');
+  assert.equal(row.dataset.past, String(isPastDate("2026-09-01")));
+  row.click(); assert.equal(url.hash, "#/publications/test-past");
+  assert(document.querySelector('[data-item-id="test-past"][data-v2-target]'));
+  assert.equal(JSON.stringify(fixtures), sourceJSON);
+  api.dateIso = oldDate;
+});
 workspace.navigate("#/projets?vue=calendrier");
 check("calendrier projet original conservé",()=>{assert(document.querySelector(".project-calendar-shell").hasAttribute("data-v2-target"));assert.equal(document.querySelectorAll(".v2-day").length,0);});
 workspace.navigate("#/projets?vue=archives");
@@ -148,6 +185,38 @@ check("démontage restaure les nœuds et l’interface classique",()=>{assert(co
 const ui=await fs.readFile(new URL("./cockpit-ui.js",import.meta.url),"utf8");
 const v2=await fs.readFile(new URL("./workspace-v2.js",import.meta.url),"utf8");
 const css=await fs.readFile(new URL("./workspace-v2.css",import.meta.url),"utf8");
+check("petits écrans : texte avant média, puis décisions et conversation", () => {
+  const narrow = css.split('@media(max-width:960px)')[1].split('@media')[0];
+  assert(narrow.includes('.v2-reading{grid-row:1}'));
+  assert(narrow.includes('.v2-gallery-column{grid-row:2}'));
+  assert(narrow.includes('.v2-decisions{grid-row:3}'));
+  assert(narrow.includes('.v2-conversation{grid-row:4}'));
+});
+check("progression vitrée adaptée aux deux thèmes, avec repli et couleurs lisibles", () => {
+  const progress = css.match(/#workspace-v2 \.v2-progress\{([^}]+)\}/)[1];
+  assert(progress.includes('background:var(--v2-glass)'));
+  assert(progress.includes('backdrop-filter:blur(10px)'));
+  assert(progress.includes('-webkit-backdrop-filter:blur(10px)'));
+  assert(css.includes('@supports ((backdrop-filter:blur(1px))'));
+  assert(css.includes('--v2-glass:#102830f0')); assert(css.includes('--v2-glass:#eaf3eef0'));
+});
+check("photos à venir éclaircies, grisé limité aux aperçus passés", () => {
+  assert(!css.includes('brightness(.82)'));
+  assert(css.includes('[data-past="true"] .v2-background-photo{filter:grayscale(.95);opacity:.42}'));
+  assert(!css.includes('[data-past="true"]{display:none'));
+});
+check("contraste des petits textes : au moins 4,5 même sur un fond photo extrême", () => {
+  const rgb = hex => hex.match(/../g).map(c => parseInt(c, 16));
+  const lum = c => c.map(x => x / 255).map(x => x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4).reduce((s, x, i) => s + x * [.2126, .7152, .0722][i], 0);
+  const ratio = (a, b) => (Math.max(lum(a), lum(b)) + .05) / (Math.min(lum(a), lum(b)) + .05);
+  const mix = (a, b, alpha) => a.map((x, i) => x * alpha + b[i] * (1 - alpha));
+  for (const [ink, surface, behind] of [["304e57", "eaf3eec7", "000000"], ["ccdedb", "102830c7", "ffffff"]]) {
+    assert(css.includes(`#${ink}`)); assert(css.includes(`#${surface}`));
+    const rgba = rgb(surface); assert(ratio(rgb(ink), mix(rgba.slice(0, 3), rgb(behind), rgba[3] / 255)) >= 4.5);
+  }
+  assert(css.includes('#092d3ca3')); // Lightest stop of the title scrim.
+  assert(ratio(rgb('ffffff'), mix(rgb('092d3c'), rgb('ffffff'), 163 / 255)) >= 4.5);
+});
 check("la fiche mobile rapproche la frise et la publication",()=>assert(css.includes('.v2-panel:has(.v2-date-navigation){margin-bottom:8px}')));
 check("les pseudo-éléments d’animation ne peuvent plus couvrir la page",()=>{assert(css.includes('.v2-utility-buttons>button{position:relative!important'));assert.match(css,/#cockpit-motion-toggle::after\{content:none!important;display:none!important\}/);});
 const directorWorkspace=mountWorkspace({...api,profile:{uid:"director-test",role:"director"}});
