@@ -36,23 +36,24 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260907-b75";
-import { createEventContextController } from "./event-context-data.js?v=20260907-b75";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260907-b75";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260907-b75";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260907-b75";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260907-b75";
-import { workflowMarkup, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260907-b75";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260907-b75";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260907-b75";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260907-b75";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260907-b75";
-import { setupControlHints } from "./control-hints.js?v=20260907-b75";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260907-b75";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260907-b75";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260907-b75";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260907-b75";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260907-b75";
+} from "./firebase-client.js?v=20260907-b76";
+import { createEventContextController } from "./event-context-data.js?v=20260907-b76";
+import { mergeEventWindow } from "./event-context-window.mjs?v=20260907-b76";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260907-b76";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260907-b76";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260907-b76";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260907-b76";
+import { workflowMarkup, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260907-b76";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260907-b76";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260907-b76";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260907-b76";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260907-b76";
+import { setupControlHints } from "./control-hints.js?v=20260907-b76";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260907-b76";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260907-b76";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260907-b76";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260907-b76";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260907-b76";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -3001,7 +3002,7 @@ async function applyProfile(profile) {
   syncCardAccess();
   workspaceV2?.destroy(); workspaceV2 = null;
   try {
-    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20260907-v2.5");
+    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20260907-v2.6");
     setupInterfaceSwitch(profile);
     if (new URLSearchParams(location.search).get("interface") === "v2") workspaceV2 = await setupWorkspaceV2(profile, { state, enhanceCards, toast, mediaPreview: mediaPreviewUrl });
   } catch { toast("La V2 est indisponible; le cockpit classique reste actif.", true); }
@@ -3115,13 +3116,7 @@ function subscribeRemoteData() {
   }
   state.mediaUnsubscribe?.();
   state.mediaUnsubscribe = subscribeMediaLinks((rows) => {
-    const grouped = new Map();
-    rows.forEach((row) => {
-      const eventId = String(row.eventId || "");
-      if (!grouped.has(eventId)) grouped.set(eventId, []);
-      grouped.get(eventId).push(row);
-    });
-    state.mediaByEvent = grouped;
+    state.mediaByEvent = mergeEventWindow(rows, "eventId", eventContextController?.snapshot("media"));
     renderAllMedia();
     renderAllCollaboration();
     notifyViewUpdate("media");
@@ -3136,9 +3131,7 @@ function subscribeRemoteData() {
   }, (error) => toast("Les décisions média ne sont pas accessibles : " + error.message, true));
   state.commentsUnsubscribe?.();
   state.commentsUnsubscribe = subscribeComments((rows) => {
-    const grouped = new Map();
-    rows.forEach((row) => { const id=String(row.sectionId||""); if(!grouped.has(id)) grouped.set(id,[]); grouped.get(id).push(row); });
-    state.commentsByEvent = grouped; renderAllCollaboration(); renderOpportunityNotes(); renderInternalProjectNotes(); renderAllMedia(); renderMonthlyEditorialSnapshot(); notifyViewUpdate("comments");
+    state.commentsByEvent = mergeEventWindow(rows, "sectionId", eventContextController?.snapshot("comments")); renderAllCollaboration(); renderOpportunityNotes(); renderInternalProjectNotes(); renderAllMedia(); renderMonthlyEditorialSnapshot(); notifyViewUpdate("comments");
   }, (error) => toast("Le fil de commentaires n’est pas accessible : " + error.message, true));
   state.workflowUnsubscribe?.();
   state.workflowUnsubscribe = subscribeWorkflowStates(syncWorkflow, (error) => toast("Le cycle de validation n’est pas accessible : " + error.message, true));

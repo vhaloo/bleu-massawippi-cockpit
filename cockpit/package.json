@@ -51,7 +51,7 @@
     "test:media": "node test_media_role_workflow.mjs",
     "test:media-assets": "node test_media_asset_integrity.mjs",
     "test:shell": "node test_shell_version_contract.mjs && node test_update_notice_contract.mjs",
-    "test:resilience": "node test_client_resilience_contract.mjs",
+    "test:resilience": "node test_client_resilience_contract.mjs && node test_event_context_window.mjs",
     "test:motion-install": "node test_motion_install_contract.mjs",
     "test:clarity": "node test_strategy_clarity_contract.mjs",
     "test:section-navigation": "node test_section_navigation.mjs",

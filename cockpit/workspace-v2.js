@@ -166,11 +166,11 @@ export function mountWorkspace(api) {
       || items.find(n => n.dataset.mediaDirectionSelected === "true")?.dataset.mediaId
       || items.find(n => n.dataset.mediaCommunicationsSelected === "true")?.dataset.mediaId;
     const index = Math.max(0, items.findIndex(n => n.dataset.mediaId === selectedId));
-    const show = i => {
+    const show = (i, remember = true) => {
       const n = Math.max(0, Math.min(items.length - 1, i));
       items.forEach((node, j) => { node.toggleAttribute("data-v2-slide-hidden", j !== n); });
       all("[data-v2-thumbnail]", thumbs).forEach((node, j) => node.setAttribute("aria-pressed", String(j === n)));
-      if (items[n]) state.galleryIndex.set(card.dataset.itemId, items[n].dataset.mediaId);
+      if (remember && items[n]) state.galleryIndex.set(card.dataset.itemId, items[n].dataset.mediaId);
       const nav = media.querySelector("[data-media-nav]");
       if (nav) { nav.hidden = items.length < 2; const position = nav.querySelector("[data-media-position]"); if (position) position.textContent = `${n + 1} / ${items.length}`; const prev = nav.querySelector("[data-media-previous]"); const next = nav.querySelector("[data-media-next]"); if (prev) { prev.disabled = n <= 0; prev.onclick = () => show(n - 1); } if (next) { next.disabled = n >= items.length - 1; next.onclick = () => show(n + 1); } }
     };
@@ -178,7 +178,7 @@ export function mountWorkspace(api) {
     const hint = media.querySelector(".cockpit-media-swipe-hint");
     if (hint) hint.textContent = "Utilisez les miniatures ou les flèches pour parcourir les propositions. Cela ne change pas votre choix.";
     thumbs.onclick = e => { const b = e.target.closest("[data-v2-thumbnail]"); if (b) show(Number(b.dataset.v2Thumbnail)); };
-    show(index);
+    show(index, false);
   }
   function calendarDay(day, items) {
     const background = items.length === 1 ? previewFor(items[0]) : null;
