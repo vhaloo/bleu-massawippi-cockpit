@@ -72,6 +72,19 @@ export function mountWorkspace(api) {
     const node = doc.createElement("details"); node.className = className;
     const summary = doc.createElement("summary"); summary.textContent = label; node.append(summary); return node;
   }
+  function arrangeUtilities() {
+    const controls = ["cockpit-task-launch", "cockpit-feedback-launch", "cockpit-sidebar-toggle", "cockpit-health-launch", "cockpit-motion-toggle"].map(id => doc.getElementById(id)).filter(Boolean);
+    if (!controls.length) return;
+    let dock = shell.querySelector(".v2-utilities");
+    if (!dock) {
+      dock = details("Outils et préférences", "v2-utilities");
+      dock.querySelector("summary").title = "Retrouver la liste des tâches, les idées, le journal, le diagnostic et les préférences sans masquer les textes ni les images.";
+      const group = doc.createElement("div"); group.className = "v2-utility-buttons"; dock.append(group);
+      toolbar.before(dock);
+    }
+    const group = dock.querySelector(".v2-utility-buttons");
+    controls.forEach(node => move(node, group));
+  }
   function transformCard(card) {
     if (!card || card.dataset.v2Prepared) return;
     card.dataset.v2Prepared = "true";
@@ -215,6 +228,7 @@ export function mountWorkspace(api) {
   }
   function render({ focus = false } = {}) {
     if (state.disposed || doc.body.classList.contains("cockpit-locked")) return;
+    arrangeUtilities();
     const r = state.route; const space = SPACES[r.space];
     resetVisibility(); toolbar.replaceChildren(); panel.replaceChildren();
     note.textContent = "V2 d’essai · données partagées avec le cockpit classique.";
@@ -299,7 +313,6 @@ export function mountWorkspace(api) {
   });
   if (win.navigator?.serviceWorker) on(win.navigator.serviceWorker, "message", event => { if (event.data?.type === "cockpit-open-attention") go(routeHash("accueil", "decisions")); });
   on(win, "cockpit:content-ready", scheduleRender);
-  on(doc, "toggle", e => { if (e.target.matches?.(".cockpit-media-info") && e.target.closest(".post")?.dataset.itemId === state.route.id) e.target.dataset.v2Ready = "true"; }, true);
   // Only structural replacements matter. Class/style changes from this view must
   // not feed the classic observer and create an unbounded render loop.
   const observer = new MutationObserver(changes => {

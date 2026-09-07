@@ -29,6 +29,11 @@ html[data-workspace="v2"] .post[data-v2-target]>.post-head .meta{margin:0;color:
 #workspace-v2 a{text-decoration:none}
 #workspace-v2 :is(button,input,select),.v2-help-dialog button{min-height:44px;border:1px solid var(--v2-line);border-radius:10px;background:var(--v2-paper);color:var(--v2-ink);padding:8px 13px;font:inherit;cursor:pointer}
 #workspace-v2 input{cursor:text}
+.v2-utilities{margin:0 0 18px;border:1px solid var(--v2-line);border-radius:12px;background:var(--v2-paper);font-size:13px}
+.v2-utilities>summary{min-height:44px;padding:11px 14px;cursor:pointer;color:var(--v2-muted)}
+.v2-utility-buttons{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:0 12px 12px}
+html[data-workspace="v2"] .v2-utility-buttons>button{position:static!important;inset:auto!important;margin:0!important;transform:none!important;max-width:100%;width:auto;min-height:44px;padding:9px 13px;border:1px solid var(--v2-line);border-radius:10px;background:var(--v2-soft);color:var(--v2-ink);box-shadow:none;font-size:13px}
+html[data-workspace="v2"] .v2-utility-buttons>button:hover{border-color:var(--v2-accent)}
 #workspace-v2 :is(button,a):hover{border-color:var(--v2-accent)}
 .v2-sidebar{position:fixed;inset:0 auto 0 0;z-index:40;width:var(--v2-nav);display:flex;flex-direction:column;padding:25px 16px 20px;background:var(--v2-paper);border-right:1px solid var(--v2-line)}
 .v2-brand{display:flex;gap:10px;align-items:center;padding:0 4px 30px;font-size:11px;font-weight:850;letter-spacing:.07em}

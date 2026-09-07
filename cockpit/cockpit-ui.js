@@ -36,23 +36,23 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260907-b72";
-import { createEventContextController } from "./event-context-data.js?v=20260907-b72";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260907-b72";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260907-b72";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260907-b72";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260907-b72";
-import { workflowMarkup, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260907-b72";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260907-b72";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260907-b72";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260907-b72";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260907-b72";
-import { setupControlHints } from "./control-hints.js?v=20260907-b72";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260907-b72";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260907-b72";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260907-b72";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260907-b72";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260907-b72";
+} from "./firebase-client.js?v=20260907-b73";
+import { createEventContextController } from "./event-context-data.js?v=20260907-b73";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260907-b73";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260907-b73";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260907-b73";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260907-b73";
+import { workflowMarkup, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260907-b73";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260907-b73";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260907-b73";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260907-b73";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260907-b73";
+import { setupControlHints } from "./control-hints.js?v=20260907-b73";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260907-b73";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260907-b73";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260907-b73";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260907-b73";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260907-b73";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -3002,7 +3002,7 @@ async function applyProfile(profile) {
   workspaceV2?.destroy(); workspaceV2 = null;
   if (new URLSearchParams(location.search).get("interface") === "v2") {
     try {
-      const { setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20260907-v2.2");
+      const { setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20260907-v2.3");
       workspaceV2 = await setupWorkspaceV2(profile, { state, enhanceCards, toast });
     } catch { toast("La V2 est indisponible; le cockpit classique reste actif.", true); }
   }
