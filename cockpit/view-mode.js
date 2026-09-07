@@ -7,7 +7,7 @@
  * intact.
  */
 
-import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260907-b71";
+import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260907-b72";
 
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
@@ -504,7 +504,7 @@ function ensureStylesheet() {
   if (document.querySelector(`link[data-module="${MODULE_ID}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = new URL("./view-mode.css?v=20260907-b71", import.meta.url).href;
+  link.href = new URL("./view-mode.css?v=20260907-b72", import.meta.url).href;
   link.dataset.module = MODULE_ID;
   document.head.appendChild(link);
 }
@@ -1545,6 +1545,9 @@ function gateIsDone(card, gate) {
 }
 
 function synchronizeCardDetails(card, expanded) {
+  // The V2 reader owns each disclosure independently; the classic card's
+  // remembered expansion must not reopen its history, forms and media details.
+  if (card?.dataset.v2Prepared === "true") return;
   card?.querySelectorAll?.("details").forEach((details) => {
     if (expanded) details.setAttribute("open", "");
     else details.removeAttribute("open");
