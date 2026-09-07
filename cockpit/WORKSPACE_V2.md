@@ -7,6 +7,7 @@
 - Routes : `#/accueil`, `#/publications`, `#/projets`, `#/bibliotheque`.
 - Deux calendriers indépendants : `#/publications?vue=calendrier` et `#/projets?vue=calendrier`.
 - Le lien « Version classique » retire le paramètre. Il ne restaure pas une ancienne base de données.
+- La barre de session propose « Essayer la nouvelle interface » à tout compte autorisé, y compris la direction; le retour conserve la publication consultée. Enregistrer les saisies en cours avant un changement complet d’interface.
 
 Les données sont partagées entre les interfaces. Un choix ou un commentaire fait dans le pilote est un vrai choix ou commentaire. Aucun envoi social ou courriel n’est ajouté.
 
@@ -19,6 +20,8 @@ La V2 est un adaptateur de présentation opt-in. Elle déplace les contrôles DO
 | Tableau des décisions, messages, travail du jour | À faire; mêmes files et contrôles |
 | Texte FR/EN, copie et édition | Fiche publication; bouton Studio pour l’administrateur |
 | Toutes les propositions de médias | Galerie à vignettes; navigation indépendante du choix |
+| Publication précédente / suivante | Flèches et frise illustrée dans chaque publication datée; tri stable, sans changer le planning |
+| Aperçus des publications | Fond des cases du calendrier, agenda mobile et frise; choix DG prioritaire, puis recommandation COM, puis proposition explicitement non approuvée |
 | Droits, origine, détails, commentaires d’image, retrait/override | Panneau de détails de chaque média |
 | Ajout de liens médias et sélection multiple | Panneau Ajouter un média |
 | Texte, média, publication : trois validations distinctes | Sous le texte et la galerie |
@@ -34,6 +37,10 @@ La V2 est un adaptateur de présentation opt-in. Elle déplace les contrôles DO
 | Version classique et outils historiques | Retour explicite, disponible sur mobile aussi |
 
 Les anciens textes ne sont pas inventés : l’historique montre les versions structurées disponibles dans `changeArchive` et le texte source conservé. Un ajustement ancien effectué avant le journal versionné peut ne pas posséder de trace avant/après. La consultation est paginée par 12; aucun listener historique permanent.
+
+La frise est bornée à neuf éléments par défaut. Ses vignettes et celles du calendrier utilisent le cache média déjà chargé, sans requête ni listener supplémentaire. Un aperçu ne crée jamais un accord et ne remplace pas la galerie. « Messages actifs » désigne les messages non traités et non masqués des publications chargées, pas une recherche exhaustive de toutes les conversations.
+
+Les icônes des calendriers social et projets sont distinctes. Les aides détaillées au survol sont conservées après dépliage d’un panneau. Les effets du bouton de mouvements restent confinés à son contrôle lorsqu’il est déplacé dans « Outils et préférences ».
 
 ## Garde-fous
 
