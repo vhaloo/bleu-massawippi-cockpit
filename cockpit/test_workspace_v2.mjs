@@ -87,6 +87,7 @@ check("démontage restaure les nœuds et l’interface classique",()=>{assert(co
 const ui=await fs.readFile(new URL("./cockpit-ui.js",import.meta.url),"utf8");
 const v2=await fs.readFile(new URL("./workspace-v2.js",import.meta.url),"utf8");
 const css=await fs.readFile(new URL("./workspace-v2.css",import.meta.url),"utf8");
+check("la fiche mobile rapproche la frise et la publication",()=>assert(css.includes('.v2-panel:has(.v2-date-navigation){margin-bottom:8px}')));
 check("les pseudo-éléments d’animation ne peuvent plus couvrir la page",()=>{assert(css.includes('.v2-utility-buttons>button{position:relative!important'));assert.match(css,/#cockpit-motion-toggle::after\{content:none!important;display:none!important\}/);});
 const directorWorkspace=mountWorkspace({...api,profile:{uid:"director-test",role:"director"}});
 directorWorkspace.navigate("#/publications/test-first");
