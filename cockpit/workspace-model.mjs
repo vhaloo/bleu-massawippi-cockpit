@@ -1,5 +1,5 @@
 /** Pure presentation model. Never changes a date, approval, or source object. */
-export const WORKSPACE_VERSION = "20260907-v2.7";
+export const WORKSPACE_VERSION = "20260907-v2.8";
 export const SPACES = Object.freeze({
   accueil: { label: "À faire", icon: "decisions", title: "Un peu de clarté pour avancer.", description: "Vos décisions, les nouveautés et le travail qui vous attend." },
   publications: { label: "Publications", icon: "publications", title: "Les mots et les images du lac.", description: "Le calendrier des réseaux sociaux, les propositions et leur historique." },
@@ -77,6 +77,10 @@ export function validCivilDate(value) {
 export function todayKey(now = new Date()) {
   const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now).map(p => [p.type, p.value]));
   return `${parts.year}-${parts.month}-${parts.day}`;
+}
+/** Presentation only: a past date never implies publication, approval or archive. */
+export function isPastDate(dateIso, today = todayKey()) {
+  return validCivilDate(dateIso) && validCivilDate(today) && dateIso < today;
 }
 export function prettyDate(iso, options = { weekday: "long", day: "numeric", month: "long" }) {
   return validCivilDate(iso) ? new Intl.DateTimeFormat("fr-CA", { ...options, timeZone: "UTC" }).format(new Date(`${iso}T12:00:00Z`)) : "Sans date confirmée";
