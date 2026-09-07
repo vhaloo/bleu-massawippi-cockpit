@@ -738,5 +738,19 @@ assert.equal(document.documentElement.classList.contains("vm-programmatic-naviga
   "Le gel d'ancrage doit toujours être retiré après le positionnement.");
 assert.equal(document.querySelectorAll("#cockpit-essential-dashboard").length, 1);
 
+const v2ReaderCard = document.querySelector('[data-item-id="future-3"]');
+v2ReaderCard.dataset.v2Prepared = "true";
+const v2Disclosure = v2ReaderCard.querySelector("details");
+v2Disclosure.removeAttribute("open");
+viewMode.update();
+await wait();
+assert.equal(v2Disclosure.hasAttribute("open"), false,
+  "Une mise à jour classique ne doit pas rouvrir les panneaux secondaires de la V2.");
+v2Disclosure.setAttribute("open", "");
+viewMode.update();
+await wait();
+assert.equal(v2Disclosure.hasAttribute("open"), true,
+  "Le choix explicite d’ouvrir un panneau V2 doit aussi être conservé.");
+
 viewMode.destroy();
 console.log("✓ Navigation P0 et file personnelle : tests DOM réussis.");

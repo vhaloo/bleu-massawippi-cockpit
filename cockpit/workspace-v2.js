@@ -116,7 +116,9 @@ export function mountWorkspace(api) {
         return `<button type="button" data-v2-thumbnail="${i}" title="${esc(`Afficher la proposition ${i + 1} : ${title}`)}" aria-label="${esc(`Proposition ${i + 1} : ${title}`)}">${image ? `<img src="${esc(image.getAttribute("src"))}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '<span aria-hidden="true">▧</span>'}<small>${i + 1}${item.dataset.mediaDirectionSelected === "true" ? " · DG ✓" : item.dataset.mediaCommunicationsSelected === "true" ? " · COM ✓" : ""}</small></button>`;
       }).join("");
     }
-    const selectedId = state.galleryIndex.get(card.dataset.itemId);
+    const selectedId = state.galleryIndex.get(card.dataset.itemId)
+      || items.find(n => n.dataset.mediaDirectionSelected === "true")?.dataset.mediaId
+      || items.find(n => n.dataset.mediaCommunicationsSelected === "true")?.dataset.mediaId;
     const index = Math.max(0, items.findIndex(n => n.dataset.mediaId === selectedId));
     const show = i => {
       const n = Math.max(0, Math.min(items.length - 1, i));
@@ -127,6 +129,8 @@ export function mountWorkspace(api) {
       if (nav) { nav.hidden = items.length < 2; const position = nav.querySelector("[data-media-position]"); if (position) position.textContent = `${n + 1} / ${items.length}`; const prev = nav.querySelector("[data-media-previous]"); const next = nav.querySelector("[data-media-next]"); if (prev) { prev.disabled = n <= 0; prev.onclick = () => show(n - 1); } if (next) { next.disabled = n >= items.length - 1; next.onclick = () => show(n + 1); } }
     };
     items.forEach(item => { const info = item.querySelector(".cockpit-media-info"); if (info && !info.dataset.v2Ready) { info.open = false; info.dataset.v2Ready = "true"; } });
+    const hint = media.querySelector(".cockpit-media-swipe-hint");
+    if (hint) hint.textContent = "Utilisez les miniatures ou les flèches pour parcourir les propositions. Cela ne change pas votre choix.";
     thumbs.onclick = e => { const b = e.target.closest("[data-v2-thumbnail]"); if (b) show(Number(b.dataset.v2Thumbnail)); };
     show(index);
   }
@@ -256,6 +260,11 @@ export function mountWorkspace(api) {
   }
   function captureNavigation(e) {
     if (e.defaultPrevented || e.button > 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+    // Handle only V2-owned reader controls before legacy card listeners can
+    // refresh their context. Existing decision/comment writers keep bubbling.
+    if (e.target.closest?.("[data-v2-history],[data-v2-history-more],[data-v2-edit]")) {
+      e.preventDefault(); e.stopImmediatePropagation(); onClick(e); return;
+    }
     const direct = e.target.closest?.("a[data-v2-route]");
     if (direct) { e.preventDefault(); e.stopImmediatePropagation(); go(direct.getAttribute("href")); return; }
     const target = e.target.closest?.("[data-vm-target],[data-open-task],[data-open-related-project],[data-open-monthly-post]");
