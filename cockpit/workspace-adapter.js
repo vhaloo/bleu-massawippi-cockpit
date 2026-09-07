@@ -1,6 +1,6 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20260907-b74";
-import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260907-b74";
-import { openPublicationStudio } from "./editor-studio.js?v=20260907-b74";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20260907-b75";
+import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260907-b75";
+import { openPublicationStudio } from "./editor-studio.js?v=20260907-b75";
 import { interfaceUrl } from "./workspace-model.mjs";
 
 export function setupInterfaceSwitch(profile) {
@@ -20,7 +20,7 @@ export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, me
   if (new URLSearchParams(location.search).get("interface") !== "v2") return;
   // Existing controls remain the single write path. Failure leaves V1 usable.
   try {
-    const { mountWorkspace } = await import("./workspace-v2.js?v=20260907-v2.4");
+    const { mountWorkspace } = await import("./workspace-v2.js?v=20260907-v2.5");
     return mountWorkspace({
       profile,
       getPosts: () => globalThis.posts || [],
