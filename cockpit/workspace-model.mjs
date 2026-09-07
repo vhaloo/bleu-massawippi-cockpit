@@ -1,5 +1,5 @@
 /** Pure presentation model. Never changes a date, approval, or source object. */
-export const WORKSPACE_VERSION = "20260907-v2.6";
+export const WORKSPACE_VERSION = "20260907-v2.7";
 export const SPACES = Object.freeze({
   accueil: { label: "À faire", icon: "decisions", title: "Un peu de clarté pour avancer.", description: "Vos décisions, les nouveautés et le travail qui vous attend." },
   publications: { label: "Publications", icon: "publications", title: "Les mots et les images du lac.", description: "Le calendrier des réseaux sociaux, les propositions et leur historique." },
@@ -115,6 +115,20 @@ export function publicationState({ stage = "proposal", contentApproved = false, 
   if (contentApproved && mediaApproved) return { label: "Prêt à programmer", tone: "ready" };
   if (contentApproved) return { label: "Visuel à approuver", tone: "waiting" };
   return { label: stage === "content_review" ? "Texte à relire" : "En préparation", tone: "waiting" };
+}
+export function publicationProgress({ stage = "proposal", contentApproved = false, mediaApproved = false, decision = "" } = {}) {
+  // Dates and an approval are not evidence of actual scheduling/publication.
+  const finished = ["scheduled", "published"].includes(stage);
+  const text = contentApproved === true, media = mediaApproved === true;
+  const steps = [
+    { key: "text", label: "Texte", compactLabel: "Texte", complete: contentApproved === true, help: contentApproved === true ? "Texte approuvé par la direction" : "Texte à approuver par la direction" },
+    { key: "media", label: "Visuel", compactLabel: "Image", complete: mediaApproved === true, help: mediaApproved === true ? "Visuel retenu par la direction" : "Visuel à choisir par la direction" },
+    { key: "finished", label: "Terminé", compactLabel: "Fait", complete: finished, help: finished ? stage === "scheduled" ? "Publication signalée comme programmée dans le cockpit" : "Publication signalée comme publiée ou programmée dans le cockpit" : "Publication non encore signalée comme publiée ou programmée" },
+  ];
+  const completed = steps.filter(step => step.complete).length;
+  const attention = ["changes_requested", "media_changes_requested"].includes(stage);
+  const tone = finished ? "done" : decision === "rejected" ? "muted" : attention ? "attention" : decision === "deferred" ? "waiting" : text && media ? "ready" : text || media ? "partial" : "waiting";
+  return { steps, completed, tone, description: steps.map(step => step.help).join(". ") + "." };
 }
 export function filterPublications(items, { view = "liste", query = "", status = "all", today = todayKey() } = {}) {
   const q = query.trim().toLocaleLowerCase("fr");
