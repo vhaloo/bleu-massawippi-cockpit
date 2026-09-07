@@ -40,6 +40,8 @@ Les anciens textes ne sont pas inventés : l’historique montre les versions st
 
 La frise est bornée à neuf éléments par défaut. Ses vignettes et celles du calendrier utilisent le cache média déjà chargé, sans requête ni listener supplémentaire. Un aperçu ne crée jamais un accord et ne remplace pas la galerie. « Messages actifs » désigne les messages non traités et non masqués des publications chargées, pas une recherche exhaustive de toutes les conversations.
 
+Le contexte ciblé de la publication ouverte reste prioritaire sur la fenêtre générale de données récentes. Une réponse générale tardive ne peut donc plus masquer un ancien média approuvé ou des commentaires déjà chargés. Le contexte est libéré en quittant la publication; les réponses d'un abonnement précédent sont ignorées, même après un aller-retour au même dossier. Cette protection utilise les abonnements existants, sans nouvelles lectures. La galerie adopte un choix de la direction reçu après son premier aperçu, sauf si l'utilisateur a lui-même changé d'image.
+
 Les icônes des calendriers social et projets sont distinctes. Les aides détaillées au survol sont conservées après dépliage d’un panneau. Les effets du bouton de mouvements restent confinés à son contrôle lorsqu’il est déplacé dans « Outils et préférences ».
 
 ## Garde-fous

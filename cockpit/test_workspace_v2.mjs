@@ -56,6 +56,16 @@ const workspace=mountWorkspace(api);
 check("montage opt-in et quatre espaces",()=>{assert.equal(document.documentElement.dataset.workspace,"v2");assert.equal(document.querySelectorAll("[data-v2-space]").length,4);});
 check("outils originaux regroupés sans superposition ni perte de gestionnaire",()=>{assert(utility.closest('.v2-utilities'));utility.click();assert.equal(utilityClicks,1);assert(!utility.closest('details').open);});
 workspace.navigate("#/publications/test-first");
+check("le choix DG tardif devient visible sans figer le premier aperçu", () => {
+  const card = document.querySelector('[data-item-id="test-first"]');
+  const second = card.querySelector('[data-media-id="two"]');
+  second.dataset.mediaDirectionSelected = "true";
+  workspace.navigate("#/publications/test-first");
+  assert(!second.hasAttribute("data-v2-slide-hidden"));
+  second.dataset.mediaDirectionSelected = "false";
+  workspace.navigate("#/publications/test-first");
+  assert(!card.querySelector('[data-media-id="one"]').hasAttribute("data-v2-slide-hidden"));
+});
 check("frise et flèches naviguent sans réécrire la publication", () => {
   const dates = [...document.querySelectorAll(".v2-date-frame")].map(n => n.dataset.date);
   assert.deepEqual(dates, [...dates].sort());

@@ -1,12 +1,16 @@
-import { subscribeCommentsForSection, subscribeMediaLinksForEvent } from "./firebase-client.js?v=20260907-b75";
+import { subscribeCommentsForSection, subscribeMediaLinksForEvent } from "./firebase-client.js?v=20260907-b76";
 
 const validId = (value) => /^[A-Za-z0-9_-]{3,160}$/.test(String(value || ""));
 
 export function createEventContextController({ enabled, onRows, onError }) {
   let currentId = "";
   let unsubscribes = [];
+  const snapshots = new Map();
+  let generation = 0;
 
   const stop = () => {
+    generation++;
+    snapshots.clear();
     unsubscribes.forEach((unsubscribe) => {
       try { unsubscribe?.(); } catch { /* désabonnement idempotent */ }
     });
@@ -19,12 +23,17 @@ export function createEventContextController({ enabled, onRows, onError }) {
     if (!enabled || !validId(id) || currentId === id) return;
     stop();
     currentId = id;
+    const activeGeneration = generation;
     try {
       unsubscribes.push(subscribeCommentsForSection(id, (rows) => {
-        if (currentId === id) onRows?.("comments", id, rows);
+        if (currentId !== id || generation !== activeGeneration) return;
+        snapshots.set("comments", rows);
+        onRows?.("comments", id, rows);
       }, onError));
       unsubscribes.push(subscribeMediaLinksForEvent(id, (rows) => {
-        if (currentId === id) onRows?.("media", id, rows);
+        if (currentId !== id || generation !== activeGeneration) return;
+        snapshots.set("media", rows);
+        onRows?.("media", id, rows);
       }, onError));
     } catch (error) {
       onError?.(error);
@@ -32,5 +41,10 @@ export function createEventContextController({ enabled, onRows, onError }) {
     }
   };
 
-  return { activate, stop, current: () => currentId };
+  return {
+    activate,
+    stop,
+    current: () => currentId,
+    snapshot: kind => snapshots.has(kind) ? { eventId: currentId, rows: snapshots.get(kind) } : null,
+  };
 }
