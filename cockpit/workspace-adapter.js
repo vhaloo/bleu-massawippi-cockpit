@@ -1,12 +1,26 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20260907-b73";
-import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260907-b73";
-import { openPublicationStudio } from "./editor-studio.js?v=20260907-b73";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20260907-b74";
+import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260907-b74";
+import { openPublicationStudio } from "./editor-studio.js?v=20260907-b74";
+import { interfaceUrl } from "./workspace-model.mjs";
 
-export async function setupWorkspaceV2(profile, { state, enhanceCards, toast }) {
+export function setupInterfaceSwitch(profile) {
+  if (!profile?.uid) return;
+  const session = document.querySelector("#cockpit-session");
+  if (!session) return;
+  let link = session.querySelector("#cockpit-interface-switch");
+  if (!link) { link = document.createElement("a"); link.id = "cockpit-interface-switch"; session.append(link); }
+  const isV2 = new URLSearchParams(location.search).get("interface") === "v2";
+  link.textContent = isV2 ? "↔ Version classique" : "↔ Essayer la nouvelle interface";
+  link.title = isV2 ? "Revenir à la version classique, avec les mêmes textes, médias, commentaires et validations. Enregistrez vos saisies en cours avant de changer d’interface." : "Ouvrir la nouvelle interface. Vous pourrez revenir ici à tout moment; vos dossiers et vos droits restent les mêmes. Enregistrez vos saisies en cours avant de changer d’interface.";
+  const update = () => { link.href = interfaceUrl(location.href, isV2 ? "classic" : "v2", (globalThis.posts || []).map(p => p.id)); };
+  update(); link.onpointerenter = update; link.onfocus = update; link.onclick = update;
+}
+
+export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, mediaPreview }) {
   if (new URLSearchParams(location.search).get("interface") !== "v2") return;
   // Existing controls remain the single write path. Failure leaves V1 usable.
   try {
-    const { mountWorkspace } = await import("./workspace-v2.js?v=20260907-v2.3");
+    const { mountWorkspace } = await import("./workspace-v2.js?v=20260907-v2.4");
     return mountWorkspace({
       profile,
       getPosts: () => globalThis.posts || [],
@@ -14,6 +28,8 @@ export async function setupWorkspaceV2(profile, { state, enhanceCards, toast }) 
       getWorkflow: id => state.workflows.get(id),
       getDecision: id => state.decisions.get(id),
       getMedia: () => [...state.mediaByEvent.values()].flat(),
+      getMediaDecision: id => state.mediaDecisions.get(id),
+      mediaPreview,
       dateIso: item => {
         const date = parsePlanDate(item);
         return date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}` : "";

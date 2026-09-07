@@ -1,4 +1,4 @@
-import { SPACES, WORKSPACE_VERSION, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, monthDays, shiftMonth, filterPublications, publicationState, safeLink } from "./workspace-model.mjs";
+import { SPACES, WORKSPACE_VERSION, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, monthDays, shiftMonth, filterPublications, publicationState, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs";
 
 /** Opt-in presentation adapter. Existing DOM controls remain the only writers. */
 export function mountWorkspace(api) {
@@ -10,7 +10,7 @@ export function mountWorkspace(api) {
   const listeners = [];
   const on = (target, name, handler, options) => { target.addEventListener(name, handler, options); listeners.push(() => target.removeEventListener(name, handler, options)); };
   const all = (selector, root = doc) => [...root.querySelectorAll(selector)];
-  const anchor = (label, space, id = "", view = "", help = "") => `<a href="${esc(routeHash(space, id, view))}" data-v2-route title="${esc(help || label)}">${esc(label)}</a>`;
+  const anchor = (label, space, id = "", view = "", help = "", symbol = "") => `<a href="${esc(routeHash(space, id, view))}" data-v2-route title="${esc(help || label)}">${symbol ? icon(symbol) : ""}<span>${esc(label)}</span></a>`;
   const statusMarkup = item => `<span class="v2-state" data-tone="${esc(item.state.tone)}">${esc(item.state.label)}</span>`;
   const announce = text => { const node = doc.querySelector("#cockpit-announcer"); if (node) node.textContent = text; };
   let css = doc.querySelector("#workspace-v2-style");
@@ -18,7 +18,7 @@ export function mountWorkspace(api) {
   doc.documentElement.dataset.workspace = "v2";
   const shell = doc.createElement("div"); shell.id = "workspace-v2";
   const classic = new URL(win.location.href); classic.searchParams.delete("interface"); classic.hash = "";
-  shell.innerHTML = `<aside class="v2-sidebar"><a class="v2-brand" href="#/accueil" data-v2-route title="Retour à votre tableau de travail"><span class="v2-brand-mark" aria-hidden="true">≈</span><span>BLEU MASSAWIPPI<small>Le cockpit · aperçu V2</small></span></a><nav aria-label="Espaces de travail">${Object.entries(SPACES).map(([key, val]) => `<a data-v2-route href="${routeHash(key)}" data-v2-space="${key}" title="${esc(val.description)}"><span aria-hidden="true">${val.icon}</span>${val.label}</a>`).join("")}</nav><div class="v2-side-bottom"><p>Mêmes dossiers.<br>Une autre façon d’avancer.</p><a class="v2-classic-link" href="${esc(classic.href)}" title="Revenir à l’interface habituelle. Vos textes, choix et commentaires restent enregistrés dans la même base.">↩ Version classique</a><button type="button" data-v2-help title="Comprendre les espaces, les validations, les galeries et le retour à la version classique">Aide à la navigation</button></div></aside><header class="v2-heading"><div><p class="v2-eyebrow">Notre espace de travail</p><h1 tabindex="-1" data-v2-title></h1><p data-v2-description></p></div><span class="v2-wave" aria-hidden="true">∿<br>∿</span></header><div class="v2-toolbar" data-v2-toolbar></div><section class="v2-panel" data-v2-panel></section><p class="v2-connection-note" data-v2-note>Les actions de cette V2 utilisent les données réelles du cockpit. Rien n’est envoyé aux réseaux sociaux.</p>`;
+  shell.innerHTML = `<aside class="v2-sidebar"><a class="v2-brand" href="#/accueil" data-v2-route title="Retour à votre tableau de travail"><span class="v2-brand-mark" aria-hidden="true">≈</span><span>BLEU MASSAWIPPI<small>Le cockpit · aperçu V2</small></span></a><nav aria-label="Espaces de travail">${Object.entries(SPACES).map(([key, val]) => `<a data-v2-route href="${routeHash(key)}" data-v2-space="${key}" title="${esc(val.description)}"><span aria-hidden="true">${icon(val.icon)}</span>${val.label}</a>`).join("")}</nav><div class="v2-side-bottom"><p>Mêmes dossiers.<br>Une autre façon d’avancer.</p><a class="v2-classic-link" href="${esc(classic.href)}" title="Revenir à l’interface habituelle. Vos textes, choix et commentaires restent enregistrés dans la même base.">↩ Version classique</a><button type="button" data-v2-help title="Comprendre les espaces, les validations, les galeries et le retour à la version classique">${icon("help")} Aide à la navigation</button></div></aside><header class="v2-heading"><div><p class="v2-eyebrow">Notre espace de travail</p><h1 tabindex="-1" data-v2-title></h1><p data-v2-description></p></div><span class="v2-wave" aria-hidden="true">∿<br>∿</span></header><div class="v2-toolbar" data-v2-toolbar></div><section class="v2-panel" data-v2-panel></section><p class="v2-connection-note" data-v2-note>Les actions de cette V2 utilisent les données réelles du cockpit. Rien n’est envoyé aux réseaux sociaux.</p>`;
   host.before(shell);
   const footer = host.querySelector("footer"); if (footer && !footer.id) footer.id = "v2-classic-footer";
   const portable = doc.createElement("div"); portable.className = "v2-portable-tools";
@@ -42,7 +42,39 @@ export function mountWorkspace(api) {
       return { ...item, dateIso: api.dateIso?.(item) || item.dateIso || "", decision, state: publicationState({ stage, contentApproved, mediaApproved, decision }) };
     });
   }
-  function subtabs(tabs, view) { return `<nav class="v2-tabs" aria-label="Vues">${tabs.map(([id, label, help]) => `<a data-v2-route href="${routeHash(state.route.space, "", id)}" ${view === id ? 'aria-current="page"' : ""} title="${esc(help || label)}">${esc(label)}</a>`).join("")}</nav>`; }
+  function subtabs(tabs, view) { return `<nav class="v2-tabs" aria-label="Vues">${tabs.map(([id, label, help]) => `<a data-v2-route href="${routeHash(state.route.space, "", id)}" ${view === id ? 'aria-current="page"' : ""} title="${esc(help || label)}">${icon(id === "calendrier" ? state.route.space === "projets" ? "projectCalendar" : "socialCalendar" : { liste: "list", archives: "archive", reserve: "history", actifs: "folder", occasions: "leaf", documents: "document", medias: "publications", guides: "library" }[id])}<span>${esc(label)}</span></a>`).join("")}</nav>`; }
+  function previewFor(item) {
+    if (state.previews?.has(item.id)) return state.previews.get(item.id);
+    const rows = state.mediaRows?.get(item.id) || [];
+    const choice = api.getMediaDecision?.(item.id);
+    for (const candidate of previewCandidates(rows, choice)) {
+      const url = safeLink(api.mediaPreview?.(candidate.row) || candidate.row.previewUrl);
+      if (url) { const result = { ...candidate, url }; state.previews?.set(item.id, result); return result; }
+    }
+    // The original gallery remains a valid cached preview source, not a new read.
+    const cards = all(".cockpit-media-card", cardFor(item.id) || doc.createElement("div"));
+    const selected = cards.find(n => n.dataset.mediaDirectionSelected === "true") || cards.find(n => n.dataset.mediaCommunicationsSelected === "true") || cards[0];
+    const source = selected?.querySelector("img[data-media-preview],.cockpit-media-preview img")?.getAttribute("src");
+    if (!source) return null;
+    const url = safeLink(new URL(source, win.location.href).href);
+    const result = url ? { url, label: selected.dataset.mediaDirectionSelected === "true" ? "Choix de la direction" : selected.dataset.mediaCommunicationsSelected === "true" ? "Recommandation des communications" : "Proposition · choix à confirmer" } : null;
+    state.previews?.set(item.id, result); return result;
+  }
+  function centerCurrentFrame() {
+    const strip = panel.querySelector(".v2-date-filmstrip");
+    const current = strip?.querySelector('[aria-current="page"]');
+    if (strip && current) strip.scrollLeft += current.getBoundingClientRect().left - strip.getBoundingClientRect().left - (strip.clientWidth - current.clientWidth) / 2;
+  }
+  const previewImage = preview => preview ? `<img class="v2-background-photo" src="${esc(preview.url)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : "";
+  function publicationNavigation(item) {
+    const neighbours = publicationNeighbours(publications(), item.id);
+    if (!neighbours.items.length) return "";
+    const arrow = (post, next) => post ? `<a class="v2-date-arrow" data-v2-route href="${routeHash("publications", post.id)}" aria-label="${esc(`${next ? "Publication suivante" : "Publication précédente"} : ${prettyDate(post.dateIso)} — ${post.title}`)}" title="${esc(`${prettyDate(post.dateIso)} — ${post.title}. Consulter cette publication sans modifier les dates ni les validations.`)}"><b aria-hidden="true">${next ? "→" : "←"}</b><small>${next ? "Après" : "Avant"}</small></a>` : `<span class="v2-date-arrow" aria-disabled="true" title="${next ? "Fin" : "Début"} des publications datées"><b aria-hidden="true">${next ? "→" : "←"}</b><small>${next ? "Fin" : "Début"}</small></span>`;
+    return `<nav class="v2-date-navigation" aria-label="Parcourir les publications dans l’ordre chronologique">${arrow(neighbours.previous, false)}<div class="v2-date-filmstrip">${neighbours.items.map(post => {
+      const preview = previewFor(post);
+      return `<a class="v2-date-frame${preview ? " v2-has-photo" : ""}" data-v2-route href="${routeHash("publications", post.id)}" data-date="${esc(post.dateIso)}" ${post.id === item.id ? 'aria-current="page"' : ""} title="${esc(`${prettyDate(post.dateIso)} — ${post.title}${preview ? ` · ${preview.label}` : " · aperçu non chargé"}`)}">${previewImage(preview)}<span class="v2-frame-copy"><small>${esc(prettyDate(post.dateIso, { weekday: "short", day: "numeric", month: "short" }))}</small><b>${esc(post.title)}</b>${post.id === item.id ? '<em>Vous êtes ici</em>' : ""}</span></a>`;
+    }).join("")}</div>${arrow(neighbours.next, true)}</nav><p class="v2-strip-note">${neighbours.index + 1} / ${neighbours.total} publications datées · les flèches suivent les dates, sans modifier le calendrier.</p>`;
+  }
   function searchMarkup(placeholder) { return `<label class="v2-search"><span aria-hidden="true">⌕</span><input data-v2-search type="search" value="${esc(state.query)}" placeholder="${esc(placeholder)}" aria-label="${esc(placeholder)}"></label>`; }
   function resetVisibility() {
     all("[data-v2-concealed]", host).forEach(n => n.removeAttribute("data-v2-concealed"));
@@ -79,6 +111,7 @@ export function mountWorkspace(api) {
     if (!dock) {
       dock = details("Outils et préférences", "v2-utilities");
       dock.querySelector("summary").title = "Retrouver la liste des tâches, les idées, le journal, le diagnostic et les préférences sans masquer les textes ni les images.";
+      dock.querySelector("summary").insertAdjacentHTML("afterbegin", icon("tools"));
       const group = doc.createElement("div"); group.className = "v2-utility-buttons"; dock.append(group);
       toolbar.before(dock);
     }
@@ -147,21 +180,32 @@ export function mountWorkspace(api) {
     thumbs.onclick = e => { const b = e.target.closest("[data-v2-thumbnail]"); if (b) show(Number(b.dataset.v2Thumbnail)); };
     show(index);
   }
+  function calendarDay(day, items) {
+    const background = items.length === 1 ? previewFor(items[0]) : null;
+    return `<section class="v2-day${day.startsWith(state.month) ? "" : " v2-outside"}${background ? " v2-has-photo" : ""}" ${day === todayKey() ? 'data-today="true"' : ""} aria-label="${esc(prettyDate(day))}">${previewImage(background)}<span class="v2-day-number">${Number(day.slice(-2))}</span>${items.map(item => {
+      const preview = background || previewFor(item);
+      return `<a data-v2-route class="v2-calendar-post${preview ? " v2-has-photo" : ""}" data-tone="${esc(item.state.tone)}" href="${routeHash("publications", item.id)}" title="${esc(`${item.title} · ${item.state.label}${preview ? ` · ${preview.label}` : " · aperçu non chargé"}`)}">${background ? "" : previewImage(preview)}<span>${esc(item.title)}<small>${esc(item.state.label)}</small></span></a>`;
+    }).join("")}</section>`;
+  }
+  function agendaItem(item) {
+    const preview = previewFor(item);
+    return `<a data-v2-route class="${preview ? "v2-has-photo" : ""}" href="${routeHash("publications", item.id)}" title="${esc(`${prettyDate(item.dateIso)} — ${item.title}${preview ? ` · ${preview.label}` : ""}`)}">${previewImage(preview)}<span class="v2-agenda-copy"><small>${esc(prettyDate(item.dateIso))}</small><b>${esc(item.title)}</b>${statusMarkup(item)}</span></a>`;
+  }
   function renderPublicationList(view) {
     const items = filterPublications(publications(), { view, query: state.query, status: state.status });
     toolbar.innerHTML = subtabs([["calendrier", "Calendrier", "Calendrier mensuel des réseaux sociaux — indépendant des échéances des projets"], ["liste", "Liste"], ["reserve", "À replanifier"], ["archives", "Passées et archives"]], view) + `<div class="v2-filters">${searchMarkup("Rechercher une publication…")}<label>État <select data-v2-status><option value="all">Tous les états</option><option value="waiting">À préparer / valider</option><option value="attention">Ajustement demandé</option><option value="ready">Prêt à programmer</option><option value="done">Terminé</option></select></label>${api.profile.role === "admin" ? '<button type="button" data-v2-studio title="Créer ou dupliquer une publication dans le Studio existant">Ouvrir le Studio</button>' : ""}</div>`;
     toolbar.querySelector("[data-v2-status]").value = state.status;
     if (view === "calendrier") {
       const byDay = new Map(); items.forEach(item => { const list = byDay.get(item.dateIso) || []; list.push(item); byDay.set(item.dateIso, list); });
-      panel.innerHTML = `<div class="v2-calendar-heading"><div><h2>Calendrier des publications</h2><p>Un jour peut contenir des options à arbitrer; cela ne signifie pas plusieurs publications confirmées.</p></div><div><button type="button" data-v2-month="-1" title="Mois précédent">←</button><strong>${esc(prettyDate(`${state.month}-01`, { month: "long", year: "numeric" }))}</strong><button type="button" data-v2-month="1" title="Mois suivant">→</button><button type="button" data-v2-today title="Revenir au mois courant">Aujourd’hui</button></div></div><div class="v2-calendar" aria-label="Calendrier mensuel des publications">${["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map(d => `<div class="v2-weekday">${d}</div>`).join("")}${monthDays(state.month).map(day => `<section class="v2-day ${day.startsWith(state.month) ? "" : "v2-outside"}" ${day === todayKey() ? 'data-today="true"' : ""} aria-label="${esc(prettyDate(day))}"><span class="v2-day-number">${Number(day.slice(-2))}</span>${(byDay.get(day) || []).map(item => `<a data-v2-route class="v2-calendar-post" data-tone="${esc(item.state.tone)}" href="${routeHash("publications", item.id)}" title="${esc(`${item.title} · ${item.state.label}`)}">${esc(item.title)}<small>${esc(item.state.label)}</small></a>`).join("")}</section>`).join("")}</div>`;
+      panel.innerHTML = `<div class="v2-calendar-heading"><div><h2>Calendrier des publications</h2><p>Un jour peut contenir des options à arbitrer; cela ne signifie pas plusieurs publications confirmées.</p></div><div><button type="button" data-v2-month="-1" title="Mois précédent">←</button><strong>${esc(prettyDate(`${state.month}-01`, { month: "long", year: "numeric" }))}</strong><button type="button" data-v2-month="1" title="Mois suivant">→</button><button type="button" data-v2-today title="Revenir au mois courant">Aujourd’hui</button></div></div><div class="v2-calendar" aria-label="Calendrier mensuel des publications">${["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map(d => `<div class="v2-weekday">${d}</div>`).join("")}${monthDays(state.month).map(day => calendarDay(day, byDay.get(day) || [])).join("")}</div>`;
       const calendar = panel.querySelector(".v2-calendar");
       const scroll = doc.createElement("div"); scroll.className = "v2-calendar-scroll"; scroll.tabIndex = 0; scroll.setAttribute("aria-label", "Calendrier mensuel, défilement horizontal sur petit écran"); calendar.before(scroll); scroll.append(calendar);
       const agenda = doc.createElement("section"); agenda.className = "v2-mobile-agenda";
       const list = items.filter(item => item.dateIso.startsWith(state.month));
-      agenda.innerHTML = "<h3>Ce mois, en détail</h3>" + list.map(item => '<a data-v2-route href="' + routeHash("publications", item.id) + '"><span>' + esc(prettyDate(item.dateIso)) + '</span><b>' + esc(item.title) + '</b>' + statusMarkup(item) + '</a>').join("");
+      agenda.innerHTML = "<h3>Ce mois, en détail</h3>" + list.map(agendaItem).join("");
       if (!list.length) agenda.innerHTML += "<p>Aucune publication dans ce mois avec ces filtres.</p>";
       panel.append(agenda);
-    } else panel.innerHTML = `<p class="v2-result-count">${items.length} publication${items.length === 1 ? "" : "s"}${view === "reserve" ? " · Les dates et validations ne sont pas modifiées par ce classement de lecture." : ""}</p><div class="v2-publication-list">${items.map(item => `<a data-v2-route class="v2-publication-row" href="${routeHash("publications", item.id)}"><div class="v2-date-tile"><b>${esc(item.dateIso ? item.dateIso.slice(8) : "—")}</b><small>${esc(item.dateIso ? prettyDate(item.dateIso, { month: "short" }) : "à dater")}</small></div><div><small>${esc(item.t || "Publication")}</small><h2>${esc(item.title)}</h2><p>${esc(prettyDate(item.dateIso))}${item.optionLabel ? ` · ${esc(item.optionLabel)}` : ""}</p></div>${statusMarkup(item)}<span aria-hidden="true">→</span></a>`).join("") || '<p class="v2-empty">Aucune publication ne correspond à ces filtres.</p>'}</div>`;
+    } else panel.innerHTML = `<p class="v2-result-count">${items.length} publication${items.length === 1 ? "" : "s"}${view === "reserve" ? " · Les dates et validations ne sont pas modifiées par ce classement de lecture." : ""}</p><div class="v2-publication-list">${items.map(item => `<a data-v2-route class="v2-publication-row" href="${routeHash("publications", item.id)}"><div class="v2-date-tile${previewFor(item) ? " v2-has-photo" : ""}">${previewImage(previewFor(item))}<b>${esc(item.dateIso ? item.dateIso.slice(8) : "—")}</b><small>${esc(item.dateIso ? prettyDate(item.dateIso, { month: "short" }) : "à dater")}</small></div><div><small>${esc(item.t || "Publication")}</small><h2>${esc(item.title)}</h2><p>${esc(prettyDate(item.dateIso))}${item.optionLabel ? ` · ${esc(item.optionLabel)}` : ""}</p></div>${statusMarkup(item)}<span aria-hidden="true">→</span></a>`).join("") || '<p class="v2-empty">Aucune publication ne correspond à ces filtres.</p>'}</div>`;
     note.textContent = "Vue des publications chargées dans le registre. Passées et archives conserve aussi les versions et propositions classées; aucun déplacement automatique.";
   }
   function projectItems() {
@@ -175,7 +219,7 @@ export function mountWorkspace(api) {
       else panel.innerHTML = '<p role="status">Chargement du calendrier des projets…</p>';
     } else {
       const q = state.query.toLocaleLowerCase("fr"); const items = projectItems().filter(p => (view === "archives" ? p.archived : view === "occasions" ? p.opportunity && !p.archived : !p.archived && !p.opportunity) && (!q || `${p.title} ${p.next}`.toLocaleLowerCase("fr").includes(q)));
-      panel.innerHTML = `<div class="v2-project-list">${items.map(item => `<a data-v2-route class="v2-project-tile" href="${routeHash("projets", item.id)}"><span class="v2-state" data-tone="${item.archived ? "muted" : "waiting"}">${esc(item.archived ? "Archivé · conservé" : item.status || "Dossier")}</span><h2>${esc(item.title)}</h2><p>${esc(item.next)}</p><span class="v2-tile-open">Ouvrir le dossier →</span></a>`).join("") || '<p class="v2-empty">Aucun dossier dans cette vue.</p>'}</div>`;
+      panel.innerHTML = `<div class="v2-project-list">${items.map(item => `<a data-v2-route class="v2-project-tile" href="${routeHash("projets", item.id)}"><span class="v2-state" data-tone="${item.archived ? "muted" : "waiting"}">${esc(item.archived ? "Archivé · conservé" : item.status || "Dossier")}</span><span class="v2-topic-icon">${icon(topicIcon(item.title))}</span><h2>${esc(item.title)}</h2><p>${esc(item.next)}</p><span class="v2-tile-open">Ouvrir le dossier →</span></a>`).join("") || '<p class="v2-empty">Aucun dossier dans cette vue.</p>'}</div>`;
     }
     note.textContent = "Les projets archivés restent consultables sans les réactiver. Tous leurs documents, décisions et liens sont conservés.";
   }
@@ -200,11 +244,11 @@ export function mountWorkspace(api) {
     if (view === "medias") {
       const media = api.getMedia?.() || [];
       const items = media.filter(m => !q || `${m.label} ${m.note} ${m.eventId}`.toLocaleLowerCase("fr").includes(q));
-      panel.innerHTML = `<p class="v2-intro">${items.length} média${items.length === 1 ? "" : "s"} dans le cache chargé. Ouvrez une publication pour charger son contexte complet, y compris ses références. Ce nombre n’est pas le total de SharePoint.</p><div class="v2-library-grid">${items.map(m => `<article class="v2-document"><span class="v2-file-kind">${esc(m.kind || "Média")}${m.archived ? " · archivé" : ""}</span><h2>${esc(m.label || "Média lié")}</h2><p>${esc(m.note || "")}</p>${anchor("Voir dans la publication →", "publications", m.eventId)}${safeLink(m.url) ? `<a href="${esc(safeLink(m.url))}" target="_blank" rel="noopener noreferrer">Ouvrir l’original ↗</a>` : ""}</article>`).join("") || '<p class="v2-empty">Aucun média correspondant parmi les éléments chargés.</p>'}</div>`;
+      panel.innerHTML = `<p class="v2-intro">${items.length} média${items.length === 1 ? "" : "s"} dans le cache chargé. Ouvrez une publication pour charger son contexte complet, y compris ses références. Ce nombre n’est pas le total de SharePoint.</p><div class="v2-library-grid">${items.map(m => `<article class="v2-document"><span class="v2-file-kind">${esc(m.kind || "Média")}${m.archived ? " · archivé" : ""}</span>${icon(m.kind === "image" || m.kind === "video" ? "publications" : "document")}<h2>${esc(m.label || "Média lié")}</h2><p>${esc(m.note || "")}</p>${anchor("Voir dans la publication →", "publications", m.eventId)}${safeLink(m.url) ? `<a href="${esc(safeLink(m.url))}" target="_blank" rel="noopener noreferrer">Ouvrir l’original ↗</a>` : ""}</article>`).join("") || '<p class="v2-empty">Aucun média correspondant parmi les éléments chargés.</p>'}</div>`;
       note.textContent = "Les références seules et les médias archivés ne sont ni supprimés ni approuvés par leur présence dans la bibliothèque."; return;
     }
     const items = documentItems().filter(item => !q || `${item.label} ${item.project}`.toLocaleLowerCase("fr").includes(q));
-    panel.innerHTML = `<p class="v2-result-count">${items.length} référence${items.length === 1 ? "" : "s"} liée${items.length === 1 ? "" : "s"} aux dossiers du cockpit</p><div class="v2-library-grid">${items.map(item => `<article class="v2-document"><span class="v2-file-kind">${item.archived ? "Projet archivé" : "Document / dossier"}</span><h2>${esc(item.label)}</h2><p>${esc(item.project)}</p><a href="${esc(item.href)}" target="_blank" rel="noopener noreferrer" title="Ouvrir l’original avec votre session autorisée. Le document n’est pas copié ni déplacé.">Ouvrir l’original ↗</a>${item.owner ? anchor("Voir le contexte du projet", "projets", item.owner) : ""}</article>`).join("")}</div>`;
+    panel.innerHTML = `<p class="v2-result-count">${items.length} référence${items.length === 1 ? "" : "s"} liée${items.length === 1 ? "" : "s"} aux dossiers du cockpit</p><div class="v2-library-grid">${items.map(item => `<article class="v2-document"><span class="v2-file-kind">${item.archived ? "Projet archivé" : "Document / dossier"}</span>${icon(/\.xlsx?/i.test(item.href) ? "list" : "document")}<h2>${esc(item.label)}</h2><p>${esc(item.project)}</p><a href="${esc(item.href)}" target="_blank" rel="noopener noreferrer" title="Ouvrir l’original avec votre session autorisée. Le document n’est pas copié ni déplacé.">Ouvrir l’original ↗</a>${item.owner ? anchor("Voir le contexte du projet", "projets", item.owner) : ""}</article>`).join("")}</div>`;
     note.textContent = "Les liens restent ceux des documents d’origine. Le contexte du projet permet de distinguer version courante, historique et restrictions d’utilisation.";
   }
   async function showHistory(card, reset = true) {
@@ -229,7 +273,10 @@ export function mountWorkspace(api) {
   function render({ focus = false } = {}) {
     if (state.disposed || doc.body.classList.contains("cockpit-locked")) return;
     arrangeUtilities();
+    state.previews = new Map(); state.mediaRows = new Map();
+    for (const row of api.getMedia?.() || []) { const rows = state.mediaRows.get(row.eventId) || []; rows.push(row); state.mediaRows.set(row.eventId, rows); }
     const r = state.route; const space = SPACES[r.space];
+    all(".v2-classic-link,.v2-portable-tools a", shell).forEach(link => { link.href = interfaceUrl(win.location.href, "classic", (api.getPosts?.() || []).map(p => p.id)); });
     resetVisibility(); toolbar.replaceChildren(); panel.replaceChildren();
     note.textContent = "V2 d’essai · données partagées avec le cockpit classique.";
     note.title = "Les commentaires, choix et validations sont réels et restent visibles dans les deux interfaces. Aucun contenu n’est envoyé aux réseaux sociaux.";
@@ -243,12 +290,12 @@ export function mountWorkspace(api) {
     } else if (r.space === "accueil") {
       const dashboard = doc.querySelector("#cockpit-essential-dashboard");
       if (dashboard) reveal(dashboard); else panel.innerHTML = '<p role="status">Vos actions sont en cours de chargement…</p>';
-      toolbar.innerHTML = `<div class="v2-home-links">${anchor("Décisions qui m’attendent", "accueil", "decisions")}${anchor("Messages récents", "accueil", "messages")}${anchor("Calendrier des publications →", "publications", "", "calendrier")}${anchor("Calendrier des projets →", "projets", "", "calendrier")}</div>`;
+      toolbar.innerHTML = `<div class="v2-home-links">${anchor("Décisions qui m’attendent", "accueil", "decisions", "", "Vos décisions personnelles, sans les demandes destinées à l’autre rôle.", "decisions")}${anchor("Messages actifs", "accueil", "messages", "", "Les messages non traités et non masqués des publications chargées. Le fil complet reste dans chaque publication.", "messages")}${anchor("Calendrier des publications", "publications", "", "calendrier", "Voir les publications Facebook et Instagram, leur visuel et leur validation.", "socialCalendar")}${anchor("Calendrier des projets", "projets", "", "calendrier", "Voir les échéances et rencontres des projets, sans déplacer les publications sociales.", "projectCalendar")}</div>`;
       if (r.id === "messages" || r.id === "decisions") { const sub = doc.querySelector(r.id === "messages" ? "#vm-panel-message" : "#vm-panel-decision"); if (sub) { resetVisibility(); reveal(sub); } }
     } else if (r.space === "publications" && r.id) {
       const item = publications().find(p => p.id === r.id);
       const card = api.ensurePublication?.(r.id) || cardFor(r.id);
-      if (card && item) { transformCard(card); reveal(card); enhanceGallery(card); heading.textContent = item.title; description.textContent = `${prettyDate(item.dateIso)} · ${item.state.label}`; toolbar.innerHTML = `<div class="v2-detail-toolbar">${anchor("← Toutes les publications", "publications", "", "liste")}${anchor("Calendrier", "publications", "", "calendrier")}${statusMarkup(item)}</div>`; if (state.lastEntity !== r.id) { state.lastEntity = r.id; win.dispatchEvent(new CustomEvent("cockpit:event-context-request", { detail: { eventId: r.id, source: "workspace-v2" } })); } }
+      if (card && item) { transformCard(card); reveal(card); enhanceGallery(card); heading.textContent = item.title; description.textContent = `${prettyDate(item.dateIso)} · ${item.state.label}`; toolbar.innerHTML = `<div class="v2-detail-toolbar">${anchor("← Toutes les publications", "publications", "", "liste")}${anchor("Calendrier", "publications", "", "calendrier", "Retrouver ce mois dans le calendrier illustré des publications.", "socialCalendar")}${statusMarkup(item)}</div>`; state.month = item.dateIso ? item.dateIso.slice(0, 7) : state.month; panel.innerHTML = publicationNavigation(item); const strip = panel.querySelector(".v2-date-filmstrip"); const current = strip?.querySelector('[aria-current="page"]'); if (strip && current) strip.scrollLeft = Math.max(0, current.offsetLeft - strip.offsetLeft - (strip.clientWidth - current.clientWidth) / 2); if (state.lastEntity !== r.id) { state.lastEntity = r.id; win.dispatchEvent(new CustomEvent("cockpit:event-context-request", { detail: { eventId: r.id, source: "workspace-v2" } })); } }
       else panel.innerHTML = `<p role="alert">Cette publication n’est pas chargée dans le registre. Rien n’a été supprimé.</p>${anchor("Consulter le registre", "publications")}`;
     } else if (r.space === "publications") renderPublicationList(r.view || "calendrier");
     else if (r.space === "projets" && r.id) {
@@ -259,6 +306,7 @@ export function mountWorkspace(api) {
     else if (r.space === "bibliotheque" && r.id) { const target = doc.getElementById(r.id); reveal(target); heading.textContent = target?.querySelector("h2,h3,summary")?.textContent || "Guide et méthode"; toolbar.innerHTML = anchor("← Guides et méthodes", "bibliotheque", "", "guides"); }
     else renderLibrary(r.view || "documents");
     if (!(r.space === "publications" && r.id)) state.lastEntity = "";
+    win.requestAnimationFrame?.(centerCurrentFrame);
     if (focus) { heading.focus({ preventScroll: true }); win.scrollTo?.({ top: 0, behavior: "instant" }); announce(`${SPACES[r.space].label} · ${heading.textContent}`); }
   }
   function scheduleRender() { if (!state.timer) state.timer = win.setTimeout(() => { state.timer = 0; render(); }, 100); }
@@ -306,6 +354,7 @@ export function mountWorkspace(api) {
   on(toolbar, "change", e => { if (e.target.matches("[data-v2-status]")) { state.status = e.target.value; render(); } });
   const onLocation = () => { state.route = parseRoute(win.location.hash); state.query = ""; render({ focus: true }); const y = state.scrolls.get(win.location.hash); if (y) win.scrollTo?.(0, y); };
   on(win, "popstate", onLocation); on(win, "hashchange", onLocation); on(win, "cockpit:data-updated", scheduleRender);
+  on(win, "resize", centerCurrentFrame); on(css, "load", centerCurrentFrame);
   on(win, "cockpit:entity-will-open", event => {
     const {type, id, mediaId} = event.detail || {}; const hash = routeForTarget(type, id);
     if (mediaId) state.galleryIndex.set(id, mediaId);

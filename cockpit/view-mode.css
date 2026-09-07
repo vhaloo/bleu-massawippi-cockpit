@@ -21,6 +21,9 @@
   background: rgba(0, 0, 0, .14);
 }
 
+#cockpit-session #cockpit-interface-switch{display:inline-flex;align-items:center;min-height:38px;padding:7px 12px;border:1px solid #9ddad8;border-radius:8px;background:#eaf8f3;color:#124853;font-size:12px;font-weight:750;text-decoration:none;line-height:1.3}
+#cockpit-session #cockpit-interface-switch:hover{background:#fff;border-color:#fff}
+#cockpit-session #cockpit-interface-switch:focus-visible{outline:3px solid #f2d59d;outline-offset:3px}
 #cockpit-session .vm-toggle button {
   display: inline-flex;
   min-height: 44px;
