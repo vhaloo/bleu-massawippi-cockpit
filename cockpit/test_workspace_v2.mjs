@@ -21,9 +21,12 @@ const url = new URL("http://localhost:8766/workspace-fixture.html?interface=v2#/
 window.location=url; window.history={pushState(_s,_t,hash){url.hash=hash}}; window.scrollTo=()=>{}; window.scrollY=0;
 const api=mockAPI(document,window); const sourceJSON=JSON.stringify(fixtures);
 const controls=[...document.querySelectorAll("button,input,textarea,a,details")];
+const utility = document.createElement("button"); utility.id = "cockpit-health-launch"; utility.textContent = "Diagnostic"; document.body.append(utility);
+let utilityClicks = 0; utility.addEventListener("click", () => utilityClicks++);
 let clicked=0; const originalChoose=document.querySelector('[data-choose="one"]'); originalChoose.addEventListener("click",()=>clicked++);
 const workspace=mountWorkspace(api);
 check("montage opt-in et quatre espaces",()=>{assert.equal(document.documentElement.dataset.workspace,"v2");assert.equal(document.querySelectorAll("[data-v2-space]").length,4);});
+check("outils originaux regroupés sans superposition ni perte de gestionnaire",()=>{assert(utility.closest('.v2-utilities'));utility.click();assert.equal(utilityClicks,1);assert(!utility.closest('details').open);});
 workspace.navigate("#/publications/test-first");
 check("les contrôles sont déplacés, jamais copiés ni perdus",()=>{assert(controls.every(n=>n.isConnected));assert.equal(document.querySelector('[data-choose="one"]'),originalChoose);originalChoose.click();assert.equal(clicked,1);});
 check("galerie complète et une seule proposition visible",()=>{const card=document.querySelector('[data-item-id="test-first"]');assert.equal(card.querySelectorAll("[data-v2-thumbnail]").length,4);assert.equal(card.querySelectorAll("[data-v2-slide-hidden]").length,3);card.querySelector('[data-v2-thumbnail="2"]').click();assert(!card.querySelector('[data-media-id="three"]').hasAttribute("data-v2-slide-hidden"));assert.equal(clicked,1);});
@@ -40,6 +43,7 @@ check("projets archivés consultables sans réactivation",()=>{assert(document.q
 workspace.navigate("#/bibliotheque");
 check("bibliothèque garde les liens des originaux",()=>assert(document.querySelector('a[href="https://example.org/archive.pdf"]')));
 workspace.destroy();
+check("retour classique restaure aussi les outils",()=>{assert.equal(utility.parentElement,document.body);utility.click();assert.equal(utilityClicks,2);});
 check("démontage restaure les nœuds et l’interface classique",()=>{assert(controls.every(n=>n.isConnected));assert(!document.documentElement.dataset.workspace);assert(!document.querySelector("#workspace-v2"));assert(document.querySelector('.post>.cockpit-controls>[data-workflow], .post>.cockpit-controls>.cockpit-workflow'));assert.equal(document.querySelector('[data-choose="one"]'),originalChoose);});
 const ui=await fs.readFile(new URL("./cockpit-ui.js",import.meta.url),"utf8");
 const v2=await fs.readFile(new URL("./workspace-v2.js",import.meta.url),"utf8");

@@ -29,7 +29,8 @@ La V2 est un adaptateur de présentation opt-in. Elle déplace les contrôles DO
 | Calendrier des projets, échéances et exports | Calendrier des projets d’origine |
 | Documents et liens SharePoint | Dossier d’origine + Bibliothèque |
 | Contexte stratégique, production, pilotage et sources | Bibliothèque → Guides |
-| Session, Studio, compte, diagnostic, préférences | Commandes de session existantes |
+| Session, Studio et compte | Commandes de session existantes |
+| Tâches, idées, journal, diagnostic et mouvements | Outils et préférences; commandes d’origine regroupées, sans boutons sur les images |
 | Version classique et outils historiques | Retour explicite, disponible sur mobile aussi |
 
 Les anciens textes ne sont pas inventés : l’historique montre les versions structurées disponibles dans `changeArchive` et le texte source conservé. Un ajustement ancien effectué avant le journal versionné peut ne pas posséder de trace avant/après. La consultation est paginée par 12; aucun listener historique permanent.

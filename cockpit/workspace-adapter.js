@@ -1,12 +1,12 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20260907-b72";
-import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260907-b72";
-import { openPublicationStudio } from "./editor-studio.js?v=20260907-b72";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20260907-b73";
+import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260907-b73";
+import { openPublicationStudio } from "./editor-studio.js?v=20260907-b73";
 
 export async function setupWorkspaceV2(profile, { state, enhanceCards, toast }) {
   if (new URLSearchParams(location.search).get("interface") !== "v2") return;
   // Existing controls remain the single write path. Failure leaves V1 usable.
   try {
-    const { mountWorkspace } = await import("./workspace-v2.js?v=20260907-v2.2");
+    const { mountWorkspace } = await import("./workspace-v2.js?v=20260907-v2.3");
     return mountWorkspace({
       profile,
       getPosts: () => globalThis.posts || [],
