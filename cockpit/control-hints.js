@@ -60,14 +60,18 @@ export function setupControlHints(root = document) {
     });
   };
   addEventListener("cockpit:data-updated", refresh);
-  root.addEventListener("toggle", (event) => {
+  const onToggle = (event) => {
     const summary = event.target?.querySelector?.(":scope > summary");
     if (!summary) return;
-    summary.removeAttribute("title");
+    // Preserve deliberately written, detailed help when a section is opened.
+    // Only the generic hint owned by this module may be regenerated.
+    if (summary.title === summary.dataset.cockpitGeneratedHint) summary.removeAttribute("title");
     applyControlHints(summary);
-  }, true);
+  };
+  root.addEventListener("toggle", onToggle, true);
   return () => {
     removeEventListener("cockpit:data-updated", refresh);
+    root.removeEventListener("toggle", onToggle, true);
     if (frame) cancelAnimationFrame(frame);
   };
 }

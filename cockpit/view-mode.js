@@ -7,7 +7,7 @@
  * intact.
  */
 
-import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260907-b73";
+import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260907-b74";
 
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
@@ -504,7 +504,7 @@ function ensureStylesheet() {
   if (document.querySelector(`link[data-module="${MODULE_ID}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = new URL("./view-mode.css?v=20260907-b73", import.meta.url).href;
+  link.href = new URL("./view-mode.css?v=20260907-b74", import.meta.url).href;
   link.dataset.module = MODULE_ID;
   document.head.appendChild(link);
 }
@@ -1700,7 +1700,7 @@ function renderDashboard(now = new Date()) {
     : empty("Aucun événement au cours des sept prochains jours.");
   const messagesBody = messages.length
     ? messages.map((message) => `<article class="vm-message"><div><span>${escapeHtml(message.author)}${message.when ? ` · ${escapeHtml(message.when)}` : ""}</span><h3>${escapeHtml(message.event.title)}</h3><p>${escapeHtml(message.text)}</p></div>${linkButton({ ...message.event, messageId: message.id, messageVersion: message.updatedAt }, "Répondre")}</article>`).join("")
-    : empty("Aucun message actif dans les événements visibles.");
+    : empty("Aucun message actif parmi les publications chargées (non traité et non masqué). Les échanges complets restent accessibles dans chaque publication.");
 
   grid.innerHTML = [
     panel("decision", "Décisions qui m’attendent", decisionsAreCurrent ? `${allDecisions.length}${remoteMore ? "+" : ""} pour vous` : "Synchronisation", decisionsBody, "vm-decisions"),

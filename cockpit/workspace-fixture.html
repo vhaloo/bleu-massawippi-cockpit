@@ -2,7 +2,12 @@
 import { fixtureHTML, mockAPI } from "./workspace-test-fixture.mjs";
 import { mountWorkspace } from "./workspace-v2.js";
 document.body.insertAdjacentHTML("afterbegin", fixtureHTML);
-const api = mockAPI(document, window);
+const role = new URLSearchParams(location.search).get("role") === "director" ? "director" : "admin";
+const api = mockAPI(document, window, role);
+await import("./motion.js");
+dispatchEvent(new CustomEvent("cockpit:session-ready"));
+const theme = document.createElement("button"); theme.textContent = "Clair / sombre (test local)"; document.querySelector("#cockpit-session").append(theme);
+theme.onclick = () => { document.documentElement.dataset.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; };
 const workspace = mountWorkspace(api);
 document.addEventListener("click", event => { const b = event.target.closest("[data-choose]"); if (b) { b.textContent = b.textContent === "Choisir ce visuel" ? "Choix local enregistré · retirer" : "Choisir ce visuel"; } });
 </script></body></html>

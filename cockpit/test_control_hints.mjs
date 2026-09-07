@@ -12,7 +12,7 @@ globalThis.removeEventListener = window.removeEventListener.bind(window);
 globalThis.requestAnimationFrame = (callback) => { callback(); return 1; };
 globalThis.cancelAnimationFrame = () => {};
 
-const { applyControlHints } = await import("./control-hints.js");
+const { applyControlHints, setupControlHints } = await import("./control-hints.js");
 applyControlHints(document);
 
 const summary = document.querySelector("summary");
@@ -28,3 +28,9 @@ dynamic.textContent = "Mes tâches · 2"; applyControlHints(document);
 if (dynamic.title.includes("4") || !dynamic.title.includes("2")) throw new Error("Infobulle périmée après changement du compteur.");
 dynamic.title = "Aide personnalisée"; dynamic.textContent = "Mes tâches · 1"; applyControlHints(document);
 if (dynamic.title !== "Aide personnalisée") throw new Error("Aide manuelle remplacée.");
+const cleanup = setupControlHints(document);
+summary.title = "Retrouver les outils sans masquer les textes ni les images.";
+summary.parentElement.dispatchEvent(new window.Event("toggle", { bubbles: true }));
+if (summary.title !== "Retrouver les outils sans masquer les textes ni les images.") throw new Error("Une infobulle détaillée est perdue au dépliage.");
+cleanup();
+console.log("✓ Les explications détaillées survivent à l’ouverture et les écouteurs sont nettoyés.");
