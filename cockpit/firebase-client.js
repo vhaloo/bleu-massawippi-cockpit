@@ -35,8 +35,9 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260907-b78";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20260907-b78";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260908-b79";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20260908-b79";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20260908-b79";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -447,13 +448,11 @@ export async function savePublicationContent(draft, profile, { expectedRevision 
   const result = await runTransaction(db, async (transaction) => {
     const snapshot = await transaction.get(reference);
     const workflow = await transaction.get(doc(db, "workflowStates", normalized.id));
-    if (["scheduled", "published"].includes(workflow.data()?.stage)) {
-      throw new Error("Cette publication est déjà terminée ou programmée. Conservez-la et préparez une correction distincte plutôt que d’écraser son texte.");
-    }
     if (mustCreate && snapshot.exists()) {
       throw new Error("Cet identifiant vient d’être utilisé. Modifiez légèrement le titre ou la date, puis réessayez.");
     }
     const before = snapshot.exists() ? snapshot.data() : {};
+    assertPublicationNotCompleted(normalized.id, before, workflow.data() || {});
     const currentRevision = Number(before.editorial?.revision || 0);
     if (currentRevision !== Number(expectedRevision || 0)) {
       throw new Error("Cette publication a changé depuis son ouverture. Rechargez-la avant d’enregistrer.");

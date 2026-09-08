@@ -90,6 +90,8 @@ jobs:
           cp cockpit/index.html public/
           cp cockpit/actualiser.html public/
           cp cockpit/cockpit-ui.js public/
+          cp cockpit/feedback-widget.mjs public/
+          cp cockpit/editorial-cycle-guard.mjs public/
           cp cockpit/workspace-adapter.js public/
           cp cockpit/workspace-v2.js public/
           cp cockpit/workspace-model.mjs public/

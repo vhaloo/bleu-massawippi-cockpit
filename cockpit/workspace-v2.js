@@ -108,12 +108,23 @@ export function mountWorkspace(api) {
     const summary = doc.createElement("summary"); summary.textContent = label; node.append(summary); return node;
   }
   function arrangeUtilities() {
-    const controls = ["cockpit-task-launch", "cockpit-feedback-launch", "cockpit-sidebar-toggle", "cockpit-health-launch", "cockpit-motion-toggle"].map(id => doc.getElementById(id)).filter(Boolean);
+    // Keep the original authenticated control visible for both roles, on every page.
+    // Moving its node preserves the form, pending text and existing write handler.
+    const feedback = doc.getElementById("cockpit-feedback-launch");
+    if (feedback) {
+      let actions = shell.querySelector(".v2-global-actions");
+      if (!actions) {
+        actions = doc.createElement("div"); actions.className = "v2-global-actions";
+        shell.querySelector(".v2-heading").after(actions);
+      }
+      move(feedback, actions);
+    }
+    const controls = ["cockpit-task-launch", "cockpit-sidebar-toggle", "cockpit-health-launch", "cockpit-motion-toggle"].map(id => doc.getElementById(id)).filter(Boolean);
     if (!controls.length) return;
     let dock = shell.querySelector(".v2-utilities");
     if (!dock) {
       dock = details("Outils et préférences", "v2-utilities");
-      dock.querySelector("summary").title = "Retrouver la liste des tâches, les idées, le journal, le diagnostic et les préférences sans masquer les textes ni les images.";
+      dock.querySelector("summary").title = "Retrouver la liste des tâches, le journal, le diagnostic et les préférences sans masquer les textes ni les images. La boîte à idées reste accessible directement au-dessus.";
       dock.querySelector("summary").insertAdjacentHTML("afterbegin", icon("tools"));
       const group = doc.createElement("div"); group.className = "v2-utility-buttons"; dock.append(group);
       toolbar.before(dock);

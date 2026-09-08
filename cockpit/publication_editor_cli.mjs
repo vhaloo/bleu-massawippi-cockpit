@@ -11,8 +11,10 @@ import {
   publicationFromScheduleRow,
   publicationIdFrom,
   schedulePayloadFromDraft,
-  validatePublicationDraft
+  validatePublicationDraft,
+  validPublicationDate
 } from "./publication-editor-schema.mjs";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs";
 
 const HELP = `
 Studio local du Cockpit — publications structurées, versionnées et sans suppression.
@@ -44,7 +46,7 @@ class CliError extends Error {
   }
 }
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const values = new Map();
   const positional = [];
   for (let index = 0; index < argv.length; index += 1) {
@@ -93,8 +95,8 @@ function validId(value, label = "identifiant") {
 
 function validDate(value) {
   const date = String(value || "").trim();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(`${date}T12:00:00Z`))) {
-    throw new CliError("La date doit utiliser le format AAAA-MM-JJ.");
+  if (!validPublicationDate(date)) {
+    throw new CliError("La date doit être une date réelle au format AAAA-MM-JJ.");
   }
   return date;
 }
@@ -207,7 +209,7 @@ async function readHistory(db, id, args) {
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }
 
-async function saveDraft(db, draft, args, action, { mustExist = null } = {}) {
+export async function saveDraft(db, draft, args, action, { mustExist = null } = {}) {
   const errors = validatePublicationDraft(draft);
   if (errors.length) throw new CliError(errors.join(" "));
   const normalized = normalizePublicationDraft(draft);
@@ -216,9 +218,15 @@ async function saveDraft(db, draft, args, action, { mustExist = null } = {}) {
   const preflight = await getScheduleRow(db, normalized.id);
   if (mustExist === true && !preflight) throw new CliError("Cette publication n’existe pas.");
   if (mustExist === false && preflight) throw new CliError("Cet identifiant existe déjà.");
+  const workflowReference = db.collection("workflowStates").doc(normalized.id);
+  const preflightWorkflow = await workflowReference.get();
+  assertPublicationNotCompleted(normalized.id, preflight || {}, preflightWorkflow.data() || {});
   const expectedRevision = option(args, "expected-revision").trim()
     ? integerOption(args, "expected-revision", 0, 0, 1000000)
     : Number(preflight?.editorial?.revision || 0);
+  if (Number(preflight?.editorial?.revision || 0) !== expectedRevision) {
+    throw new CliError(`Conflit de révision : attendu ${expectedRevision}, trouvé ${Number(preflight?.editorial?.revision || 0)}. Rechargez avant d’écrire.`);
+  }
   const previewPayload = schedulePayloadFromDraft(normalized, preflight || {});
   if (!apply) {
     return {
@@ -235,9 +243,13 @@ async function saveDraft(db, draft, args, action, { mustExist = null } = {}) {
   const archiveReference = db.collection("changeArchive").doc(`publication-${normalized.id}-${randomUUID()}`.slice(0, 160));
   const result = await db.runTransaction(async (transaction) => {
     const snapshot = await transaction.get(scheduleReference);
+    // Completion can change after the preview. Reading it in this same transaction
+    // makes Firestore retry rather than overwrite a newly scheduled publication.
+    const workflow = await transaction.get(workflowReference);
     if (mustExist === true && !snapshot.exists) throw new CliError("Cette publication n’existe plus.");
     if (mustExist === false && snapshot.exists) throw new CliError("Cet identifiant vient d’être utilisé.");
     const before = snapshot.exists ? snapshot.data() : {};
+    assertPublicationNotCompleted(normalized.id, before, workflow.data() || {});
     const currentRevision = Number(before.editorial?.revision || 0);
     if (currentRevision !== expectedRevision) {
       throw new CliError(`Conflit de révision : attendu ${expectedRevision}, trouvé ${currentRevision}. Rechargez avant d’écrire.`);
@@ -257,7 +269,7 @@ async function saveDraft(db, draft, args, action, { mustExist = null } = {}) {
   return { mode: "applied", writes: 2, ...result };
 }
 
-async function draftForCommand(db, args) {
+export async function draftForCommand(db, args) {
   const command = args.command;
   if (["create", "update"].includes(command)) {
     return readDraftFile(requireOption(args, "file"));

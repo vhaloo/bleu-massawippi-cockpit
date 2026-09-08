@@ -109,6 +109,22 @@ try {
   const viewerDb = environment.authenticatedContext(ids.viewer).firestore();
   const publicationRef = doc(adminDb, "scheduleItems", ids.publication);
 
+  for (const [role, uid, db] of [["direction", ids.director, directorDb], ["communications", ids.admin, adminDb]]) {
+    const feedbackId = `idea-${uid}`;
+    const batch = writeBatch(db);
+    batch.set(doc(db, "cockpitFeedback", feedbackId), {
+      sectionId: "cockpit", message: "Une recommandation globale de test", category: "idee", page: "/",
+      authorUid: uid, authorLabel: role, status: "open", createdAt: now, updatedAt: now, updatedBy: uid
+    });
+    batch.set(doc(db, "changeArchive", feedbackId), { ...archive(uid, feedbackId, "rétroaction déposée"), entityType: "cockpitFeedback" });
+    await check(`${role} dépose une idée et sa trace dans le circuit existant`, batch.commit());
+    await check(`administrateur retrouve l’idée de ${role}`, getDoc(doc(adminDb, "cockpitFeedback", feedbackId)));
+  }
+  await check("lecture seule ne dépose pas d’idée à la place de la direction", setDoc(doc(viewerDb, "cockpitFeedback", "forbidden-idea"), {
+    sectionId: "cockpit", message: "Test", category: "idee", page: "/", authorUid: ids.viewer, authorLabel: "Lecture",
+    status: "open", createdAt: now, updatedAt: now, updatedBy: ids.viewer
+  }), false);
+
   const createBatch = writeBatch(adminDb);
   createBatch.set(publicationRef, schedule(ids.admin, 1));
   createBatch.set(doc(adminDb, "changeArchive", "create-v1"), archive(ids.admin, ids.publication));

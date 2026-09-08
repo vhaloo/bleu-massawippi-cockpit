@@ -8,6 +8,8 @@ Le Studio est une couche d’édition structurée réservée au compte des commu
 - Une publication classée reste dans Firestore avec `archivedEditorial: true`. Il n’existe aucune fonction de suppression.
 - Chaque enregistrement produit une nouvelle révision et une entrée `changeArchive` dans la même transaction.
 - Une révision périmée est refusée : il faut recharger avant d’écrire.
+- Une publication terminée, programmée ou publiée ne peut pas être réécrite, déplacée ou restaurée par-dessus son original. Cette protection est commune au Studio et à l’outil local, et revérifiée dans la transaction si son état change entre-temps. Une duplication vers un nouvel identifiant reste possible, sans toucher à l’original ni transférer ses validations.
+- Le classement d’un brouillon et la restauration de ses versions restent disponibles : une archive éditoriale n’est pas assimilée à une publication déjà diffusée.
 - Le calendrier utilise son listener existant. Le Studio n’ajoute aucun listener permanent et ne change le rendu que lorsque la signature éditoriale change.
 - Les champs opérationnels déjà utilisés par le cockpit — commentaires, médias, validations, tâches et trois feux verts — restent dans leurs collections actuelles.
 

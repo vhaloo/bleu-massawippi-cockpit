@@ -1,3 +1,4 @@
+import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20260908-b79";
 import {
   getClientState,
   waitForClientReady,
@@ -36,24 +37,24 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260907-b78";
-import { createEventContextController } from "./event-context-data.js?v=20260907-b78";
-import { mergeEventWindow } from "./event-context-window.mjs?v=20260907-b78";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260907-b78";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260907-b78";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260907-b78";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260907-b78";
-import { workflowMarkup, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260907-b78";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260907-b78";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260907-b78";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260907-b78";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260907-b78";
-import { setupControlHints } from "./control-hints.js?v=20260907-b78";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260907-b78";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260907-b78";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260907-b78";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260907-b78";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260907-b78";
+} from "./firebase-client.js?v=20260908-b79";
+import { createEventContextController } from "./event-context-data.js?v=20260908-b79";
+import { mergeEventWindow } from "./event-context-window.mjs?v=20260908-b79";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260908-b79";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260908-b79";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260908-b79";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260908-b79";
+import { workflowMarkup, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260908-b79";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260908-b79";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260908-b79";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260908-b79";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260908-b79";
+import { setupControlHints } from "./control-hints.js?v=20260908-b79";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260908-b79";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260908-b79";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260908-b79";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260908-b79";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260908-b79";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -1167,30 +1168,6 @@ function enhanceCalendarButtons() {
       window.setTimeout(() => { button.textContent = "Ajouter à mon agenda"; }, 3200);
     });
   });
-}
-
-function buildFeedbackWidget() {
-  if (document.querySelector("#cockpit-feedback-launch")) return;
-  const launch = document.createElement("button");
-  launch.id = "cockpit-feedback-launch";
-  launch.type = "button";
-  launch.textContent = "Boîte à idées";
-  launch.setAttribute("aria-expanded", "false");
-  const panel = document.createElement("section");
-  panel.id = "cockpit-feedback-panel";
-  panel.setAttribute("aria-label", "Rétroaction sur le cockpit");
-  panel.innerHTML = `<h2>Améliorer le cockpit</h2><p>Déposez ici une idée générale ou une recommandation d’utilisation. Pour un avis sur une section précise, utilisez sa boîte de rétroaction.</p>${feedbackFormMarkup("cockpit")}`;
-  launch.addEventListener("click", () => {
-    const open = panel.classList.toggle("open");
-    launch.setAttribute("aria-expanded", String(open));
-    if (open) panel.querySelector("textarea")?.focus();
-  });
-  panel.querySelector("[data-feedback-form]").addEventListener("submit", (event) => {
-    event.preventDefault();
-    submitFeedbackForm(event.currentTarget);
-  });
-  document.body.appendChild(launch);
-  document.body.appendChild(panel);
 }
 
 function renderFeedbackList(feedback) {
@@ -2987,7 +2964,7 @@ async function applyProfile(profile) {
   enhanceSectionFeedback();
   setupFeedbackDictationEvents();
   enhanceCalendarButtons();
-  buildFeedbackWidget();
+  buildFeedbackWidget({ document, formMarkup: feedbackFormMarkup("cockpit"), onSubmit: submitFeedbackForm });
   setupOpportunityEvents();
   setupInternalProjectEvents();
   renderOpportunityStates();
@@ -3002,7 +2979,7 @@ async function applyProfile(profile) {
   syncCardAccess();
   workspaceV2?.destroy(); workspaceV2 = null;
   try {
-    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20260907-v2.8");
+    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20260908-v2.9");
     setupInterfaceSwitch(profile);
     if (new URLSearchParams(location.search).get("interface") === "v2") workspaceV2 = await setupWorkspaceV2(profile, { state, enhanceCards, toast, mediaPreview: mediaPreviewUrl });
   } catch { toast("La V2 est indisponible; le cockpit classique reste actif.", true); }

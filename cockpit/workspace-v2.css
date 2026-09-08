@@ -32,6 +32,12 @@ html[data-workspace="v2"] .post[data-v2-target]>.post-head .meta{margin:0;color:
 #workspace-v2 :is(button,input,select),.v2-help-dialog button{min-height:44px;border:1px solid var(--v2-line);border-radius:10px;background:var(--v2-paper);color:var(--v2-ink);padding:8px 13px;font:inherit;cursor:pointer}
 #workspace-v2 input{cursor:text}
 .v2-utilities{margin:0 0 18px;border:1px solid var(--v2-line);border-radius:12px;background:var(--v2-paper);font-size:13px}
+.v2-global-actions{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:0 0 14px}
+html[data-workspace="v2"] .v2-global-actions>#cockpit-feedback-launch{position:static!important;inset:auto!important;width:auto!important;max-width:100%;min-height:44px;margin:0!important;transform:none!important;padding:10px 15px;background:var(--v2-soft)!important;color:var(--v2-ink)!important;border:1px solid var(--v2-line);border-radius:12px;box-shadow:none!important;font-size:14px}
+html[data-workspace="v2"] #cockpit-feedback-panel{z-index:220;left:auto;right:16px;bottom:calc(88px + env(safe-area-inset-bottom));width:min(440px,calc(100% - 32px));max-height:70vh;max-height:70dvh;overflow:auto;background:var(--v2-paper);color:var(--v2-ink);border-color:var(--v2-line);box-shadow:0 12px 40px #071e2540}
+html[data-workspace="v2"] #cockpit-feedback-panel :is(h2,p,label){color:var(--v2-ink)}
+html[data-workspace="v2"] #cockpit-feedback-panel :is(button,textarea,select){color:var(--v2-ink);background:var(--v2-soft);border:1px solid var(--v2-line);min-height:44px}
+#cockpit-feedback-panel [data-feedback-close]{float:right;margin:0 0 8px 10px}
 .v2-utilities>summary{min-height:44px;padding:11px 14px;cursor:pointer;color:var(--v2-muted)}
 .v2-utility-buttons{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:0 12px 12px}
 html[data-workspace="v2"] .v2-utility-buttons>button{position:relative!important;inset:auto!important;margin:0!important;transform:none!important;max-width:100%;width:auto!important;min-height:44px;padding:9px 13px;border:1px solid var(--v2-line);border-radius:10px;background:var(--v2-soft)!important;color:var(--v2-ink)!important;box-shadow:none!important;filter:none!important;font-size:13px;overflow:hidden;isolation:isolate}
