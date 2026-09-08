@@ -1097,8 +1097,10 @@ assert.match(source, /ARCHIVES%20-%20cl%C3%B4ture%20finale%20-%202026-09-01/,
   "La fiche archivée doit mener au dossier SharePoint final sans exposer le lien photo privé.");
 const applicationProject = source.match(/<details class="internal-project" id="internal-project-application-carte-vivante-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
 assert.match(applicationProject, /data-waiting-source="functional-spec-pending"/);
-assert.match(applicationProject, /ÉCOACTION À QUALIFIER · 23 SEPT\. · AUCUNE PRODUCTION/);
-assert.match(applicationProject, /Décision de préqualification/);
+assert.match(applicationProject, /PILOTE PRIVÉ EN LIGNE · 0 \$ D’HÉBERGEMENT/);
+assert.match(applicationProject, /Pilote privé en développement/);
+assert.match(applicationProject, /data-atlas-release="0\.2\.0"/);
+assert.match(applicationProject, /application-historique-cadrage-2026/);
 assert.match(applicationProject, /Aucun fichier ni contenu correspondant n’a été reçu dans communication@ ou dans le Cockpit/);
 assert.match(applicationProject, /aucune validation, approbation ou action de production n’est déduite/);
 assert.match(applicationProject, /Cahier des charges fonctionnel/);

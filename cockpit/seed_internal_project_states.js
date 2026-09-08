@@ -6,7 +6,7 @@ const allowedStages = new Set(["to_frame", "planned", "active", "blocked", "comp
 const defaults = {
   "nettoyage-berges-2026": "active",
   "lamproie-du-nord": "planned",
-  "application-carte-vivante-lac": "to_frame",
+  "application-carte-vivante-lac": "active",
   "jardins-pluie-2027": "to_frame",
   "parc-lobadanaki": "active",
   "bilan-sante-lac": "active",
