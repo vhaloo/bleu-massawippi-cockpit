@@ -41,33 +41,13 @@ assert.deepEqual(archiveOpened, { active: true, archived: 2 }, "L’ouverture do
 assert.equal(document.querySelector("[data-toggle-internal-project-archives]")?.textContent, "Masquer les archives (2)", "Le libellé ouvert ne doit plus perdre sa parenthèse.");
 assert.equal(document.querySelector("[data-internal-project-archive-summary]")?.hidden, false, "Un résumé visible doit confirmer que les archives sont ouvertes.");
 assert.match(document.querySelector("[data-internal-project-archive-summary]")?.textContent || "", /2 projets archivés affichés en premier/);
-assert.equal(applicationProject?.dataset.initialStage, "active", "Le mandat explicite du 8 septembre autorise le pilote privé sans annoncer un lancement public.");
-assert.equal(applicationProject?.dataset.waitingSource, "functional-spec-pending", "Le dossier doit rester explicitement en attente du cahier des charges annoncé.");
-assert.match(applicationProject?.textContent || "", /Pilote privé en développement/);
-assert.equal(applicationProject?.querySelector("#application-historique-cadrage-2026")?.hasAttribute("open"), false, "Les anciens budgets et restrictions doivent rester dans un historique fermé.");
-assert.equal(applicationProject?.querySelector('[href="https://atlas-bleu-massawippi.web.app"]')?.textContent, "Ouvrir le pilote privé ↗");
-assert.match(applicationProject?.textContent || "", /Aucun fichier ni contenu correspondant n’a été reçu/);
-assert.match(applicationProject?.textContent || "", /aucune validation, approbation ou action de production n’est déduite/);
-assert.match(applicationProject?.textContent || "", /ÉcoAction volet 2/);
-assert.match(applicationProject?.textContent || "", /23 septembre 2026 à 15 h/);
-assert.match(applicationProject?.textContent || "", /25 000 \$ à 200 000 \$/);
-assert.match(applicationProject?.textContent || "", /contrepartie non fédérale minimale de 50 %/);
-assert.match(applicationProject?.textContent || "", /aucune demande, production, dépense ou promesse de partenariat n’est autorisée/);
-assert.equal(
-  applicationProject?.querySelector('[href="./project-documents/Note_decision_EcoAction_carte_vivante_2026-09-02.md"]')?.textContent,
-  "Ouvrir la note ÉcoAction ↗",
-  "La note de préqualification datée doit rester accessible depuis le projet."
-);
-assert.equal(
-  applicationProject?.querySelector('[href="./project-documents/Cadrage_application_Massawippi_en_partage_2026-08-17.md"]')?.textContent,
-  "Ouvrir le cadrage consolidé ↗",
-  "Le cadrage consolidé doit utiliser la copie livrée avec le cockpit plutôt qu’un lien SharePoint 404."
-);
-assert.equal(
-  applicationProject?.querySelector('[href="./project-documents/Inventaire_courriels_Annie_application_2026-09-02.md"]')?.textContent,
-  "Ouvrir l’inventaire des courriels ↗",
-  "L’inventaire daté des courriels d’Annie doit rester accessible depuis le projet."
-);
+assert.equal(applicationProject?.dataset.initialStage, "active", "La version d’essai reste dans les projets actifs.");
+assert.equal(applicationProject?.dataset.waitingSource, undefined, "La fiche courante doit présenter l’état réel du développement.");
+assert.equal(applicationProject?.querySelector('[href="https://atlas-bleu-massawippi.web.app"]')?.textContent, "Essayer Atlas bleu ↗");
+assert.match(applicationProject?.textContent || "", /thème sombre, clair ou papier/);
+assert.match(applicationProject?.textContent || "", /analyses de l’eau restent à intégrer/);
+assert.doesNotMatch(applicationProject?.textContent || "", /Codex|intelligence artificielle|autorisé|approbation|contrepartie non fédérale/);
+assert.equal(applicationProject?.querySelectorAll('[data-internal-project-controls]').length, 1, "Les contrôles et retours du projet restent accessibles.");
 assert.match(ecoActionOpportunity?.textContent || "", /23 SEPTEMBRE · 15 H/);
 assert.match(ecoActionOpportunity?.textContent || "", /25 000 \$ à 200 000 \$/);
 assert.match(ecoActionOpportunity?.textContent || "", /nouveau pilote 2027/);

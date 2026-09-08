@@ -1096,34 +1096,11 @@ assert.match(source, /AU_BORD_DU_BLEU_INDEX_CLOTURE_ARCHIVES_2026-09-01\.md/,
 assert.match(source, /ARCHIVES%20-%20cl%C3%B4ture%20finale%20-%202026-09-01/,
   "La fiche archivée doit mener au dossier SharePoint final sans exposer le lien photo privé.");
 const applicationProject = source.match(/<details class="internal-project" id="internal-project-application-carte-vivante-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
-assert.match(applicationProject, /data-waiting-source="functional-spec-pending"/);
-assert.match(applicationProject, /PILOTE PRIVÉ EN LIGNE · 0 \$ D’HÉBERGEMENT/);
-assert.match(applicationProject, /Pilote privé en développement/);
+assert.match(applicationProject, /VERSION D’ESSAI DISPONIBLE/);
 assert.match(applicationProject, /data-atlas-release="0\.2\.0"/);
-assert.match(applicationProject, /application-historique-cadrage-2026/);
-assert.match(applicationProject, /Aucun fichier ni contenu correspondant n’a été reçu dans communication@ ou dans le Cockpit/);
-assert.match(applicationProject, /aucune validation, approbation ou action de production n’est déduite/);
-assert.match(applicationProject, /Cahier des charges fonctionnel/);
-assert.match(applicationProject, /Rétroaction · 19–20 août · fichier non reçu/);
-assert.match(applicationProject, /résumé « Prototype Alpha 0\.0\.1 » reçu d’Annie est maintenant intégré au cadrage/);
-assert.match(applicationProject, /estimation de 60–80 % doit être vérifiée livrable par livrable/);
-assert.match(applicationProject, /Aucun code, prototype fonctionnel, achat, partenaire, échéance publique ni lancement n’est autorisé/);
-assert.match(applicationProject, /Cadrage_application_Massawippi_en_partage_2026-08-17\.md/);
-assert.match(applicationProject, /Note_decision_EcoAction_carte_vivante_2026-09-02\.md/);
-assert.match(applicationProject, /Inventaire_courriels_Annie_application_2026-09-02\.md/);
-assert.match(applicationProject, /Découverte à documenter, pas à développer/);
-assert.match(applicationProject, /application-reference-lakepulse/);
-assert.match(applicationProject, /dernière date de prélèvement au 11 juillet 2017/,
-  "L’observation transmise par la direction doit rester attribuée à la fiche consultée.");
-assert.match(applicationProject, /source, sa date, sa fréquence de mise à jour et son niveau de fraîcheur/,
-  "La piste LakePulse doit produire un garde-fou explicite sur la fraîcheur des données.");
-assert.match(applicationProject, /ne doivent pas servir directement à la recherche scientifique/,
-  "Le cockpit ne doit pas présenter les résultats de diffusion de LakePulse comme des données scientifiques actuelles.");
-assert.match(applicationProject, /Yannick Huot/);
-assert.match(applicationProject, /https:\/\/lakepulse\.ca\/lakeportal\/fr\//);
-assert.match(applicationProject, /usherbrooke\.ca\/geomatique\/departement\/personnel\/personnel-enseignant\/yannick-huot/);
-assert.match(applicationProject, /Prendre contact seulement après un premier cadrage, un intérêt municipal et une piste de financement/,
-  "La référence universitaire doit demeurer une piste conditionnelle, pas un partenariat annoncé.");
+assert.match(applicationProject, /Essayer Atlas bleu/);
+assert.match(applicationProject, /Les essais actuels sont clairement marqués comme exercices/);
+assert.doesNotMatch(applicationProject, /data-waiting-source|Codex|intelligence artificielle|Valentin a autorisé|application-historique-cadrage-2026/);
 const fundProject = source.match(/<details class="internal-project" id="internal-project-fonds-environnemental"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
 assert.match(fundProject, /fonds-environnemental-partenarial/);
 assert.match(fundProject, /Environnement en actions/);
