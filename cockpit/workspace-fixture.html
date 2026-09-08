@@ -1,6 +1,7 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cockpit V2 · essai local</title><style>*{box-sizing:border-box}body{margin:0}button,input,textarea{font:inherit;padding:10px;border:1px solid #ccd9d5;border-radius:7px;background:#fff;color:#17424a}button{cursor:pointer}.cockpit-workflow-gates{display:grid;gap:10px}.cockpit-media-preview{display:block}.cockpit-media-info-body{padding:12px}.vm-panel{padding:20px}#cockpit-session{display:flex;color:white}#cockpit-announcer{position:absolute;width:1px;height:1px;overflow:hidden}.copy button{float:right}.copy p{margin-top:12px}.cockpit-comment-row{display:grid;gap:10px}</style></head><body><script type="module">
 import { fixtureHTML, mockAPI } from "./workspace-test-fixture.mjs";
 import { mountWorkspace } from "./workspace-v2.js";
+import { buildFeedbackWidget } from "./feedback-widget.mjs";
 document.body.insertAdjacentHTML("afterbegin", fixtureHTML);
 const role = new URLSearchParams(location.search).get("role") === "director" ? "director" : "admin";
 const api = mockAPI(document, window, role);
@@ -8,6 +9,9 @@ await import("./motion.js");
 dispatchEvent(new CustomEvent("cockpit:session-ready"));
 const theme = document.createElement("button"); theme.textContent = "Clair / sombre (test local)"; document.querySelector("#cockpit-session").append(theme);
 theme.onclick = () => { document.documentElement.dataset.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; };
+const feedbackStyle = document.createElement('style');
+feedbackStyle.textContent = '#cockpit-feedback-panel{display:none;position:fixed;padding:20px;border:1px solid;border-radius:15px}#cockpit-feedback-panel.open{display:block}#cockpit-feedback-panel textarea{width:100%;min-height:120px}#cockpit-feedback-panel form{display:grid;gap:10px}'; document.head.append(feedbackStyle);
+buildFeedbackWidget({ document, formMarkup: '<form data-feedback-form="cockpit"><label>Votre idée<textarea placeholder="Une recommandation pour le cockpit…"></textarea></label><button type="submit">Envoyer (simulation locale)</button><p data-feedback-result></p></form>', onSubmit: form => { form.querySelector('[data-feedback-result]').textContent = 'Simulation réussie — aucune donnée envoyée.'; } });
 const workspace = mountWorkspace(api);
 document.addEventListener("click", event => { const b = event.target.closest("[data-choose]"); if (b) { b.textContent = b.textContent === "Choisir ce visuel" ? "Choix local enregistré · retirer" : "Choisir ce visuel"; } });
 </script></body></html>

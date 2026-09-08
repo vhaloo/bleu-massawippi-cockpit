@@ -4,6 +4,7 @@ import { parseHTML } from "linkedom";
 import { monthDays, validCivilDate, sortPublications, parseRoute, routeHash, filterPublications, todayKey, isPastDate, publicationState, publicationProgress, safeLink, publicationNeighbours, previewCandidates, interfaceUrl, workspaceIcon } from "./workspace-model.mjs";
 import { fixtures, fixtureHTML, mockAPI } from "./workspace-test-fixture.mjs";
 import { mountWorkspace } from "./workspace-v2.js";
+import { buildFeedbackWidget } from "./feedback-widget.mjs";
 let checks = 0;
 function check(label, run) { run(); checks++; console.log("✓ " + label); }
 check("dates civiles et années bissextiles", () => { assert(validCivilDate("2028-02-29")); assert(!validCivilDate("2026-02-29")); assert(!validCivilDate("2026-13-01")); });
@@ -82,10 +83,17 @@ const api=mockAPI(document,window); const sourceJSON=JSON.stringify(fixtures);
 const controls=[...document.querySelectorAll("button,input,textarea,a,details")];
 const utility = document.createElement("button"); utility.id = "cockpit-health-launch"; utility.textContent = "Diagnostic"; document.body.append(utility);
 let utilityClicks = 0; utility.addEventListener("click", () => utilityClicks++);
+let ideaSubmits = 0;
+const ideas = buildFeedbackWidget({ document, formMarkup: '<form data-feedback-form="cockpit"><textarea></textarea><button type="submit">Envoyer</button></form>', onSubmit: () => ideaSubmits++ });
 let clicked=0; const originalChoose=document.querySelector('[data-choose="one"]'); originalChoose.addEventListener("click",()=>clicked++);
 const workspace=mountWorkspace(api);
 check("montage opt-in et quatre espaces",()=>{assert.equal(document.documentElement.dataset.workspace,"v2");assert.equal(document.querySelectorAll("[data-v2-space]").length,4);});
 check("outils originaux regroupés sans superposition ni perte de gestionnaire",()=>{assert(utility.closest('.v2-utilities'));utility.click();assert.equal(utilityClicks,1);assert(!utility.closest('details').open);});
+check("boîte à idées accessible directement, hors des outils repliés", () => {
+  assert(ideas.launch.closest('.v2-global-actions')); assert(!ideas.launch.closest('details'));
+  ideas.launch.click(); assert(!ideas.panel.hidden); ideas.panel.querySelector('textarea').value = "Mon idée globale";
+  ideas.panel.querySelector('[data-feedback-close]').click(); assert(ideas.panel.hidden); assert.equal(ideaSubmits, 0);
+});
 workspace.navigate("#/publications/test-first");
 check("ordre DOM texte, médias, décisions, conversation et détails préservés", () => {
   const body = document.querySelector('[data-item-id="test-first"] .v2-publication-body');
@@ -178,9 +186,16 @@ check("calendrier projet original conservé",()=>{assert(document.querySelector(
 workspace.navigate("#/projets?vue=archives");
 check("projets archivés consultables sans réactivation",()=>{assert(document.querySelector('a[href="#/projets/test-archive"]'));workspace.navigate("#/projets/test-archive");assert(document.querySelector(".internal-project.is-archived[data-v2-target]"));});
 workspace.navigate("#/bibliotheque");
+check("recommandation conservée en changeant d’espace, sans envoi implicite", () => {
+  assert.equal(document.querySelector('#cockpit-feedback-launch'), ideas.launch);
+  assert.equal(ideas.panel.querySelector('textarea').value, "Mon idée globale"); assert.equal(ideaSubmits, 0);
+});
 check("bibliothèque garde les liens des originaux",()=>assert(document.querySelector('a[href="https://example.org/archive.pdf"]')));
 workspace.destroy();
 check("retour classique restaure aussi les outils",()=>{assert.equal(utility.parentElement,document.body);utility.click();assert.equal(utilityClicks,2);});
+check("retour V1 conserve la boîte à idées et sa saisie", () => {
+  assert.equal(ideas.launch.parentElement, document.body); assert.equal(ideas.panel.querySelector('textarea').value, "Mon idée globale");
+});
 check("démontage restaure les nœuds et l’interface classique",()=>{assert(controls.every(n=>n.isConnected));assert(!document.documentElement.dataset.workspace);assert(!document.querySelector("#workspace-v2"));assert(document.querySelector('.post>.cockpit-controls>[data-workflow], .post>.cockpit-controls>.cockpit-workflow'));assert.equal(document.querySelector('[data-choose="one"]'),originalChoose);});
 const ui=await fs.readFile(new URL("./cockpit-ui.js",import.meta.url),"utf8");
 const v2=await fs.readFile(new URL("./workspace-v2.js",import.meta.url),"utf8");
@@ -222,6 +237,13 @@ check("les pseudo-éléments d’animation ne peuvent plus couvrir la page",()=>
 const directorWorkspace=mountWorkspace({...api,profile:{uid:"director-test",role:"director"}});
 directorWorkspace.navigate("#/publications/test-first");
 check("Annie garde les mêmes fonctions de lecture sans accès au Studio",()=>{assert(document.querySelector('[data-v2-history]'));assert(!document.querySelector('[data-v2-edit]'));assert(!document.querySelector('[data-v2-studio]'));assert(document.querySelector('.v2-classic-link'));});
+check("Annie peut ouvrir sa boîte globale dans toutes les vues de la V2", () => {
+  for (const route of ['#/accueil', '#/publications?vue=calendrier', '#/projets', '#/bibliotheque']) {
+    directorWorkspace.navigate(route); assert(ideas.launch.closest('.v2-global-actions')); ideas.launch.click(); assert(!ideas.panel.hidden);
+    ideas.panel.querySelector('[data-feedback-close]').click(); assert(ideas.panel.hidden);
+  }
+  assert.equal(ideaSubmits, 0);
+});
 directorWorkspace.destroy();
 check("aucun writer Firebase parallèle et activation explicite",()=>{assert(!/setDoc|updateDoc|writeBatch|savePublicationContent|deleteDoc/.test(v2));assert(ui.includes('get("interface") === "v2"'));});
 console.log(`✓ ${checks} contrôles V2 : calendrier, galerie, droits d’interface, versions et conservation.`);

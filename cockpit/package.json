@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "preview:v2": "node preview_workspace_v2.mjs",
-    "test:workspace-v2": "node --check workspace-adapter.js && node --check workspace-v2.js && node test_workspace_v2.mjs",
+    "test:workspace-v2": "node --check workspace-adapter.js && node --check workspace-v2.js && node test_workspace_v2.mjs && node test_feedback_widget.mjs",
     "schedule:check": "node schedule_reconciliation.mjs --from=2026-08-17",
     "sync": "node admin_sync.js",
     "editor": "node publication_editor_cli.mjs",
@@ -58,7 +58,7 @@
     "test:monthly-snapshot": "node test_monthly_snapshot_state.mjs",
     "test:publication-editor": "node test_publication_editor_schema.mjs",
     "test:editor-studio": "node test_editor_studio_contract.mjs",
-    "test:editor-cli": "node --check publication_editor_cli.mjs && node test_publication_editor_cli_contract.mjs",
+    "test:editor-cli": "node --check publication_editor_cli.mjs && node test_publication_editor_cli_contract.mjs && node test_publication_editor_cli_behavior.mjs",
     "test:editor-rules": "npx firebase-tools@15.23.0 emulators:exec --only firestore --project cockpit-publication-editor-test --config firebase.emulator.json \"node test_publication_editor_rules_emulator.mjs\"",
     "test:control-hints": "node --check control-hints.js && node test_control_hints.mjs",
     "test:seeds": "node test_seed_idempotence_contract.mjs",
