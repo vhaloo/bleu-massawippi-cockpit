@@ -1,6 +1,6 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20260908-b79";
-import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260908-b79";
-import { openPublicationStudio } from "./editor-studio.js?v=20260908-b79";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20260908-b80";
+import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260908-b80";
+import { openPublicationStudio } from "./editor-studio.js?v=20260908-b80";
 import { interfaceUrl } from "./workspace-model.mjs";
 
 export function setupInterfaceSwitch(profile) {

@@ -43,9 +43,9 @@ assert.equal(document.querySelector("[data-internal-project-archive-summary]")?.
 assert.match(document.querySelector("[data-internal-project-archive-summary]")?.textContent || "", /2 projets archivés affichés en premier/);
 assert.equal(applicationProject?.dataset.initialStage, "active", "La version d’essai reste dans les projets actifs.");
 assert.equal(applicationProject?.dataset.waitingSource, undefined, "La fiche courante doit présenter l’état réel du développement.");
-assert.equal(applicationProject?.querySelector('[href="https://atlas-bleu-massawippi.web.app"]')?.textContent, "Essayer Atlas bleu ↗");
+assert.equal(applicationProject?.querySelector('[href="https://atlas-bleu-massawippi.web.app"]')?.textContent, "Ouvrir Atlas bleu ↗");
 assert.match(applicationProject?.textContent || "", /thème sombre, clair ou papier/);
-assert.match(applicationProject?.textContent || "", /analyses de l’eau restent à intégrer/);
+assert.match(applicationProject?.textContent || "", /raccorder davantage de mesures de l’eau/);
 assert.doesNotMatch(applicationProject?.textContent || "", /Codex|intelligence artificielle|autorisé|approbation|contrepartie non fédérale/);
 assert.equal(applicationProject?.querySelectorAll('[data-internal-project-controls]').length, 1, "Les contrôles et retours du projet restent accessibles.");
 assert.match(ecoActionOpportunity?.textContent || "", /23 SEPTEMBRE · 15 H/);

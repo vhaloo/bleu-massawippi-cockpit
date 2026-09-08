@@ -99,15 +99,17 @@ const EDITORIAL_OVERRIDES_JUL27_AUG09 = {
     visual: "Infographie illustrée comme un petit voyage : une goutte tombe sur un toit ou un jardin, rejoint un fossé, un tributaire puis le lac; chemin clair, paysage accueillant, palette pluie-vert-lac."
   },
   s4d6: {
-    title: "Sur le terrain, une mesure à la fois",
-    cta: "Découvrir les gestes du suivi de l’eau",
-    format: "Photographie documentaire + légende bilingue",
-    role: "Faire découvrir la précision et la régularité du suivi de l’eau, sans présenter cette photographie extérieure comme une activité de Bleu Massawippi.",
-    task: "Conserver le crédit et le lieu explicites dans la légende, faire relire le texte adapté et choisir le média autorisé. Ne pas reprendre l’ancienne photo interne tant que ses droits ne sont pas confirmés.",
-    copy: "FR — Préparer, observer, mesurer, noter, recommencer.\n\nLe suivi de l’eau repose sur des gestes précis, répétés avec soin. Une mesure prend tout son sens lorsqu’on sait où, quand et comment elle a été recueillie, et qu’on peut la comparer à d’autres observations.\n\nDerrière les données, il y a ce travail patient. Merci de vous intéresser à ce qui nous aide à mieux comprendre les milieux aquatiques.\n\nPhoto d’illustration : scientifiques de l’USGS sur le haut Mississippi, aux États-Unis; ce n’est pas le lac Massawippi. Crédit : Jerry Cox, USGS — domaine public.\n\n#Terrain #BleuMassawippi #ScienceDeLEau\n\n=========================================\n\nEN — Prepare, observe, measure, record and begin again.\n\nWater monitoring relies on careful, repeated steps. A measurement becomes meaningful when we know where, when and how it was taken, and can compare it with other observations.\n\nBehind the data is patient fieldwork. Thank you for taking an interest in what helps us better understand aquatic environments.\n\nIllustrative photograph: USGS scientists on the Upper Mississippi River, United States; this is not Lake Massawippi. Credit: Jerry Cox, USGS — public domain.\n\n#Fieldwork #BleuMassawippi #WaterScience",
-    source: "Jerry Cox, USGS, Upper Midwest Environmental Sciences Center; photographie de terrain du haut Mississippi, vers 2007, domaine public. https://www.usgs.gov/media/images/usgs-scientists-collecting-water-samples-a-lake",
-    visual: "Photographie documentaire USGS non modifiée montrant deux scientifiques qui mesurent l’eau depuis une embarcation. Légende obligatoire : lieu extérieur au Massawippi, crédit Jerry Cox / USGS. L’ancienne photographie interne demeure en référence, avec ses droits non confirmés."
-  },
+  "title": "La qualité de l’eau se suit sur le terrain",
+  "cta": "Découvrir le suivi du Massawippi",
+  "format": "Photographie documentaire + légende bilingue",
+  "role": "Montrer un geste réel de Bleu et expliquer le suivi des paramètres de qualité de l’eau du lac et des tributaires, poursuivi à l’été 2026.",
+  "task": "Relire la légende ancrée au Massawippi, confirmer le crédit et le consentement de diffusion de la photo interne, puis soumettre le texte et le média à Annie.",
+  "copy": "FR — La qualité de l’eau se suit sur le terrain.\n\nSur cette photo de nos archives, un échantillon d’eau est préparé à bord d’une embarcation. Ce geste fait partie d’un travail plus large : prélever, mesurer les paramètres de qualité de l’eau, consigner les observations et comparer les résultats dans le temps.\n\nCet été encore, Bleu a poursuivi le suivi du lac et de ses tributaires. Ces données nous aident à mieux comprendre leur évolution et à nourrir les échanges sur la protection du Massawippi.\n\nObserver le lac, c’est un début. Le suivre avec rigueur, c’est se donner les moyens de mieux le protéger.\n\nPhoto : archives de Bleu Massawippi, 2025.\n#BleuMassawippi #LacMassawippi #QualitéDeLEau\n\n=========================================\n\nEN — Understanding water quality starts in the field.\n\nIn this photograph from our archives, a water sample is being prepared during Bleu Massawippi fieldwork. This step is part of a broader process: collecting samples, measuring water-quality parameters, recording observations and comparing results over time.\n\nAgain this summer, Bleu continued monitoring the lake and its tributaries. These data help us understand how they change and inform conversations about protecting Massawippi.\n\nLooking at the lake is a starting point. Monitoring it carefully gives us a stronger basis for protecting it.\n\nPhoto: Bleu Massawippi archives, 2025.\n#BleuMassawippi #LakeMassawippi #WaterQuality",
+  "source": "Archives photographiques internes Bleu Massawippi, IMG_0377.jpg (2025); rapport estival du président du 25 août 2026, suivi du lac et des tributaires.",
+  "visual": "Photographie interne réelle IMG_0377.jpg, dossier Photos/2025/Stagiaires bleu massawippi : préparation d’un échantillon d’eau à bord. Conserver le contexte d’archive 2025. Crédit et autorisation de diffusion à confirmer; aucune retouche générative.",
+  "kpi": "Partages, enregistrements et questions pertinentes",
+  "fallback": "Conserver le brouillon si le crédit ou les autorisations de la photo ne sont pas confirmés."
+},
   s4d7: {
     title: "À vous de choisir la suite",
     cta: "Voter A, B, C ou D",
