@@ -53,6 +53,7 @@ jobs:
           npm --prefix cockpit run test:editor-cli
           npm --prefix cockpit run test:editor-rules
           npm --prefix cockpit run test:workspace-v2
+          npm --prefix cockpit run test:theme
           npm --prefix cockpit run test:resilience
       - name: Vérifier l’absence de secrets locaux
         run: |

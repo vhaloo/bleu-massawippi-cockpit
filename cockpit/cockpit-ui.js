@@ -1,4 +1,4 @@
-import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20260908-b79";
+import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20260908-b80";
 import {
   getClientState,
   waitForClientReady,
@@ -37,24 +37,24 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260908-b79";
-import { createEventContextController } from "./event-context-data.js?v=20260908-b79";
-import { mergeEventWindow } from "./event-context-window.mjs?v=20260908-b79";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260908-b79";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260908-b79";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260908-b79";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260908-b79";
-import { workflowMarkup, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260908-b79";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260908-b79";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260908-b79";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260908-b79";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260908-b79";
-import { setupControlHints } from "./control-hints.js?v=20260908-b79";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260908-b79";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260908-b79";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260908-b79";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260908-b79";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260908-b79";
+} from "./firebase-client.js?v=20260908-b80";
+import { createEventContextController } from "./event-context-data.js?v=20260908-b80";
+import { mergeEventWindow } from "./event-context-window.mjs?v=20260908-b80";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260908-b80";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260908-b80";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260908-b80";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260908-b80";
+import { workflowMarkup, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260908-b80";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260908-b80";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260908-b80";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260908-b80";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260908-b80";
+import { setupControlHints } from "./control-hints.js?v=20260908-b80";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260908-b80";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260908-b80";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260908-b80";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260908-b80";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260908-b80";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -1908,7 +1908,7 @@ function renderMediaForCard(card) {
     const mediaUpdatedAt = stateTimestampMillis(row.updatedAt || row.createdAt);
     return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}${choice.communicationsSelected ? " is-recommended" : ""}${choice.directionSelected ? " is-direction-selected" : ""}${choice.divergent && !choice.directionSelected ? " is-divergent" : ""}${isBlocked ? " is-blocked" : ""}" data-media-id="${esc(row.id)}" data-media-stage="${esc(row.stage || "reference")}" data-media-updated-at="${mediaUpdatedAt}" data-media-selected-final="${String(isFinal)}" data-media-communications-selected="${String(choice.communicationsSelected)}" data-media-direction-selected="${String(choice.directionSelected)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
-      ${["director","admin"].includes(role) && !isBlocked ? `<button type="button" class="cockpit-media-image-choice${imageChoiceClass}" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}" aria-label="${esc(imageChoiceLabel)} — ${esc(row.label || "média")}">${esc(imageChoiceLabel)}</button>` : isBlocked ? `<span class="cockpit-media-image-status">Référence seulement</span>` : ""}
+      ${["director","admin"].includes(role) && !isBlocked ? `<button type="button" class="cockpit-media-image-choice${imageChoiceClass}" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}" aria-label="${esc(imageChoiceLabel)} — ${esc(row.label || "média")}">${esc(imageChoiceLabel)}</button>` : isBlocked ? `<span class="cockpit-media-image-status">${rightsNeedConfirmation ? "Droits à confirmer · ouvrir Informations et actions" : "Référence seulement"}</span>` : ""}
       <details class="cockpit-media-info" open><summary><span>Informations et actions</span><small class="cockpit-media-info-status ${isFinal ? "is-final" : ""}">${infoStatus}</small></summary><div class="cockpit-media-info-body">
         ${rightsNeedConfirmation && ["director","admin"].includes(role) ? `<label class="cockpit-media-rights-control${rightsConfirmed ? " is-confirmed" : ""}"><input type="checkbox" data-media-rights-confirmation="${esc(row.id)}"${rightsConfirmed ? " checked" : ""}><span><b>${rightsConfirmed ? "✓ Droits confirmés" : "Droits de diffusion à confirmer"}</b><small>${rightsConfirmed ? `Confirmés par ${esc(row.rightsConfirmedByLabel || "un membre de l’équipe")}. Décochez pour remettre ce point en attente.` : "Cochez seulement après avoir vérifié la source, le crédit et les autorisations nécessaires."}</small></span></label>` : ""}
         ${isBlocked && rightsNeedConfirmation ? `<span class="cockpit-media-rights-warning">⚠ Ce média reste une référence interne tant que les droits ne sont pas confirmés.</span>` : ""}
