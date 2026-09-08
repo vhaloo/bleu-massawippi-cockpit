@@ -35,9 +35,9 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260908-b79";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20260908-b79";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20260908-b79";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260908-b80";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20260908-b80";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20260908-b80";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);

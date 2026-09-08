@@ -840,12 +840,19 @@ const s4d6RealPhoto = editorialMedia.find((item) => item.id === "editorial-s4d6-
 assert.ok(s4d6RealPhoto, "Le 10 septembre doit proposer une vraie photographie montrant des humains.");
 assert.equal(s4d6RealPhoto.eventId, "s4d6");
 assert.equal(s4d6RealPhoto.stage, "reference");
-const s4d6UsableAlternative = editorialMedia.find(item => item.id === "editorial-s4d6-usgs-water-sampling-v4");
-assert.equal(s4d6UsableAlternative.stage, "proposal");
-assert.equal(s4d6UsableAlternative.publicationBlocked, false);
-assert.match(s4d6UsableAlternative.rightsStatus, /Domaine public/);
-assert.match(posts.find(post => post.id === "s4d6").copy, /ce n’est pas le lac Massawippi/);
-assert.match(posts.find(post => post.id === "s4d6").copy, /this is not Lake Massawippi/);
+const s4d6ArchivedExternal = editorialMedia.find(item => item.id === "editorial-s4d6-usgs-water-sampling-v4");
+assert.equal(s4d6ArchivedExternal.stage, "archived");
+assert.equal(s4d6ArchivedExternal.archived, true);
+assert.match(s4d6ArchivedExternal.rightsStatus, /Domaine public/);
+const s4d6InternalProposal = editorialMedia.find(item => item.id === "editorial-s4d6-internal-sampling-v5");
+assert.equal(s4d6InternalProposal.stage, "proposal");
+assert.equal(s4d6InternalProposal.reuseMediaId, s4d6RealPhoto.id);
+assert.equal(s4d6InternalProposal.publicationBlocked, true,
+  "La nouvelle proposition interne conserve la confirmation des droits avant diffusion.");
+const s4d6Caption = posts.find(post => post.id === "s4d6").copy;
+assert.match(s4d6Caption, /paramètres/);
+assert.match(s4d6Caption, /2025/);
+assert.doesNotMatch(s4d6Caption, /Mississippi|USGS|ce n’est pas le lac Massawippi|this is not Lake Massawippi/i);
 assert.equal(s4d6RealPhoto.publicationBlocked, true,
   "La nouvelle photographie humaine ne doit pas contourner la confirmation du crédit et des consentements.");
 assert.match(s4d6RealPhoto.altText, /Photographie réelle[\s\S]*membre de l’équipe[\s\S]*instrument de mesure/i);
@@ -1075,7 +1082,9 @@ assert.match(shorelineCleanupProject, /Nettoyage des berges — North Hatley et 
 assert.match(shorelineCleanupProject, /19 septembre/);
 assert.match(shorelineCleanupProject, /20 septembre/);
 assert.match(shorelineCleanupProject, /COGESAF/);
-assert.match(shorelineCleanupProject, /North Hatley n’a pas encore répondu/);
+assert.match(shorelineCleanupProject, /North Hatley a donné un accord verbal/);
+assert.match(shorelineCleanupProject, /relancer le COGESAF le jeudi 10 septembre/);
+assert.match(shorelineCleanupProject, /1 000 \$ pour deux jours, sans réservation ni dépense engagée/);
 assert.match(shorelineCleanupProject, /NettoyageBerges_projet2026_BM\.docx/);
 assert.equal((shorelineCleanupProject.match(/class="internal-project-document-card"/g) || []).length, 4,
   "Le projet de nettoyage doit présenter le document maître, le dossier SharePoint, son index et le gabarit réutilisable sous forme de cartes.");
