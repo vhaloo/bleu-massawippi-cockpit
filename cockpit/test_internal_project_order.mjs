@@ -41,9 +41,11 @@ assert.deepEqual(archiveOpened, { active: true, archived: 2 }, "L’ouverture do
 assert.equal(document.querySelector("[data-toggle-internal-project-archives]")?.textContent, "Masquer les archives (2)", "Le libellé ouvert ne doit plus perdre sa parenthèse.");
 assert.equal(document.querySelector("[data-internal-project-archive-summary]")?.hidden, false, "Un résumé visible doit confirmer que les archives sont ouvertes.");
 assert.match(document.querySelector("[data-internal-project-archive-summary]")?.textContent || "", /2 projets archivés affichés en premier/);
-assert.equal(applicationProject?.dataset.initialStage, "to_frame", "Le cahier annoncé ne doit pas transformer le cadrage en production active ou terminée.");
+assert.equal(applicationProject?.dataset.initialStage, "active", "Le mandat explicite du 8 septembre autorise le pilote privé sans annoncer un lancement public.");
 assert.equal(applicationProject?.dataset.waitingSource, "functional-spec-pending", "Le dossier doit rester explicitement en attente du cahier des charges annoncé.");
-assert.match(applicationProject?.textContent || "", /Décision de préqualification/);
+assert.match(applicationProject?.textContent || "", /Pilote privé en développement/);
+assert.equal(applicationProject?.querySelector("#application-historique-cadrage-2026")?.hasAttribute("open"), false, "Les anciens budgets et restrictions doivent rester dans un historique fermé.");
+assert.equal(applicationProject?.querySelector('[href="https://atlas-bleu-massawippi.web.app"]')?.textContent, "Ouvrir le pilote privé ↗");
 assert.match(applicationProject?.textContent || "", /Aucun fichier ni contenu correspondant n’a été reçu/);
 assert.match(applicationProject?.textContent || "", /aucune validation, approbation ou action de production n’est déduite/);
 assert.match(applicationProject?.textContent || "", /ÉcoAction volet 2/);
