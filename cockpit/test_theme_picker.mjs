@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import { parseHTML } from 'linkedom';
+const script = fs.readFileSync(new URL('./theme.js', import.meta.url), 'utf8');
+function boot(saved, blocked = false) {
+  const { document, window } = parseHTML('<html><head></head><body></body></html>');
+  const storage = new Map(saved ? [['bleu-massawippi-theme', saved]] : []);
+  const listeners = [];
+  const media = { matches: true, addEventListener: (_, fn) => listeners.push(fn) };
+  const context = vm.createContext({ document, matchMedia: () => media, addEventListener() {}, localStorage: { getItem: k => { if (blocked) throw Error('disabled'); return storage.get(k); }, setItem: (k,v) => { if (blocked) throw Error('disabled'); storage.set(k,v); } } });
+  vm.runInContext(script, context);
+  return { document, window, context, storage, listeners };
+}
+const first = boot();
+assert.equal(first.document.documentElement.dataset.theme, 'dark');
+vm.runInContext('setTheme("paper", true)', first.context);
+assert.equal(first.storage.get('bleu-massawippi-theme'), 'paper');
+assert.equal(first.document.documentElement.style.colorScheme, 'light');
+const checked = [...first.document.querySelectorAll('input')].filter(input => input.checked);
+assert.equal(checked.length, 1);
+assert.equal(checked[0].value, 'paper');
+assert.match(first.document.querySelector('[data-theme-toggle]').getAttribute('aria-label'), /Crème–terracotta/);
+const restored = boot('paper');
+assert.equal(restored.document.documentElement.dataset.theme, 'paper');
+restored.listeners.forEach(fn => fn({ matches: true }));
+assert.equal(restored.document.documentElement.dataset.theme, 'paper');
+vm.runInContext('setTheme("unknown", true)', restored.context);
+assert.equal(restored.document.documentElement.dataset.theme, 'paper');
+const privateMode = boot(null, true);
+vm.runInContext('setTheme("paper", true)', privateMode.context);
+assert.equal(privateMode.document.documentElement.dataset.theme, 'paper');
+assert.equal(boot('light').document.documentElement.dataset.theme, 'light');
+console.log('Thèmes : préférence conservée, trois choix exclusifs, stockage indisponible et thème système vérifiés.');

@@ -7,8 +7,7 @@ const role = new URLSearchParams(location.search).get("role") === "director" ? "
 const api = mockAPI(document, window, role);
 await import("./motion.js");
 dispatchEvent(new CustomEvent("cockpit:session-ready"));
-const theme = document.createElement("button"); theme.textContent = "Clair / sombre (test local)"; document.querySelector("#cockpit-session").append(theme);
-theme.onclick = () => { document.documentElement.dataset.theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; };
+await import("./theme.js");
 const feedbackStyle = document.createElement('style');
 feedbackStyle.textContent = '#cockpit-feedback-panel{display:none;position:fixed;padding:20px;border:1px solid;border-radius:15px}#cockpit-feedback-panel.open{display:block}#cockpit-feedback-panel textarea{width:100%;min-height:120px}#cockpit-feedback-panel form{display:grid;gap:10px}'; document.head.append(feedbackStyle);
 buildFeedbackWidget({ document, formMarkup: '<form data-feedback-form="cockpit"><label>Votre idée<textarea placeholder="Une recommandation pour le cockpit…"></textarea></label><button type="submit">Envoyer (simulation locale)</button><p data-feedback-result></p></form>', onSubmit: form => { form.querySelector('[data-feedback-result]').textContent = 'Simulation réussie — aucune donnée envoyée.'; } });
