@@ -1,0 +1,13 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="clarity.css"><title>Validation V2 · test local</title><style>*{box-sizing:border-box}body{margin:0;font-family:system-ui}.copy{white-space:pre-wrap}.cockpit-workflow-gates{display:grid;gap:10px}button{font:inherit}#test-note{padding:14px;background:#fff1da;color:#453221}#test-note a{padding:10px;display:inline-block}</style></head><body><script type="module">
+import {fixtureHTML,mockAPI} from './workspace-test-fixture.mjs';
+import {mountWorkspace} from './workspace-v2.js';
+import {installMediaValidationFixture} from './media-validation-test-fixture.mjs';
+const [source,clientSource]=await Promise.all(['cockpit-ui.js','firebase-client.js'].map(path=>fetch(path).then(r=>r.text())));
+const css=document.createElement('style');css.textContent=source.slice(source.indexOf('style.textContent = `')+21,source.indexOf('`;',source.indexOf('style.textContent = `')));document.head.append(css);
+document.body.innerHTML='<aside id="test-note"><b>Simulation locale · aucune donnée envoyée</b><a href="?interface=v2&role=admin#/publications/test-first">Communications</a><a href="?interface=v2&role=director#/publications/test-first">Direction</a><p data-test-result role="status"></p></aside>'+fixtureHTML;
+const role=new URLSearchParams(location.search).get('role')==='director'?'director':'admin';
+let workspace;
+const h=installMediaValidationFixture({document,window,source,clientSource,role,afterRender:()=>workspace?.refresh()});
+const api=mockAPI(document,window,role);api.getWorkflow=id=>h.state.workflows.get(id);api.getMedia=()=>[...h.state.mediaByEvent.values()].flat();api.getMediaDecision=id=>h.state.mediaDecisions.get(id);api.contentApproved=()=>['media_review','final_approved'].includes(h.state.workflows.get(h.eventId)?.stage);api.mediaApproved=()=>['agreed','overridden'].includes(h.state.mediaDecisions.get(h.eventId)?.agreement?.status);
+workspace=mountWorkspace(api);
+</script></body></html>

@@ -145,11 +145,14 @@ assert.match(actionUi, /item\.dataset\.actionType !== "content_notice"/,
   "Le client doit refuser de fermer un autre type de décision par l’événement de lecture.");
 const mediaReady = buildTaskProgressPresentation(
   { stage:"content_approved" },
-  { direction:{ status:"selected", mediaIds:["media-1"] }, agreement:{ status:"direction_only" } }
+  { direction:{ status:"selected", mediaIds:["media-1"] }, agreement:{ status:"agreed" } }
 );
 assert.equal(mediaReady.className, " workflow-ready");
 assert.match(mediaReady.badge, /✓ Texte et visuel validés/);
 assert.match(mediaReady.markup, /✓ Texte[\s\S]*✓ Visuel[\s\S]*>Terminé</);
+const directionOnly = buildTaskProgressPresentation({stage:"media_review"}, {direction:{status:"selected",mediaIds:["media-1"]},agreement:{status:"pending"}});
+assert.equal(directionOnly.media, false, "Une préférence de la direction sans accord final ne peut pas annoncer la publication prête.");
+assert.equal(directionOnly.badge, "");
 const published = buildTaskProgressPresentation({ stage:"published" });
 assert.equal(published.publication, true);
 assert.match(published.badge, /✓ Terminé/);
