@@ -15,6 +15,9 @@ const sharePointPattern = /^https:\/\/bleumassawippi\.sharepoint\.com\/(?:(?::(?
 const previewPrefix = "https://vhaloo.github.io/bleu-massawippi-cockpit/";
 const requireRegistryCoverage = process.argv.includes("--require-registry-coverage");
 const manifests = [];
+const mediaUiSource = fs.readFileSync(path.join(here, "clarity.css"), "utf8");
+assert.match(mediaUiSource, /\.cockpit-media-card\[data-media-id="editorial-don-20260911-community-gauge-v3"\] \.cockpit-media-preview \{ aspect-ratio:2 \/ 3; grid-template-rows:minmax\(0, 1fr\); \}/, "La jauge verticale doit être visible en entier, sans changer le cadrage des autres médias.");
+assert.match(mediaUiSource, /\.cockpit-media-card\[data-media-id="editorial-don-20260911-community-gauge-v3"\] \.cockpit-media-preview img \{ min-height:0; \}/);
 const registries = new Map();
 let availableRegistries = 0;
 
