@@ -163,13 +163,20 @@ service cloud.firestore {
           && (side.mediaIds.size() < 2 || validSelectableMedia(eventId, side.mediaIds[1])));
     }
 
+    function mediaChoiceAllowed(media) {
+      return media.archived == false
+        && (!('publicationBlocked' in media) || media.publicationBlocked == false
+          || ('rightsConfirmed' in media)
+          || ('rightsStatus' in media && media.rightsStatus is string
+            && media.rightsStatus.matches('(?i).*(à confirmer|a confirmer|unconfirmed|incertain).*')));
+    }
+
     function validSelectableMedia(eventId, mediaId) {
       let path = /databases/$(database)/documents/mediaLinks/$(mediaId);
       let media = getAfter(path).data;
       return existsAfter(path)
         && media.eventId == eventId
-        && media.archived == false
-        && (!('publicationBlocked' in media) || media.publicationBlocked == false);
+        && mediaChoiceAllowed(media);
     }
 
     function validAgreedMediaState(data) {
@@ -292,6 +299,9 @@ service cloud.firestore {
           // choix média, sans permettre aux communications d'effacer un
           // override actif de la direction.
           || (before.override.active == false
+            && data.override.active == false)
+          || (before.override.actorUid == request.auth.uid
+            && before.override.actorRole == 'admin'
             && data.override.active == false)
           || (data.override.active == true
             && data.override.actorUid == request.auth.uid
@@ -775,8 +785,7 @@ service cloud.firestore {
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['selectedFinal', 'approvedAt', 'approvedBy', 'approvedByLabel', 'updatedAt', 'updatedBy'])
             && request.resource.data.selectedFinal is bool
             && (request.resource.data.selectedFinal == false
-              || (resource.data.archived == false
-                && (!('publicationBlocked' in resource.data) || resource.data.publicationBlocked == false)))))
+              || mediaChoiceAllowed(resource.data))))
         && request.resource.data.updatedBy == request.auth.uid;
       allow update: if isEditor()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['publicationBlocked', 'rightsConfirmed', 'rightsConfirmedAt', 'rightsConfirmedBy', 'rightsConfirmedByLabel', 'updatedAt', 'updatedBy'])
@@ -798,17 +807,12 @@ service cloud.firestore {
         && resource.data.archived == false
         && resource.data.rightsConfirmed == true
         && request.resource.data.rightsConfirmed == false
-        && request.resource.data.publicationBlocked == true
+        && request.resource.data.publicationBlocked == false
         && request.resource.data.rightsConfirmedAt == null
         && request.resource.data.rightsConfirmedBy == ''
         && request.resource.data.rightsConfirmedByLabel == ''
         && request.resource.data.updatedAt is timestamp
-        && request.resource.data.updatedBy == request.auth.uid
-        && (!exists(/databases/$(database)/documents/mediaDecisions/$(resource.data.eventId))
-          || (!(mediaId in get(/databases/$(database)/documents/mediaDecisions/$(resource.data.eventId)).data.communications.mediaIds)
-            && !(mediaId in get(/databases/$(database)/documents/mediaDecisions/$(resource.data.eventId)).data.direction.mediaIds)
-            && !(mediaId in get(/databases/$(database)/documents/mediaDecisions/$(resource.data.eventId)).data.override.mediaIds)
-            && !(mediaId in get(/databases/$(database)/documents/mediaDecisions/$(resource.data.eventId)).data.agreement.mediaIds)));
+        && request.resource.data.updatedBy == request.auth.uid;
       allow delete: if false;
     }
 

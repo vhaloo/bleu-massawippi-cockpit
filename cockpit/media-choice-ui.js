@@ -17,17 +17,39 @@ export function buildMediaChoiceModel(hasStructuredChoice, decision, row, latest
     // La direction garde le dernier mot éditorial. Son choix devient donc le
     // visuel final affiché, sans effacer ni réécrire la recommandation distincte
     // des communications. L'accord structuré reste disponible dans l'historique.
-    finalSelected: hasStructuredChoice ? (directionSelected || agreementIds.includes(row.id)) : legacySelected
+    finalSelected: hasStructuredChoice ? (decision?.agreement?.status === "overridden" ? agreementIds.includes(row.id) : (directionSelected || agreementIds.includes(row.id))) : legacySelected
   };
 }
 
 export function mediaImageChoicePresentation(choice, role, myChoiceSelected) {
+  if (myChoiceSelected) return { label: "✓ Mon choix — retirer", className: choice.agreementSelected || choice.sameRoleChoice ? " is-agreed" : " is-selected" };
   if (choice.agreementSelected) return { label: "✓ Visuel retenu", className: " is-agreed" };
   if (choice.sameRoleChoice) return { label: "✓ Choix commun", className: " is-agreed" };
-  if (choice.directionSelected && role === "admin") return { label: "✓ Retenu par la direction", className: " is-agreed" };
-  if (myChoiceSelected) return { label: "✓ Mon choix — retirer", className: " is-selected" };
+  if (choice.directionSelected && choice.finalSelected && role === "admin") return { label: "✓ Retenu par la direction", className: " is-agreed" };
   if (role === "director" && choice.communicationsSelected) return { label: "Recommandé · choisir ce visuel", className: " is-role-choice" };
   return { label: "Choisir ce visuel", className: "" };
+}
+
+// Preserve unsent words and focus across real-time gallery replacement.
+export function captureMediaDrafts(gallery) {
+  return [...gallery.querySelectorAll('[data-media-comment]')].map(input => ({
+    id: input.dataset.mediaComment, value: input.value, dictated: input.dataset.dictated,
+    focused: input === input.ownerDocument.activeElement,
+    start: input.selectionStart, end: input.selectionEnd,
+    sending: input.closest('.cockpit-media-comment')?.querySelector('[data-save-media-comment]')?.disabled === true
+  }));
+}
+
+export function restoreMediaDrafts(gallery, drafts) {
+  for (const input of gallery.querySelectorAll('[data-media-comment]')) {
+    const draft = drafts.find(item => item.id === input.dataset.mediaComment);
+    if (!draft) continue;
+    input.value = draft.value;
+    if (draft.dictated) input.dataset.dictated = draft.dictated;
+    const button = input.closest('.cockpit-media-comment')?.querySelector('[data-save-media-comment]');
+    if (button) button.disabled = draft.sending;
+    if (draft.focused) { input.focus({ preventScroll: true }); try { input.setSelectionRange(draft.start, draft.end); } catch {} }
+  }
 }
 
 export function mediaAgreementPresentation(choice) {
@@ -46,6 +68,10 @@ export function mediaRightsNeedsConfirmation(row) {
     || status.includes("a confirmer")
     || status.includes("unconfirmed")
     || status.includes("incertain");
+}
+
+export function mediaSelectionBlocked(row) {
+  return row?.archived === true || (row?.publicationBlocked === true && !mediaRightsNeedsConfirmation(row));
 }
 
 export function synchronizeMediaInfoPanels(gallery) {

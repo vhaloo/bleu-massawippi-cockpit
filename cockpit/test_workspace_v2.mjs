@@ -87,6 +87,22 @@ let ideaSubmits = 0;
 const ideas = buildFeedbackWidget({ document, formMarkup: '<form data-feedback-form="cockpit"><textarea></textarea><button type="submit">Envoyer</button></form>', onSubmit: () => ideaSubmits++ });
 let clicked=0; const originalChoose=document.querySelector('[data-choose="one"]'); originalChoose.addEventListener("click",()=>clicked++);
 const workspace=mountWorkspace(api);
+workspace.navigate('#/accueil/messages');
+const oldMessagePanel=document.getElementById('vm-panel-message');
+oldMessagePanel.outerHTML='<section class="vm-panel" id="vm-panel-message"><h2>Messages actualisés</h2><p>Une demande non traitée.</p></section>';
+await new Promise(resolve=>setTimeout(resolve,160));
+check('le panneau actif reste visible après remplacement par les données communes',()=>{
+  const current=document.getElementById('vm-panel-message');
+  assert(current.hasAttribute('data-v2-target'));
+  assert(!current.closest('[data-v2-concealed]'));
+});
+check('messages et actions accessibles directement depuis chaque espace',()=>{
+  for(const route of ['#/accueil','#/publications','#/projets','#/bibliotheque']){
+    workspace.navigate(route);
+    assert(document.querySelector('.v2-global-actions a[href="#/accueil/messages"]'));
+    assert(document.querySelector('.v2-global-actions a[href="#/accueil/decisions"]'));
+  }
+});
 check("montage opt-in et quatre espaces",()=>{assert.equal(document.documentElement.dataset.workspace,"v2");assert.equal(document.querySelectorAll("[data-v2-space]").length,4);});
 check("outils originaux regroupés sans superposition ni perte de gestionnaire",()=>{assert(utility.closest('.v2-utilities'));utility.click();assert.equal(utilityClicks,1);assert(!utility.closest('details').open);});
 check("boîte à idées accessible directement, hors des outils repliés", () => {

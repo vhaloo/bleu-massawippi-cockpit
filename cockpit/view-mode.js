@@ -7,7 +7,7 @@
  * intact.
  */
 
-import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260908-b80";
+import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260910-b81";
 
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
@@ -504,7 +504,7 @@ function ensureStylesheet() {
   if (document.querySelector(`link[data-module="${MODULE_ID}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = new URL("./view-mode.css?v=20260908-b80", import.meta.url).href;
+  link.href = new URL("./view-mode.css?v=20260910-b81", import.meta.url).href;
   link.dataset.module = MODULE_ID;
   document.head.appendChild(link);
 }
@@ -1142,7 +1142,7 @@ function inferredWorkflowStage(card) {
 }
 
 function incomingMessageFor(card) {
-  return [...card.querySelectorAll('[data-comment-thread] .cockpit-message.other:not(.handled)')]
+  return [...card.querySelectorAll('[data-comment-thread] .cockpit-message:not(.handled)')]
     .map((message) => ({
       id: message.dataset.commentId || "",
       text: message.querySelector("p")?.textContent?.trim() || "",
@@ -1628,12 +1628,18 @@ function enhanceCardSummaries() {
 
 function messageModels() {
   const events = new Map(eventModels().map((model) => [model.id, model]));
-  return [...document.querySelectorAll(".post[data-item-id] [data-comment-thread] .cockpit-message.other:not(.handled)")]
+  const messages = [...document.querySelectorAll("[data-comment-thread] .cockpit-message")]
     .map((message, index) => {
       const card = message.closest(".post[data-item-id]");
-      const event = card ? events.get(card.dataset.itemId) : null;
+      const project = message.closest(".internal-project,.opportunity");
+      const event = card ? events.get(card.dataset.itemId) : project ? {
+        id: project.dataset.internalProjectId || project.dataset.opportunityId || project.id,
+        title: project.querySelector("summary strong,h3")?.textContent?.trim() || "Projet",
+        targetType: project.classList.contains("internal-project") ? "internal-project" : "opportunity"
+      } : null;
       return {
         id: message.dataset.commentId || String(index),
+        handled: message.classList.contains("handled"),
         event,
         author: message.querySelector("header b")?.textContent?.replace(/^💬\s*/, "")?.trim() || "Message",
         when: message.querySelector("header span")?.textContent?.trim() || "",
@@ -1641,9 +1647,10 @@ function messageModels() {
         createdAt: Number(message.dataset.createdAt || 0),
         updatedAt: dataMillis(message.dataset.updatedAt || message.dataset.createdAt)
       };
-    }).filter((message) => message.event && message.text && !messageWasSeen(message.id, message.updatedAt))
-    .sort((left, right) => right.createdAt - left.createdAt)
-    .slice(0, 5);
+    }).filter((message) => message.event && message.text);
+  const latest = new Map();
+  for (const message of messages) if (!latest.has(message.id) || latest.get(message.id).updatedAt <= message.updatedAt) latest.set(message.id, message);
+  return [...latest.values()].filter(message => !message.handled).sort((left, right) => right.createdAt - left.createdAt);
 }
 
 function renderDashboard(now = new Date()) {
@@ -1700,7 +1707,7 @@ function renderDashboard(now = new Date()) {
     : empty("Aucun événement au cours des sept prochains jours.");
   const messagesBody = messages.length
     ? messages.map((message) => `<article class="vm-message"><div><span>${escapeHtml(message.author)}${message.when ? ` · ${escapeHtml(message.when)}` : ""}</span><h3>${escapeHtml(message.event.title)}</h3><p>${escapeHtml(message.text)}</p></div>${linkButton({ ...message.event, messageId: message.id, messageVersion: message.updatedAt }, "Répondre")}</article>`).join("")
-    : empty("Aucun message actif parmi les publications chargées (non traité et non masqué). Les échanges complets restent accessibles dans chaque publication.");
+    : empty("Aucun message actif parmi les publications chargées (non traité). Les échanges complets restent accessibles dans chaque publication.");
 
   grid.innerHTML = [
     panel("decision", "Décisions qui m’attendent", decisionsAreCurrent ? `${allDecisions.length}${remoteMore ? "+" : ""} pour vous` : "Synchronisation", decisionsBody, "vm-decisions"),

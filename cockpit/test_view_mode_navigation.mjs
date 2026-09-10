@@ -624,13 +624,13 @@ messageHost.innerHTML = `<article class="cockpit-message other" data-comment-id=
 document.querySelector('[data-item-id="future-3"] .cockpit-controls').appendChild(messageHost);
 window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
 await wait();
-assert.equal(document.querySelector("[data-vm-message-count]").textContent, "1", "Le badge doit ignorer le message de la personne connectée.");
+assert.equal(document.querySelector("[data-vm-message-count]").textContent, "2", "Les deux messages non traités restent actifs, quel que soit leur auteur.");
 const messageOpen = document.querySelector('.vm-messages [data-vm-message-id="comment-visible"]');
 assert.ok(messageOpen, "Le message entrant doit fournir un bouton de lecture traçable.");
 messageOpen.click();
 await wait(250);
-assert.equal(document.querySelector("[data-vm-message-count]").hidden, true, "Le badge doit disparaître immédiatement après une ouverture réussie.");
-assert.match(document.querySelector(".vm-messages").textContent, /Aucun message actif/);
+assert.equal(document.querySelector("[data-vm-message-count]").textContent, "2", "Lire un message ne le traite pas.");
+assert.match(document.querySelector(".vm-messages").textContent, /Message à lire/);
 const updatedMessage = document.createElement("article");
 updatedMessage.className = "cockpit-message other";
 updatedMessage.dataset.commentId = "comment-visible";
@@ -643,11 +643,15 @@ refreshedThread.appendChild(updatedMessage);
 document.querySelector('[data-item-id="future-3"] .cockpit-controls').appendChild(refreshedThread);
 window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
 await wait();
-assert.equal(document.querySelector("[data-vm-message-count]").textContent, "1", "Une version modifiée après lecture doit redevenir visible.");
+assert.equal(document.querySelector("[data-vm-message-count]").textContent, "2", "La version courante remplace l’ancienne, sans doublon.");
 updatedMessage.classList.add("handled");
 window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
 await wait();
-assert.equal(document.querySelector("[data-vm-message-count]").hidden, true, "Un message traité ne doit jamais rester dans le badge actif.");
+assert.equal(document.querySelector("[data-vm-message-count]").textContent, "1", "Seul le message encore non traité reste actif.");
+messageHost.querySelector('.mine').classList.add('handled');
+window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
+await wait();
+assert.equal(document.querySelector("[data-vm-message-count]").hidden, true);
 
 // Une cible passée et filtrée est reconstruite, puis son brief et ses médias
 // sont ouverts, focalisés et annoncés.
