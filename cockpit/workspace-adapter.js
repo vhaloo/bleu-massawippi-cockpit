@@ -1,6 +1,6 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20260910-b81";
-import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260910-b81";
-import { openPublicationStudio } from "./editor-studio.js?v=20260910-b81";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20260910-b82";
+import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260910-b82";
+import { openPublicationStudio } from "./editor-studio.js?v=20260910-b82";
 import { interfaceUrl } from "./workspace-model.mjs";
 
 export function setupInterfaceSwitch(profile) {
@@ -20,7 +20,7 @@ export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, me
   if (new URLSearchParams(location.search).get("interface") !== "v2") return;
   // Existing controls remain the single write path. Failure leaves V1 usable.
   try {
-    const { mountWorkspace } = await import("./workspace-v2.js?v=20260910-v2.10");
+    const { mountWorkspace } = await import("./workspace-v2.js?v=20260910-v2.11");
     return mountWorkspace({
       profile,
       getPosts: () => globalThis.posts || [],
@@ -37,8 +37,7 @@ export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, me
       contentApproved: id => ["content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"].includes(state.workflows.get(id)?.stage),
       mediaApproved: id => {
         const choice = state.mediaDecisions.get(id);
-        const item = (globalThis.posts || []).find(post => post.id === id);
-        return choice ? ["agreed", "overridden"].includes(choice.agreement?.status) || (choice.direction?.status === "selected" && choice.direction.mediaIds?.length >= (item?.mediaSelectionMode === "multiple" ? 2 : 1)) : ["final_approved", "scheduled", "published"].includes(state.workflows.get(id)?.stage);
+        return choice ? ["agreed", "overridden"].includes(choice.agreement?.status) : ["final_approved", "scheduled", "published"].includes(state.workflows.get(id)?.stage);
       },
       ensurePublication: id => {
         let node = [...document.querySelectorAll(".post[data-item-id]")].find(post => post.dataset.itemId === id);

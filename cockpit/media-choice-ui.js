@@ -84,3 +84,72 @@ export function synchronizeMediaInfoPanels(gallery) {
     queueMicrotask(() => { synchronizing = false; });
   }));
 }
+
+const escapeMarkup = value => String(value || '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+
+// These controls use the same delegated actions as the gallery. No parallel writer.
+export function renderMediaValidationPanel(card, {profile, rows = [], decision, textApproved, multiple = false, loading = false}) {
+  const host = card.querySelector('.cockpit-workflow');
+  if (!host || !['admin', 'director'].includes(profile?.role)) return;
+  let panel = host.querySelector('[data-media-validation-panel]');
+  if (!panel) {
+    panel = card.ownerDocument.createElement('details');
+    panel.className = 'cockpit-media-validation';
+    panel.dataset.mediaValidationPanel = '';
+    panel.open = true;
+    host.append(panel);
+  }
+  const available = rows.filter(row => !mediaSelectionBlocked(row) && row.stage !== 'archived');
+  const side = profile.role === 'admin' ? 'communications' : 'direction';
+  const selectedIds = decision?.[side]?.status === 'selected' ? decision[side].mediaIds || [] : [];
+  const signature = JSON.stringify({profile:profile.role,available:available.map(row=>[row.id,row.label,row.rightsConfirmed,row.rightsStatus]),decision,textApproved,multiple,loading});
+  if (panel.dataset.signature === signature) return;
+  const previousId = panel.querySelector('select')?.value;
+  const previousReason = panel.querySelector('[data-media-override-reason]')?.value || '';
+  const focused = panel.contains(card.ownerDocument.activeElement) ? card.ownerDocument.activeElement?.getAttribute('data-media-override-reason') !== null ? 'reason' : 'select' : '';
+  panel.dataset.signature = signature;
+  const currentId = [previousId, ...selectedIds, ...(decision?.agreement?.mediaIds || []), ...(decision?.communications?.mediaIds || []), available[0]?.id].find(id => available.some(row => row.id === id));
+  const sideLabel = name => decision?.[name]?.status === 'selected' ? 'Choix enregistré' : 'En attente';
+  panel.innerHTML = `<summary>Choix et validation du visuel</summary><div class="cockpit-media-validation-body"><p class="cockpit-media-role-summary"><span><b>Communications</b> · ${sideLabel('communications')}</span><span><b>Direction</b> · ${sideLabel('direction')}</span></p>${available.length ? `<label>Visuel concerné<select data-media-validation-choice aria-label="Visuel à valider">${available.map(row=>`<option value="${escapeMarkup(row.id)}">${escapeMarkup(row.label || row.id)}</option>`).join('')}</select></label><p data-media-validation-rights class="cockpit-media-note"></p><div class="cockpit-media-validation-buttons"><button type="button" data-media-decision aria-pressed="false"></button><button type="button" data-media-validation-force-open>Forcer la validation du visuel…</button></div><div data-media-validation-force hidden><label>Motif de la décision<input type="text" maxlength="500" data-media-override-reason aria-label="Motif de la validation forcée" placeholder="${profile.role === 'admin' ? 'Précisez l’aval reçu de la direction' : 'Précisez la décision à conserver'}"></label><p class="cockpit-media-note">${profile.role === 'admin' ? 'La décision sera enregistrée à votre nom, avec l’aval indiqué. Le choix d’Annie restera distinct.' : 'Votre décision finale sera conservée avec son motif.'}</p><button type="button" data-media-override>Confirmer la validation forcée</button></div><p data-media-validation-help class="cockpit-media-note"></p>` : `<p role="status">${loading ? 'Chargement des visuels…' : 'Ajoutez un visuel dans la galerie pour le proposer à la validation.'}</p>`}</div>`;
+  const select = panel.querySelector('select');
+  const refresh = () => {
+    const row = available.find(item => item.id === select?.value);
+    if (!row) return;
+    const selected = selectedIds.includes(row.id);
+    const choiceButton = panel.querySelector('[data-media-decision]');
+    choiceButton.dataset.mediaDecision = row.id;
+    choiceButton.dataset.mediaLabel = row.label || 'Visuel';
+    choiceButton.setAttribute('aria-pressed', String(selected));
+    choiceButton.textContent = selected ? 'Retirer mon choix' : multiple ? 'Ajouter cette carte au carrousel' : profile.role === 'admin' ? 'Recommander ce visuel' : textApproved ? 'Approuver ce visuel' : 'Choisir ce visuel';
+    const overrideButton = panel.querySelector('[data-media-override]');
+    overrideButton.dataset.mediaOverride = row.id;
+    overrideButton.dataset.mediaLabel = row.label || 'Visuel';
+    const count = new Set([...selectedIds, row.id]).size;
+    const canForce = textApproved && (!multiple || count >= 2);
+    panel.querySelector('[data-media-validation-force-open]').disabled = !canForce;
+    overrideButton.disabled = !canForce;
+    panel.querySelector('[data-media-validation-help]').textContent = !textApproved ? 'Vous pouvez choisir le visuel maintenant. Validez le texte avant de confirmer la validation finale du visuel.' : multiple && count < 2 ? 'Choisissez deux cartes du carrousel avant de confirmer la validation finale.' : 'Le choix de chaque rôle et la décision finale restent modifiables ici.';
+    panel.querySelector('[data-media-validation-rights]').textContent = mediaRightsNeedsConfirmation(row) && row.rightsConfirmed !== true ? 'Droits à vérifier · information à confirmer, sans bloquer votre choix.' : row.rightsConfirmed === true ? 'Droits confirmés.' : 'Crédit et informations du média disponibles dans la galerie.';
+  };
+  if (select) { for (const option of select.options) option.selected = false; [...select.options].find(option=>option.value === currentId).selected = true; select.addEventListener('change', refresh); refresh(); }
+  const reason = panel.querySelector('[data-media-override-reason]');
+  if (reason) reason.value = previousReason;
+  if (previousReason || focused === 'reason') panel.querySelector('[data-media-validation-force]')?.removeAttribute('hidden');
+  if (focused) (focused === 'reason' ? reason : select)?.focus({preventScroll:true});
+}
+
+export function openMediaValidationPanel(card, mediaId = '', force = false) {
+  const panel = card.querySelector('[data-media-validation-panel]');
+  if (!panel) return false;
+  panel.open = true;
+  const select = panel.querySelector('select');
+  if (mediaId && select && [...select.options].some(option=>option.value === mediaId)) {
+    for (const option of select.options) option.selected = false;
+    [...select.options].find(option=>option.value === mediaId).selected = true;
+    select.dispatchEvent(new card.ownerDocument.defaultView.Event('change', {bubbles:true}));
+  }
+  if (force) panel.querySelector('[data-media-validation-force]')?.removeAttribute('hidden');
+  panel.scrollIntoView?.({behavior:'smooth',block:'center'});
+  (force ? panel.querySelector('[data-media-override-reason]') : select || panel.querySelector('summary'))?.focus({preventScroll:true});
+  return true;
+}

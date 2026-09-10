@@ -1,4 +1,4 @@
-import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20260910-b81";
+import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20260910-b82";
 import {
   getClientState,
   waitForClientReady,
@@ -37,24 +37,24 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260910-b81";
-import { createEventContextController } from "./event-context-data.js?v=20260910-b81";
-import { mergeEventWindow } from "./event-context-window.mjs?v=20260910-b81";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260910-b81";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260910-b81";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260910-b81";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts } from "./media-choice-ui.js?v=20260910-b81";
-import { workflowMarkup, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260910-b81";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260910-b81";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260910-b81";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260910-b81";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260910-b81";
-import { setupControlHints } from "./control-hints.js?v=20260910-b81";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260910-b81";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260910-b81";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260910-b81";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260910-b81";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260910-b81";
+} from "./firebase-client.js?v=20260910-b82";
+import { createEventContextController } from "./event-context-data.js?v=20260910-b82";
+import { mergeEventWindow } from "./event-context-window.mjs?v=20260910-b82";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260910-b82";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260910-b82";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260910-b82";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel } from "./media-choice-ui.js?v=20260910-b82";
+import { workflowMarkup, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260910-b82";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260910-b82";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260910-b82";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260910-b82";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260910-b82";
+import { setupControlHints } from "./control-hints.js?v=20260910-b82";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260910-b82";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260910-b82";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260910-b82";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260910-b82";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260910-b82";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -2051,7 +2051,7 @@ function renderWorkflow(card) {
   card.dataset.workflowUpdatedAt = String(stateTimestampMillis(row.updatedAt));
   const contentDone = ["content_approved","media_in_progress","media_review","media_changes_requested","final_approved","scheduled","published"].includes(stage);
   const mediaDone = structuredMediaDecision
-    ? directionMediaReady || structuredMediaAgreement
+    ? structuredMediaAgreement
     : ["final_approved","scheduled","published"].includes(stage);
   const publicationDone = ["scheduled","published"].includes(stage);
   const contentGate = card.querySelector('[data-gate="content"]');
@@ -2070,7 +2070,7 @@ function renderWorkflow(card) {
     ? (structuredMediaDecision?.agreement?.status === "overridden" ? "Validé par override motivé" : structuredMediaAgreement ? "Accord des deux rôles" : "Choisi par la direction")
     : structuredMediaDecision?.agreement?.status === "divergent"
       ? "Choix à harmoniser"
-      : (stage === "media_review" ? "Prêt pour validation" : "Choix en attente");
+      : (directionMediaReady ? "Choix DG · accord à confirmer" : stage === "media_review" ? "Prêt pour validation" : "Choix en attente");
   const publicationReady = contentDone && mediaDone;
   if (publicationLabel) publicationLabel.textContent = publicationDone ? "Publié ou programmé" : publicationReady ? "Prêt à publier" : "Attend les 2 validations";
   const configureGate = (gate, done, canCheck, checkStage, uncheckStage, checkedName, roleAllowed = true) => {
@@ -2090,6 +2090,11 @@ function renderWorkflow(card) {
   };
   configureGate(contentGate, contentDone, true, "content_approved", "content_review", "Texte", !(state.profile?.role === "director" && ["scheduled", "published"].includes(stage)));
   configureGate(mediaGate, mediaDone, false, "final_approved", "media_review", "Visuel", false);
+  if (mediaGate) {
+    mediaGate.disabled = !["admin", "director"].includes(state.profile?.role);
+    mediaGate.dataset.openMediaValidation = "true";
+    mediaGate.title = "Ouvrir les choix, la validation forcée et le retrait du visuel";
+  }
   configureGate(publicationGate, publicationDone, publicationReady, "published", "final_approved", "Terminé", state.profile?.role === "admin");
   card.classList.toggle("workflow-complete", publicationDone);
   const completeNote = card.querySelector("[data-workflow-complete]");
@@ -2100,17 +2105,17 @@ function renderWorkflow(card) {
   if (state.profile?.role === "admin") {
     if (["proposal","changes_requested"].includes(stage)) buttons.push(["content_review","Texte prêt — envoyer à la direction","primary"]);
     if (["proposal","content_review","changes_requested"].includes(stage)) buttons.push(["content_approved","✓ Valider le texte avec l’aval de la direction","primary"]);
-    if (stage === "content_approved" && !mediaDone) buttons.push(["media_review","Visuel prêt — envoyer à la direction","primary"]);
+    if (["content_approved", "media_in_progress", "media_changes_requested"].includes(stage) && !mediaDone) buttons.push(["media_review","Visuel prêt — envoyer à la direction","primary"]);
     if (publicationReady && !publicationDone) buttons.push(["published","✓ Terminer — publié ou programmé","primary"]);
   }
   if (state.profile?.role === "director") {
     if (["content_review","proposal","changes_requested"].includes(stage)) buttons.push(["content_approved","✓ Approuver le texte et le concept","primary"]);
     if (stage === "content_review") buttons.push(["changes_requested","Correction demandée au texte","correction"]);
-    if (stage === "media_review" && !structuredMediaAgreement) buttons.push(["","Choisir et approuver un média ci-dessus","disabled"]);
-    if (stage === "media_review") buttons.push(["changes_requested","Correction demandée au visuel","correction"]);
+    if (stage === "media_review") buttons.push(["media_changes_requested","Correction demandée au visuel","correction"]);
   }
-  const waiting = publicationDone ? "Événement terminé; rien ne disparaît de la base de données." : state.profile?.role === "director" && publicationReady ? "Le texte et le visuel sont approuvés. Les communications peuvent programmer ou publier." : state.profile?.role === "director" && stage === "content_approved" ? "Le texte est approuvé. Le choix du visuel reste à confirmer dans la galerie." : `Étape actuelle : ${stage.replaceAll("_", " ")}`;
+  const waiting = publicationDone ? "Événement terminé; l’historique est conservé." : publicationReady ? "Le texte et le visuel sont approuvés. Les communications peuvent programmer ou publier." : stage === "media_review" ? "Le visuel est prêt : confirmez votre choix ou la décision finale ci-dessous." : contentDone ? "Le texte est approuvé. Le choix du visuel reste à confirmer ci-dessous." : "Le texte reste à valider. Vous pouvez déjà choisir un visuel.";
   actions.innerHTML = buttons.map(([value,label,kind]) => `<button type="button" class="${kind}" ${value ? `data-workflow-stage="${value}"` : "disabled"}>${label}</button>`).join("") || `<span class="cockpit-media-note">${esc(waiting)}</span>`;
+  renderMediaValidationPanel(card, {profile:state.profile, rows:state.mediaByEvent.get(card.dataset.itemId) || [], decision:structuredMediaDecision, textApproved:contentDone, multiple:requiredMediaCount > 1, loading:state.mediaContextLoading.has(card.dataset.itemId)});
 }
 
 function renderCommentThread(card, sectionId = card.dataset.itemId) {
@@ -2645,13 +2650,18 @@ function enhanceCardEvents() {
         .finally(() => { editorialButton.disabled = false; });
       return;
     }
+    if (event.target.closest('[data-open-media-validation], [data-media-validation-force-open]')) {
+      event.preventDefault();
+      openMediaValidationPanel(card, '', !!event.target.closest('[data-media-validation-force-open]'));
+      return;
+    }
     const workflowButton = event.target.closest("button[data-workflow-stage]");
     if (workflowButton) {
       setWorkflowStage(card.dataset.itemId, workflowButton.dataset.workflowStage, state.profile)
         .then(async () => {
           const planItem = getPlanItem(card);
           ripple(workflowButton);
-          if (state.profile.role === "director" && ["content_approved","final_approved","changes_requested"].includes(workflowButton.dataset.workflowStage)) {
+          if (state.profile.role === "director" && ["content_approved","final_approved","changes_requested","media_changes_requested"].includes(workflowButton.dataset.workflowStage)) {
             await recordActionTask(`workflow-${card.dataset.itemId}`, { status: "pending", title: workflowButton.dataset.workflowStage === "final_approved" ? `Prêt à publier — ${planItem?.title}` : `Cycle de validation — ${planItem?.title}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${planItem?.title || ""}`, message:`Nouvelle étape : ${workflowButton.textContent.trim()}.\n\n${responsibilitySummary(planItem)}` });
           }
           toast(workflowButton.dataset.workflowDirection === "back" ? "Feu vert retiré; l’historique est conservé." : "Étape de validation enregistrée.");
@@ -2712,7 +2722,7 @@ function enhanceCardEvents() {
       const confirmed = mediaRightsInput.checked;
       mediaRightsInput.disabled = true;
       setMediaRightsConfirmation(mediaRightsInput.dataset.mediaRightsConfirmation, confirmed, state.profile)
-        .then(() => toast(confirmed ? "Droits de diffusion confirmés; le média peut maintenant être choisi." : "Droits remis en attente; le média redevient une référence interne."))
+        .then(() => toast(confirmed ? "Droits de diffusion confirmés." : "Droits remis en attente; votre choix visuel est conservé."))
         .catch((error) => {
           mediaRightsInput.checked = !confirmed;
           toast(error.message, true);
@@ -2724,6 +2734,8 @@ function enhanceCardEvents() {
     if (mediaDecisionButton) {
       event.preventDefault();
       event.stopPropagation();
+      if (card.dataset.mediaDecisionPending === "true") return;
+      card.dataset.mediaDecisionPending = "true";
       const mediaId = mediaDecisionButton.dataset.mediaDecision;
       const label = mediaDecisionButton.dataset.mediaLabel || "Média OneDrive";
       const selected = mediaDecisionButton.getAttribute("aria-pressed") !== "true";
@@ -2759,7 +2771,7 @@ function enhanceCardEvents() {
             : "Votre choix a été retiré; l’historique est conservé.");
         })
         .catch((error) => toast(error.message, true))
-        .finally(() => { mediaDecisionButton.disabled = false; });
+        .finally(() => { delete card.dataset.mediaDecisionPending; mediaDecisionButton.disabled = false; });
       return;
     }
     const mediaOverrideButton = event.target.closest("button[data-media-override]");
@@ -2770,11 +2782,12 @@ function enhanceCardEvents() {
       const label = mediaOverrideButton.dataset.mediaLabel || "Média OneDrive";
       const planItem = getPlanItem(card);
       const allowsMultiple = planItem?.mediaSelectionMode === "multiple";
-      const textApproved = workflowTextApprovedStages.has(state.workflows.get(card.dataset.itemId)?.stage || "proposal");
-      const promptLabel = "Retenir ce visuel comme décision finale. Vous pourrez revenir sur ce choix. Motif à conserver dans l’historique :";
-      const reason = prompt(promptLabel, "Je retiens ce visuel pour cette publication.");
-      if (reason === null) return;
-      if (!reason.trim()) { toast("Ajoutez un motif clair afin de préserver la trace de décision.", true); return; }
+      const reasonInput = mediaOverrideButton.closest('[data-media-validation-panel]')?.querySelector('[data-media-override-reason]');
+      if (!reasonInput) { openMediaValidationPanel(card, mediaId, true); return; }
+      const reason = reasonInput.value;
+      if (!reason.trim()) { reasonInput.focus(); toast("Ajoutez un motif clair afin de préserver la trace de décision.", true); return; }
+      if (card.dataset.mediaDecisionPending === "true") return;
+      card.dataset.mediaDecisionPending = "true";
       mediaOverrideButton.disabled = true;
       setMediaDecision(card.dataset.itemId, mediaId, true, state.profile, { override: true, reason, multiple: allowsMultiple })
         .then(async (decision) => {
@@ -2786,10 +2799,10 @@ function enhanceCardEvents() {
             try { await setPersonalActionItemState(actionItemId, "done", state.profile); }
             catch (error) { console.warn("La décision finale est conservée; la file sera réconciliée au prochain cycle.", error); }
           }
-          toast(state.profile.role === "director" ? "Décision finale de la direction enregistrée." : "Validation des communications enregistrée avec son motif, sans usurper l’identité de la direction.");
+          toast(state.profile.role === "director" ? "Décision finale de la direction enregistrée." : "Décision finale des communications enregistrée avec son motif.");
         })
         .catch((error) => toast(error.message, true))
-        .finally(() => { mediaOverrideButton.disabled = false; });
+        .finally(() => { delete card.dataset.mediaDecisionPending; mediaOverrideButton.disabled = false; });
       return;
     }
     const mediaCommentButton = event.target.closest("button[data-save-media-comment]");
@@ -2988,7 +3001,7 @@ async function applyProfile(profile) {
   syncCardAccess();
   workspaceV2?.destroy(); workspaceV2 = null;
   try {
-    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20260910-v2.10");
+    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20260910-v2.11");
     setupInterfaceSwitch(profile);
     if (new URLSearchParams(location.search).get("interface") === "v2") workspaceV2 = await setupWorkspaceV2(profile, { state, enhanceCards, toast, mediaPreview: mediaPreviewUrl });
   } catch { toast("La V2 est indisponible; le cockpit classique reste actif.", true); }

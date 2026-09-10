@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 const root = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 8766);
-const allowed = new Set(["workspace-fixture.html","workspace-test-fixture.mjs","workspace-v2.js","workspace-v2.css","workspace-model.mjs","motion.js","theme.js","feedback-widget.mjs"]);
+const allowed = new Set(["workspace-fixture.html","workspace-test-fixture.mjs","workspace-v2.js","workspace-v2.css","workspace-model.mjs","motion.js","theme.js","feedback-widget.mjs","media-validation-fixture.html","media-validation-test-fixture.mjs","media-choice-ui.js","cockpit-ui.js","firebase-client.js","clarity.css","task-progress-ui.js"]);
 const mime = {".html":"text/html; charset=utf-8",".mjs":"text/javascript; charset=utf-8",".js":"text/javascript; charset=utf-8",".css":"text/css; charset=utf-8",".webp":"image/webp",".png":"image/png",".jpg":"image/jpeg"};
 const server = http.createServer(async(req,res) => {
   try {
