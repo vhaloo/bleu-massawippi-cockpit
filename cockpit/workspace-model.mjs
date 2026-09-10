@@ -1,5 +1,5 @@
 /** Pure presentation model. Never changes a date, approval, or source object. */
-export const WORKSPACE_VERSION = "20260908-v2.9";
+export const WORKSPACE_VERSION = "20260910-v2.10";
 export const SPACES = Object.freeze({
   accueil: { label: "À faire", icon: "decisions", title: "Un peu de clarté pour avancer.", description: "Vos décisions, les nouveautés et le travail qui vous attend." },
   publications: { label: "Publications", icon: "publications", title: "Les mots et les images du lac.", description: "Le calendrier des réseaux sociaux, les propositions et leur historique." },
@@ -44,6 +44,10 @@ export function publicationNeighbours(items, id, radius = 4) {
 /** Display-only choice. A thumbnail never creates an approval or changes order. */
 export function previewCandidates(rows, choice) {
   const available = rows.filter(row => row.archived !== true && row.kind === "image");
+  if (choice?.agreement?.status === "overridden") {
+    const final = (choice.agreement.mediaIds || []).map(id => available.find(row => row.id === id)).filter(Boolean);
+    if (final.length) return final.map(row => ({row, label: choice.override?.actorRole === "admin" ? "Décision finale des communications" : "Décision finale de la direction"}));
+  }
   const side = choice?.direction?.status === "selected" ? "direction" : choice?.communications?.status === "selected" ? "communications" : "";
   const ids = side ? choice[side].mediaIds || [] : [];
   const selected = ids.map(id => available.find(row => row.id === id)).filter(Boolean);

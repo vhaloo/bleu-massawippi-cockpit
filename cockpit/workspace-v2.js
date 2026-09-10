@@ -111,15 +111,20 @@ export function mountWorkspace(api) {
     // Keep the original authenticated control visible for both roles, on every page.
     // Moving its node preserves the form, pending text and existing write handler.
     const feedback = doc.getElementById("cockpit-feedback-launch");
-    if (feedback) {
+    {
       let actions = shell.querySelector(".v2-global-actions");
       if (!actions) {
         actions = doc.createElement("div"); actions.className = "v2-global-actions";
+        actions.innerHTML = `${anchor("Messages actifs", "accueil", "messages")}${anchor("À traiter", "accueil", "decisions")}`;
         shell.querySelector(".v2-heading").after(actions);
       }
-      move(feedback, actions);
+      if (feedback) move(feedback, actions);
+      const tasks = doc.getElementById("cockpit-task-launch");
+      if (tasks) move(tasks, actions);
+      const journal = doc.getElementById("cockpit-sidebar-toggle");
+      if (journal) { journal.textContent = "Avis et demandes générales"; move(journal, actions); }
     }
-    const controls = ["cockpit-task-launch", "cockpit-sidebar-toggle", "cockpit-health-launch", "cockpit-motion-toggle"].map(id => doc.getElementById(id)).filter(Boolean);
+    const controls = ["cockpit-health-launch", "cockpit-motion-toggle"].map(id => doc.getElementById(id)).filter(Boolean);
     if (!controls.length) return;
     let dock = shell.querySelector(".v2-utilities");
     if (!dock) {
@@ -177,6 +182,7 @@ export function mountWorkspace(api) {
       }).join("");
     }
     const selectedId = state.galleryIndex.get(card.dataset.itemId)
+      || items.find(n => n.dataset.mediaSelectedFinal === "true")?.dataset.mediaId
       || items.find(n => n.dataset.mediaDirectionSelected === "true")?.dataset.mediaId
       || items.find(n => n.dataset.mediaCommunicationsSelected === "true")?.dataset.mediaId;
     const index = Math.max(0, items.findIndex(n => n.dataset.mediaId === selectedId));
@@ -308,8 +314,13 @@ export function mountWorkspace(api) {
     } else if (r.space === "accueil") {
       const dashboard = doc.querySelector("#cockpit-essential-dashboard");
       if (dashboard) reveal(dashboard); else panel.innerHTML = '<p role="status">Vos actions sont en cours de chargement…</p>';
-      toolbar.innerHTML = `<div class="v2-home-links">${anchor("Décisions qui m’attendent", "accueil", "decisions", "", "Vos décisions personnelles, sans les demandes destinées à l’autre rôle.", "decisions")}${anchor("Messages actifs", "accueil", "messages", "", "Les messages non traités et non masqués des publications chargées. Le fil complet reste dans chaque publication.", "messages")}${anchor("Calendrier des publications", "publications", "", "calendrier", "Voir les publications Facebook et Instagram, leur visuel et leur validation.", "socialCalendar")}${anchor("Calendrier des projets", "projets", "", "calendrier", "Voir les échéances et rencontres des projets, sans déplacer les publications sociales.", "projectCalendar")}</div>`;
-      if (r.id === "messages" || r.id === "decisions") { const sub = doc.querySelector(r.id === "messages" ? "#vm-panel-message" : "#vm-panel-decision"); if (sub) { resetVisibility(); reveal(sub); } }
+      toolbar.innerHTML = `<div class="v2-home-links">${anchor("Décisions qui m’attendent", "accueil", "decisions", "", "Vos décisions personnelles, sans les demandes destinées à l’autre rôle.", "decisions")}${anchor("Messages actifs", "accueil", "messages", "", "Les messages des publications chargées restent ici jusqu’à leur traitement, même après lecture. Le fil complet reste dans chaque publication.", "messages")}${anchor("Calendrier des publications", "publications", "", "calendrier", "Voir les publications Facebook et Instagram, leur visuel et leur validation.", "socialCalendar")}${anchor("Calendrier des projets", "projets", "", "calendrier", "Voir les échéances et rencontres des projets, sans déplacer les publications sociales.", "projectCalendar")}</div>`;
+      if (r.id === "messages" || r.id === "decisions") {
+        heading.textContent = r.id === "messages" ? "Messages actifs" : "À traiter";
+        description.textContent = r.id === "messages" ? "Les échanges des publications et des projets restent visibles jusqu’à leur traitement." : "Vos décisions et les demandes qui vous sont destinées.";
+        const sub = doc.querySelector(r.id === "messages" ? "#vm-panel-message" : "#vm-panel-decision");
+        if (sub) { resetVisibility(); reveal(sub); }
+      }
     } else if (r.space === "publications" && r.id) {
       const item = publications().find(p => p.id === r.id);
       const card = api.ensurePublication?.(r.id) || cardFor(r.id);
@@ -383,7 +394,7 @@ export function mountWorkspace(api) {
   // Only structural replacements matter. Class/style changes from this view must
   // not feed the classic observer and create an unbounded render loop.
   const observer = new MutationObserver(changes => {
-    if (changes.some(change => [...change.addedNodes].some(node => node.nodeType === 1 && (node.matches?.(".post,.project-calendar-shell,.cockpit-media-card") || node.querySelector?.(".post,.cockpit-media-card"))))) scheduleRender();
+    if (changes.some(change => [...change.addedNodes].some(node => node.nodeType === 1 && (node.matches?.(".post,.project-calendar-shell,.cockpit-media-card,.vm-panel") || node.querySelector?.(".post,.cockpit-media-card,.vm-panel"))))) scheduleRender();
   });
   observer.observe(host, { childList: true, subtree: true });
   render();

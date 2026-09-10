@@ -96,7 +96,7 @@ try {
       updatedByLabel: "Valentin"
     });
     await setDoc(doc(db, "mediaLinks", ids.legacyMedia), media(ids.legacyEvent));
-    await setDoc(doc(db, "mediaLinks", ids.legacyBlocked), media(ids.legacyEvent, false, true));
+    await setDoc(doc(db, "mediaLinks", ids.legacyBlocked), {...media(ids.legacyEvent, false, true),rightsStatus:'droits à confirmer'});
     await setDoc(doc(db, "mediaLinks", ids.legacyArchived), media(ids.legacyEvent, true, false));
     await setDoc(doc(db, "workflowStates", ids.adminTextEvent), workflow(ids.admin, "Valentin", "content_review", ids.adminTextEvent));
     await setDoc(doc(db, "mediaLinks", ids.adminTextMedia), media(ids.adminTextEvent));
@@ -262,7 +262,7 @@ try {
   assert.equal(rightsConfirmedMedia.publicationBlocked, false);
   assert.equal(rightsConfirmedMedia.rightsConfirmed, true);
   await check("la direction remet les droits en attente avant tout choix média", updateDoc(doc(directorDb, "mediaLinks", `${ids.blocked}-rights`), {
-    publicationBlocked: true,
+    publicationBlocked: false,
     rightsConfirmed: false,
     rightsConfirmedAt: null,
     rightsConfirmedBy: "",
@@ -302,7 +302,7 @@ try {
   });
   await check("les communications confirment un média historique déjà non bloqué", adminRightsBatch.commit());
   await check("un rôle en lecture seule ne peut pas remettre les droits en attente", updateDoc(doc(viewerDb, "mediaLinks", ids.unblockedRights), {
-    publicationBlocked: true,
+    publicationBlocked: false,
     rightsConfirmed: false,
     rightsConfirmedAt: null,
     rightsConfirmedBy: "",
@@ -311,7 +311,7 @@ try {
     updatedBy: ids.viewer
   }), false);
   await check("les communications peuvent remettre leurs droits en attente", updateDoc(doc(adminDb, "mediaLinks", ids.unblockedRights), {
-    publicationBlocked: true,
+    publicationBlocked: false,
     rightsConfirmed: false,
     rightsConfirmedAt: null,
     rightsConfirmedBy: "",
@@ -322,7 +322,7 @@ try {
 
   await check("la direction choisit les deux cartes du carrousel", setDoc(doc(directorDb, "mediaDecisions", ids.event), pendingDecision(pair)));
   const initialDecision = (await getDoc(doc(directorDb, "mediaDecisions", ids.event))).data();
-  await check("un média bloqué ne peut pas entrer dans le carrousel", setDoc(doc(directorDb, "mediaDecisions", "blocked-attempt"), { ...pendingDecision([ids.blocked]), eventId: "blocked-attempt", lastMutationId: "blocked-attempt" }), false);
+  await check("un média du mauvais événement reste refusé même avec une ancienne indication de droits", setDoc(doc(directorDb, "mediaDecisions", "blocked-attempt"), { ...pendingDecision([ids.blocked]), eventId: "blocked-attempt", lastMutationId: "blocked-attempt" }), false);
   await check("un média d’un autre événement est refusé", setDoc(doc(directorDb, "mediaDecisions", "foreign-attempt"), { ...pendingDecision([ids.foreign]), eventId: "foreign-attempt", lastMutationId: "foreign-attempt" }), false);
   await check("plus de deux médias sont refusés", setDoc(doc(directorDb, "mediaDecisions", "too-many"), { ...pendingDecision(["a-media", "b-media", "c-media"]), eventId: "too-many", lastMutationId: "too-many" }), false);
 
@@ -422,12 +422,12 @@ try {
     lastMutationId: `legacy-reselect-${Date.now()}`,
     updatedAt: now()
   }));
-  await check("un média bloqué reste impossible à choisir", setDoc(doc(adminDb, "mediaDecisions", ids.legacyEvent), {
+  await check("les droits en attente ne bloquent pas le choix éditorial", setDoc(doc(adminDb, "mediaDecisions", ids.legacyEvent), {
     ...legacyChoice,
     communications: selectedSide(ids.admin, "Valentin", "admin", [ids.legacyBlocked]),
     lastMutationId: `legacy-blocked-${Date.now()}`,
     updatedAt: now()
-  }), false);
+  }));
   await check("un média archivé reste impossible à choisir", setDoc(doc(adminDb, "mediaDecisions", ids.legacyEvent), {
     ...legacyChoice,
     communications: selectedSide(ids.admin, "Valentin", "admin", [ids.legacyArchived]),
@@ -435,6 +435,25 @@ try {
     updatedAt: now()
   }), false);
 
+  const beforeOwnOverride=(await getDoc(doc(adminDb,'mediaDecisions',ids.legacyEvent))).data();
+  const ownOverride={...beforeOwnOverride,override:{active:true,mediaIds:[ids.legacyBlocked],reason:'Je retiens ce visuel.',actorUid:ids.admin,actorRole:'admin',actorLabel:'Valentin',decidedAt:now()},agreement:{status:'overridden',mediaIds:[ids.legacyBlocked],divergent:false},updatedAt:now(),lastMutationId:'own-override'};
+  const overrideBatch=writeBatch(adminDb);
+  overrideBatch.set(doc(adminDb,'mediaDecisions',ids.legacyEvent),ownOverride);
+  overrideBatch.set(doc(adminDb,'workflowStates',ids.legacyEvent),workflow(ids.admin,'Valentin','final_approved',ids.legacyEvent));
+  await check('les communications retiennent explicitement un visuel aux droits en attente',overrideBatch.commit());
+  const undoBatch=writeBatch(adminDb);
+  undoBatch.set(doc(adminDb,'mediaDecisions',ids.legacyEvent),{...ownOverride,communications:legacyRevoked.communications,override:emptyOverride(),agreement:{status:'pending',mediaIds:[],divergent:false},updatedAt:now(),lastMutationId:'undo-own-override'});
+  undoBatch.set(doc(adminDb,'workflowStates',ids.legacyEvent),workflow(ids.admin,'Valentin','media_review',ids.legacyEvent));
+  await check('les communications retirent leur propre décision finale avec historique préservé',undoBatch.commit());
+  const currentDecision=(await getDoc(doc(directorDb,'mediaDecisions',ids.event))).data();
+  await check('la direction peut choisir une photo aux droits en attente',setDoc(doc(directorDb,'mediaDecisions',ids.event),{...currentDecision,direction:selectedSide(ids.director,'Annie','director',[ids.unblockedRights]),override:emptyOverride(),agreement:{status:'divergent',mediaIds:[],divergent:true},updatedAt:now(),lastMutationId:'choose-pending-rights'}));
+  await check('confirmer les droits du média choisi',updateDoc(doc(adminDb,'mediaLinks',ids.unblockedRights),{publicationBlocked:false,rightsConfirmed:true,rightsConfirmedAt:now(),rightsConfirmedBy:ids.admin,rightsConfirmedByLabel:'Valentin',updatedAt:now(),updatedBy:ids.admin}));
+  await check('remettre les droits en attente sans retirer le choix',updateDoc(doc(adminDb,'mediaLinks',ids.unblockedRights),{publicationBlocked:false,rightsConfirmed:false,rightsConfirmedAt:null,rightsConfirmedBy:'',rightsConfirmedByLabel:'',updatedAt:now(),updatedBy:ids.admin}));
+  assert.deepEqual((await getDoc(doc(directorDb,'mediaDecisions',ids.event))).data().direction.mediaIds,[ids.unblockedRights]);
+  const commentBatch=writeBatch(directorDb);
+  commentBatch.set(doc(directorDb,'comments','media-comment-test'),{sectionId:ids.event,comment:'🎨 Média « Photo » : Le cadrage convient.',quickTag:null,dictated:false,authorUid:ids.director,authorLabel:'Annie',deleted:false,resolved:false,resolvedAt:null,resolvedBy:'',resolvedByLabel:'',createdAt:now(),updatedAt:now(),updatedBy:ids.director});
+  commentBatch.set(doc(directorDb,'changeArchive','media-comment-test'),{entityType:'comment',entityId:'media-comment-test',action:'commentaire ajouté',before:{},after:{sectionId:ids.event,comment:'🎨 Média « Photo » : Le cadrage convient.'},actorUid:ids.director,actorLabel:'Annie',createdAt:now()});
+  await check('le commentaire média de la direction et son historique sont enregistrables ensemble',commentBatch.commit());
   console.log(`✓ ${checks.length} scénarios de règles de sélection multiple vérifiés.`);
 } finally {
   await environment.cleanup();

@@ -1,4 +1,4 @@
-import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20260908-b80";
+import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20260910-b81";
 import {
   getClientState,
   waitForClientReady,
@@ -37,24 +37,24 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260908-b80";
-import { createEventContextController } from "./event-context-data.js?v=20260908-b80";
-import { mergeEventWindow } from "./event-context-window.mjs?v=20260908-b80";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260908-b80";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260908-b80";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260908-b80";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, synchronizeMediaInfoPanels } from "./media-choice-ui.js?v=20260908-b80";
-import { workflowMarkup, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260908-b80";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260908-b80";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260908-b80";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260908-b80";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260908-b80";
-import { setupControlHints } from "./control-hints.js?v=20260908-b80";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260908-b80";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260908-b80";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260908-b80";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260908-b80";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260908-b80";
+} from "./firebase-client.js?v=20260910-b81";
+import { createEventContextController } from "./event-context-data.js?v=20260910-b81";
+import { mergeEventWindow } from "./event-context-window.mjs?v=20260910-b81";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260910-b81";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260910-b81";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260910-b81";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts } from "./media-choice-ui.js?v=20260910-b81";
+import { workflowMarkup, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260910-b81";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260910-b81";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260910-b81";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260910-b81";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260910-b81";
+import { setupControlHints } from "./control-hints.js?v=20260910-b81";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260910-b81";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260910-b81";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260910-b81";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260910-b81";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260910-b81";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -258,6 +258,7 @@ style.textContent = `
   .cockpit-media-override-action { width:calc(100% - 16px); margin:0 8px 9px; padding:7px; border:1px solid #b67b2b; border-radius:8px; color:#714809; background:#fff5df; font-size:.66rem; font-weight:900; cursor:pointer; }
   .cockpit-media-final-action:disabled { cursor:not-allowed; color:#6f7476; background:#edf0f1; border-color:#c7ced0; opacity:1; }
   .cockpit-media-comment { display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:6px; margin:0 8px 9px; }
+  .cockpit-media-rights-note { margin:8px 10px; font-size:.75rem; color:var(--muted, #526773); line-height:1.5; }
   .cockpit-media-comment input { min-width:0; padding:7px; border:1px solid #c9dde0; border-radius:8px; color:#294d59; background:#fff; font-size:.66rem; }
   .cockpit-media-comment button { padding:7px 9px; border:1px solid #0b7895; border-radius:8px; color:#fff; background:#0b7895; font-size:.66rem; font-weight:900; cursor:pointer; }
   .cockpit-media-comment button[data-dictate] { min-width:38px; color:#0b6077; background:#fff; }
@@ -456,7 +457,8 @@ style.textContent = `
     .cockpit-media-final-action { min-height:44px; font-size:.72rem; }
     .cockpit-media-info > summary { min-height:46px; font-size:.74rem; }
     .cockpit-media-comment { grid-template-columns:46px minmax(0,1fr); }
-    .cockpit-media-comment input { grid-column:1 / -1; }
+    .cockpit-media-rights-note { margin:8px 10px; font-size:.75rem; color:var(--muted, #526773); line-height:1.5; }
+  .cockpit-media-comment input { grid-column:1 / -1; }
     .cockpit-media-comment :is(input,button) { min-height:44px; font-size:.75rem; }
     .cockpit-media-comment button[data-dictate] { grid-column:1; }
     .cockpit-media-comment button[data-save-media-comment] { grid-column:2; }
@@ -1178,10 +1180,16 @@ function renderFeedbackList(feedback) {
     return;
   }
   const statusLabels = { open: "À traiter", in_review: "En cours", done: "Traité" };
-  list.innerHTML = feedback.map((item) => {
+  const renderItem = (item) => {
     const when = item.createdAt?.toDate ? item.createdAt.toDate().toLocaleString("fr-CA") : "date en attente";
-    return `<article class="cockpit-feedback-item"><b>${esc(when)} · ${esc(feedbackSectionLabels[item.sectionId] || item.sectionId || "Cockpit")} · ${esc(statusLabels[item.status] || item.status || "À traiter")}</b><p>${esc(item.message || "")}</p><button type="button" data-feedback-status="in_review" data-feedback-id="${esc(item.id)}">En cours</button><button type="button" data-feedback-status="done" data-feedback-id="${esc(item.id)}">Traité</button></article>`;
-  }).join("");
+    const buttons = item.status === "done"
+      ? `<button type="button" data-feedback-status="open" data-feedback-id="${esc(item.id)}">Remettre à traiter</button>`
+      : `<button type="button" data-feedback-status="in_review" data-feedback-id="${esc(item.id)}">En cours</button><button type="button" data-feedback-status="done" data-feedback-id="${esc(item.id)}">Traité</button>`;
+    return `<article class="cockpit-feedback-item"><b>${esc(when)} · ${esc(feedbackSectionLabels[item.sectionId] || item.sectionId || "Cockpit")} · ${esc(statusLabels[item.status] || item.status || "À traiter")}</b><p>${esc(item.message || "")}</p>${buttons}</article>`;
+  };
+  const active = feedback.filter(item => item.status !== "done");
+  const handled = feedback.filter(item => item.status === "done");
+  list.innerHTML = `<h3>Demandes actives · ${active.length}</h3>${active.map(renderItem).join("") || "<p>Aucune demande générale à traiter.</p>"}${handled.length ? `<details><summary>Historique traité · ${handled.length}</summary>${handled.map(renderItem).join("")}</details>` : ""}`;
 }
 
 function enhanceFeedbackListEvents() {
@@ -1867,6 +1875,7 @@ function renderMediaForCard(card) {
     navigation.hidden = true;
     return;
   }
+  const mediaDrafts = captureMediaDrafts(gallery);
   gallery.innerHTML = rows.map((row) => {
     const url = safeMediaUrl(row.url);
     const preview = mediaPreviewUrl(row);
@@ -1875,7 +1884,7 @@ function renderMediaForCard(card) {
       : `<span><span class="cockpit-media-icon" aria-hidden="true">${mediaKindIcons[row.kind] || "🔗"}</span><span class="cockpit-media-open-label">Ouvrir ${row.kind === "image" ? "l’image" : "le média"}</span></span>`;
     const choice = buildMediaChoiceModel(state.mediaDecisions.has(card.dataset.itemId), state.mediaDecisions.get(card.dataset.itemId) || null, row, latestDecision);
     const isFinal = choice.finalSelected;
-    const isBlocked = row.publicationBlocked === true;
+    const isBlocked = mediaSelectionBlocked(row);
     const rightsNeedConfirmation = mediaRightsNeedsConfirmation(row);
     const rightsConfirmed = row.rightsConfirmed === true;
     const workflowStage = state.workflows.get(card.dataset.itemId)?.stage || "proposal";
@@ -1887,7 +1896,6 @@ function renderMediaForCard(card) {
       : role === "admin"
         ? (myChoiceSelected ? "Retirer mon choix" : "Choisir ce visuel")
         : (myChoiceSelected ? "Retirer mon choix" : textApproved ? "Approuver ce visuel" : "Choisir ce visuel");
-    const choiceDisabled = isBlocked;
     const agreementPresentation = mediaAgreementPresentation(choice);
     const infoStatus = isFinal
       ? agreementPresentation.info
@@ -1899,27 +1907,27 @@ function renderMediaForCard(card) {
     const imageChoiceClass = defaultImageChoice.className;
     const roleBadges = [
       choice.communicationsSelected ? `<span class="cockpit-media-role-badge communications">✓ Recommandé par les communications</span>` : "",
-      choice.directionSelected ? `<span class="cockpit-media-role-badge direction">✓ Choisi par la direction générale · visuel prêt</span>` : "",
+      choice.directionSelected ? `<span class="cockpit-media-role-badge direction">✓ Choisi par la direction générale</span>` : "",
       choice.agreementSelected ? `<span class="cockpit-media-role-badge agreement">${agreementPresentation.badge}</span>` : choice.sameRoleChoice ? `<span class="cockpit-media-role-badge agreement">✓ Même visuel choisi par les deux rôles</span>` : "",
       choice.divergent && choice.directionSelected ? `<span class="cockpit-media-role-badge direction">Préférence des communications différente · décision de la direction retenue</span>` : "",
       choice.legacySelected ? `<span class="cockpit-media-role-badge">Choix hérité à confirmer — acteur non attribué</span>` : ""
     ].join("");
-    const canOverride = !isBlocked && !choice.agreementSelected && (role === "admin" || (role === "director" && myChoiceSelected && textApproved));
+    const canOverride = !isBlocked && !choice.agreementSelected && ["admin", "director"].includes(role) && textApproved;
     const mediaUpdatedAt = stateTimestampMillis(row.updatedAt || row.createdAt);
-    return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}${choice.communicationsSelected ? " is-recommended" : ""}${choice.directionSelected ? " is-direction-selected" : ""}${choice.divergent && !choice.directionSelected ? " is-divergent" : ""}${isBlocked ? " is-blocked" : ""}" data-media-id="${esc(row.id)}" data-media-stage="${esc(row.stage || "reference")}" data-media-updated-at="${mediaUpdatedAt}" data-media-selected-final="${String(isFinal)}" data-media-communications-selected="${String(choice.communicationsSelected)}" data-media-direction-selected="${String(choice.directionSelected)}">
+    return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}${choice.communicationsSelected ? " is-recommended" : ""}${choice.directionSelected ? " is-direction-selected" : ""}${choice.divergent && !choice.directionSelected ? " is-divergent" : ""}" data-media-id="${esc(row.id)}" data-media-stage="${esc(row.stage || "reference")}" data-media-updated-at="${mediaUpdatedAt}" data-media-selected-final="${String(isFinal)}" data-media-communications-selected="${String(choice.communicationsSelected)}" data-media-direction-selected="${String(choice.directionSelected)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
-      ${["director","admin"].includes(role) && !isBlocked ? `<button type="button" class="cockpit-media-image-choice${imageChoiceClass}" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}" aria-label="${esc(imageChoiceLabel)} — ${esc(row.label || "média")}">${esc(imageChoiceLabel)}</button>` : isBlocked ? `<span class="cockpit-media-image-status">${rightsNeedConfirmation ? "Droits à confirmer · ouvrir Informations et actions" : "Référence seulement"}</span>` : ""}
+      ${["director","admin"].includes(role) && !isBlocked ? `<button type="button" class="cockpit-media-image-choice${imageChoiceClass}" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}" aria-label="${esc(imageChoiceLabel)} — ${esc(row.label || "média")}">${esc(imageChoiceLabel)}</button>` : ""}
+      ${rightsNeedConfirmation ? `<p class="cockpit-media-rights-note">${rightsConfirmed ? "✓ Droits confirmés" : "Droits à vérifier · information, choix du visuel disponible"}</p>` : row.rightsStatus ? `<p class="cockpit-media-rights-note">${esc(row.rightsStatus)}</p>` : ""}
       <details class="cockpit-media-info" open><summary><span>Informations et actions</span><small class="cockpit-media-info-status ${isFinal ? "is-final" : ""}">${infoStatus}</small></summary><div class="cockpit-media-info-body">
         ${rightsNeedConfirmation && ["director","admin"].includes(role) ? `<label class="cockpit-media-rights-control${rightsConfirmed ? " is-confirmed" : ""}"><input type="checkbox" data-media-rights-confirmation="${esc(row.id)}"${rightsConfirmed ? " checked" : ""}><span><b>${rightsConfirmed ? "✓ Droits confirmés" : "Droits de diffusion à confirmer"}</b><small>${rightsConfirmed ? `Confirmés par ${esc(row.rightsConfirmedByLabel || "un membre de l’équipe")}. Décochez pour remettre ce point en attente.` : "Cochez seulement après avoir vérifié la source, le crédit et les autorisations nécessaires."}</small></span></label>` : ""}
-        ${isBlocked && rightsNeedConfirmation ? `<span class="cockpit-media-rights-warning">⚠ Ce média reste une référence interne tant que les droits ne sont pas confirmés.</span>` : ""}
-        ${isBlocked && !rightsNeedConfirmation ? `<span class="cockpit-media-blocked">Référence conservée pour comparaison — ne pas choisir pour diffusion.</span>` : ""}
         <div class="cockpit-media-meta"><b title="${esc(row.label || "Média OneDrive")}">${esc(row.label || "Média OneDrive")}</b>${row.note ? `<p>${esc(row.note)}</p>` : ""}<span class="cockpit-media-stage">${esc(mediaStageLabels[row.stage] || "Référence")}</span><br><a class="cockpit-media-source-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Ouvrir l’original dans OneDrive ↗</a></div>
         ${roleBadges ? `<div class="cockpit-media-role-badges">${roleBadges}</div>` : ""}
-        ${["director","admin"].includes(role) ? `<button type="button" class="cockpit-media-final-action" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}"${choiceDisabled ? " disabled" : ""}>${isBlocked ? "Référence non diffusable" : chooseLabel}</button>${canOverride ? `<button type="button" class="cockpit-media-override-action" data-media-override="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">${role === "admin" ? "Forcer ce visuel et le texte…" : "Retenir comme décision finale…"}</button>` : ""}<div class="cockpit-media-comment" data-voice-container><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire sur ce média" title="Dicter un commentaire sur ce média">🎙️</button><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div></div>` : ""}
         ${canEdit() ? `<button type="button" data-archive-media="${esc(row.id)}" aria-label="Archiver ce lien média" title="Archiver sans supprimer">Archiver ce lien</button>` : ""}
       </div></details>
+        ${["director","admin"].includes(role) ? `<button type="button" class="cockpit-media-final-action" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}"${isBlocked ? " disabled" : ""}>${isBlocked ? "Référence non diffusable" : chooseLabel}</button>${canOverride ? `<button type="button" class="cockpit-media-override-action" data-media-override="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Retenir ce visuel comme décision finale…</button>` : ""}<div class="cockpit-media-comment" data-voice-container><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire sur ce média" title="Dicter un commentaire sur ce média">🎙️</button><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div></div>` : ""}
     </article>`;
   }).join("");
+  restoreMediaDrafts(gallery, mediaDrafts);
   synchronizeMediaInfoPanels(gallery);
   gallery.querySelectorAll("img[data-media-preview]").forEach((image) => {
     image.addEventListener("error", () => {
@@ -2763,10 +2771,8 @@ function enhanceCardEvents() {
       const planItem = getPlanItem(card);
       const allowsMultiple = planItem?.mediaSelectionMode === "multiple";
       const textApproved = workflowTextApprovedStages.has(state.workflows.get(card.dataset.itemId)?.stage || "proposal");
-      const promptLabel = state.profile?.role === "director"
-        ? "Pourquoi retenir ce visuel comme décision finale?"
-        : textApproved ? "Quel motif autorise cette validation finale par les communications?" : "Pourquoi les communications valident-elles maintenant le texte et ce visuel?";
-      const reason = prompt(promptLabel, "");
+      const promptLabel = "Retenir ce visuel comme décision finale. Vous pourrez revenir sur ce choix. Motif à conserver dans l’historique :";
+      const reason = prompt(promptLabel, "Je retiens ce visuel pour cette publication.");
       if (reason === null) return;
       if (!reason.trim()) { toast("Ajoutez un motif clair afin de préserver la trace de décision.", true); return; }
       mediaOverrideButton.disabled = true;
@@ -2804,6 +2810,8 @@ function enhanceCardEvents() {
       (async () => {
         try {
           const commentId = await addComment(card.dataset.itemId, `🎨 Média « ${label} » : ${note}`, state.profile, null, input.dataset.dictated === "true");
+          const currentInput = [...card.querySelectorAll("[data-media-comment]")].find(field => field.dataset.mediaComment === mediaId);
+          if (currentInput?.value.trim() === note) { currentInput.value = ""; delete currentInput.dataset.dictated; }
           input.value = "";
           delete input.dataset.dictated;
           toast("Commentaire sur le média enregistré.");
@@ -2817,6 +2825,7 @@ function enhanceCardEvents() {
           toast(error.message, true);
         } finally {
           mediaCommentButton.disabled = false;
+          for (const button of card.querySelectorAll("[data-save-media-comment]")) if (button.dataset.saveMediaComment === mediaId) button.disabled = false;
         }
       })();
       return;
@@ -2979,7 +2988,7 @@ async function applyProfile(profile) {
   syncCardAccess();
   workspaceV2?.destroy(); workspaceV2 = null;
   try {
-    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20260908-v2.9");
+    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20260910-v2.10");
     setupInterfaceSwitch(profile);
     if (new URLSearchParams(location.search).get("interface") === "v2") workspaceV2 = await setupWorkspaceV2(profile, { state, enhanceCards, toast, mediaPreview: mediaPreviewUrl });
   } catch { toast("La V2 est indisponible; le cockpit classique reste actif.", true); }

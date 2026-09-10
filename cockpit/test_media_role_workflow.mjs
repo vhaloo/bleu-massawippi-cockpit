@@ -45,7 +45,8 @@ assert.equal(sandbox.deriveMediaAgreement(selected("media-a", "admin"), revoked(
 assert.match(client, /const sideName = profile\.role === "admin" \? "communications" : "direction"/);
 assert.doesNotMatch(client, /profile\.role === "director" && selected && !textApproved/,
   "La direction doit pouvoir indiquer son choix visuel avant l’approbation du texte.");
-assert.match(client, /publicationBlocked === true \|\| media\.archived === true/);
+assert.match(client, /selected && mediaSelectionBlocked\(media\)/);
+assert.doesNotMatch(client, /selected && \(media\.publicationBlocked/);
 assert.match(client, /setMediaDecision[\s\S]*?runTransaction\(db[\s\S]*?transaction\.set\(archiveReference/);
 assert.match(client, /archiveReference = doc\(db, "changeArchive"/);
 assert.match(client, /sameExistingChoice[\s\S]*?return before/);
@@ -64,12 +65,12 @@ assert.match(client, /setWorkflowStage[\s\S]*?deriveMediaAgreement\(mediaBefore\
   "Le feu visuel doit être recalculé quand le texte est approuvé ou rouvert.");
 assert.match(client, /stage === "content_approved" && \["agreed", "overridden"\]\.includes\(agreement\.status\)[\s\S]{0,80}nextStage = "final_approved"/,
   "Après une nouvelle approbation du texte, un accord média conservé doit redevenir final sans double manipulation.");
-assert.match(client, /adminOverrideApprovesText[\s\S]{0,260}effectiveTextApproved/,
-  "Les communications doivent pouvoir valider en une transaction le texte et le visuel avec un motif explicite.");
+assert.doesNotMatch(client, /adminOverrideApprovesText/,
+  "Les deux validations restent distinctes.");
 assert.match(client, /subscribeMediaDecisions[\s\S]*?limit\(80\)/);
 assert.doesNotMatch(client + ui, /alt-20260715|nature-alt-20260715-libellule/, "Le code générique ne doit pas fabriquer une approbation spéciale pour la libellule.");
 
-assert.match(mediaUi, /hasStructuredChoice \? \(directionSelected \|\| agreementIds\.includes\(row\.id\)\) : legacySelected/,
+assert.match(mediaUi, /decision\?\.agreement\?\.status === "overridden" \? agreementIds\.includes\(row\.id\)/,
   "Le choix de la direction doit être présenté comme le visuel final sans effacer le choix des communications.");
 assert.match(ui, /Recommandé par les communications/);
 assert.match(ui, /Choisi par la direction générale/);
@@ -95,16 +96,16 @@ assert.match(ui, /Cochez seulement après avoir vérifié la source, le crédit 
   "Le contrôle ne doit jamais présenter la confirmation des droits comme automatique.");
 assert.match(client, /export async function setMediaRightsConfirmation[\s\S]*?runTransaction\(db/,
   "La confirmation des droits doit être atomique et réversible.");
-assert.match(client, /Retirez d’abord ce média des choix actifs/,
-  "La remise en attente des droits ne doit pas laisser un choix média incohérent.");
+assert.doesNotMatch(client, /Retirez d’abord ce média des choix actifs/,
+  "Les droits restent indépendants du choix éditorial.");
 assert.match(ui, /myChoiceSelected \? "Retirer mon choix" : "Choisir ce visuel"/,
   "Les communications doivent pouvoir retirer puis reprendre leur propre choix média.");
-assert.match(ui, /const canOverride = !isBlocked[\s\S]{0,180}role === "admin"/,
-  "Valentin doit voir l’override motivé sur tout média diffusable, même avant son premier choix.");
-assert.match(ui, /Forcer ce visuel et le texte/,
+assert.match(ui, /const canOverride = !isBlocked && !choice\.agreementSelected[\s\S]{0,180}textApproved/,
+  "Les deux rôles disposent de la décision finale après validation du texte.");
+assert.match(ui, /Retenir ce visuel comme décision finale/,
   "L’action de forçage doit être nommée explicitement dans la vue des communications.");
-assert.match(ui, /const canOverride = !isBlocked/,
-  "Une référence bloquée ne doit jamais devenir forçable par le changement d’interface.");
+assert.match(ui, /const canOverride = !isBlocked && !choice\.agreementSelected/,
+  "La décision finale ne dépend pas des droits; elle conserve la porte texte.");
 assert.match(ui, /const selected = mediaDecisionButton\.getAttribute\("aria-pressed"\) !== "true"/,
   "Le même contrôle média doit alterner choix et retrait sans suppression d’historique.");
 assert.match(ui, /mediaSelectionMode === "multiple"/,

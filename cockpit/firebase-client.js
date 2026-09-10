@@ -1,4 +1,5 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20260910-b81";
 import {
   getAuth,
   setPersistence,
@@ -35,9 +36,9 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260908-b80";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20260908-b80";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20260908-b80";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260910-b81";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20260910-b81";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20260910-b81";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -1150,17 +1151,16 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
     ]);
     if (!mediaSnapshot.exists() || mediaSnapshot.data().eventId !== eventId) throw new Error("Ce média n’appartient pas à cet événement.");
     const media = mediaSnapshot.data();
-    if (selected && (media.publicationBlocked === true || media.archived === true)) {
+    if (selected && mediaSelectionBlocked(media)) {
       throw new Error("Cette référence est conservée pour comparaison et ne peut pas être choisie.");
     }
 
     const workflowBefore = workflowSnapshot.exists() ? workflowSnapshot.data() : { eventId, stage: "proposal" };
     const workflowStage = String(workflowBefore.stage || "proposal");
     const textApproved = contentApprovedWorkflowStages.has(workflowStage);
-    const adminOverrideApprovesText = wantsOverride && profile.role === "admin" && !textApproved;
-    const effectiveTextApproved = textApproved || adminOverrideApprovesText;
-    if (wantsOverride && (!selected || !effectiveTextApproved || !overrideReason)) {
-      throw new Error("Un override exige un média choisi, un motif explicite et, sauf pour les communications, le texte approuvé.");
+    // Un choix de photo ne valide jamais implicitement le texte.
+    if (wantsOverride && (!selected || !textApproved || !overrideReason)) {
+      throw new Error("Validez le texte avant de retenir un visuel comme décision finale. Le choix simple reste disponible à tout moment.");
     }
 
     const before = normalizeMediaDecision(decisionSnapshot.exists() ? decisionSnapshot.data() : {}, eventId);
@@ -1170,7 +1170,7 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
     const sameExistingChoice = before[sideName].status === selectedSideStatus
       && sameOrderedMedia(before[sideName].mediaIds, selectedSideIds)
       && !wantsOverride
-      && (profile.role === "admin" || before.override.active !== true);
+      && before.override.active !== true;
     if (sameExistingChoice) return before;
 
     const now = serverTimestamp();
@@ -1181,10 +1181,10 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
       // Une action des communications ne peut jamais révoquer implicitement
       // une décision motivée de la direction. Seule la direction peut la
       // remplacer ou la retirer; les règles Firestore imposent la même limite.
-      override: profile.role === "admin" && !wantsOverride
+      override: profile.role === "admin" && !wantsOverride && before.override.actorRole !== "admin"
         ? { ...before.override, mediaIds: [...before.override.mediaIds] }
         : emptyOverride(),
-      textGateStage: adminOverrideApprovesText ? "content_approved" : workflowStage
+      textGateStage: workflowStage
     };
     next[sideName] = {
       status: selectedSideStatus,
@@ -1205,7 +1205,7 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
         decidedAt: now
       };
     }
-    const agreement = deriveMediaAgreement(next.communications, next.direction, next.override, effectiveTextApproved);
+    const agreement = deriveMediaAgreement(next.communications, next.direction, next.override, textApproved);
     next.agreement = agreement;
     next.lastMutationId = mutationId;
     next.updatedAt = now;
@@ -1279,23 +1279,7 @@ export async function setMediaRightsConfirmation(mediaId, confirmed, profile) {
       || rightsStatus.includes("unconfirmed")
       || rightsStatus.includes("incertain");
     if (!rightsNeedConfirmation) throw new Error("Ce média n’est pas identifié comme ayant des droits à confirmer.");
-    if (before.rightsConfirmed === confirmed && before.publicationBlocked === !confirmed) return before;
-
-    if (!confirmed) {
-      const decisionSnapshot = await transaction.get(doc(db, "mediaDecisions", String(before.eventId || "")));
-      if (decisionSnapshot.exists()) {
-        const decision = decisionSnapshot.data();
-        const selectedIds = [
-          ...(Array.isArray(decision.communications?.mediaIds) ? decision.communications.mediaIds : []),
-          ...(Array.isArray(decision.direction?.mediaIds) ? decision.direction.mediaIds : []),
-          ...(Array.isArray(decision.override?.mediaIds) ? decision.override.mediaIds : []),
-          ...(Array.isArray(decision.agreement?.mediaIds) ? decision.agreement.mediaIds : [])
-        ];
-        if (selectedIds.includes(mediaId)) {
-          throw new Error("Retirez d’abord ce média des choix actifs avant de remettre ses droits en attente.");
-        }
-      }
-    }
+    if (before.rightsConfirmed === confirmed && before.publicationBlocked === false) return before;
 
     const now = serverTimestamp();
     const next = {
@@ -1303,7 +1287,8 @@ export async function setMediaRightsConfirmation(mediaId, confirmed, profile) {
       rightsConfirmedAt: confirmed ? now : null,
       rightsConfirmedBy: confirmed ? profile.uid : "",
       rightsConfirmedByLabel: confirmed ? actorLabel : "",
-      publicationBlocked: !confirmed,
+      // Les droits renseignent la décision éditoriale, sans la bloquer ni l'effacer.
+      publicationBlocked: false,
       updatedAt: now,
       updatedBy: profile.uid
     };
@@ -1320,7 +1305,7 @@ export async function setMediaRightsConfirmation(mediaId, confirmed, profile) {
       after: {
         rightsConfirmed: confirmed,
         rightsConfirmedBy: confirmed ? profile.uid : "",
-        publicationBlocked: !confirmed
+        publicationBlocked: false
       },
       actorUid: profile.uid,
       actorLabel,
@@ -1358,7 +1343,7 @@ export async function setMediaFinalChoice(mediaId, selected, profile) {
   const existing = await getDoc(reference);
   if (!existing.exists()) throw new Error("Ce média n’existe plus.");
   const before = existing.data();
-  if (selected && (before.publicationBlocked === true || before.archived === true)) {
+  if (selected && mediaSelectionBlocked(before)) {
     throw new Error("Cette référence est conservée pour comparaison et ne peut pas devenir le média final.");
   }
   const next = {
