@@ -1,0 +1,19 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connexion du cockpit — essai local</title><style>*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif}button,input,textarea{font:inherit;padding:10px;border:1px solid #ccd9d5;border-radius:7px;background:#fff;color:#17424a}button{cursor:pointer}#fixture-login{padding:30px;background:#f9f2e7;color:#15343b}#fixture-notice{padding:10px;background:#fff5cd;color:#533e08}.cockpit-workflow-gates{display:grid;gap:10px}.cockpit-media-preview{display:block}.vm-panel{padding:20px}#cockpit-session{display:flex;color:white}#cockpit-announcer{position:absolute;width:1px;height:1px;overflow:hidden}</style>
+<script type="importmap">{"imports":{"./firebase-client.js?v=20260910-b83":"data:text/javascript,export async function fetchPublicationHistoryPage(){return {items:[],hasMore:false}}","./editor-studio.js?v=20260910-b83":"data:text/javascript,export function openPublicationStudio(){}"}}</script></head><body>
+<section id="fixture-login"><h1>Connexion de test</h1><p>Parcours local de l’adaptateur réel. Aucune connexion Firebase, aucun identifiant réel.</p><button id="fixture-connect">Se connecter (test local)</button></section>
+<script type="module">
+import {fixtureHTML,fixtures} from './workspace-test-fixture.mjs';
+import {setupInterfaceSwitch,setupWorkspaceV2} from './workspace-adapter.js';
+const role=new URLSearchParams(location.search).get('role')==='director'?'director':'admin';
+document.querySelector('#fixture-connect').addEventListener('click',async()=>{
+ document.querySelector('#fixture-login').remove();
+ document.body.insertAdjacentHTML('afterbegin',fixtureHTML);
+ globalThis.posts=structuredClone(fixtures);
+ const profile={uid:'local-test-only',role};
+ const state={basePosts:fixtures,workflows:new Map(fixtures.map(p=>[p.id,{stage:'content_approved'}])),decisions:new Map(),mediaByEvent:new Map(),mediaDecisions:new Map()};
+ await import('./theme.js');
+ setupInterfaceSwitch(profile);
+ await setupWorkspaceV2(profile,{state,enhanceCards(){},toast(message){const note=document.createElement('p');note.id='fixture-notice';note.textContent=message;document.body.prepend(note);},mediaPreview(){return ''}});
+ document.body.dataset.entryReady='true';
+});
+</script></body></html>

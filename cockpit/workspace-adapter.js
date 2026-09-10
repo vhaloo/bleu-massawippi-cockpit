@@ -1,7 +1,7 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20260910-b82";
-import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260910-b82";
-import { openPublicationStudio } from "./editor-studio.js?v=20260910-b82";
-import { interfaceUrl } from "./workspace-model.mjs";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20260910-b83";
+import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260910-b83";
+import { openPublicationStudio } from "./editor-studio.js?v=20260910-b83";
+import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20260910-v2.12";
 
 export function setupInterfaceSwitch(profile) {
   if (!profile?.uid) return;
@@ -9,18 +9,20 @@ export function setupInterfaceSwitch(profile) {
   if (!session) return;
   let link = session.querySelector("#cockpit-interface-switch");
   if (!link) { link = document.createElement("a"); link.id = "cockpit-interface-switch"; session.append(link); }
-  const isV2 = new URLSearchParams(location.search).get("interface") === "v2";
-  link.textContent = isV2 ? "↔ Version classique" : "↔ Essayer la nouvelle interface";
+  const isV2 = preferredInterface(location.href) === "v2";
+  link.textContent = isV2 ? "↔ Version classique" : "↔ Version 2";
   link.title = isV2 ? "Revenir à la version classique, avec les mêmes textes, médias, commentaires et validations. Enregistrez vos saisies en cours avant de changer d’interface." : "Ouvrir la nouvelle interface. Vous pourrez revenir ici à tout moment; vos dossiers et vos droits restent les mêmes. Enregistrez vos saisies en cours avant de changer d’interface.";
   const update = () => { link.href = interfaceUrl(location.href, isV2 ? "classic" : "v2", (globalThis.posts || []).map(p => p.id)); };
   update(); link.onpointerenter = update; link.onfocus = update; link.onclick = update;
 }
 
 export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, mediaPreview }) {
-  if (new URLSearchParams(location.search).get("interface") !== "v2") return;
+  if (!profile?.uid || preferredInterface(location.href) !== "v2") return;
   // Existing controls remain the single write path. Failure leaves V1 usable.
   try {
-    const { mountWorkspace } = await import("./workspace-v2.js?v=20260910-v2.11");
+    const entry = interfaceUrl(location.href, "v2", (globalThis.posts || []).map(post => post.id));
+    if (entry !== location.href) history.replaceState(history.state, "", entry);
+    const { mountWorkspace } = await import("./workspace-v2.js?v=20260910-v2.12");
     return mountWorkspace({
       profile,
       getPosts: () => globalThis.posts || [],
@@ -56,6 +58,8 @@ export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, me
   } catch (error) {
     document.documentElement.removeAttribute("data-workspace");
     document.querySelector("#workspace-v2")?.remove();
+    history.replaceState(history.state, "", interfaceUrl(location.href, "classic", (globalThis.posts || []).map(post => post.id)));
+    setupInterfaceSwitch(profile);
     toast("La V2 n’a pas pu démarrer; la version classique reste disponible.", true);
     console.warn("Démarrage V2 interrompu", error);
   }

@@ -1,5 +1,5 @@
 /** Pure presentation model. Never changes a date, approval, or source object. */
-export const WORKSPACE_VERSION = "20260910-v2.11";
+export const WORKSPACE_VERSION = "20260910-v2.12";
 export const SPACES = Object.freeze({
   accueil: { label: "À faire", icon: "decisions", title: "Un peu de clarté pour avancer.", description: "Vos décisions, les nouveautés et le travail qui vous attend." },
   publications: { label: "Publications", icon: "publications", title: "Les mots et les images du lac.", description: "Le calendrier des réseaux sociaux, les propositions et leur historique." },
@@ -56,6 +56,10 @@ export function previewCandidates(rows, choice) {
   const legacy = !choice ? available.filter(row => row.selectedFinal === true) : [];
   return (legacy.length ? legacy : available).map(row => ({ row, label: legacy.length ? "Média retenu dans l’historique" : "Proposition · choix à confirmer" }));
 }
+/** V2 is the signed-in default; the classic view requires an explicit link. */
+export function preferredInterface(href) {
+  return new URL(href).searchParams.get("interface") === "classic" ? "classic" : "v2";
+}
 export function interfaceUrl(href, target, postIds = []) {
   const url = new URL(href);
   if (target === "v2") {
@@ -63,9 +67,10 @@ export function interfaceUrl(href, target, postIds = []) {
     const raw = url.hash.slice(1);
     let id = raw; try { id = decodeURIComponent(raw); } catch { /* retain safe legacy route */ }
     if (postIds.includes(id)) url.hash = routeHash("publications", id);
-    else if (!url.hash || url.hash === "#calendrier" || url.hash === "#posts") url.hash = routeHash("publications", "", "calendrier");
+    else if (!url.hash) url.hash = routeHash("accueil");
+    else if (url.hash === "#calendrier" || url.hash === "#posts") url.hash = routeHash("publications", "", "calendrier");
   } else {
-    url.searchParams.delete("interface");
+    url.searchParams.set("interface", "classic");
     const route = parseRoute(url.hash);
     url.hash = route.legacy ? `#${route.legacy}` : route.id && postIds.includes(route.id) ? `#${encodeURIComponent(route.id)}` : route.space === "projets" ? "#projets" : route.space === "publications" ? "#calendrier" : route.space === "bibliotheque" ? "#sources" : "";
   }
