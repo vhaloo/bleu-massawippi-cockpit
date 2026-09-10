@@ -615,9 +615,9 @@ await wait();
 assert.doesNotMatch(document.querySelector(".vm-decisions").textContent, /visuel recommandé/);
 sequentialCard.dataset.workflowStage = "content_review";
 
-// Le compteur Messages représente uniquement les messages entrants non lus.
-// L'ouverture réussie les marque localement comme vus, sans écriture Firebase;
-// une modification plus récente du même commentaire le rend de nouveau visible.
+// Le compteur Messages représente les demandes non traitées de tous les auteurs.
+// Lire conserve le message actif; traiter retire sa dernière version de la file,
+// tout en conservant les échanges dans la conversation de la publication.
 const messageHost = document.createElement("div");
 messageHost.dataset.commentThread = "";
 messageHost.innerHTML = `<article class="cockpit-message other" data-comment-id="comment-visible" data-created-at="600" data-updated-at="600"><header><b>💬 Communications</b><span>maintenant</span></header><p>Message à lire.</p></article><article class="cockpit-message mine" data-comment-id="comment-mine" data-created-at="601" data-updated-at="601"><header><b>💬 Annie</b><span>maintenant</span></header><p>Mon propre message.</p></article>`;
@@ -652,6 +652,9 @@ messageHost.querySelector('.mine').classList.add('handled');
 window.dispatchEvent(new window.CustomEvent("cockpit:data-updated"));
 await wait();
 assert.equal(document.querySelector("[data-vm-message-count]").hidden, true);
+assert.equal(messageHost.querySelectorAll('.cockpit-message').length, 2, "La clôture ne supprime pas les échanges d’origine.");
+assert.equal(updatedMessage.isConnected, true, "La version traitée reste dans la conversation.");
+assert.doesNotMatch(document.querySelector(".vm-messages").textContent, /Message modifié à relire|Mon propre message/);
 
 // Une cible passée et filtrée est reconstruite, puis son brief et ses médias
 // sont ouverts, focalisés et annoncés.

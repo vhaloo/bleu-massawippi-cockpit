@@ -1,6 +1,6 @@
-import { SPACES, WORKSPACE_VERSION, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs";
+import { SPACES, WORKSPACE_VERSION, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20260910-v2.12";
 
-/** Opt-in presentation adapter. Existing DOM controls remain the only writers. */
+/** Default presentation adapter. Existing DOM controls remain the only writers. */
 export function mountWorkspace(api) {
   const doc = api.document || document;
   const win = api.window || window;
@@ -19,8 +19,8 @@ export function mountWorkspace(api) {
   if (!css) { css = doc.createElement("link"); css.id = "workspace-v2-style"; css.rel = "stylesheet"; css.href = new URL(`./workspace-v2.css?v=${WORKSPACE_VERSION}`, import.meta.url).href; doc.head.append(css); }
   doc.documentElement.dataset.workspace = "v2";
   const shell = doc.createElement("div"); shell.id = "workspace-v2";
-  const classic = new URL(win.location.href); classic.searchParams.delete("interface"); classic.hash = "";
-  shell.innerHTML = `<aside class="v2-sidebar"><a class="v2-brand" href="#/accueil" data-v2-route title="Retour à votre tableau de travail"><span class="v2-brand-mark" aria-hidden="true">≈</span><span>BLEU MASSAWIPPI<small>Le cockpit · aperçu V2</small></span></a><nav aria-label="Espaces de travail">${Object.entries(SPACES).map(([key, val]) => `<a data-v2-route href="${routeHash(key)}" data-v2-space="${key}" title="${esc(val.description)}"><span aria-hidden="true">${icon(val.icon)}</span>${val.label}</a>`).join("")}</nav><div class="v2-side-bottom"><p>Mêmes dossiers.<br>Une autre façon d’avancer.</p><a class="v2-classic-link" href="${esc(classic.href)}" title="Revenir à l’interface habituelle. Vos textes, choix et commentaires restent enregistrés dans la même base.">↩ Version classique</a><button type="button" data-v2-help title="Comprendre les espaces, les validations, les galeries et le retour à la version classique">${icon("help")} Aide à la navigation</button></div></aside><header class="v2-heading"><div><p class="v2-eyebrow">Notre espace de travail</p><h1 tabindex="-1" data-v2-title></h1><p data-v2-description></p></div><span class="v2-wave" aria-hidden="true">∿<br>∿</span></header><div class="v2-toolbar" data-v2-toolbar></div><section class="v2-panel" data-v2-panel></section><p class="v2-connection-note" data-v2-note>Les actions de cette V2 utilisent les données réelles du cockpit. Rien n’est envoyé aux réseaux sociaux.</p>`;
+  const classic = new URL(interfaceUrl(win.location.href, "classic", (api.getPosts?.() || []).map(post => post.id)));
+  shell.innerHTML = `<aside class="v2-sidebar"><a class="v2-brand" href="#/accueil" data-v2-route title="Retour à votre tableau de travail"><span class="v2-brand-mark" aria-hidden="true">≈</span><span>BLEU MASSAWIPPI<small>Le cockpit · Version 2</small></span></a><nav aria-label="Espaces de travail">${Object.entries(SPACES).map(([key, val]) => `<a data-v2-route href="${routeHash(key)}" data-v2-space="${key}" title="${esc(val.description)}"><span aria-hidden="true">${icon(val.icon)}</span>${val.label}</a>`).join("")}</nav><div class="v2-side-bottom"><p>Mêmes dossiers.<br>Une autre façon d’avancer.</p><a class="v2-classic-link" href="${esc(classic.href)}" title="Revenir à l’interface habituelle. Vos textes, choix et commentaires restent enregistrés dans la même base.">↩ Version classique</a><button type="button" data-v2-help title="Comprendre les espaces, les validations, les galeries et le retour à la version classique">${icon("help")} Aide à la navigation</button></div></aside><header class="v2-heading"><div><p class="v2-eyebrow">Notre espace de travail</p><h1 tabindex="-1" data-v2-title></h1><p data-v2-description></p></div><span class="v2-wave" aria-hidden="true">∿<br>∿</span></header><div class="v2-toolbar" data-v2-toolbar></div><section class="v2-panel" data-v2-panel></section><p class="v2-connection-note" data-v2-note>Les actions de cette V2 utilisent les données réelles du cockpit. Rien n’est envoyé aux réseaux sociaux.</p>`;
   host.before(shell);
   const footer = host.querySelector("footer"); if (footer && !footer.id) footer.id = "v2-classic-footer";
   const portable = doc.createElement("div"); portable.className = "v2-portable-tools";
@@ -302,7 +302,7 @@ export function mountWorkspace(api) {
     const r = state.route; const space = SPACES[r.space];
     all(".v2-classic-link,.v2-portable-tools a", shell).forEach(link => { link.href = interfaceUrl(win.location.href, "classic", (api.getPosts?.() || []).map(p => p.id)); });
     resetVisibility(); toolbar.replaceChildren(); panel.replaceChildren();
-    note.textContent = "V2 d’essai · données partagées avec le cockpit classique.";
+    note.textContent = "Version 2 · données partagées avec le cockpit classique.";
     note.title = "Les commentaires, choix et validations sont réels et restent visibles dans les deux interfaces. Aucun contenu n’est envoyé aux réseaux sociaux.";
     shell.dataset.space = r.space; heading.textContent = space.title; description.textContent = space.description;
     all("[data-v2-space]", shell).forEach(n => { if (n.dataset.v2Space === r.space) n.setAttribute("aria-current", "page"); else n.removeAttribute("aria-current"); });

@@ -1,19 +1,19 @@
-# Cockpit V2 — pilote à interface réversible
+# Cockpit V2 — interface par défaut et retour classique
 
 ## Ouverture et retour
 
-- Version habituelle : URL du cockpit sans paramètre.
-- Pilote : ajouter `?interface=v2`.
+- Par défaut après connexion : la V2, sur « À faire » si aucun lien direct n’est demandé. Les liens `?interface=v2` existants restent valides.
+- Version classique : bouton « Version classique » ou `?interface=classic`; ce choix explicite est conservé lors du rechargement de ce lien. Les bascules conservent la fiche ciblée.
 - Routes : `#/accueil`, `#/publications`, `#/projets`, `#/bibliotheque`.
 - Deux calendriers indépendants : `#/publications?vue=calendrier` et `#/projets?vue=calendrier`.
-- Le lien « Version classique » retire le paramètre. Il ne restaure pas une ancienne base de données.
-- La barre de session propose « Essayer la nouvelle interface » à tout compte autorisé, y compris la direction; le retour conserve la publication consultée. Enregistrer les saisies en cours avant un changement complet d’interface.
+- Le lien « Version classique » précise `interface=classic`. Il ne restaure pas une ancienne base de données.
+- La barre de session propose la bascule à tout compte autorisé, y compris la direction; le retour conserve la publication consultée. Enregistrer les saisies en cours avant un changement complet d’interface.
 
-Les données sont partagées entre les interfaces. Un choix ou un commentaire fait dans le pilote est un vrai choix ou commentaire. Aucun envoi social ou courriel n’est ajouté.
+Les données sont partagées entre les interfaces. Un choix ou un commentaire fait dans la V2 est un vrai choix ou commentaire. Aucun envoi social ou courriel n’est ajouté.
 
 ## Architecture et préservation
 
-La V2 est un adaptateur de présentation opt-in. Elle déplace les contrôles DOM d’origine, sans les cloner, et conserve leurs gestionnaires et identifiants. Les commandes Firestore existantes restent les seuls chemins d’écriture. Aucun registre éditorial n’est réinitialisé ou resynchronisé par cette refonte.
+La V2 est l’adaptateur de présentation ouvert par défaut. Elle déplace les contrôles DOM d’origine, sans les cloner, et conserve leurs gestionnaires et identifiants. Les commandes Firestore existantes restent les seuls chemins d’écriture. Aucun registre éditorial n’est réinitialisé ou resynchronisé par cette refonte. Un échec de chargement conserve le repli classique et permet de réessayer la V2.
 
 | Fonctions existantes | Où les retrouver |
 | --- | --- |
@@ -39,6 +39,8 @@ La V2 est un adaptateur de présentation opt-in. Elle déplace les contrôles DO
 Les anciens textes ne sont pas inventés : l’historique montre les versions structurées disponibles dans `changeArchive` et le texte source conservé. Un ajustement ancien effectué avant le journal versionné peut ne pas posséder de trace avant/après. La consultation est paginée par 12; aucun listener historique permanent.
 
 La frise est bornée à neuf éléments par défaut. Ses vignettes et celles du calendrier utilisent le cache média déjà chargé, sans requête ni listener supplémentaire. Un aperçu ne crée jamais un accord et ne remplace pas la galerie. « Messages actifs » désigne les messages non traités et non masqués des publications chargées, pas une recherche exhaustive de toutes les conversations.
+
+À la clôture d’un cycle éditorial, chaque demande réalisée et vérifiée doit être marquée traitée, avec son suivi associé. Elle quitte alors la liste active, en V2 comme dans la vue classique, et reste dans l’historique de la conversation. Lire un message ne le traite pas; une demande incomplète ou en attente reste active. La clôture du suivi ne vaut pas approbation du texte ou du média.
 
 Le contexte ciblé de la publication ouverte reste prioritaire sur la fenêtre générale de données récentes. Une réponse générale tardive ne peut donc plus masquer un ancien média approuvé ou des commentaires déjà chargés. Le contexte est libéré en quittant la publication; les réponses d'un abonnement précédent sont ignorées, même après un aller-retour au même dossier. Cette protection utilise les abonnements existants, sans nouvelles lectures. La galerie adopte un choix de la direction reçu après son premier aperçu, sauf si l'utilisateur a lui-même changé d'image.
 

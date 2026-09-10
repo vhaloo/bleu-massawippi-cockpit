@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { parseHTML } from "linkedom";
-import { monthDays, validCivilDate, sortPublications, parseRoute, routeHash, filterPublications, todayKey, isPastDate, publicationState, publicationProgress, safeLink, publicationNeighbours, previewCandidates, interfaceUrl, workspaceIcon } from "./workspace-model.mjs";
+import { monthDays, validCivilDate, sortPublications, parseRoute, routeHash, filterPublications, todayKey, isPastDate, publicationState, publicationProgress, safeLink, publicationNeighbours, previewCandidates, interfaceUrl, preferredInterface, workspaceIcon } from "./workspace-model.mjs";
 import { fixtures, fixtureHTML, mockAPI } from "./workspace-test-fixture.mjs";
 import { mountWorkspace } from "./workspace-v2.js";
 import { buildFeedbackWidget } from "./feedback-widget.mjs";
@@ -71,8 +71,30 @@ check("switch V1/V2 conserve la publication et les autres paramètres", () => {
   const v2 = interfaceUrl(href, "v2", ["test-first"]);
   assert.equal(new URL(v2).hash, "#/publications/test-first");
   assert.equal(new URL(v2).searchParams.get("mode"), "safe");
-  assert.equal(interfaceUrl(v2, "classic", ["test-first"]), href);
+  const classic = new URL(interfaceUrl(v2, "classic", ["test-first"]));
+  assert.equal(classic.hash, "#test-first");
+  assert.equal(classic.searchParams.get("mode"), "safe");
+  assert.equal(preferredInterface(classic.href), "classic");
+  assert.equal(interfaceUrl(classic.href, "v2", ["test-first"]), v2);
   assert.notEqual(workspaceIcon("socialCalendar"), workspaceIcon("projectCalendar"));
+});
+check("connexion ordinaire et application installée ouvrent la V2 sur À faire", () => {
+  for (const href of ["https://example.org/", "https://example.org/?source=application", "https://example.org/?fresh=1", "https://example.org/?interface=v2"]) {
+    assert.equal(preferredInterface(href), "v2");
+    const entry = new URL(interfaceUrl(href, "v2"));
+    assert.equal(entry.hash, "#/accueil");
+    assert.equal(entry.searchParams.get("source"), new URL(href).searchParams.get("source"));
+  }
+});
+check("les choix classiques et les liens directs restent explicites après reconnexion", () => {
+  const classic = "https://example.org/?interface=classic#test-first";
+  assert.equal(preferredInterface(classic), "classic");
+  assert.equal(preferredInterface("https://example.org/?interface=inconnu"), "v2");
+  for (const hash of ["#test-first", "#/publications/test-first"]) {
+    assert.equal(new URL(interfaceUrl(`https://example.org/${hash}`, "v2", ["test-first"])).hash, "#/publications/test-first");
+  }
+  for (const hash of ["#calendrier", "#posts"]) assert.equal(new URL(interfaceUrl(`https://example.org/${hash}`, "v2")).hash, "#/publications?vue=calendrier");
+  assert.equal(new URL(interfaceUrl("https://example.org/#/projets/dossier", "v2")).hash, "#/projets/dossier");
 });
 const {document,window} = parseHTML("<!doctype html><html><head></head><body>"+fixtureHTML+"</body></html>");
 globalThis.document=document; globalThis.window=window; globalThis.MutationObserver=window.MutationObserver; globalThis.CustomEvent=window.CustomEvent;
@@ -103,7 +125,7 @@ check('messages et actions accessibles directement depuis chaque espace',()=>{
     assert(document.querySelector('.v2-global-actions a[href="#/accueil/decisions"]'));
   }
 });
-check("montage opt-in et quatre espaces",()=>{assert.equal(document.documentElement.dataset.workspace,"v2");assert.equal(document.querySelectorAll("[data-v2-space]").length,4);});
+check("montage de la V2 et quatre espaces",()=>{assert.equal(document.documentElement.dataset.workspace,"v2");assert.equal(document.querySelectorAll("[data-v2-space]").length,4);});
 check("outils originaux regroupés sans superposition ni perte de gestionnaire",()=>{assert(utility.closest('.v2-utilities'));utility.click();assert.equal(utilityClicks,1);assert(!utility.closest('details').open);});
 check("boîte à idées accessible directement, hors des outils repliés", () => {
   assert(ideas.launch.closest('.v2-global-actions')); assert(!ideas.launch.closest('details'));
@@ -261,5 +283,5 @@ check("Annie peut ouvrir sa boîte globale dans toutes les vues de la V2", () =>
   assert.equal(ideaSubmits, 0);
 });
 directorWorkspace.destroy();
-check("aucun writer Firebase parallèle et activation explicite",()=>{assert(!/setDoc|updateDoc|writeBatch|savePublicationContent|deleteDoc/.test(v2));assert(ui.includes('get("interface") === "v2"'));});
+check("aucun writer Firebase parallèle et démarrage confié à l’adaptateur après connexion",()=>{assert(!/setDoc|updateDoc|writeBatch|savePublicationContent|deleteDoc/.test(v2));assert(ui.includes('workspaceV2 = await setupWorkspaceV2(profile'));assert(!ui.includes('get("interface") === "v2"'));});
 console.log(`✓ ${checks} contrôles V2 : calendrier, galerie, droits d’interface, versions et conservation.`);

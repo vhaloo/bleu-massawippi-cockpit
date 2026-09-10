@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "preview:v2": "node preview_workspace_v2.mjs",
-    "test:workspace-v2": "node --check workspace-adapter.js && node --check workspace-v2.js && node test_workspace_v2.mjs && node test_feedback_widget.mjs",
+    "test:workspace-v2": "node --check workspace-adapter.js && node --check workspace-v2.js && node test_workspace_v2.mjs && node test_workspace_entry.mjs && node test_feedback_widget.mjs",
     "schedule:check": "node schedule_reconciliation.mjs --from=2026-08-17",
     "sync": "node admin_sync.js",
     "editor": "node publication_editor_cli.mjs",
