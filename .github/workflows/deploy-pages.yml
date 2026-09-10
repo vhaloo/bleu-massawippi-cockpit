@@ -52,6 +52,9 @@ jobs:
           npm --prefix cockpit run test:editor-studio
           npm --prefix cockpit run test:editor-cli
           npm --prefix cockpit run test:editor-rules
+          npm --prefix cockpit run test:media
+          npm --prefix cockpit run test:media-rules
+          npm --prefix cockpit run test:view-mode
           npm --prefix cockpit run test:workspace-v2
           npm --prefix cockpit run test:theme
           npm --prefix cockpit run test:resilience
