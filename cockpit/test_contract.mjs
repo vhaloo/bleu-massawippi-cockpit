@@ -1106,7 +1106,7 @@ assert.match(source, /ARCHIVES%20-%20cl%C3%B4ture%20finale%20-%202026-09-01/,
   "La fiche archivée doit mener au dossier SharePoint final sans exposer le lien photo privé.");
 const applicationProject = source.match(/<details class="internal-project" id="internal-project-application-carte-vivante-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
 assert.match(applicationProject, /ATLAS EN LIGNE/);
-assert.match(applicationProject, /data-atlas-release="0\.7\.2"/);
+assert.match(applicationProject, /data-atlas-release="0\.7\.3"/);
 assert.match(applicationProject, /Ouvrir Atlas bleu/);
 assert.match(applicationProject, /Un accès invité permet aussi de consulter/);
 assert.match(applicationProject, /seuls les avis examinés sont partagés/);
