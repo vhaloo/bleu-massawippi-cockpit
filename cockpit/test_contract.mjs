@@ -1077,17 +1077,21 @@ assert.equal((source.match(/data-internal-project-id=/g) || []).length, 18, "Le 
 assert.match(source, /data-internal-project-register[^>]*data-layout-version="2026-09-01-archives-v1"/);
 const internalProjectIds = [...source.matchAll(/data-internal-project-id="([a-z0-9-]+)"/g)].map((match) => match[1]).sort();
 assert.ok(internalProjectIds.includes("nettoyage-berges-2026"), "Le projet de nettoyage des berges 2026 doit être présent dans le registre.");
-const shorelineCleanupProject = source.match(/<details class="internal-project urgent" id="internal-project-nettoyage-berges-2026"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
-assert.match(shorelineCleanupProject, /Nettoyage des berges — North Hatley et Ayer’s Cliff/);
+const shorelineCleanupProject = source.match(/<details class="internal-project urgent" id="internal-project-nettoyage-berges-2026"[\s\S]*?<div data-internal-project-controls(?:="")?><\/div>[\s\S]*?<\/details>/)?.[0] || "";
+assert.match(shorelineCleanupProject, /Nettoyage des berges — 19 et 20 septembre/);
 assert.match(shorelineCleanupProject, /19 septembre/);
 assert.match(shorelineCleanupProject, /20 septembre/);
 assert.match(shorelineCleanupProject, /COGESAF/);
-assert.match(shorelineCleanupProject, /North Hatley a donné un accord verbal/);
-assert.match(shorelineCleanupProject, /relancer le COGESAF le jeudi 10 septembre/);
-assert.match(shorelineCleanupProject, /1 000 \$ pour deux jours, sans réservation ni dépense engagée/);
+assert.match(shorelineCleanupProject, /North Hatley confirmé à Annie/);
+assert.match(shorelineCleanupProject, /soutien du COGESAF est confirmé par Annie/);
+assert.match(shorelineCleanupProject, /conducteur du ponton pour remplacer Denis samedi/);
+assert.match(shorelineCleanupProject, /Dimanche, Bleu doit recueillir ses propres données/);
+assert.doesNotMatch(shorelineCleanupProject, /relancer le COGESAF le jeudi 10 septembre/);
+assert.match(shorelineCleanupProject, /Nettoyage_berges_suivi_terrain_2026\.xlsx/);
+assert.match(shorelineCleanupProject, /NETTOYAGE_2026_POINT_OPERATIONNEL_12_SEPTEMBRE\.md/);
 assert.match(shorelineCleanupProject, /NettoyageBerges_projet2026_BM\.docx/);
-assert.equal((shorelineCleanupProject.match(/class="internal-project-document-card"/g) || []).length, 4,
-  "Le projet de nettoyage doit présenter le document maître, le dossier SharePoint, son index et le gabarit réutilisable sous forme de cartes.");
+assert.equal((shorelineCleanupProject.match(/class="internal-project-document-card"/g) || []).length, 6,
+  "Le projet conserve ses quatre références et ajoute le point opérationnel et le tableau de pesée.");
 assert.match(shorelineCleanupProject, /LIRE_DABORD_Nettoyage_des_berges_2026\.md/);
 assert.match(shorelineCleanupProject, /Gabarit%20dossier%20projet%20-%20%C3%A0%20copier/);
 const internalProjectSeedIds = [...internalProjectSeed.matchAll(/^  "([a-z0-9-]+)": "(?:to_frame|planned|active|blocked|completed)"[,]?$/gm)].map((match) => match[1]).sort();
@@ -1135,11 +1139,14 @@ assert.match(photoProject, /Consentement et droits/);
 assert.match(photoProject, /data-internal-project-controls/);
 assert.doesNotMatch(source, /<section[^>]*id="photo"/,
   "La participation photo ne doit plus survivre comme section isolée hors des projets internes.");
-const holidayCardProject = source.match(/<details class="internal-project" id="internal-project-carte-fetes-2026"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";
+const holidayCardProject = source.match(/<details class="internal-project" id="internal-project-carte-fetes-2026"[\s\S]*?<div data-internal-project-controls(?:="")?><\/div>[\s\S]*?<\/details>/)?.[0] || "";
 assert.match(holidayCardProject, /Carte des Fêtes 2026 — remercier les membres/);
 assert.match(holidayCardProject, /photographie hivernale réelle/i);
 assert.match(holidayCardProject, /mot d’Annie écrit à la main/i);
-assert.match(holidayCardProject, /environ 200 cartes reste une hypothèse/i);
+assert.match(holidayCardProject, /liste des membres de 2025 déjà fournie/i);
+assert.match(holidayCardProject, /aucun seuil minimal n’est ajouté/i);
+assert.match(holidayCardProject, /nombre de lignes ne constitue pas encore le nombre d’envois postaux/i);
+assert.doesNotMatch(holidayCardProject, /environ 200 cartes/i);
 assert.match(holidayCardProject, /Aucune donnée personnelle n’est versée dans le cockpit/i);
 assert.match(holidayCardProject, /CARTE_DES_FETES_2026_CADRAGE_INTERNE_2026-08-24\.md/);
 const poetryProject = source.match(/<details class="internal-project" id="internal-project-poesie-du-lac"[\s\S]*?<div data-internal-project-controls><\/div>[\s\S]*?<\/details>/)?.[0] || "";

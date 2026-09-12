@@ -24,6 +24,7 @@ for(const role of ['admin','director']) {
   const button=selector=>h.card.querySelector(selector);
   assert.equal(button('[data-gate="media"]').disabled,false,'Le feu visuel est actionnable en V2.');
   const panel=button('[data-media-validation-panel]');panel.open=false;
+  if(role==='admin')assert.match(button('[data-media-validation-help]').textContent,/Votre choix est enregistré.*pas besoin de forcer/,'Un choix déjà enregistré ne pousse pas à forcer une validation.');
   button('[data-gate="media"]').click();assert.equal(panel.open,true);
   assert.equal(button('[data-gate="publication"]').disabled,true);
   button('[data-media-validation-force-open]').click();
@@ -34,6 +35,7 @@ for(const role of ['admin','director']) {
   button('[data-media-validation-panel] [data-media-override]').click();await settle();
   assert.equal(h.state.workflows.get(h.eventId).stage,'final_approved',JSON.stringify(h.events));
   assert.equal(h.state.mediaDecisions.get(h.eventId).override.actorRole,role);
+  assert.match(button('[data-media-validation-help]').textContent,/validation forcée est enregistrée/,'Le retour confirme la décision forcée sans suggérer un accord des deux rôles.');
   if(role==='admin')assert.equal(h.state.mediaDecisions.get(h.eventId).direction.status,'none');
   assert.equal(h.archives.length,1);
   button('[data-media-validation-panel] [data-media-decision]').click();await settle();

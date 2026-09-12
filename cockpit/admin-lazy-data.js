@@ -1,5 +1,5 @@
-import { subscribeAuditLogs, subscribeCockpitFeedback } from "./firebase-client.js?v=20260910-b83";
-import { clearAdminActivitySummary, renderAdminActivitySummary, setAdminActivityLogs } from "./admin-activity-summary.js?v=20260910-b83";
+import { subscribeAuditLogs, subscribeCockpitFeedback } from "./firebase-client.js?v=20260912-b84";
+import { clearAdminActivitySummary, renderAdminActivitySummary, setAdminActivityLogs } from "./admin-activity-summary.js?v=20260912-b84";
 
 let auditUnsubscribe = null;
 let feedbackUnsubscribe = null;
