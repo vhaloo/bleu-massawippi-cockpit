@@ -17,7 +17,7 @@ context.renderMediaForCard(card);
 assert.equal(card.querySelectorAll('[data-media-decision]:not([disabled])').length,2,'Les droits incertains laissent les deux accès de sélection disponibles.');
 assert(card.querySelector('.cockpit-media-rights-note').textContent.includes('Droits à vérifier'));
 assert(!card.querySelector('[data-save-media-comment]').closest('details'),'Le commentaire reste accessible hors des informations repliées.');
-assert(!card.querySelector('[data-media-override]').closest('details'),'La décision finale est directement accessible.');
+assert(!card.querySelector('[data-media-override]'),'Annie confirme directement, sans forçage.');
 let input=card.querySelector('[data-media-comment]');input.value='La photo convient; quel crédit utiliser ?';input.dataset.dictated='true';
 context.renderMediaForCard(card);
 input=card.querySelector('[data-media-comment]');assert.equal(input.value,'La photo convient; quel crédit utiliser ?');assert.equal(input.dataset.dictated,'true');

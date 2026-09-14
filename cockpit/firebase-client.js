@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20260912-b84";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20260914-b85";
 import {
   getAuth,
   setPersistence,
@@ -36,9 +36,9 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260912-b84";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20260912-b84";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20260912-b84";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260914-b85";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20260914-b85";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20260914-b85";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -651,6 +651,25 @@ export async function resolveComment(commentId, profile) {
 const workflowStages = new Set(["proposal", "content_review", "changes_requested", "content_changes_requested", "content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"]);
 const contentApprovedWorkflowStages = new Set(["content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"]);
 
+// L'avis des communications ne signe jamais l'approbation de la direction.
+export async function setCommunicationsTextApproval(eventId, copy, approved, profile) {
+  requireWritable();
+  if (profile?.role !== "admin") throw new Error("Chaque rôle conserve sa propre approbation.");
+  const text = String(copy || "").trim();
+  if (!/^[a-z0-9-]{3,80}$/i.test(String(eventId || "")) || !text || text.length > 30000) throw new Error("Texte à approuver indisponible.");
+  const reference = doc(db, "workflowStates", eventId);
+  const archiveReference = doc(collection(db, "changeArchive"));
+  await runTransaction(db, async transaction => {
+    const snapshot = await transaction.get(reference);
+    const before = snapshot.exists() ? snapshot.data() : {stage:"proposal"};
+    const actorLabel = String(profile.displayLabel || "Communications").slice(0, 120);
+    const approval = {approved:Boolean(approved), copy:text, actorUid:profile.uid, actorLabel, decidedAt:serverTimestamp()};
+    transaction.set(reference, {eventId, stage:before.stage, communicationsTextApproval:approval, updatedAt:serverTimestamp(), updatedBy:profile.uid, updatedByLabel:actorLabel}, {merge:true});
+    transaction.set(archiveReference, changeArchiveEntry("workflowState", eventId, approved ? "texte approuvé par les communications" : "approbation texte retirée par les communications", {communicationsTextApproval:before.communicationsTextApproval || null}, {communicationsTextApproval:approval}, profile));
+  });
+  recordConfirmedWrites(2);
+}
+
 export async function setWorkflowStage(eventId, stage, profile) {
   requireWritable();
   if (!profile || !["director", "admin"].includes(profile.role)) throw new Error("Ce compte ne peut pas modifier le cycle de validation.");
@@ -685,8 +704,8 @@ export async function setWorkflowStage(eventId, stage, profile) {
     if (mediaSnapshot.exists()) {
       mediaBefore = normalizeMediaDecision(mediaSnapshot.data(), eventId);
       const textApproved = contentApprovedWorkflowStages.has(stage);
-      const agreement = deriveMediaAgreement(mediaBefore.communications, mediaBefore.direction, mediaBefore.override, textApproved);
-      if (stage === "content_approved" && ["agreed", "overridden"].includes(agreement.status)) nextStage = "final_approved";
+      const agreement = deriveMediaAgreement(mediaBefore.communications, mediaBefore.direction, mediaBefore.override, textApproved, mediaBefore.requiredMediaCount);
+      if (stage === "content_approved" && ["agreed", "overridden", "direction_approved"].includes(agreement.status)) nextStage = "final_approved";
       mediaAfter = {
         ...mediaBefore,
         agreement,
@@ -1066,21 +1085,21 @@ function nextMediaSelection(previousIds, mediaId, selected, allowsMultiple) {
 
 // Fonction pure exportée afin que le contrat de décision puisse être testé
 // sans connexion Firebase. L'état dérivé ne remplace jamais les deux choix.
-export function deriveMediaAgreement(communications, direction, override, textApproved) {
+export function deriveMediaAgreement(communications, direction, override, textApproved, requiredMediaCount = 1) {
   const communicationsIds = communications?.status === "selected" && Array.isArray(communications.mediaIds) ? communications.mediaIds : [];
   const directionIds = direction?.status === "selected" && Array.isArray(direction.mediaIds) ? direction.mediaIds : [];
   const overrideIds = override?.active === true && Array.isArray(override.mediaIds) ? override.mediaIds : [];
-  if (textApproved && overrideIds.length && String(override.reason || "").trim()) {
+  if (textApproved && overrideIds.length >= requiredMediaCount && String(override.reason || "").trim()) {
     return { status: "overridden", mediaIds: [...new Set(overrideIds)].sort(), divergent: false };
   }
-  if (communicationsIds.length && directionIds.length) {
+  if (communicationsIds.length >= requiredMediaCount && directionIds.length >= requiredMediaCount) {
     if (textApproved && sameOrderedMedia(communicationsIds, directionIds)) {
       return { status: "agreed", mediaIds: [...new Set(communicationsIds)].sort(), divergent: false };
     }
-    if (!sameOrderedMedia(communicationsIds, directionIds)) {
-      return { status: "divergent", mediaIds: [], divergent: true };
-    }
   }
+  // L'avis de la direction est une approbation autonome du visuel, même avant
+  // le texte ou avec une recommandation différente des communications.
+  if (directionIds.length >= requiredMediaCount) return { status: "direction_approved", mediaIds: [...new Set(directionIds)].sort(), divergent: !!communicationsIds.length && !sameOrderedMedia(communicationsIds, directionIds) };
   return { status: "pending", mediaIds: [], divergent: false };
 }
 
@@ -1089,15 +1108,17 @@ function normalizeMediaDecision(value, eventId) {
   const direction = normalizedDecisionSide(value?.direction, "director");
   const override = normalizedOverride(value?.override);
   const textApproved = contentApprovedWorkflowStages.has(String(value?.textGateStage || ""));
-  const agreement = deriveMediaAgreement(communications, direction, override, textApproved);
+  const requiredMediaCount = value?.requiredMediaCount === 2 ? 2 : 1;
+  const agreement = deriveMediaAgreement(communications, direction, override, textApproved, requiredMediaCount);
   return {
     eventId,
     schemaVersion: 2,
+    requiredMediaCount,
     communications,
     direction,
     override,
     agreement: {
-      status: ["pending", "agreed", "divergent", "overridden"].includes(value?.agreement?.status) ? value.agreement.status : agreement.status,
+      status: ["pending", "agreed", "divergent", "overridden", "direction_approved"].includes(value?.agreement?.status) ? value.agreement.status : agreement.status,
       mediaIds: Array.isArray(value?.agreement?.mediaIds) ? [...new Set(value.agreement.mediaIds)].sort().slice(0, MAX_MEDIA_CHOICES) : agreement.mediaIds,
       divergent: value?.agreement?.divergent === true
     },
@@ -1111,6 +1132,7 @@ function normalizeMediaDecision(value, eventId) {
 
 function mediaDecisionArchiveView(value) {
   return {
+    requiredMediaCount: value.requiredMediaCount || 1,
     communications: value.communications,
     direction: value.direction,
     override: value.override,
@@ -1171,11 +1193,14 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
       && sameOrderedMedia(before[sideName].mediaIds, selectedSideIds)
       && !wantsOverride
       && before.override.active !== true;
-    if (sameExistingChoice) return before;
+    const requiredMediaCount = allowsMultiple ? 2 : before.requiredMediaCount;
+    const currentAgreement = deriveMediaAgreement(before.communications, before.direction, before.override, textApproved, requiredMediaCount);
+    if (sameExistingChoice && !options.reconfirm && JSON.stringify(currentAgreement) === JSON.stringify(before.agreement)) return before;
 
     const now = serverTimestamp();
     const next = {
       ...before,
+      requiredMediaCount,
       communications: { ...before.communications },
       direction: { ...before.direction },
       // Une action des communications ne peut jamais révoquer implicitement
@@ -1205,7 +1230,7 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
         decidedAt: now
       };
     }
-    const agreement = deriveMediaAgreement(next.communications, next.direction, next.override, textApproved);
+    const agreement = deriveMediaAgreement(next.communications, next.direction, next.override, textApproved, requiredMediaCount);
     next.agreement = agreement;
     next.lastMutationId = mutationId;
     next.updatedAt = now;
@@ -1213,11 +1238,11 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
     next.updatedByLabel = actorLabel;
 
     let nextWorkflowStage = workflowStage;
-    if (["agreed", "overridden"].includes(agreement.status) && !["final_approved", "scheduled", "published"].includes(workflowStage)) {
+    if (textApproved && ["agreed", "overridden", "direction_approved"].includes(agreement.status) && !["final_approved", "scheduled", "published"].includes(workflowStage)) {
       nextWorkflowStage = "final_approved";
-    } else if (!["agreed", "overridden"].includes(agreement.status) && workflowStage === "final_approved") {
+    } else if (!["agreed", "overridden", "direction_approved"].includes(agreement.status) && workflowStage === "final_approved") {
       nextWorkflowStage = "media_review";
-    } else if (!["agreed", "overridden"].includes(agreement.status) && ["scheduled", "published"].includes(workflowStage)) {
+    } else if (!["agreed", "overridden", "direction_approved"].includes(agreement.status) && ["scheduled", "published"].includes(workflowStage)) {
       if (profile.role !== "admin") {
         throw new Error("Après programmation ou publication, les communications doivent rouvrir le visuel afin de préserver l’historique public.");
       }
@@ -1233,7 +1258,7 @@ export async function setMediaDecision(eventId, mediaId, selected, profile, opti
         updatedAt: now,
         updatedBy: profile.uid,
         updatedByLabel: actorLabel
-      });
+      }, { merge: true });
       confirmedWriteCount += 1;
     }
     transaction.set(archiveReference, {

@@ -18,7 +18,7 @@ for(const role of ['admin','director']) {
   globalThis.MutationObserver=window.MutationObserver;
   globalThis.CustomEvent=window.CustomEvent;
   globalThis.document=document;globalThis.window=window;
-  const h=installMediaValidationFixture({document,window,source,clientSource,role});
+  const h=installMediaValidationFixture({document,window,source,clientSource,role,taskError:true});
   const api=mockAPI(document,window,role);api.getWorkflow=id=>h.state.workflows.get(id);api.getMedia=()=>[...h.state.mediaByEvent.values()].flat();api.getMediaDecision=id=>h.state.mediaDecisions.get(id);
   const workspace=mountWorkspace(api);
   const button=selector=>h.card.querySelector(selector);
@@ -27,6 +27,27 @@ for(const role of ['admin','director']) {
   if(role==='admin')assert.match(button('[data-media-validation-help]').textContent,/Votre choix est enregistré.*pas besoin de forcer/,'Un choix déjà enregistré ne pousse pas à forcer une validation.');
   button('[data-gate="media"]').click();assert.equal(panel.open,true);
   assert.equal(button('[data-gate="publication"]').disabled,true);
+  if(role==='director') {
+    assert(button('[data-media-validation-force-open]').hidden,'Annie ne doit pas avoir à forcer.');
+    h.state.workflows.set(h.eventId,{eventId:h.eventId,stage:'content_review'});
+    h.state.mediaDecisions.get(h.eventId).communications.mediaIds=['test-photo-second'];h.rerender();
+    button('[data-media-validation-panel] [data-media-decision]').click();await settle();
+    assert.equal(h.state.mediaDecisions.get(h.eventId).agreement.status,'direction_approved');
+    assert.equal(h.state.workflows.get(h.eventId).stage,'content_review','Le visuel ne signe pas le texte.');
+    assert.equal(button('[data-gate="media"]').getAttribute('aria-pressed'),'true');
+    button('[data-gate="content"]').click();await settle();
+    assert.equal(h.state.workflows.get(h.eventId).stage,'final_approved');
+    assert.equal(h.events.at(-1).message,'Étape de validation enregistrée.','Le retour ne doit pas être inversé par le rafraîchissement du bouton.');
+    assert(button('[data-gate="publication"]').disabled,'Terminé reste réservé à Valentin.');
+    button('[data-gate="content"]').click();await settle();
+    assert.equal(h.state.workflows.get(h.eventId).stage,'content_review');
+    assert.equal(button('[data-gate="media"]').getAttribute('aria-pressed'),'true','Réviser le texte conserve l’avis visuel.');
+    button('[data-media-validation-panel] [data-media-decision]').click();await settle();
+    assert.equal(button('[data-gate="media"]').getAttribute('aria-pressed'),'false');
+    assert.equal(h.events.filter(e=>e.error).length,0,'Un suivi secondaire indisponible ne signale pas un échec d’approbation.');
+    workspace.destroy();console.log('✓ V2 direction : image avant texte, choix différent, approbation, retrait et Terminé réservé.');
+    continue;
+  }
   button('[data-media-validation-force-open]').click();
   assert(!button('[data-media-validation-force]').hasAttribute('hidden'));
   button('[data-media-override]').click();await settle();assert.equal(h.writes.length,0,'Un motif vide ne déclenche aucune écriture.');
@@ -44,11 +65,23 @@ for(const role of ['admin','director']) {
   assert.equal(button('[data-gate="publication"]').disabled,true);
   assert.equal(h.archives.length,2);
   const pending=h.state.mediaDecisions.get(h.eventId);pending.direction={...pending.direction,status:'selected',mediaIds:[h.mediaId]};pending.agreement={status:'pending',mediaIds:[],divergent:false};h.rerender();
-  assert.equal(button('[data-gate="media"]').getAttribute('aria-pressed'),'false','Un choix DG seul n’est pas un accord final.');
+  assert.equal(button('[data-gate="media"]').getAttribute('aria-pressed'),'false','Le feu personnel ne signe pas l’autre rôle.');
   h.state.workflows.set(h.eventId,{stage:'media_in_progress'});h.rerender();
   if(role==='admin')assert(button('[data-workflow-stage="media_review"]'),'Le visuel en préparation peut être présenté à nouveau.');
   h.state.workflows.set(h.eventId,{stage:'content_review'});h.rerender();
   assert(button('[data-media-validation-force-open]').disabled,'Forcer le visuel ne signe pas implicitement le texte.');
+  button('[data-gate="content"]').click();await settle();
+  assert.equal(h.state.workflows.get(h.eventId).stage,'content_review','L’avis de Valentin ne signe pas Annie.');
+  assert.equal(button('[data-gate="content"]').getAttribute('aria-pressed'),'true');
+  h.plan.copy='Nouvelle version à vérifier';h.rerender();
+  assert.equal(button('[data-gate="content"]').getAttribute('aria-pressed'),'false','Une modification invalide l’approbation de la version précédente.');
+  button('[data-gate="content"]').click();await settle();
+  await new Promise(resolve=>setTimeout(resolve,3));
+  h.state.commentsByEvent.set(h.eventId,[{id:'annie-review',authorUid:'test-director',createdAt:Date.now(),comment:'À corriger',resolved:false}]);h.rerender();
+  assert.equal(button('[data-gate="content"]').getAttribute('aria-pressed'),'false','Un commentaire remet la préapprobation en vérification.');
+  await new Promise(resolve=>setTimeout(resolve,3));
+  button('[data-gate="content"]').click();await settle();
+  assert.equal(button('[data-gate="content"]').getAttribute('aria-pressed'),'true','La version relue peut être réapprouvée.');
   workspace.destroy();
   console.log(`✓ V2 ${role} : clic Visuel, motif, forçage, retrait, états cohérents, sans dialogue natif.`);
 }

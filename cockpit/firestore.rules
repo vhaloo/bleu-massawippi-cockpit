@@ -102,11 +102,24 @@ service cloud.firestore {
 
     function validWorkflow(data) {
       return data.keys().hasAll(['eventId', 'stage', 'updatedAt', 'updatedBy', 'updatedByLabel'])
-        && data.keys().hasOnly(['eventId', 'stage', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+        && data.keys().hasOnly(['eventId', 'stage', 'updatedAt', 'updatedBy', 'updatedByLabel', 'communicationsTextApproval'])
+        && (!('communicationsTextApproval' in data) || validCommunicationsTextApproval(data.communicationsTextApproval))
         && data.eventId is string && data.eventId.size() >= 3 && data.eventId.size() <= 80
         && data.stage in ['proposal', 'content_review', 'changes_requested', 'content_changes_requested', 'content_approved', 'media_in_progress', 'media_review', 'media_changes_requested', 'final_approved', 'scheduled', 'published']
         && data.updatedAt is timestamp && data.updatedBy == request.auth.uid
         && data.updatedByLabel is string && data.updatedByLabel.size() > 0 && data.updatedByLabel.size() <= 120;
+    }
+
+    function validCommunicationsTextApproval(value) {
+      return value is map && value.keys().hasAll(['approved', 'copy', 'actorUid', 'actorLabel', 'decidedAt'])
+        && value.keys().hasOnly(['approved', 'copy', 'actorUid', 'actorLabel', 'decidedAt'])
+        && value.approved is bool && value.copy is string && value.copy.size() > 0 && value.copy.size() <= 30000
+        && value.actorUid is string && value.actorLabel is string && value.actorLabel.size() > 0 && value.actorLabel.size() <= 120
+        && value.decidedAt is timestamp;
+    }
+
+    function ownsCommunicationsTextApproval(data) {
+      return !('communicationsTextApproval' in data) || (isAdmin() && data.communicationsTextApproval.actorUid == request.auth.uid);
     }
 
     function workflowTextApproved(eventId) {
@@ -226,30 +239,43 @@ service cloud.firestore {
 
     function validMediaAgreement(data) {
       let status = data.agreement.status;
+      let requiredCount = data.get('requiredMediaCount', 1);
       return data.agreement is map
         && data.agreement.keys().hasOnly(['status', 'mediaIds', 'divergent'])
-        && status in ['pending', 'agreed', 'divergent', 'overridden']
+        && status in ['pending', 'agreed', 'divergent', 'overridden', 'direction_approved']
         && data.agreement.mediaIds is list && data.agreement.mediaIds.size() <= 2
         && data.agreement.divergent is bool
-        && (status == 'agreed' ? validAgreedMediaState(data)
+        && (!(status in ['agreed', 'overridden', 'direction_approved']) || data.agreement.mediaIds.size() >= requiredCount)
+        && (status == 'direction_approved' ? (data.override.active == false
+            && data.direction.status == 'selected'
+            && data.agreement.mediaIds == data.direction.mediaIds
+            && data.agreement.divergent == (data.communications.status == 'selected' && data.communications.mediaIds != data.direction.mediaIds))
+          : status == 'agreed' ? validAgreedMediaState(data)
           : status == 'divergent' ? validDivergentMediaState(data)
           : status == 'overridden' ? validOverriddenMediaState(data)
-          : validPendingMediaState(data));
+          : (validPendingMediaState(data) || (requiredCount == 2 && data.direction.mediaIds.size() < 2 && data.override.active == false && data.agreement.mediaIds.size() == 0 && data.agreement.divergent == false)));
     }
 
     function mediaWorkflowMatchesAgreement(data) {
       let workflowPath = /databases/$(database)/documents/workflowStates/$(data.eventId);
       return existsAfter(workflowPath)
-        && ((data.agreement.status in ['agreed', 'overridden']
+        && ((data.agreement.status == 'direction_approved'
+            && ((data.textGateStage in ['content_approved', 'media_in_progress', 'media_review', 'media_changes_requested', 'final_approved', 'scheduled', 'published']
+                && getAfter(workflowPath).data.stage in ['final_approved', 'scheduled', 'published'])
+              || (!(data.textGateStage in ['content_approved', 'media_in_progress', 'media_review', 'media_changes_requested', 'final_approved', 'scheduled', 'published'])
+                && getAfter(workflowPath).data.stage == data.textGateStage)))
+          || (data.agreement.status in ['agreed', 'overridden']
             && getAfter(workflowPath).data.stage in ['final_approved', 'scheduled', 'published'])
           || (!(data.agreement.status in ['agreed', 'overridden'])
+            && data.agreement.status != 'direction_approved'
             && !(getAfter(workflowPath).data.stage in ['final_approved', 'scheduled', 'published'])));
     }
 
     function validMediaDecisionEnvelope(data) {
-      return data.keys().hasOnly(['eventId', 'schemaVersion', 'communications', 'direction', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+      return data.keys().hasOnly(['eventId', 'schemaVersion', 'requiredMediaCount', 'communications', 'direction', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
         && data.eventId is string && data.eventId.size() >= 3 && data.eventId.size() <= 80
         && data.schemaVersion == 2
+        && (!('requiredMediaCount' in data) || data.requiredMediaCount in [1, 2])
         && data.textGateStage in ['proposal', 'content_review', 'changes_requested', 'content_changes_requested', 'content_approved', 'media_in_progress', 'media_review', 'media_changes_requested', 'final_approved', 'scheduled', 'published']
         && data.lastMutationId is string && data.lastMutationId.size() > 0 && data.lastMutationId.size() <= 160
         && data.updatedAt is timestamp
@@ -289,7 +315,7 @@ service cloud.firestore {
     function validAdminMediaDecisionUpdate(eventId) {
       let data = request.resource.data;
       let before = resource.data;
-      return data.diff(before).affectedKeys().hasOnly(['communications', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+      return data.diff(before).affectedKeys().hasOnly(['communications', 'requiredMediaCount', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
         && data.direction == before.direction
         && validMediaOverride(data.override)
         && (data.override == before.override
@@ -322,7 +348,7 @@ service cloud.firestore {
     function validDirectorMediaDecisionUpdate(eventId) {
       let data = request.resource.data;
       let before = resource.data;
-      return data.diff(before).affectedKeys().hasOnly(['direction', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+      return data.diff(before).affectedKeys().hasOnly(['direction', 'requiredMediaCount', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
         && data.communications == before.communications
         && validMediaDecisionSide(data.direction, 'director')
         && validMediaOverride(data.override)
@@ -341,7 +367,7 @@ service cloud.firestore {
 
     function mediaAgreementAfter(eventId) {
       return existsAfter(/databases/$(database)/documents/mediaDecisions/$(eventId))
-        && getAfter(/databases/$(database)/documents/mediaDecisions/$(eventId)).data.agreement.status in ['agreed', 'overridden'];
+        && getAfter(/databases/$(database)/documents/mediaDecisions/$(eventId)).data.agreement.status in ['agreed', 'overridden', 'direction_approved'];
     }
 
     function validOpportunityState(data) {
@@ -636,11 +662,13 @@ service cloud.firestore {
       allow read: if activeUser();
       allow create: if isEditor()
         && validWorkflow(request.resource.data)
+        && ownsCommunicationsTextApproval(request.resource.data)
         && request.resource.data.eventId == eventId
         && (!(request.resource.data.stage in ['final_approved', 'scheduled', 'published']) || mediaAgreementAfter(eventId))
         && (!(request.resource.data.stage in ['scheduled', 'published']) || isAdmin());
       allow update: if isEditor()
         && validWorkflow(request.resource.data)
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['communicationsTextApproval']) || (isAdmin() && ownsCommunicationsTextApproval(request.resource.data)))
         && request.resource.data.eventId == eventId
         && (isAdmin()
           || (!(request.resource.data.stage in ['scheduled', 'published'])

@@ -1,4 +1,4 @@
-import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20260912-b84";
+import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20260914-b85";
 import {
   getClientState,
   waitForClientReady,
@@ -30,6 +30,7 @@ import {
   archiveOwnComment,
   resolveComment,
   setWorkflowStage,
+  setCommunicationsTextApproval,
   subscribeWorkflowStates,
   setOpportunityStage,
   subscribeOpportunityStates,
@@ -37,24 +38,24 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260912-b84";
-import { createEventContextController } from "./event-context-data.js?v=20260912-b84";
-import { mergeEventWindow } from "./event-context-window.mjs?v=20260912-b84";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260912-b84";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260912-b84";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260912-b84";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel } from "./media-choice-ui.js?v=20260912-b84";
-import { workflowMarkup, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260912-b84";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260912-b84";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260912-b84";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260912-b84";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260912-b84";
-import { setupControlHints } from "./control-hints.js?v=20260912-b84";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260912-b84";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260912-b84";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260912-b84";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260912-b84";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260912-b84";
+} from "./firebase-client.js?v=20260914-b85";
+import { createEventContextController } from "./event-context-data.js?v=20260914-b85";
+import { mergeEventWindow } from "./event-context-window.mjs?v=20260914-b85";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260914-b85";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260914-b85";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260914-b85";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20260914-b85";
+import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260914-b85";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260914-b85";
+import { setupSectionNavigation } from "./section-navigation.js?v=20260914-b85";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260914-b85";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260914-b85";
+import { setupControlHints } from "./control-hints.js?v=20260914-b85";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260914-b85";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260914-b85";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260914-b85";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260914-b85";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260914-b85";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -1216,7 +1217,7 @@ function addFooterCredit() {
 function getPlanItem(card) {
   const title = card.querySelector("h4")?.textContent?.trim();
   const rows = Array.isArray(globalThis.posts) ? globalThis.posts : [];
-  return rows.find((item) => item.title === title) || null;
+  return rows.find((item) => item.id === card.dataset.itemId) || rows.find((item) => item.title === title) || null;
 }
 
 function canEdit() {
@@ -1890,12 +1891,13 @@ function renderMediaForCard(card) {
     const workflowStage = state.workflows.get(card.dataset.itemId)?.stage || "proposal";
     const textApproved = workflowTextApprovedStages.has(workflowStage);
     const role = state.profile?.role;
-    const myChoiceSelected = role === "admin" ? choice.communicationsSelected : role === "director" ? choice.directionSelected : false;
+    const needsReview = role === "admin" && communicationsApprovalNeedsReview(structuredDecision?.communications, state.commentsByEvent.get(card.dataset.itemId) || []);
+    const myChoiceSelected = role === "admin" ? choice.communicationsSelected && !needsReview : role === "director" ? choice.directionSelected : false;
     const chooseLabel = allowsMultiple
       ? (myChoiceSelected ? "Retirer cette carte du carrousel" : "Ajouter cette carte au carrousel")
       : role === "admin"
         ? (myChoiceSelected ? "Retirer mon choix" : "Choisir ce visuel")
-        : (myChoiceSelected ? "Retirer mon choix" : textApproved ? "Approuver ce visuel" : "Choisir ce visuel");
+        : (myChoiceSelected ? "Retirer mon approbation" : "Approuver ce visuel");
     const agreementPresentation = mediaAgreementPresentation(choice);
     const infoStatus = isFinal
       ? agreementPresentation.info
@@ -1912,7 +1914,7 @@ function renderMediaForCard(card) {
       choice.divergent && choice.directionSelected ? `<span class="cockpit-media-role-badge direction">Préférence des communications différente · décision de la direction retenue</span>` : "",
       choice.legacySelected ? `<span class="cockpit-media-role-badge">Choix hérité à confirmer — acteur non attribué</span>` : ""
     ].join("");
-    const canOverride = !isBlocked && !choice.agreementSelected && ["admin", "director"].includes(role) && textApproved;
+    const canOverride = !isBlocked && !choice.agreementSelected && role === "admin" && textApproved;
     const mediaUpdatedAt = stateTimestampMillis(row.updatedAt || row.createdAt);
     return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}${choice.communicationsSelected ? " is-recommended" : ""}${choice.directionSelected ? " is-direction-selected" : ""}${choice.divergent && !choice.directionSelected ? " is-divergent" : ""}" data-media-id="${esc(row.id)}" data-media-stage="${esc(row.stage || "reference")}" data-media-updated-at="${mediaUpdatedAt}" data-media-selected-final="${String(isFinal)}" data-media-communications-selected="${String(choice.communicationsSelected)}" data-media-direction-selected="${String(choice.directionSelected)}">
       <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
@@ -2036,86 +2038,7 @@ function renderEditorialDecision(card) {
 }
 
 function renderWorkflow(card) {
-  const row = state.workflows.get(card.dataset.itemId) || { stage: "proposal" };
-  const stage = row.stage || "proposal";
-  const planItem = getPlanItem(card);
-  const requiredMediaCount = planItem?.mediaSelectionMode === "multiple"
-    ? 2
-    : 1;
-  const structuredMediaDecision = state.mediaDecisions.get(card.dataset.itemId) || null;
-  const structuredMediaAgreement = ["agreed", "overridden"].includes(structuredMediaDecision?.agreement?.status);
-  const directionMediaReady = structuredMediaDecision?.direction?.status === "selected"
-    && Array.isArray(structuredMediaDecision.direction.mediaIds)
-    && structuredMediaDecision.direction.mediaIds.length >= requiredMediaCount;
-  card.dataset.workflowStage = stage;
-  card.dataset.workflowUpdatedAt = String(stateTimestampMillis(row.updatedAt));
-  const contentDone = ["content_approved","media_in_progress","media_review","media_changes_requested","final_approved","scheduled","published"].includes(stage);
-  const mediaDone = structuredMediaDecision
-    ? structuredMediaAgreement
-    : ["final_approved","scheduled","published"].includes(stage);
-  const publicationDone = ["scheduled","published"].includes(stage);
-  const contentGate = card.querySelector('[data-gate="content"]');
-  const mediaGate = card.querySelector('[data-gate="media"]');
-  const publicationGate = card.querySelector('[data-gate="publication"]');
-  contentGate?.classList.toggle("done", contentDone);
-  mediaGate?.classList.toggle("done", mediaDone);
-  publicationGate?.classList.toggle("done", publicationDone);
-  [contentGate,mediaGate,publicationGate].forEach((gate) => gate?.classList.remove("current"));
-  if (!contentDone) contentGate?.classList.add("current"); else if (!mediaDone) mediaGate?.classList.add("current"); else if (!publicationDone) publicationGate?.classList.add("current");
-  const contentLabel = contentGate?.querySelector("[data-gate-label]");
-  const mediaLabel = mediaGate?.querySelector("[data-gate-label]");
-  const publicationLabel = publicationGate?.querySelector("[data-gate-label]");
-  if (contentLabel) contentLabel.textContent = contentDone ? "Approuvé" : (stage === "changes_requested" ? "Corrections demandées" : stage === "content_review" ? "Prêt pour validation" : "En préparation");
-  if (mediaLabel) mediaLabel.textContent = mediaDone
-    ? (structuredMediaDecision?.agreement?.status === "overridden" ? "Validé par override motivé" : structuredMediaAgreement ? "Accord des deux rôles" : "Choisi par la direction")
-    : structuredMediaDecision?.agreement?.status === "divergent"
-      ? "Choix à harmoniser"
-      : (directionMediaReady ? "Choix DG · accord à confirmer" : stage === "media_review" ? "Prêt pour validation" : "Choix en attente");
-  const publicationReady = contentDone && mediaDone;
-  if (publicationLabel) publicationLabel.textContent = publicationDone ? "Publié ou programmé" : publicationReady ? "Prêt à publier" : "Attend les 2 validations";
-  const configureGate = (gate, done, canCheck, checkStage, uncheckStage, checkedName, roleAllowed = true) => {
-    if (!gate) return;
-    gate.setAttribute("aria-pressed", String(done));
-    gate.disabled = !roleAllowed || (!done && !canCheck);
-    if (roleAllowed) {
-      gate.dataset.workflowStage = done ? uncheckStage : checkStage;
-      gate.dataset.workflowDirection = done ? "back" : "forward";
-    } else {
-      delete gate.dataset.workflowStage;
-      delete gate.dataset.workflowDirection;
-    }
-    gate.title = !roleAllowed
-      ? checkedName === "Terminé" ? "Seules les communications confirment la programmation ou la publication" : "Choisissez ou retirez le média depuis la galerie"
-      : done ? `Retirer le feu vert « ${checkedName} » et revenir à l’étape précédente` : canCheck ? `Donner le feu vert « ${checkedName} »` : "Terminez d’abord l’étape précédente";
-  };
-  configureGate(contentGate, contentDone, true, "content_approved", "content_review", "Texte", !(state.profile?.role === "director" && ["scheduled", "published"].includes(stage)));
-  configureGate(mediaGate, mediaDone, false, "final_approved", "media_review", "Visuel", false);
-  if (mediaGate) {
-    mediaGate.disabled = !["admin", "director"].includes(state.profile?.role);
-    mediaGate.dataset.openMediaValidation = "true";
-    mediaGate.title = "Ouvrir les choix, la validation forcée et le retrait du visuel";
-  }
-  configureGate(publicationGate, publicationDone, publicationReady, "published", "final_approved", "Terminé", state.profile?.role === "admin");
-  card.classList.toggle("workflow-complete", publicationDone);
-  const completeNote = card.querySelector("[data-workflow-complete]");
-  if (completeNote) completeNote.hidden = !publicationDone;
-  const actions = card.querySelector("[data-workflow-actions]");
-  if (!actions) return;
-  const buttons = [];
-  if (state.profile?.role === "admin") {
-    if (["proposal","changes_requested"].includes(stage)) buttons.push(["content_review","Texte prêt — envoyer à la direction","primary"]);
-    if (["proposal","content_review","changes_requested"].includes(stage)) buttons.push(["content_approved","✓ Valider le texte avec l’aval de la direction","primary"]);
-    if (["content_approved", "media_in_progress", "media_changes_requested"].includes(stage) && !mediaDone) buttons.push(["media_review","Visuel prêt — envoyer à la direction","primary"]);
-    if (publicationReady && !publicationDone) buttons.push(["published","✓ Terminer — publié ou programmé","primary"]);
-  }
-  if (state.profile?.role === "director") {
-    if (["content_review","proposal","changes_requested"].includes(stage)) buttons.push(["content_approved","✓ Approuver le texte et le concept","primary"]);
-    if (stage === "content_review") buttons.push(["changes_requested","Correction demandée au texte","correction"]);
-    if (stage === "media_review") buttons.push(["media_changes_requested","Correction demandée au visuel","correction"]);
-  }
-  const waiting = publicationDone ? "Événement terminé; l’historique est conservé." : publicationReady ? "Le texte et le visuel sont approuvés. Les communications peuvent programmer ou publier." : stage === "media_review" ? "Le visuel est prêt : confirmez votre choix ou la décision finale ci-dessous." : contentDone ? "Le texte est approuvé. Le choix du visuel reste à confirmer ci-dessous." : "Le texte reste à valider. Vous pouvez déjà choisir un visuel.";
-  actions.innerHTML = buttons.map(([value,label,kind]) => `<button type="button" class="${kind}" ${value ? `data-workflow-stage="${value}"` : "disabled"}>${label}</button>`).join("") || `<span class="cockpit-media-note">${esc(waiting)}</span>`;
-  renderMediaValidationPanel(card, {profile:state.profile, rows:state.mediaByEvent.get(card.dataset.itemId) || [], decision:structuredMediaDecision, textApproved:contentDone, multiple:requiredMediaCount > 1, loading:state.mediaContextLoading.has(card.dataset.itemId)});
+  renderWorkflowControls(card, {state, getPlanItem, stateTimestampMillis});
 }
 
 function renderCommentThread(card, sectionId = card.dataset.itemId) {
@@ -2655,17 +2578,38 @@ function enhanceCardEvents() {
       openMediaValidationPanel(card, '', !!event.target.closest('[data-media-validation-force-open]'));
       return;
     }
+    const ownTextButton = event.target.closest('button[data-communications-text-approval]');
+    if (ownTextButton) {
+      if (card.dataset.textApprovalPending === 'true') return;
+      card.dataset.textApprovalPending = 'true';
+      ownTextButton.disabled = true;
+      const approved = ownTextButton.dataset.communicationsTextApproval === 'true';
+      setCommunicationsTextApproval(card.dataset.itemId, getPlanItem(card)?.copy, approved, state.profile)
+        .then(() => toast(approved ? 'Texte approuvé de votre côté.' : 'Votre approbation du texte a été retirée.'))
+        .catch(error => toast(error.message, true))
+        .finally(() => { delete card.dataset.textApprovalPending; ownTextButton.disabled = false; });
+      return;
+    }
     const workflowButton = event.target.closest("button[data-workflow-stage]");
     if (workflowButton) {
-      setWorkflowStage(card.dataset.itemId, workflowButton.dataset.workflowStage, state.profile)
+      if (card.dataset.workflowPending === 'true') return;
+      card.dataset.workflowPending = 'true';
+      workflowButton.disabled = true;
+      const requestedStage = workflowButton.dataset.workflowStage;
+      const isBack = workflowButton.dataset.workflowDirection === 'back';
+      const requestedLabel = workflowButton.textContent.trim();
+      setWorkflowStage(card.dataset.itemId, requestedStage, state.profile)
         .then(async () => {
           const planItem = getPlanItem(card);
           ripple(workflowButton);
-          if (state.profile.role === "director" && ["content_approved","final_approved","changes_requested","media_changes_requested"].includes(workflowButton.dataset.workflowStage)) {
-            await recordActionTask(`workflow-${card.dataset.itemId}`, { status: "pending", title: workflowButton.dataset.workflowStage === "final_approved" ? `Prêt à publier — ${planItem?.title}` : `Cycle de validation — ${planItem?.title}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${planItem?.title || ""}`, message:`Nouvelle étape : ${workflowButton.textContent.trim()}.\n\n${responsibilitySummary(planItem)}` });
+          if (state.profile.role === "director" && ["content_approved","final_approved","changes_requested","media_changes_requested"].includes(requestedStage)) {
+            try {
+              await recordActionTask(`workflow-${card.dataset.itemId}`, { status: "pending", title: requestedStage === "final_approved" ? `Prêt à publier — ${planItem?.title}` : `Cycle de validation — ${planItem?.title}`, targetType:"schedule", targetId:card.dataset.itemId, targetLabel:`${planItem?.date || ""} · ${planItem?.title || ""}`, message:`Nouvelle étape : ${requestedLabel}.\n\n${responsibilitySummary(planItem)}` });
+            } catch (error) { console.warn("Approbation enregistrée; suivi à réconcilier au prochain cycle.", error); }
           }
-          toast(workflowButton.dataset.workflowDirection === "back" ? "Feu vert retiré; l’historique est conservé." : "Étape de validation enregistrée.");
-        }).catch((error) => toast(error.message, true));
+          toast(isBack ? "Feu vert retiré; l’historique est conservé." : "Étape de validation enregistrée.");
+        }).catch((error) => toast(error.message, true))
+        .finally(() => { delete card.dataset.workflowPending; renderWorkflow(card); });
       return;
     }
     const resolveCommentButton = event.target.closest("button[data-resolve-comment]");
@@ -2742,7 +2686,7 @@ function enhanceCardEvents() {
       const planItem = getPlanItem(card);
       const allowsMultiple = planItem?.mediaSelectionMode === "multiple";
       mediaDecisionButton.disabled = true;
-      setMediaDecision(card.dataset.itemId, mediaId, selected, state.profile, { multiple: allowsMultiple })
+      setMediaDecision(card.dataset.itemId, mediaId, selected, state.profile, { multiple: allowsMultiple, reconfirm: true })
         .then(async (decision) => {
           ripple(mediaDecisionButton);
           if (state.profile.role === "director") {
@@ -2756,14 +2700,14 @@ function enhanceCardEvents() {
             } catch (error) {
               console.warn("La décision média est conservée, mais la file personnelle sera réconciliée au prochain cycle.", error);
             }
-            await recordActionTask(`media-choice-${card.dataset.itemId}`, {
+            try { await recordActionTask(`media-choice-${card.dataset.itemId}`, {
               status: selected ? "pending" : "done",
               title: `${selected ? "Choix média de la direction" : "Choix média retiré"} — ${planItem?.title || card.dataset.itemId}`,
               targetType: "schedule",
               targetId: card.dataset.itemId,
               targetLabel: `${planItem?.date || ""} · ${label}`,
-              message: selected ? `La direction a choisi « ${label} ». Vérifier l’accord des deux rôles puis programmer ou publier seulement après les feux verts.` : `La direction a retiré son choix de « ${label} »; l’historique demeure conservé.`
-            });
+              message: selected ? `La direction a approuvé « ${label} ». Les communications pourront programmer ou publier après vérification du texte et du visuel.` : `La direction a retiré son choix de « ${label} »; l’historique demeure conservé.`
+            }); } catch (error) { console.warn("Visuel approuvé; suivi à réconcilier au prochain cycle.", error); }
           }
           const selectedCount = decision?.[state.profile.role === "director" ? "direction" : "communications"]?.mediaIds?.length || 0;
           toast(selected
@@ -2792,7 +2736,7 @@ function enhanceCardEvents() {
       setMediaDecision(card.dataset.itemId, mediaId, true, state.profile, { override: true, reason, multiple: allowsMultiple })
         .then(async (decision) => {
           ripple(mediaOverrideButton);
-          if (state.profile.role === "director" && ["agreed", "overridden"].includes(decision?.agreement?.status)) {
+          if (state.profile.role === "director" && ["agreed", "overridden", "direction_approved"].includes(decision?.agreement?.status)) {
             const actionItem = [...document.querySelectorAll("#cockpit-action-item-source [data-action-item-id]")]
               .find((item) => item.dataset.actionTarget === card.dataset.itemId && (!item.dataset.actionMedia || item.dataset.actionMedia === mediaId));
             const actionItemId = actionItem?.dataset.actionItemId || `media-direction-approval-${card.dataset.itemId}`;
