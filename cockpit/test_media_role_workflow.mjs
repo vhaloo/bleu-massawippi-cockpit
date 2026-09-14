@@ -3,7 +3,7 @@ import fs from "node:fs";
 import vm from "node:vm";
 
 const client = fs.readFileSync(new URL("./firebase-client.js", import.meta.url), "utf8");
-const ui = fs.readFileSync(new URL("./cockpit-ui.js", import.meta.url), "utf8");
+const ui = fs.readFileSync(new URL("./cockpit-ui.js", import.meta.url), "utf8") + fs.readFileSync(new URL("./task-progress-ui.js", import.meta.url), "utf8");
 const mediaUi = fs.readFileSync(new URL("./media-choice-ui.js", import.meta.url), "utf8");
 const rules = fs.readFileSync(new URL("./firestore.rules", import.meta.url), "utf8");
 const editorialCycle = fs.readFileSync(new URL("./reconcile_editorial_cycle_20260804.js", import.meta.url), "utf8");
@@ -23,13 +23,13 @@ const revoked = (role) => ({ status: "revoked", mediaIds: [], actorRole: role })
 const noOverride = { active: false, mediaIds: [], reason: "" };
 
 assert.equal(sandbox.deriveMediaAgreement(selected("media-a", "admin"), revoked("director"), noOverride, true).status, "pending");
-assert.equal(sandbox.deriveMediaAgreement(revoked("admin"), selected("media-a", "director"), noOverride, true).status, "pending");
-assert.equal(sandbox.deriveMediaAgreement(selected("media-a", "admin"), selected("media-a", "director"), noOverride, false).status, "pending", "Un même choix ne signe rien avant le texte.");
+assert.equal(sandbox.deriveMediaAgreement(revoked("admin"), selected("media-a", "director"), noOverride, true).status, "direction_approved");
+assert.equal(sandbox.deriveMediaAgreement(selected("media-a", "admin"), selected("media-a", "director"), noOverride, false).status, "direction_approved", "Le visuel est approuvé indépendamment du texte.");
 assert.equal(
   JSON.stringify(sandbox.deriveMediaAgreement(selected("media-a", "admin"), selected("media-a", "director"), noOverride, true)),
   JSON.stringify({ status: "agreed", mediaIds: ["media-a"], divergent: false })
 );
-assert.equal(sandbox.deriveMediaAgreement(selected("media-a", "admin"), selected("media-b", "director"), noOverride, true).status, "divergent");
+assert.equal(sandbox.deriveMediaAgreement(selected("media-a", "admin"), selected("media-b", "director"), noOverride, true).status, "direction_approved");
 assert.equal(JSON.stringify(sandbox.nextMediaSelection(["media-a"], "media-b", true, true)), JSON.stringify(["media-a", "media-b"]));
 assert.equal(JSON.stringify(sandbox.nextMediaSelection(["media-a", "media-b"], "media-a", false, true)), JSON.stringify(["media-b"]));
 assert.equal(JSON.stringify(sandbox.nextMediaSelection(["media-a"], "media-b", true, false)), JSON.stringify(["media-b"]),
@@ -61,9 +61,9 @@ assert.match(client, /override: profile\.role === "admin"[\s\S]*?before\.overrid
 assert.match(client, /stage === "final_approved" && !\(profile\.role === "admin" && \["scheduled", "published"\]\.includes\(before\.stage\)\)/);
 assert.match(client, /setWorkflowStage[\s\S]*?runTransaction\(db[\s\S]*?transaction\.get\(mediaReference\)/,
   "Une réouverture du texte doit mettre à jour le cycle et la décision média dans la même transaction.");
-assert.match(client, /setWorkflowStage[\s\S]*?deriveMediaAgreement\(mediaBefore\.communications, mediaBefore\.direction, mediaBefore\.override, textApproved\)/,
+assert.match(client, /setWorkflowStage[\s\S]*?deriveMediaAgreement\(mediaBefore\.communications, mediaBefore\.direction, mediaBefore\.override, textApproved, mediaBefore\.requiredMediaCount\)/,
   "Le feu visuel doit être recalculé quand le texte est approuvé ou rouvert.");
-assert.match(client, /stage === "content_approved" && \["agreed", "overridden"\]\.includes\(agreement\.status\)[\s\S]{0,80}nextStage = "final_approved"/,
+assert.match(client, /stage === "content_approved" && \["agreed", "overridden", "direction_approved"\]\.includes\(agreement\.status\)[\s\S]{0,80}nextStage = "final_approved"/,
   "Après une nouvelle approbation du texte, un accord média conservé doit redevenir final sans double manipulation.");
 assert.doesNotMatch(client, /adminOverrideApprovesText/,
   "Les deux validations restent distinctes.");
@@ -115,7 +115,7 @@ assert.match(ui, /Ajouter cette carte au carrousel/,
 assert.match(ui, /details class="cockpit-media-info" open/, "Les actions média doivent être ouvertes par défaut.");
 assert.match(mediaUi, /synchronizeMediaInfoPanels/, "Les panneaux média d’un même événement doivent rester synchronisés.");
 assert.match(ui, /state\.profile\?\.role === "admin"\)/, "La porte Terminer doit être autorisée seulement aux communications.");
-assert.match(ui, /configureGate\(contentGate, contentDone, true, "content_approved", "content_review", "Texte"/,
+assert.match(ui, /configureGate\(contentGate, myContentDone, true, "content_approved", "content_review", "Texte"/,
   "Le feu texte doit pouvoir être coché puis décoché vers la révision.");
 assert.match(ui, /configureGate\(publicationGate, publicationDone, publicationReady, "published", "final_approved", "Terminé", state\.profile\?\.role === "admin"\)/,
   "Les communications doivent pouvoir terminer puis rouvrir une publication.");
@@ -153,7 +153,7 @@ assert.match(rules, /side\.mediaIds\.size\(\) <= 2/,
 assert.match(rules, /side\.mediaIds\.size\(\) < 2 \|\| validSelectableMedia\(eventId, side\.mediaIds\[1\]\)/,
   "Les règles doivent valider chaque carte supplémentaire du carrousel.");
 assert.match(rules, /request\.resource\.data\.stage in \['scheduled', 'published'\][\s\S]*?isAdmin\(\)/, "Terminer doit être réservé aux communications dans les règles.");
-assert.match(rules, /allow update: if isEditor\(\)[\s\S]{0,420}\(isAdmin\(\)[\s\S]{0,240}resource\.data\.stage in \['scheduled', 'published'\]/,
+assert.match(rules, /allow update: if isEditor\(\)[\s\S]{0,800}\(isAdmin\(\)[\s\S]{0,240}resource\.data\.stage in \['scheduled', 'published'\]/,
   "Les règles doivent autoriser les communications à rouvrir un événement terminé.");
 assert.match(rules, /function validMediaDecision\(data\)[\s\S]*validMediaAgreement\(data\)[\s\S]*mediaWorkflowMatchesAgreement\(data\)/,
   "Toute décision média doit imposer le même état dérivé dans workflowStates au sein de la mutation atomique.");

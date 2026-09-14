@@ -1,6 +1,6 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20260912-b84";
-import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260912-b84";
-import { openPublicationStudio } from "./editor-studio.js?v=20260912-b84";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20260914-b85";
+import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260914-b85";
+import { openPublicationStudio } from "./editor-studio.js?v=20260914-b85";
 import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20260910-v2.12";
 
 export function setupInterfaceSwitch(profile) {
@@ -39,7 +39,7 @@ export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, me
       contentApproved: id => ["content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"].includes(state.workflows.get(id)?.stage),
       mediaApproved: id => {
         const choice = state.mediaDecisions.get(id);
-        return choice ? ["agreed", "overridden"].includes(choice.agreement?.status) : ["final_approved", "scheduled", "published"].includes(state.workflows.get(id)?.stage);
+        return choice ? ["agreed", "overridden", "direction_approved"].includes(choice.agreement?.status) : ["final_approved", "scheduled", "published"].includes(state.workflows.get(id)?.stage);
       },
       ensurePublication: id => {
         let node = [...document.querySelectorAll(".post[data-item-id]")].find(post => post.dataset.itemId === id);

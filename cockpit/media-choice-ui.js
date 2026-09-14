@@ -1,7 +1,7 @@
 export function buildMediaChoiceModel(hasStructuredChoice, decision, row, latestLegacyDecision = "") {
   const communicationsIds = decision?.communications?.status === "selected" && Array.isArray(decision.communications.mediaIds) ? decision.communications.mediaIds : [];
   const directionIds = decision?.direction?.status === "selected" && Array.isArray(decision.direction.mediaIds) ? decision.direction.mediaIds : [];
-  const agreementIds = ["agreed", "overridden"].includes(decision?.agreement?.status) && Array.isArray(decision.agreement.mediaIds) ? decision.agreement.mediaIds : [];
+  const agreementIds = ["agreed", "overridden", "direction_approved"].includes(decision?.agreement?.status) && Array.isArray(decision.agreement.mediaIds) ? decision.agreement.mediaIds : [];
   const legacySelected = !hasStructuredChoice && (row.selectedFinal === true || (!("selectedFinal" in row) && latestLegacyDecision.startsWith(`[MÉDIA RETENU:${row.id}]`)));
   const communicationsSelected = hasStructuredChoice && communicationsIds.includes(row.id);
   const directionSelected = hasStructuredChoice && directionIds.includes(row.id);
@@ -11,7 +11,7 @@ export function buildMediaChoiceModel(hasStructuredChoice, decision, row, latest
     agreementStatus: hasStructuredChoice ? (decision?.agreement?.status || "pending") : "legacy",
     overrideActorRole: hasStructuredChoice ? (decision?.override?.actorRole || "") : "",
     sameRoleChoice: communicationsSelected && directionSelected,
-    divergent: decision?.agreement?.status === "divergent",
+    divergent: decision?.agreement?.divergent === true || decision?.agreement?.status === "divergent",
     directionFinal: directionSelected,
     legacySelected,
     // La direction garde le dernier mot éditorial. Son choix devient donc le
@@ -53,6 +53,8 @@ export function restoreMediaDrafts(gallery, drafts) {
 }
 
 export function mediaAgreementPresentation(choice) {
+  if (choice.agreementStatus === "direction_approved") return { info: "✓ Approuvé par la direction", badge: "✓ Visuel approuvé par la direction" };
+  if (!["agreed", "overridden"].includes(choice.agreementStatus)) return { info:"Choix enregistré", badge:"Choix enregistré · validation à compléter" };
   if (choice.agreementStatus !== "overridden") return { info: "✓ Accord final", badge: "✓ Accord communications + direction · décision finale" };
   const actor = choice.overrideActorRole === "admin"
     ? "les communications"
@@ -87,8 +89,15 @@ export function synchronizeMediaInfoPanels(gallery) {
 
 const escapeMarkup = value => String(value || '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 
+export function communicationsApprovalNeedsReview(approval, comments = []) {
+  const millis = value => value?.toMillis?.() ?? (typeof value === 'number' ? value : value?.seconds ? value.seconds * 1000 : Date.parse(value || '') || 0);
+  const approvedAt = millis(approval?.decidedAt);
+  return comments.some(comment => !comment.deleted && !comment.resolved && comment.authorUid !== approval?.actorUid
+    && Math.max(millis(comment.createdAt), millis(comment.updatedAt)) > approvedAt);
+}
+
 // These controls use the same delegated actions as the gallery. No parallel writer.
-export function renderMediaValidationPanel(card, {profile, rows = [], decision, textApproved, multiple = false, loading = false}) {
+export function renderMediaValidationPanel(card, {profile, rows = [], decision, textApproved, multiple = false, loading = false, reviewRequested = false}) {
   const host = card.querySelector('.cockpit-workflow');
   if (!host || !['admin', 'director'].includes(profile?.role)) return;
   let panel = host.querySelector('[data-media-validation-panel]');
@@ -102,14 +111,14 @@ export function renderMediaValidationPanel(card, {profile, rows = [], decision, 
   const available = rows.filter(row => !mediaSelectionBlocked(row) && row.stage !== 'archived');
   const side = profile.role === 'admin' ? 'communications' : 'direction';
   const selectedIds = decision?.[side]?.status === 'selected' ? decision[side].mediaIds || [] : [];
-  const signature = JSON.stringify({profile:profile.role,available:available.map(row=>[row.id,row.label,row.rightsConfirmed,row.rightsStatus]),decision,textApproved,multiple,loading});
+  const signature = JSON.stringify({profile:profile.role,available:available.map(row=>[row.id,row.label,row.rightsConfirmed,row.rightsStatus]),decision,textApproved,multiple,loading,reviewRequested});
   if (panel.dataset.signature === signature) return;
   const previousId = panel.querySelector('select')?.value;
   const previousReason = panel.querySelector('[data-media-override-reason]')?.value || '';
   const focused = panel.contains(card.ownerDocument.activeElement) ? card.ownerDocument.activeElement?.getAttribute('data-media-override-reason') !== null ? 'reason' : 'select' : '';
   panel.dataset.signature = signature;
   const currentId = [previousId, ...selectedIds, ...(decision?.agreement?.mediaIds || []), ...(decision?.communications?.mediaIds || []), available[0]?.id].find(id => available.some(row => row.id === id));
-  const sideLabel = name => decision?.[name]?.status === 'selected' ? 'Choix enregistré' : 'En attente';
+  const sideLabel = name => name === 'communications' && reviewRequested ? 'À revoir après commentaire' : decision?.[name]?.status === 'selected' ? 'Approuvé de ce côté' : 'En attente';
   panel.innerHTML = `<summary>Choix et validation du visuel</summary><div class="cockpit-media-validation-body"><p class="cockpit-media-role-summary"><span><b>Communications</b> · ${sideLabel('communications')}</span><span><b>Direction</b> · ${sideLabel('direction')}</span></p>${available.length ? `<label>Visuel concerné<select data-media-validation-choice aria-label="Visuel à valider">${available.map(row=>`<option value="${escapeMarkup(row.id)}">${escapeMarkup(row.label || row.id)}</option>`).join('')}</select></label><p data-media-validation-rights class="cockpit-media-note"></p><div class="cockpit-media-validation-buttons"><button type="button" data-media-decision aria-pressed="false"></button><button type="button" data-media-validation-force-open>Forcer la validation du visuel…</button></div><div data-media-validation-force hidden><label>Motif de la décision<input type="text" maxlength="500" data-media-override-reason aria-label="Motif de la validation forcée" placeholder="${profile.role === 'admin' ? 'Précisez l’aval reçu de la direction' : 'Précisez la décision à conserver'}"></label><p class="cockpit-media-note">${profile.role === 'admin' ? 'La décision sera enregistrée à votre nom, avec l’aval indiqué. Le choix d’Annie restera distinct.' : 'Votre décision finale sera conservée avec son motif.'}</p><button type="button" data-media-override>Confirmer la validation forcée</button></div><p data-media-validation-help class="cockpit-media-note"></p>` : `<p role="status">${loading ? 'Chargement des visuels…' : 'Ajoutez un visuel dans la galerie pour le proposer à la validation.'}</p>`}</div>`;
   const select = panel.querySelector('select');
   const refresh = () => {
@@ -119,16 +128,18 @@ export function renderMediaValidationPanel(card, {profile, rows = [], decision, 
     const choiceButton = panel.querySelector('[data-media-decision]');
     choiceButton.dataset.mediaDecision = row.id;
     choiceButton.dataset.mediaLabel = row.label || 'Visuel';
-    choiceButton.setAttribute('aria-pressed', String(selected));
-    choiceButton.textContent = selected ? 'Retirer mon choix' : multiple ? 'Ajouter cette carte au carrousel' : profile.role === 'admin' ? 'Recommander ce visuel' : textApproved ? 'Approuver ce visuel' : 'Choisir ce visuel';
+    const needsReconfirmation = selected && profile.role === 'admin' && reviewRequested;
+    choiceButton.setAttribute('aria-pressed', String(selected && !needsReconfirmation));
+    choiceButton.textContent = needsReconfirmation ? 'Confirmer à nouveau ce visuel' : selected ? 'Retirer mon approbation' : multiple ? 'Ajouter cette carte au carrousel' : 'Approuver ce visuel de mon côté';
     const overrideButton = panel.querySelector('[data-media-override]');
     overrideButton.dataset.mediaOverride = row.id;
     overrideButton.dataset.mediaLabel = row.label || 'Visuel';
     const count = new Set([...selectedIds, row.id]).size;
-    const canForce = textApproved && (!multiple || count >= 2);
+    const canForce = profile.role === 'admin' && textApproved && (!multiple || count >= 2);
+    panel.querySelector('[data-media-validation-force-open]').hidden = profile.role !== 'admin';
     panel.querySelector('[data-media-validation-force-open]').disabled = !canForce;
     overrideButton.disabled = !canForce;
-      panel.querySelector('[data-media-validation-help]').textContent = !textApproved ? 'Vous pouvez choisir le visuel maintenant. Validez le texte avant de confirmer la validation finale du visuel.' : multiple && count < 2 ? 'Choisissez deux cartes du carrousel avant de confirmer la validation finale.' : decision?.agreement?.status === 'agreed' && decision.agreement.mediaIds.includes(row.id) ? 'Le visuel est validé par les deux rôles. Vous pouvez modifier votre choix ici.' : decision?.agreement?.status === 'overridden' && decision.agreement.mediaIds.includes(row.id) ? 'La validation forcée est enregistrée avec son motif. Vous pouvez modifier votre décision ici.' : selected && decision?.[profile.role === 'admin' ? 'direction' : 'communications']?.status !== 'selected' ? 'Votre choix est enregistré. L’autre rôle doit encore vérifier le visuel; vous n’avez pas besoin de forcer la validation.' : decision?.agreement?.status === 'divergent' ? 'Les deux rôles ont choisi des visuels différents. Modifiez votre choix ou précisez le motif d’une validation forcée.' : 'Choisissez ce visuel pour enregistrer votre décision. La validation forcée reste disponible si nécessaire.';
+    panel.querySelector('[data-media-validation-help]').textContent = reviewRequested && profile.role === 'admin' ? 'Un commentaire demande une nouvelle vérification. Confirmez à nouveau après avoir traité les corrections.' : decision?.agreement?.status === 'overridden' && decision.agreement.mediaIds.includes(row.id) ? 'La validation forcée est enregistrée avec son motif. Vous pouvez modifier votre décision ici.' : profile.role === 'director' ? selected ? 'Votre approbation est enregistrée. Vous pouvez la retirer ou choisir un autre visuel.' : 'Approuvez le visuel indépendamment du texte et du choix des communications.' : selected ? 'Votre choix est enregistré. Annie conserve sa propre approbation; pas besoin de forcer la validation.' : 'Approuvez le visuel de votre côté. Le texte se confirme séparément.';
     panel.querySelector('[data-media-validation-rights]').textContent = mediaRightsNeedsConfirmation(row) && row.rightsConfirmed !== true ? 'Droits à vérifier · information à confirmer, sans bloquer votre choix.' : row.rightsConfirmed === true ? 'Droits confirmés.' : 'Crédit et informations du média disponibles dans la galerie.';
   };
   if (select) { for (const option of select.options) option.selected = false; [...select.options].find(option=>option.value === currentId).selected = true; select.addEventListener('change', refresh); refresh(); }
