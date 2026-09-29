@@ -158,7 +158,7 @@ function buildAudit(posts, scheduleRows, workflowRows) {
     .map((post) => ({ id: post.id, dateIso: post.dateIso, title: post.title }));
   const effectivePosts = mergePostsWithScheduleRows(posts, scheduleRows)
     .filter((post) => post.archivedEditorial !== true && post.dateIso >= fromDate);
-  const effectiveByDate = Object.groupBy(effectivePosts, (post) => post.dateIso);
+  const effectiveByDate = Object.groupBy(effectivePosts.filter(post => post.templateId !== "newsletter" && post.editorial?.templateId !== "newsletter"), (post) => post.dateIso);
   const duplicates = Object.entries(effectiveByDate)
     .filter(([, items]) => items.length > 1)
     .map(([dateIso, items]) => ({ dateIso, ids: items.map((item) => item.id), titles: items.map((item) => item.title) }));

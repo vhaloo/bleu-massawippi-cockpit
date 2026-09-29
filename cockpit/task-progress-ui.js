@@ -1,4 +1,4 @@
-import {renderMediaValidationPanel, communicationsApprovalNeedsReview} from "./media-choice-ui.js?v=20260914-b85";
+import {renderMediaValidationPanel, communicationsApprovalNeedsReview} from "./media-choice-ui.js?v=20260929-b86";
 
 const textStages = new Set(["content_approved","media_in_progress","media_review","media_changes_requested","final_approved","scheduled","published"]);
 const finalStages = new Set(["final_approved","scheduled","published"]);
@@ -130,6 +130,11 @@ export function renderWorkflowControls(card, {state, getPlanItem, stateTimestamp
     && structuredMediaDecision.direction.mediaIds.length >= requiredMediaCount;
   card.dataset.workflowStage = stage;
   card.dataset.workflowUpdatedAt = String(stateTimestampMillis(row.updatedAt));
+  // The dashboard must not depend on the lazily loaded gallery DOM.
+  card.dataset.structuredMediaDecision = String(Boolean(structuredMediaDecision));
+  card.dataset.directionMediaSelected = String(directionMediaReady);
+  card.dataset.communicationsMediaSelected = String(structuredMediaDecision?.communications?.status === 'selected'
+    && (structuredMediaDecision.communications.mediaIds?.length || 0) >= requiredMediaCount);
   const contentDone = ["content_approved","media_in_progress","media_review","media_changes_requested","final_approved","scheduled","published"].includes(stage);
   const comments = state.commentsByEvent.get(card.dataset.itemId) || [];
   const communicationsTextDone = row.communicationsTextApproval?.approved === true
@@ -208,7 +213,7 @@ export function renderWorkflowControls(card, {state, getPlanItem, stateTimestamp
     if (stage === "content_review") buttons.push(["changes_requested","Correction demandée au texte","correction"]);
     if (stage === "media_review") buttons.push(["media_changes_requested","Correction demandée au visuel","correction"]);
   }
-  const waiting = publicationDone ? "Événement terminé; l’historique est conservé." : publicationReady ? "Le texte et le visuel sont approuvés. Les communications peuvent programmer ou publier." : stage === "media_review" ? "Le visuel est prêt : confirmez votre choix ou la décision finale ci-dessous." : contentDone ? "Le texte est approuvé. Le choix du visuel reste à confirmer ci-dessous." : "Le texte reste à valider. Vous pouvez déjà choisir un visuel.";
+  const waiting = publicationDone ? "Événement terminé; l’historique est conservé." : state.profile?.role === 'director' && myContentDone && myMediaDone ? "Vos validations sont faites. La suite est du côté des communications." : publicationReady ? "Le texte et le visuel sont approuvés. Les communications peuvent programmer ou publier." : stage === "media_review" ? "Le visuel est prêt : confirmez votre choix ou la décision finale ci-dessous." : contentDone ? "Le texte est approuvé. Le choix du visuel reste à confirmer ci-dessous." : "Le texte reste à valider. Vous pouvez déjà choisir un visuel.";
   actions.innerHTML = buttons.map(([value,label,kind]) => `<button type="button" class="${kind}" ${value ? `data-workflow-stage="${value}"` : "disabled"}>${label}</button>`).join("") || `<span class="cockpit-media-note">${esc(waiting)}</span>`;
   actions.insertAdjacentHTML('beforeend', `<p class="cockpit-media-role-summary"><span><b>Texte · Communications</b> · ${communicationsTextDone ? 'Approuvé' : 'À confirmer'}</span><span><b>Texte · Direction</b> · ${contentDone ? 'Approuvé' : 'À confirmer'}</span></p>`);
   renderMediaValidationPanel(card, {profile:state.profile, rows:state.mediaByEvent.get(card.dataset.itemId) || [], decision:structuredMediaDecision, textApproved:contentDone, multiple:requiredMediaCount > 1, loading:state.mediaContextLoading.has(card.dataset.itemId), reviewRequested:mediaReviewRequested});

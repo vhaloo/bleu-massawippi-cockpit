@@ -1,7 +1,7 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20260914-b85";
-import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260914-b85";
-import { openPublicationStudio } from "./editor-studio.js?v=20260914-b85";
-import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20260910-v2.12";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20260929-b86";
+import { fetchPublicationHistoryPage } from "./firebase-client.js?v=20260929-b86";
+import { openPublicationStudio } from "./editor-studio.js?v=20260929-b86";
+import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20260929-v2.13";
 
 export function setupInterfaceSwitch(profile) {
   if (!profile?.uid) return;
@@ -22,7 +22,7 @@ export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, me
   try {
     const entry = interfaceUrl(location.href, "v2", (globalThis.posts || []).map(post => post.id));
     if (entry !== location.href) history.replaceState(history.state, "", entry);
-    const { mountWorkspace } = await import("./workspace-v2.js?v=20260910-v2.12");
+    const { mountWorkspace } = await import("./workspace-v2.js?v=20260929-v2.13");
     return mountWorkspace({
       profile,
       getPosts: () => globalThis.posts || [],

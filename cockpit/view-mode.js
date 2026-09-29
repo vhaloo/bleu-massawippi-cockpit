@@ -7,7 +7,7 @@
  * intact.
  */
 
-import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260914-b85";
+import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20260929-b86";
 
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
@@ -504,7 +504,7 @@ function ensureStylesheet() {
   if (document.querySelector(`link[data-module="${MODULE_ID}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = new URL("./view-mode.css?v=20260914-b85", import.meta.url).href;
+  link.href = new URL("./view-mode.css?v=20260929-b86", import.meta.url).href;
   link.dataset.module = MODULE_ID;
   document.head.appendChild(link);
 }
@@ -1142,7 +1142,7 @@ function inferredWorkflowStage(card) {
 }
 
 function incomingMessageFor(card) {
-  return [...card.querySelectorAll('[data-comment-thread] .cockpit-message:not(.handled)')]
+  return [...card.querySelectorAll('[data-comment-thread] .cockpit-message:not(.handled):not(.mine)')]
     .map((message) => ({
       id: message.dataset.commentId || "",
       text: message.querySelector("p")?.textContent?.trim() || "",
@@ -1168,8 +1168,12 @@ function mediaStateFor(card) {
   return {
     count: candidates.length,
     selectedCount: candidates.filter((media) => media.classList.contains("is-final") || media.dataset.mediaSelectedFinal === "true").length,
-    communicationsSelected: candidates.some((media) => media.dataset.mediaCommunicationsSelected === "true"),
-    directionSelected: candidates.some((media) => media.dataset.mediaDirectionSelected === "true"),
+    communicationsSelected: card.dataset.structuredMediaDecision === "true"
+      ? card.dataset.communicationsMediaSelected === "true"
+      : candidates.some((media) => media.dataset.mediaCommunicationsSelected === "true"),
+    directionSelected: card.dataset.structuredMediaDecision === "true"
+      ? card.dataset.directionMediaSelected === "true"
+      : candidates.some((media) => media.dataset.mediaDirectionSelected === "true"),
     latestUpdate: candidates.reduce((latest, media) => Math.max(latest, dataMillis(media.dataset.mediaUpdatedAt)), 0)
   };
 }
@@ -1419,9 +1423,11 @@ function roleDecisionModels(events, identity, now) {
   const actionDecisions = personalActions.map((item) => {
     const event = item.targetType === "schedule" ? events.find((candidate) => candidate.id === item.targetId) : null;
     if (event?.complete) return null;
-    const directionMediaDone = event?.media?.directionSelected === true;
-    if (["approve_text_then_media", "media_direction_approval"].includes(item.actionType)
-      && (directionMediaDone || ["final_approved", "scheduled", "published"].includes(event?.stage))) return null;
+    const directionMediaDone = event?.media?.directionSelected === true
+      || (event?.card?.dataset.structuredMediaDecision !== "true" && ["final_approved", "scheduled", "published"].includes(event?.stage));
+    const directionTextDone = ["content_approved", "media_in_progress", "media_review", "media_changes_requested", "final_approved", "scheduled", "published"].includes(event?.stage);
+    if (item.actionType === "media_direction_approval" && directionMediaDone) return null;
+    if (item.actionType === "approve_text_then_media" && directionTextDone && directionMediaDone) return null;
     const date = event?.date || inferDate(item.eventDateIso, now);
     const waitingForMedia = item.actionType === "approve_text_then_media"
       && event?.media?.count > 0

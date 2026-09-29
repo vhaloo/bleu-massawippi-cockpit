@@ -6,6 +6,7 @@ const TEXT_LIMITS = Object.freeze({
 });
 
 export const PUBLICATION_TEMPLATES = Object.freeze({
+  newsletter: { label: "Infolettre", theme: "Infolettre", tier: "Infolettre", format: "Infolettre bilingue illustrée", cta: "Lire l’infolettre" },
   educational: { label: "Capsule éducative", theme: "Éducation", tier: "Pilier", format: "Affiche éducative + légende bilingue", cta: "Découvrir et partager" },
   nature: { label: "Zoom nature", theme: "Nature", tier: "Pilier", format: "Photo réelle ou planche naturaliste + légende bilingue", cta: "Observer avec nous" },
   community: { label: "Communauté", theme: "Communauté", tier: "Passerelle", format: "Photo réelle + récit bilingue", cta: "Participer à la conversation" },
