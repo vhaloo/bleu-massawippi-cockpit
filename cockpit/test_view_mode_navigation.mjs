@@ -759,5 +759,30 @@ await wait();
 assert.equal(v2Disclosure.hasAttribute("open"), true,
   "Le choix explicite d’ouvrir un panneau V2 doit aussi être conservé.");
 
+// Structured role decisions remain authoritative before a lazy gallery loads.
+switchTestRole("annie", "director");
+const lazyCard = document.querySelector('[data-item-id="future-3"]');
+lazyCard.dataset.workflowStage = "content_approved";
+lazyCard.dataset.structuredMediaDecision = "true";
+lazyCard.dataset.directionMediaSelected = "true";
+lazyCard.dataset.communicationsMediaSelected = "false";
+lazyCard.querySelectorAll('.cockpit-media-card,[data-comment-thread]').forEach(n => n.remove());
+viewMode.update(); await wait();
+assert.equal(document.querySelector('.vm-decisions [data-vm-target="future-3"]'), null,
+  'Annie has no remaining approval when her gallery is not loaded and Valentin has not chosen.');
+const ownThread = document.createElement('div'); ownThread.dataset.commentThread = '';
+ownThread.innerHTML = '<article class="cockpit-message mine" data-comment-id="own-lazy" data-updated-at="900"><p>Ma consigne pour Valentin.</p></article>';
+lazyCard.append(ownThread);viewMode.update();await wait();
+assert.equal(document.querySelector('.vm-decisions [data-vm-target="future-3"]'), null,
+  'Her own active comment does not become her incoming task.');
+lazyCard.dataset.workflowStage = "content_review";viewMode.update();await wait();
+assert.ok(document.querySelector('.vm-decisions [data-vm-target="future-3"]'),
+  'Approving only the image never hides an outstanding text approval.');
+lazyCard.dataset.workflowStage = "content_approved";
+lazyCard.dataset.directionMediaSelected = "false";
+const staleMedia = document.createElement('article');staleMedia.className = 'cockpit-media-card';staleMedia.dataset.mediaDirectionSelected = 'true';lazyCard.append(staleMedia);
+viewMode.update();await wait();
+assert.ok(document.querySelector('.vm-decisions [data-vm-target="future-3"]'),
+  'A removed structured choice wins over a stale selected thumbnail.');
 viewMode.destroy();
 console.log("✓ Navigation P0 et file personnelle : tests DOM réussis.");

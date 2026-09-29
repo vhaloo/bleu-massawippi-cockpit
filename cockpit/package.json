@@ -56,7 +56,7 @@
     "test:clarity": "node test_strategy_clarity_contract.mjs",
     "test:section-navigation": "node test_section_navigation.mjs",
     "test:monthly-snapshot": "node test_monthly_snapshot_state.mjs",
-    "test:publication-editor": "node test_publication_editor_schema.mjs",
+    "test:publication-editor": "node test_publication_editor_schema.mjs && node test_newsletter_calendar.mjs",
     "test:editor-studio": "node test_editor_studio_contract.mjs",
     "test:editor-cli": "node --check publication_editor_cli.mjs && node test_publication_editor_cli_contract.mjs && node test_publication_editor_cli_behavior.mjs",
     "test:editor-rules": "npx firebase-tools@15.23.0 emulators:exec --only firestore --project cockpit-publication-editor-test --config firebase.emulator.json \"node test_publication_editor_rules_emulator.mjs\"",

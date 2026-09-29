@@ -1,8 +1,8 @@
 /** Pure presentation model. Never changes a date, approval, or source object. */
-export const WORKSPACE_VERSION = "20260910-v2.12";
+export const WORKSPACE_VERSION = "20260929-v2.13";
 export const SPACES = Object.freeze({
   accueil: { label: "À faire", icon: "decisions", title: "Un peu de clarté pour avancer.", description: "Vos décisions, les nouveautés et le travail qui vous attend." },
-  publications: { label: "Publications", icon: "publications", title: "Les mots et les images du lac.", description: "Le calendrier des réseaux sociaux, les propositions et leur historique." },
+  publications: { label: "Publications", icon: "publications", title: "Les mots et les images du lac.", description: "Le calendrier des réseaux sociaux et des infolettres, les propositions et leur historique." },
   projets: { label: "Projets", icon: "folder", title: "Chaque dossier, à sa place.", description: "Les projets, leurs échéances, leurs documents et les décisions à prendre." },
   bibliotheque: { label: "Bibliothèque", icon: "library", title: "Retrouver le bon document.", description: "Les références du cockpit restent liées à leur dossier et à leur original." }
 });
@@ -157,3 +157,6 @@ export function safeLink(value) {
   try { const url = new URL(value); return ["https:", "http:"].includes(url.protocol) ? url.href : ""; } catch { return ""; }
 }
 export function escapeHtml(value) { return String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+export const isNewsletter = item => item?.templateId === "newsletter" || item?.editorial?.templateId === "newsletter";
+export const publicationChannelLabel = item => isNewsletter(item) ? "Infolettre" : "Réseaux sociaux";
