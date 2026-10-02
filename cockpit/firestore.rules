@@ -315,7 +315,10 @@ service cloud.firestore {
     function validAdminMediaDecisionUpdate(eventId) {
       let data = request.resource.data;
       let before = resource.data;
-      return data.diff(before).affectedKeys().hasOnly(['communications', 'requiredMediaCount', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+      // Le client ajoute schemaVersion=2 aux décisions historiques sans version.
+      // L'enveloppe impose 2; aucune migration depuis une version inconnue.
+      return data.diff(before).affectedKeys().hasOnly(['communications', 'requiredMediaCount', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel', 'schemaVersion'])
+        && before.get('schemaVersion', 2) == 2
         && data.direction == before.direction
         && validMediaOverride(data.override)
         && (data.override == before.override
@@ -348,7 +351,8 @@ service cloud.firestore {
     function validDirectorMediaDecisionUpdate(eventId) {
       let data = request.resource.data;
       let before = resource.data;
-      return data.diff(before).affectedKeys().hasOnly(['direction', 'requiredMediaCount', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel'])
+      return data.diff(before).affectedKeys().hasOnly(['direction', 'requiredMediaCount', 'override', 'agreement', 'textGateStage', 'lastMutationId', 'updatedAt', 'updatedBy', 'updatedByLabel', 'schemaVersion'])
+        && before.get('schemaVersion', 2) == 2
         && data.communications == before.communications
         && validMediaDecisionSide(data.direction, 'director')
         && validMediaOverride(data.override)
