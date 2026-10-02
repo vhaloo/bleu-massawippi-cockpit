@@ -108,6 +108,7 @@ for(const role of ['admin','director']) {
   assert.equal(buildTaskProgressPresentation(closed).publication,true);
   assert.equal(actionTaskShouldRemain({status:'pending',targetType:'schedule',id:'workflow-test'},closed),false);
   assert.equal(actionTaskShouldRemain({status:'pending',targetType:'schedule',id:'comment-annie-review'},closed,h.state.commentsByEvent.get(h.eventId)),true,'Une consigne non traitée d’Annie reste active.');
+  assert.equal(actionTaskShouldRemain({status:'pending',targetType:'schedule',id:'comment-outside-window'},closed,[]),true,'Une clôture forcée ne traite pas un commentaire absent de la fenêtre bornée.');
   button('[data-gate="publication"]').click();await settle();
   assert.equal(h.state.workflows.get(h.eventId).completionOverride.active,false);
   assert.equal(h.state.workflows.get(h.eventId).stage,beforeClosure.stage);
