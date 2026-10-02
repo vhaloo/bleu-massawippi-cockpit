@@ -1,4 +1,4 @@
-import {renderMediaValidationPanel, communicationsApprovalNeedsReview} from "./media-choice-ui.js?v=20261002-b88";
+import {renderMediaValidationPanel, communicationsApprovalNeedsReview} from "./media-choice-ui.js?v=20261002-b89";
 
 const textStages = new Set(["content_approved","media_in_progress","media_review","media_changes_requested","final_approved","scheduled","published"]);
 const finalStages = new Set(["final_approved","scheduled","published"]);
@@ -47,8 +47,9 @@ export function actionTaskShouldRemain(task = {}, workflow = {}, comments = []) 
   if (comment) return comment.deleted !== true && comment.resolved !== true;
 
   // Si le commentaire n'est plus dans la fenêtre bornée, une publication déjà
-  // terminée ne doit pas conserver une alerte fantôme.
-  return !publicationFinished;
+  // publiée ne doit pas conserver une alerte fantôme. Une clôture manuelle,
+  // elle, ne prouve pas que la consigne a été traitée : la garder visible.
+  return workflow?.completionOverride?.active === true || !publicationFinished;
 }
 
 export function workflowSyncIsUsable(sync = "server", { safeMode = false, offline = false } = {}) {
