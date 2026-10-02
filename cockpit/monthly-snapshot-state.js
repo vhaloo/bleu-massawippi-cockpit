@@ -24,9 +24,11 @@ export function classifyMonthlyPostState({
   comments = [],
   scheduleStatus = "pending",
   editorialDecision = "undecided",
-  mediaDecision = null
+  mediaDecision = null,
+  completionOverride = null
 } = {}) {
   const stage = String(workflowStage || "proposal").trim().toLowerCase();
+  if (completionOverride?.active === true) return {...monthlyPostStates.ready, label:"Clôture forcée"};
   if (["scheduled", "published"].includes(stage)) return monthlyPostStates.ready;
 
   const status = String(scheduleStatus || "pending").trim().toLowerCase();

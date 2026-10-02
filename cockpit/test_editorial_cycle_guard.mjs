@@ -8,6 +8,8 @@ for (const data of [{completed:true},{published:true},{scheduled:true},{deleted:
   assert.throws(() => assertPublicationMutable("test", data, {}));
 }
 assert.doesNotThrow(() => assertPublicationMutable("test", {status:"pending"}, {stage:"final_approved"}));
+assert.throws(() => assertPublicationMutable("test", {status:"pending"}, {stage:"content_review",completionOverride:{active:true}}));
+assert.doesNotThrow(() => assertPublicationMutable("test", {status:"pending"}, {stage:"content_review",completionOverride:{active:false}}));
 const original = {editorial:{copy:"texte validé",week:4,dateIso:"2026-08-07"},status:"pending",selected:true};
 const patch = reschedulePatch({date:"Vendredi 2 octobre",dateIso:"2026-10-02",w:12},original);
 assert.deepEqual(Object.keys(patch).sort(), ["dateKey","dateIso","editorial.dateIso","editorial.dateLabel","editorial.week"].sort());

@@ -3,6 +3,7 @@ export function assertPublicationNotCompleted(id, schedule = {}, workflow = {}) 
   const protectedStages = new Set(["completed", "published", "scheduled", "done"]);
   if (protectedStages.has(String(workflow.stage || "").trim().toLowerCase())
       || protectedStages.has(String(schedule.status || "").trim().toLowerCase())
+      || workflow.completionOverride?.active === true
       || schedule.completed === true || schedule.published === true || schedule.scheduled === true) {
     throw new Error(`${id}: publication terminée, programmée ou publiée; mutation refusée. Conservez l’original et préparez une copie distincte.`);
   }

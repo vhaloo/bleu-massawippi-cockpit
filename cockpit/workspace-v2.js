@@ -41,7 +41,7 @@ export function mountWorkspace(api) {
       const stage = wf.stage || card?.dataset.workflowStage || "proposal";
       const contentApproved = api.contentApproved?.(item.id) ?? card?.querySelector('[data-gate="content"]')?.getAttribute("aria-pressed") === "true";
       const mediaApproved = api.mediaApproved?.(item.id) ?? card?.querySelector('[data-gate="media"]')?.getAttribute("aria-pressed") === "true";
-      const approval = { stage, contentApproved, mediaApproved, decision };
+      const approval = { stage, contentApproved, mediaApproved, decision, completionOverride:wf.completionOverride };
       return { ...item, dateIso: api.dateIso?.(item) || item.dateIso || "", decision, state: publicationState(approval), progress: publicationProgress(approval) };
     });
   }

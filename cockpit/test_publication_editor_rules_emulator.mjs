@@ -199,9 +199,9 @@ try {
   );
 
   await check("aucun rôle ne supprime une publication", deleteDoc(publicationRef), false);
-  for (const stage of ["scheduled", "published"]) {
+  for (const stage of ["scheduled", "published", "content_review"]) {
     await environment.withSecurityRulesDisabled(async context => {
-      await setDoc(doc(context.firestore(), "workflowStates", ids.publication), { stage });
+      await setDoc(doc(context.firestore(), "workflowStates", ids.publication), { stage, ...(stage==='content_review'?{completionOverride:{active:true}}:{}) });
     });
     await check(`contenu ${stage} protégé même contre une modification admin directe`, setDoc(publicationRef, {
       ...(await getDoc(publicationRef)).data(),

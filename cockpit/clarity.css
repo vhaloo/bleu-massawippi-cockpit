@@ -22,6 +22,10 @@
 .cockpit-workflow-help summary{min-height:34px;padding:8px 10px;color:#426b78;font-size:.66rem;font-weight:900;cursor:pointer}
 .cockpit-workflow-help summary::marker{color:#16859b}
 .cockpit-workflow-help p{margin:0;padding:0 10px 10px;color:#587680;font-size:.66rem;line-height:1.45}
+.cockpit-completion-override{width:100%;box-sizing:border-box;background:var(--v2-paper,#fff);color:var(--v2-ink,#17424a)}
+.cockpit-completion-override label{display:block;margin:0 10px 10px;font-size:.75rem;font-weight:700}
+.cockpit-completion-override input{display:block;width:100%;box-sizing:border-box;min-height:44px;margin-top:5px;padding:8px;border:1px solid var(--v2-line,#b8ced0);border-radius:8px;background:var(--v2-paper,#fff);color:inherit;font:inherit}
+.cockpit-completion-override button{margin:0 10px 10px;max-width:calc(100% - 20px)}
 .cockpit-workflow-gate.current[data-gate="content"]{color:#0b6077;border-color:#6ebdc7;background:#edfafa;box-shadow:0 0 0 2px rgba(32,168,189,.12)}
 .cockpit-workflow-gate.current[data-gate="media"]{color:#79520f;border-color:#e3b455;background:#fff8e8;box-shadow:0 0 0 2px rgba(215,163,63,.13)}
 .cockpit-workflow-gate.current[data-gate="publication"]{color:#60458c;border-color:#b9a1db;background:#f7f2ff;box-shadow:0 0 0 2px rgba(121,84,171,.12)}

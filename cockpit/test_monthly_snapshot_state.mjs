@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import {classifyMonthlyPostState as completionState} from './monthly-snapshot-state.js';
+assert.equal(completionState({workflowStage:'content_review',completionOverride:{active:true}}).key,'ready');
+assert.equal(completionState({workflowStage:'content_review',completionOverride:{active:false}}).key,'editing');
 import { classifyMonthlyPostState } from "./monthly-snapshot-state.js";
 
 const stateFor = (overrides = {}) => classifyMonthlyPostState(overrides).key;

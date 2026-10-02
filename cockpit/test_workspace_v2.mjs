@@ -8,6 +8,15 @@ import { buildFeedbackWidget } from "./feedback-widget.mjs";
 let checks = 0;
 function check(label, run) { run(); checks++; console.log("✓ " + label); }
 check("dates civiles et années bissextiles", () => { assert(validCivilDate("2028-02-29")); assert(!validCivilDate("2026-02-29")); assert(!validCivilDate("2026-13-01")); });
+check("clôture forcée distincte des avis et de la diffusion", () => {
+  const approval={stage:'content_review',completionOverride:{active:true}};
+  assert.equal(publicationState(approval).label,'Terminé · clôture forcée');
+  const progress=publicationProgress(approval);
+  assert.equal(progress.tone,'done');
+  assert.deepEqual(progress.steps.map(s=>s.complete),[false,false,true]);
+  assert.match(progress.description,/aucune diffusion déclarée/);
+  assert.equal(publicationState({...approval,completionOverride:{active:false}}).tone,'waiting');
+});
 check("calendrier de 42 jours, du lundi au dimanche", () => { for (const month of ["2026-09","2026-12","2027-01","2028-02"]) { const days = monthDays(month); assert.equal(days.length,42); assert.equal(new Date(days[0]+"T12:00Z").getUTCDay(),1); assert.equal(new Set(days).size,42); } });
 check("tri sans mutation et dates invalides en fin", () => { const input = [{id:"z",dateIso:"2026-09-13"},{id:"b",dateIso:"2026-09-01"},{id:"a",dateIso:"2026-09-01"},{id:"invalid",dateIso:"bad"}]; const before=JSON.stringify(input); assert.deepEqual(sortPublications(input).map(p=>p.id),["a","b","z","invalid"]); assert.equal(JSON.stringify(input),before); });
 check("jour civil de Toronto près de minuit UTC", () => assert.equal(todayKey(new Date("2026-09-08T01:00Z")),"2026-09-07"));

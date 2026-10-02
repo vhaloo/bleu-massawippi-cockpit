@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20260929-b86";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261002-b87";
 import {
   getAuth,
   setPersistence,
@@ -36,9 +36,9 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20260929-b86";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20260929-b86";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20260929-b86";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261002-b87";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261002-b87";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261002-b87";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -736,6 +736,26 @@ export async function setWorkflowStage(eventId, stage, profile) {
     ));
   });
   recordConfirmedWrites(confirmedWriteCount);
+}
+
+// Clôturer le travail sans déclarer une diffusion ni signer les avis des rôles.
+export async function setCompletionOverride(eventId, active, reason, profile) {
+  requireWritable();
+  if (profile?.role !== "admin") throw new Error("Seules les communications peuvent forcer ou rouvrir la clôture.");
+  if (!/^[a-z0-9-]{3,80}$/i.test(String(eventId || "")) || typeof active !== "boolean") throw new Error("Publication invalide.");
+  const note = String(reason || "").trim();
+  if ((active && !note) || note.length > 1000) throw new Error("Indiquez un motif de clôture de 1 à 1 000 caractères.");
+  const reference = doc(db, "workflowStates", eventId);
+  const archiveReference = doc(collection(db, "changeArchive"));
+  const actorLabel = String(profile.displayLabel || "Communications").slice(0, 120);
+  await runTransaction(db, async transaction => {
+    const snapshot = await transaction.get(reference);
+    const before = snapshot.exists() ? snapshot.data() : {stage:"proposal"};
+    const completionOverride = {active, reason:note, actorUid:profile.uid, actorLabel, decidedAt:serverTimestamp()};
+    transaction.set(reference, {eventId, stage:before.stage, completionOverride, updatedAt:serverTimestamp(), updatedBy:profile.uid, updatedByLabel:actorLabel}, {merge:true});
+    transaction.set(archiveReference, changeArchiveEntry("workflowState", eventId, active ? "clôture forcée par les communications" : "clôture forcée rouverte", {stage:before.stage, completionOverride:before.completionOverride || null}, {stage:before.stage, completionOverride}, profile));
+  });
+  recordConfirmedWrites(2);
 }
 
 export function subscribeWorkflowStates(callback, onError) {

@@ -4,7 +4,7 @@ import {parseHTML} from 'linkedom';
 import {fixtureHTML,mockAPI} from './workspace-test-fixture.mjs';
 import {mountWorkspace} from './workspace-v2.js';
 import {installMediaValidationFixture} from './media-validation-test-fixture.mjs';
-import {buildTaskProgressPresentation} from './task-progress-ui.js';
+import {buildTaskProgressPresentation,actionTaskShouldRemain} from './task-progress-ui.js';
 const source=await fs.readFile(new URL('./cockpit-ui.js',import.meta.url),'utf8');
 const clientSource=await fs.readFile(new URL('./firebase-client.js',import.meta.url),'utf8');
 const settle=()=>new Promise(resolve=>setTimeout(resolve,0));
@@ -28,6 +28,7 @@ for(const role of ['admin','director']) {
   button('[data-gate="media"]').click();assert.equal(panel.open,true);
   assert.equal(button('[data-gate="publication"]').disabled,true);
   if(role==='director') {
+    assert.equal(button('[data-completion-override]'),null,'La clôture forcée est réservée à Valentin.');
     assert(button('[data-media-validation-force-open]').hidden,'Annie ne doit pas avoir à forcer.');
     h.state.workflows.set(h.eventId,{eventId:h.eventId,stage:'content_review'});
     h.state.mediaDecisions.get(h.eventId).communications.mediaIds=['test-photo-second'];h.rerender();
@@ -82,6 +83,30 @@ for(const role of ['admin','director']) {
   await new Promise(resolve=>setTimeout(resolve,3));
   button('[data-gate="content"]').click();await settle();
   assert.equal(button('[data-gate="content"]').getAttribute('aria-pressed'),'true','La version relue peut être réapprouvée.');
+  const beforeClosure=structuredClone(h.state.workflows.get(h.eventId));
+  const mediaBeforeClosure=structuredClone(h.state.mediaDecisions.get(h.eventId));
+  assert.equal(button('[data-gate="publication"]').disabled,true);
+  button('[data-completion-override-panel]').open=true;
+  button('[data-completion-override-reason]').value='Clôture manuelle de ce post';
+  h.rerender();
+  assert.equal(button('[data-completion-override-panel]').open,true);
+  assert.equal(button('[data-completion-override-reason]').value,'Clôture manuelle de ce post');
+  button('[data-completion-override="true"]').click();await settle();
+  const closed=h.state.workflows.get(h.eventId);
+  assert.equal(closed.stage,beforeClosure.stage);
+  assert.deepEqual(closed.communicationsTextApproval,beforeClosure.communicationsTextApproval);
+  assert.deepEqual(h.state.mediaDecisions.get(h.eventId),mediaBeforeClosure);
+  assert.equal(button('[data-gate="publication"]').getAttribute('aria-pressed'),'true');
+  assert.equal(button('[data-gate="publication"]').disabled,false);
+  assert.match(button('[data-workflow-complete]').textContent,/Clôture forcée.*aucune diffusion/);
+  assert.equal(buildTaskProgressPresentation(closed).text,false);
+  assert.equal(buildTaskProgressPresentation(closed).publication,true);
+  assert.equal(actionTaskShouldRemain({status:'pending',targetType:'schedule',id:'workflow-test'},closed),false);
+  assert.equal(actionTaskShouldRemain({status:'pending',targetType:'schedule',id:'comment-annie-review'},closed,h.state.commentsByEvent.get(h.eventId)),true,'Une consigne non traitée d’Annie reste active.');
+  button('[data-gate="publication"]').click();await settle();
+  assert.equal(h.state.workflows.get(h.eventId).completionOverride.active,false);
+  assert.equal(h.state.workflows.get(h.eventId).stage,beforeClosure.stage);
+  assert.equal(button('[data-gate="publication"]').getAttribute('aria-pressed'),'false');
   workspace.destroy();
   console.log(`✓ V2 ${role} : clic Visuel, motif, forçage, retrait, états cohérents, sans dialogue natif.`);
 }
