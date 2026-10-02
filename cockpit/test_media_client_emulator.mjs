@@ -74,5 +74,22 @@ try {
   assert.equal(await stage(),'final_approved');
   await director.setMediaDecision('client-sept10','photo-current',false,profile('director'),{multiple:true});count++;
   assert.equal(await stage(),'media_review');
+  // Production 30 septembre : décision créée par l'import sans schemaVersion.
+  // Confirmer le texte écrit aussi la décision visuelle, même sans choix DG.
+  for (const role of ['director','admin']) {
+    await seed('content_review');
+    await admin.setMediaDecision('client-sept10','photo-current',true,profile('admin'));
+    await admin.setCommunicationsTextApproval('client-sept10','Texte de référence',true,profile('admin'));
+    await environment.withSecurityRulesDisabled(async ctx=>sdk.updateDoc(sdk.doc(ctx.firestore(),'mediaDecisions','client-sept10'),{schemaVersion:sdk.deleteField()}));
+    const actor=role==='director'?director:admin;
+    const oppositeBefore=(await decision())[role==='director'?'communications':'direction'];
+    await actor.setWorkflowStage('client-sept10','content_approved',profile(role));count++;
+    assert.equal((await decision()).schemaVersion,2);
+    assert.deepEqual((await decision())[role==='director'?'communications':'direction'],oppositeBefore);
+    await actor.setMediaDecision('client-sept10','photo-current',true,profile(role));count++;
+    assert.deepEqual((await decision())[role==='director'?'communications':'direction'],oppositeBefore);
+    await assert.rejects(()=>sdk.updateDoc(sdk.doc(actor.db,'mediaDecisions','client-sept10'),{schemaVersion:3,updatedBy:profile(role).uid}));
+    if(role==='director') await assert.rejects(()=>actor.setWorkflowStage('client-sept10','published',profile(role)));
+  }
   console.log(`✓ ${count} transactions du client réel avec les règles, deux rôles, forçage et retour arrière.`);
 } finally { await environment.cleanup(); }
