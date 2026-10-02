@@ -119,7 +119,8 @@ export function parseRoute(hash) {
   let id = ""; try { id = decodeURIComponent(encoded); } catch { /* malformed link: never throw */ }
   return { space, id, view: new URLSearchParams(query).get("vue") || "", legacy: "" };
 }
-export function publicationState({ stage = "proposal", contentApproved = false, mediaApproved = false, decision = "" } = {}) {
+export function publicationState({ stage = "proposal", contentApproved = false, mediaApproved = false, decision = "", completionOverride = null } = {}) {
+  if (completionOverride?.active === true) return { label: "Terminé · clôture forcée", tone: "done" };
   if (stage === "published") return { label: "Terminé · publié/programmé", tone: "done" };
   if (stage === "scheduled") return { label: "Programmé", tone: "done" };
   if (decision === "rejected") return { label: "Angle écarté", tone: "muted" };
@@ -129,14 +130,15 @@ export function publicationState({ stage = "proposal", contentApproved = false, 
   if (contentApproved) return { label: "Visuel à approuver", tone: "waiting" };
   return { label: stage === "content_review" ? "Texte à relire" : "En préparation", tone: "waiting" };
 }
-export function publicationProgress({ stage = "proposal", contentApproved = false, mediaApproved = false, decision = "" } = {}) {
+export function publicationProgress({ stage = "proposal", contentApproved = false, mediaApproved = false, decision = "", completionOverride = null } = {}) {
   // Dates and an approval are not evidence of actual scheduling/publication.
-  const finished = ["scheduled", "published"].includes(stage);
+  const forced = completionOverride?.active === true;
+  const finished = forced || ["scheduled", "published"].includes(stage);
   const text = contentApproved === true, media = mediaApproved === true;
   const steps = [
     { key: "text", label: "Texte", compactLabel: "Texte", complete: contentApproved === true, help: contentApproved === true ? "Texte approuvé par la direction" : "Texte à approuver par la direction" },
     { key: "media", label: "Visuel", compactLabel: "Image", complete: mediaApproved === true, help: mediaApproved === true ? "Visuel retenu par la direction" : "Visuel à choisir par la direction" },
-    { key: "finished", label: "Terminé", compactLabel: "Fait", complete: finished, help: finished ? stage === "scheduled" ? "Publication signalée comme programmée dans le cockpit" : "Publication signalée comme publiée ou programmée dans le cockpit" : "Publication non encore signalée comme publiée ou programmée" },
+    { key: "finished", label: "Terminé", compactLabel: "Fait", complete: finished, help: forced ? "Clôture forcée par les communications; avis conservés, aucune diffusion déclarée" : finished ? stage === "scheduled" ? "Publication signalée comme programmée dans le cockpit" : "Publication signalée comme publiée ou programmée dans le cockpit" : "Publication non encore signalée comme publiée ou programmée" },
   ];
   const completed = steps.filter(step => step.complete).length;
   const attention = ["changes_requested", "media_changes_requested"].includes(stage);

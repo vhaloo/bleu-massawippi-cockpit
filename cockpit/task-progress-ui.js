@@ -1,4 +1,4 @@
-import {renderMediaValidationPanel, communicationsApprovalNeedsReview} from "./media-choice-ui.js?v=20260929-b86";
+import {renderMediaValidationPanel, communicationsApprovalNeedsReview} from "./media-choice-ui.js?v=20261002-b87";
 
 const textStages = new Set(["content_approved","media_in_progress","media_review","media_changes_requested","final_approved","scheduled","published"]);
 const finalStages = new Set(["final_approved","scheduled","published"]);
@@ -15,13 +15,13 @@ export function buildTaskProgressPresentation(workflow = {}, mediaDecision = nul
   const media = mediaDecision
     ? ["agreed","overridden","direction_approved"].includes(mediaDecision.agreement?.status)
     : finalStages.has(stage);
-  const publication = publicationStages.has(stage);
+  const publication = publicationStages.has(stage) || workflow?.completionOverride?.active === true;
   const ready = Boolean(text && media);
   const step = (label, done) => `<span class="${done ? "done" : ""}">${done ? "✓ " : ""}${label}</span>`;
   const aria = `Avancement : texte ${text ? "approuvé" : "à valider"}; visuel ${media ? "approuvé" : "à valider"}; publication ${publication ? "terminée" : "à terminer"}`;
   return {
     className: `${ready ? " workflow-ready" : ""}${publication ? " workflow-finished" : ""}`,
-    badge: ready ? `<span class="cockpit-task-ready">✓ ${publication ? "Terminé" : "Texte et visuel validés"}</span>` : "",
+    badge: publication || ready ? `<span class="cockpit-task-ready">✓ ${publication ? workflow?.completionOverride?.active === true ? "Clôture forcée" : "Terminé" : "Texte et visuel validés"}</span>` : "",
     markup: `<div class="cockpit-task-progress" aria-label="${aria}">${step("Texte", text)}${step("Visuel", media)}${step("Terminé", publication)}</div>`,
     text,
     media,
@@ -38,7 +38,7 @@ export function actionTaskShouldRemain(task = {}, workflow = {}, comments = []) 
   if (task.status !== "pending") return false;
   if (task.targetType !== "schedule") return true;
 
-  const publicationFinished = publicationStages.has(workflow?.stage || "");
+  const publicationFinished = publicationStages.has(workflow?.stage || "") || workflow?.completionOverride?.active === true;
   const taskId = String(task.id || "");
   if (!taskId.startsWith("comment-")) return !publicationFinished;
 
@@ -148,7 +148,8 @@ export function renderWorkflowControls(card, {state, getPlanItem, stateTimestamp
   const mediaDone = structuredMediaDecision
     ? structuredMediaAgreement && (structuredMediaDecision.agreement.mediaIds?.length || 0) >= requiredMediaCount
     : ["final_approved","scheduled","published"].includes(stage);
-  const publicationDone = ["scheduled","published"].includes(stage);
+  const forcedCompletion = row.completionOverride?.active === true;
+  const publicationDone = forcedCompletion || ["scheduled","published"].includes(stage);
   const contentGate = card.querySelector('[data-gate="content"]');
   const mediaGate = card.querySelector('[data-gate="media"]');
   const publicationGate = card.querySelector('[data-gate="publication"]');
@@ -167,7 +168,7 @@ export function renderWorkflowControls(card, {state, getPlanItem, stateTimestamp
       ? "Choix à harmoniser"
       : (directionMediaReady ? "Choix DG · accord à confirmer" : stage === "media_review" ? "Prêt pour validation" : "Choix en attente");
   const publicationReady = contentDone && mediaDone;
-  if (publicationLabel) publicationLabel.textContent = publicationDone ? "Publié ou programmé" : publicationReady ? "Prêt à publier" : "Attend les 2 validations";
+  if (publicationLabel) publicationLabel.textContent = forcedCompletion ? "Clôture forcée" : publicationDone ? "Publié ou programmé" : publicationReady ? "Prêt à publier" : "Attend les 2 validations";
   const configureGate = (gate, done, canCheck, checkStage, uncheckStage, checkedName, roleAllowed = true) => {
     if (!gate) return;
     gate.setAttribute("aria-pressed", String(done));
@@ -197,11 +198,25 @@ export function renderWorkflowControls(card, {state, getPlanItem, stateTimestamp
     if (mediaLabel) mediaLabel.textContent = myMediaDone ? 'Approuvé de mon côté' : 'À confirmer de mon côté';
   }
   configureGate(publicationGate, publicationDone, publicationReady, "published", "final_approved", "Terminé", state.profile?.role === "admin");
+  if (publicationGate) {
+    delete publicationGate.dataset.completionOverride;
+    if (forcedCompletion) {
+      delete publicationGate.dataset.workflowStage;
+      delete publicationGate.dataset.workflowDirection;
+      if (state.profile?.role === "admin") publicationGate.dataset.completionOverride = "false";
+      publicationGate.title = state.profile?.role === "admin" ? "Rouvrir la clôture forcée sans changer les avis" : "Clôture forcée par les communications";
+    }
+  }
   card.classList.toggle("workflow-complete", publicationDone);
   const completeNote = card.querySelector("[data-workflow-complete]");
-  if (completeNote) completeNote.hidden = !publicationDone;
+  if (completeNote) {
+    completeNote.hidden = !publicationDone;
+    completeNote.textContent = forcedCompletion ? `Clôture forcée par ${row.completionOverride.actorLabel || 'les communications'} : ${row.completionOverride.reason}. Les avis sont conservés; aucune diffusion n’est déclarée.` : "Tout est terminé. Cet événement reste conservé et consultable.";
+  }
   const actions = card.querySelector("[data-workflow-actions]");
   if (!actions) return;
+  const forcePanelWasOpen = actions.querySelector('[data-completion-override-panel]')?.open;
+  const forceReasonDraft = actions.querySelector('[data-completion-override-reason]')?.value;
   const buttons = [];
   if (state.profile?.role === "admin") {
     if (["proposal","changes_requested"].includes(stage)) buttons.push(["content_review","Texte prêt — envoyer à la direction","primary"]);
@@ -215,6 +230,13 @@ export function renderWorkflowControls(card, {state, getPlanItem, stateTimestamp
   }
   const waiting = publicationDone ? "Événement terminé; l’historique est conservé." : state.profile?.role === 'director' && myContentDone && myMediaDone ? "Vos validations sont faites. La suite est du côté des communications." : publicationReady ? "Le texte et le visuel sont approuvés. Les communications peuvent programmer ou publier." : stage === "media_review" ? "Le visuel est prêt : confirmez votre choix ou la décision finale ci-dessous." : contentDone ? "Le texte est approuvé. Le choix du visuel reste à confirmer ci-dessous." : "Le texte reste à valider. Vous pouvez déjà choisir un visuel.";
   actions.innerHTML = buttons.map(([value,label,kind]) => `<button type="button" class="${kind}" ${value ? `data-workflow-stage="${value}"` : "disabled"}>${label}</button>`).join("") || `<span class="cockpit-media-note">${esc(waiting)}</span>`;
+  if (state.profile?.role === "admin") {
+    if (forcedCompletion) actions.insertAdjacentHTML('beforeend', '<button type="button" data-completion-override="false">Rouvrir la clôture forcée</button>');
+    else if (!publicationDone) {
+      actions.insertAdjacentHTML('beforeend', `<details class="cockpit-workflow-help cockpit-completion-override" data-completion-override-panel><summary>Forcer à terminer</summary><p class="cockpit-media-note">Clôturez ce post même si les validations sont incomplètes. Les avis de chacun restent distincts. Vous pourrez le rouvrir.</p><label>Motif de clôture<input type="text" maxlength="1000" data-completion-override-reason value="${esc(forceReasonDraft ?? 'Clôture manuelle par les communications')}"></label><button type="button" data-completion-override="true">Forcer à terminer ce post</button></details>`);
+      actions.querySelector('[data-completion-override-panel]').open = Boolean(forcePanelWasOpen);
+    }
+  }
   actions.insertAdjacentHTML('beforeend', `<p class="cockpit-media-role-summary"><span><b>Texte · Communications</b> · ${communicationsTextDone ? 'Approuvé' : 'À confirmer'}</span><span><b>Texte · Direction</b> · ${contentDone ? 'Approuvé' : 'À confirmer'}</span></p>`);
   renderMediaValidationPanel(card, {profile:state.profile, rows:state.mediaByEvent.get(card.dataset.itemId) || [], decision:structuredMediaDecision, textApproved:contentDone, multiple:requiredMediaCount > 1, loading:state.mediaContextLoading.has(card.dataset.itemId), reviewRequested:mediaReviewRequested});
 }

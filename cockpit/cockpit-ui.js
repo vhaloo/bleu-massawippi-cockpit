@@ -1,4 +1,4 @@
-import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20260929-b86";
+import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20261002-b87";
 import {
   getClientState,
   waitForClientReady,
@@ -30,6 +30,7 @@ import {
   archiveOwnComment,
   resolveComment,
   setWorkflowStage,
+  setCompletionOverride,
   setCommunicationsTextApproval,
   subscribeWorkflowStates,
   setOpportunityStage,
@@ -38,24 +39,24 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20260929-b86";
-import { createEventContextController } from "./event-context-data.js?v=20260929-b86";
-import { mergeEventWindow } from "./event-context-window.mjs?v=20260929-b86";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20260929-b86";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20260929-b86";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20260929-b86";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20260929-b86";
-import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20260929-b86";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20260929-b86";
-import { setupSectionNavigation } from "./section-navigation.js?v=20260929-b86";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20260929-b86";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20260929-b86";
-import { setupControlHints } from "./control-hints.js?v=20260929-b86";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20260929-b86";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20260929-b86";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20260929-b86";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20260929-b86";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20260929-b86";
+} from "./firebase-client.js?v=20261002-b87";
+import { createEventContextController } from "./event-context-data.js?v=20261002-b87";
+import { mergeEventWindow } from "./event-context-window.mjs?v=20261002-b87";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20261002-b87";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20261002-b87";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20261002-b87";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20261002-b87";
+import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20261002-b87";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20261002-b87";
+import { setupSectionNavigation } from "./section-navigation.js?v=20261002-b87";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20261002-b87";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20261002-b87";
+import { setupControlHints } from "./control-hints.js?v=20261002-b87";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20261002-b87";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20261002-b87";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20261002-b87";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20261002-b87";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20261002-b87";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -1042,6 +1043,7 @@ function monthlySnapshotState(item) {
   const editorialDecision = state.decisions.get(item.id) || {};
   return classifyMonthlyPostState({
     workflowStage: workflow.stage,
+    completionOverride: workflow.completionOverride,
     comments: state.commentsByEvent.get(item.id) || [],
     scheduleStatus: schedule.status,
     editorialDecision: editorialDecision.decision,
@@ -2588,6 +2590,19 @@ function enhanceCardEvents() {
         .then(() => toast(approved ? 'Texte approuvé de votre côté.' : 'Votre approbation du texte a été retirée.'))
         .catch(error => toast(error.message, true))
         .finally(() => { delete card.dataset.textApprovalPending; ownTextButton.disabled = false; });
+      return;
+    }
+    const completionButton = event.target.closest('button[data-completion-override]');
+    if (completionButton) {
+      if (card.dataset.workflowPending === 'true') return;
+      const active = completionButton.dataset.completionOverride === 'true';
+      const reason = active ? card.querySelector('[data-completion-override-reason]')?.value : 'Clôture rouverte par les communications';
+      card.dataset.workflowPending = 'true';
+      completionButton.disabled = true;
+      setCompletionOverride(card.dataset.itemId, active, reason, state.profile)
+        .then(() => toast(active ? 'Publication clôturée. Les avis et l’historique sont conservés.' : 'Clôture rouverte. Les avis sont conservés.'))
+        .catch(error => toast(error.message, true))
+        .finally(() => { delete card.dataset.workflowPending; renderWorkflow(card); });
       return;
     }
     const workflowButton = event.target.closest("button[data-workflow-stage]");

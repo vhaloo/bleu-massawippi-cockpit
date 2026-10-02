@@ -12,7 +12,7 @@ const client = role => {
   const context = {...sdk,db:environment.authenticatedContext(profile(role).uid).firestore(),crypto:globalThis.crypto,mediaSelectionBlocked,requireWritable:()=>{},recordConfirmedWrites:()=>{}};
   const part=(from,to)=>source.slice(source.indexOf(from),source.indexOf(to,source.indexOf(from))).replaceAll('export async function','async function').replaceAll('export function','function');
   const code=part('function changeArchiveEntry(', '\nexport ') + '\n' + part('const workflowStages =', '\nexport function subscribeWorkflowStates') + '\n' + part('const MAX_MEDIA_CHOICES', '\nexport function subscribeMediaDecisions');
-  return {...context,...new Function(...Object.keys(context),code+'\nreturn {setMediaDecision,setWorkflowStage,setCommunicationsTextApproval};')(...Object.values(context))};
+  return {...context,...new Function(...Object.keys(context),code+'\nreturn {setMediaDecision,setWorkflowStage,setCommunicationsTextApproval,setCompletionOverride};')(...Object.values(context))};
 };
 const admin=client('admin'),director=client('director');
 let count=0;
@@ -26,6 +26,31 @@ const seed=async stage=>environment.withSecurityRulesDisabled(async ctx=>{
 const decision=async()=> (await sdk.getDoc(sdk.doc(admin.db,'mediaDecisions','client-sept10'))).data();
 const stage=async()=> (await sdk.getDoc(sdk.doc(admin.db,'workflowStates','client-sept10'))).data().stage;
 try {
+  await seed('content_review');
+  await admin.setCommunicationsTextApproval('client-sept10','Version relue FR / EN',true,profile('admin'));
+  const workflowRef=sdk.doc(admin.db,'workflowStates','client-sept10');
+  const ownBefore=(await sdk.getDoc(workflowRef)).data().communicationsTextApproval;
+  await assert.rejects(()=>admin.setCompletionOverride('client-sept10',true,' ',profile('admin')));count++;
+  await admin.setCompletionOverride('client-sept10',true,'Clôture décidée par Valentin',profile('admin'));count++;
+  const closed=(await sdk.getDoc(workflowRef)).data();
+  assert.equal(closed.stage,'content_review','La clôture ne signe pas le texte de la direction.');
+  assert.equal(closed.completionOverride.active,true);
+  assert.deepEqual(closed.communicationsTextApproval,ownBefore);
+  assert.equal(await decision(),undefined,'Aucun avis visuel n’est créé pour forcer la clôture.');
+  const archives=await sdk.getDocs(sdk.query(sdk.collection(admin.db,'changeArchive'),sdk.limit(100)));
+  assert(archives.docs.some(d=>d.data().after.completionOverride?.reason==='Clôture décidée par Valentin'));
+  await assert.rejects(()=>director.setCompletionOverride('client-sept10',true,'Autre',profile('director')));count++;
+  const dgRef=sdk.doc(director.db,'workflowStates','client-sept10');
+  await assert.rejects(()=>sdk.updateDoc(dgRef,{completionOverride:{...closed.completionOverride,actorUid:profile('director').uid},updatedBy:profile('director').uid}));count++;
+  await assert.rejects(()=>sdk.updateDoc(dgRef,{completionOverride:sdk.deleteField(),updatedBy:profile('director').uid}));count++;
+  await director.setWorkflowStage('client-sept10','content_approved',profile('director'));count++;
+  assert.deepEqual((await sdk.getDoc(workflowRef)).data().completionOverride,closed.completionOverride,'La confirmation personnelle d’Annie conserve la clôture.');
+  await admin.setCompletionOverride('client-sept10',false,'Rouvrir le travail',profile('admin'));count++;
+  assert.equal((await sdk.getDoc(workflowRef)).data().completionOverride.active,false);
+  assert.equal(await stage(),'content_approved','Rouvrir conserve aussi les nouveaux avis, sans retour arbitraire.');
+  await seed('proposal');
+  await admin.setCompletionOverride('client-sept10',true,'Sans validations',profile('admin'));count++;
+  assert.equal(await stage(),'proposal');
   for(const role of ['admin','director']) {
     await seed('media_review');
     await admin.setMediaDecision('client-sept10','photo-current',true,profile('admin')); count++;

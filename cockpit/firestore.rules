@@ -102,8 +102,9 @@ service cloud.firestore {
 
     function validWorkflow(data) {
       return data.keys().hasAll(['eventId', 'stage', 'updatedAt', 'updatedBy', 'updatedByLabel'])
-        && data.keys().hasOnly(['eventId', 'stage', 'updatedAt', 'updatedBy', 'updatedByLabel', 'communicationsTextApproval'])
+        && data.keys().hasOnly(['eventId', 'stage', 'updatedAt', 'updatedBy', 'updatedByLabel', 'communicationsTextApproval', 'completionOverride'])
         && (!('communicationsTextApproval' in data) || validCommunicationsTextApproval(data.communicationsTextApproval))
+        && (!('completionOverride' in data) || validCompletionOverride(data.completionOverride))
         && data.eventId is string && data.eventId.size() >= 3 && data.eventId.size() <= 80
         && data.stage in ['proposal', 'content_review', 'changes_requested', 'content_changes_requested', 'content_approved', 'media_in_progress', 'media_review', 'media_changes_requested', 'final_approved', 'scheduled', 'published']
         && data.updatedAt is timestamp && data.updatedBy == request.auth.uid
@@ -116,6 +117,20 @@ service cloud.firestore {
         && value.approved is bool && value.copy is string && value.copy.size() > 0 && value.copy.size() <= 30000
         && value.actorUid is string && value.actorLabel is string && value.actorLabel.size() > 0 && value.actorLabel.size() <= 120
         && value.decidedAt is timestamp;
+    }
+
+    function validCompletionOverride(value) {
+      return value is map && value.keys().hasAll(['active', 'reason', 'actorUid', 'actorLabel', 'decidedAt'])
+        && value.keys().hasOnly(['active', 'reason', 'actorUid', 'actorLabel', 'decidedAt'])
+        && value.active is bool && value.reason is string && value.reason.size() <= 1000
+        && (!value.active || value.reason.size() > 0)
+        && value.actorUid is string && value.actorUid.size() > 0 && value.actorUid.size() <= 128
+        && value.actorLabel is string && value.actorLabel.size() > 0 && value.actorLabel.size() <= 120
+        && value.decidedAt is timestamp;
+    }
+
+    function ownsCompletionOverride(data) {
+      return !('completionOverride' in data) || (isAdmin() && data.completionOverride.actorUid == request.auth.uid);
     }
 
     function ownsCommunicationsTextApproval(data) {
@@ -609,7 +624,9 @@ service cloud.firestore {
 
     function publicationContentIsEditable(itemId) {
       return !exists(/databases/$(database)/documents/workflowStates/$(itemId))
-        || !(get(/databases/$(database)/documents/workflowStates/$(itemId)).data.stage in ['scheduled', 'published']);
+        || (!(get(/databases/$(database)/documents/workflowStates/$(itemId)).data.stage in ['scheduled', 'published'])
+          && (!('completionOverride' in get(/databases/$(database)/documents/workflowStates/$(itemId)).data)
+            || !get(/databases/$(database)/documents/workflowStates/$(itemId)).data.completionOverride.active));
     }
 
     match /scheduleItems/{itemId} {
@@ -667,12 +684,14 @@ service cloud.firestore {
       allow create: if isEditor()
         && validWorkflow(request.resource.data)
         && ownsCommunicationsTextApproval(request.resource.data)
+        && ownsCompletionOverride(request.resource.data)
         && request.resource.data.eventId == eventId
         && (!(request.resource.data.stage in ['final_approved', 'scheduled', 'published']) || mediaAgreementAfter(eventId))
         && (!(request.resource.data.stage in ['scheduled', 'published']) || isAdmin());
       allow update: if isEditor()
         && validWorkflow(request.resource.data)
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['communicationsTextApproval']) || (isAdmin() && ownsCommunicationsTextApproval(request.resource.data)))
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['completionOverride']) || (isAdmin() && ownsCompletionOverride(request.resource.data)))
         && request.resource.data.eventId == eventId
         && (isAdmin()
           || (!(request.resource.data.stage in ['scheduled', 'published'])
