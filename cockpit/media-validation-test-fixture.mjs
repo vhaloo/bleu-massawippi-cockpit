@@ -12,7 +12,7 @@ export function installMediaValidationFixture({document,window,source,clientSour
   card.querySelector('.cockpit-media').innerHTML='<summary>Médias <span data-media-count></span></summary><div class="cockpit-media-body"><p data-media-selection-note></p><div class="cockpit-media-gallery" data-media-gallery></div><div data-media-nav></div></div>';
   const workflow=card.querySelector('.cockpit-workflow');
   workflow.outerHTML=workflowMarkup({id:eventId});
-  const events=[],archives=[],writes=[];
+  const events=[],archives=[],writes=[],contextActivations=[];
   const plan={id:eventId,title:'La qualité de l’eau se suit sur le terrain',date:'Jeudi 10 septembre',copy:'Texte de recette FR / EN'};
   const env={...mediaUI,renderWorkflowControls,document,window,state,queueMicrotask,crypto:globalThis.crypto,db:{},requireWritable:()=>{},recordConfirmedWrites:()=>{},doc:(_db,collection,id)=>`${collection}/${id || 'test-archive'}`,collection:(_db,name)=>name,serverTimestamp:()=>Date.now(),
     runTransaction:async(_db,run)=>{
@@ -21,7 +21,7 @@ export function installMediaValidationFixture({document,window,source,clientSour
       for(const write of pending){writes.push(write);const [collection,id]=write.ref.split('/');if(collection==='mediaDecisions')state.mediaDecisions.set(id,write.data);else if(collection==='workflowStates')state.workflows.set(id,write.options?.merge ? {...state.workflows.get(id),...write.data} : write.data);else archives.push(write.data);}
       rerender();return result;
     },
-    activateEventContext:()=>{},getPlanItem:()=>plan,stateTimestampMillis:()=>0,safeMediaUrl:v=>v,mediaPreviewUrl:row=>row.previewUrl,esc:mediaUI.escapeMarkup || (v=>String(v||'').replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')),
+    activateEventContext:id=>contextActivations.push(id),getPlanItem:()=>plan,stateTimestampMillis:()=>0,safeMediaUrl:v=>v,mediaPreviewUrl:row=>row.previewUrl,esc:mediaUI.escapeMarkup || (v=>String(v||'').replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')),
     workflowTextApprovedStages:new Set(['content_approved','media_in_progress','media_review','media_changes_requested','final_approved','scheduled','published']),mediaKindIcons:{image:'Photo'},mediaStageLabels:{},canEdit:()=>true,setupMediaNavigation:()=>{},ripple:()=>{},responsibilitySummary:()=>'',recordActionTask:async()=>{if(taskError)throw new Error("Suivi temporairement indisponible");},setPersonalActionItemState:async()=>{},toast:(message,error)=>{events.push({message,error});const status=document.querySelector('[data-test-result]');if(status)status.textContent=message;}
   };
   const part=(text,from,to)=>text.slice(text.indexOf(from),text.indexOf(to,text.indexOf(from))).replaceAll('export async function','async function').replaceAll('export function','function');
@@ -29,5 +29,5 @@ export function installMediaValidationFixture({document,window,source,clientSour
   const actual=new Function(...Object.keys(env),code+'\nreturn {renderWorkflow,renderMediaForCard,enhanceCardEvents};')(...Object.values(env));
   function rerender(){actual.renderMediaForCard(card);actual.renderWorkflow(card);afterRender();}
   actual.enhanceCardEvents();rerender();
-  return {state,card,events,writes,archives,rerender,eventId,mediaId,plan};
+  return {state,card,events,writes,archives,contextActivations,rerender,eventId,mediaId,plan};
 }

@@ -86,7 +86,12 @@ for(const role of ['admin','director']) {
   const beforeClosure=structuredClone(h.state.workflows.get(h.eventId));
   const mediaBeforeClosure=structuredClone(h.state.mediaDecisions.get(h.eventId));
   assert.equal(button('[data-gate="publication"]').disabled,true);
-  button('[data-completion-override-panel]').open=true;
+  const contextsBeforeForce=h.contextActivations.length;
+  button('[data-completion-override-panel] summary').click();
+  assert.equal(button('[data-completion-override-panel]').open,true,'Le clic ouvre le panneau sans rafraîchir son contexte.');
+  assert.equal(h.contextActivations.length,contextsBeforeForce,'L’ouverture ne remplace pas le panneau avant le basculement natif.');
+  button('[data-completion-override-reason]').click();
+  assert.equal(h.contextActivations.length,contextsBeforeForce,'La saisie garde son élément et son focus.');
   button('[data-completion-override-reason]').value='Clôture manuelle de ce post';
   h.rerender();
   assert.equal(button('[data-completion-override-panel]').open,true);
