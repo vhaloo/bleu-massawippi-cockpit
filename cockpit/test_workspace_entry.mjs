@@ -11,12 +11,12 @@ async function adapter({ failMount = false } = {}) {
   const adapted = source.replace(/(["'])(\.\/[^"']+)\1/g, (_match, _quote, specifier) => {
     const file = specifier.split("?")[0];
     const stubs = {
-      "./firebase-client.js": "export async function fetchPublicationHistoryPage(){return {items:[],hasMore:false}}",
+      "./firebase-client.js": "export async function fetchPublicationHistoryPage(){return {items:[],hasMore:false}} export function subscribeAnnieRequestSource(kind,callback){callback([],{fromCache:false});return ()=>{}}",
       "./editor-studio.js": "export function openPublicationStudio(){}"
     };
     if (failMount && file === "./workspace-v2.js") return JSON.stringify(moduleUrl('throw new Error("Échec de chargement simulé");'));
     if (stubs[file]) return JSON.stringify(moduleUrl(stubs[file]));
-    assert(["./calendar-export-tools.js", "./workspace-model.mjs", "./workspace-v2.js"].includes(file), `Import inattendu : ${file}`);
+    assert(["./calendar-export-tools.js", "./workspace-model.mjs", "./workspace-v2.js", "./annie-requests.mjs"].includes(file), `Import inattendu : ${file}`);
     return JSON.stringify(new URL(specifier, import.meta.url).href);
   });
   return import(moduleUrl(adapted));

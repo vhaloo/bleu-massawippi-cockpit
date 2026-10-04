@@ -1,6 +1,14 @@
 {
   "indexes": [
     {
+      "collectionGroup": "comments", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "authorUid", "order": "ASCENDING" }, { "fieldPath": "resolved", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "cockpitFeedback", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "authorUid", "order": "ASCENDING" }, { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "createdAt", "order": "DESCENDING" }]
+    },
+    {
       "collectionGroup": "comments",
       "queryScope": "COLLECTION",
       "fields": [

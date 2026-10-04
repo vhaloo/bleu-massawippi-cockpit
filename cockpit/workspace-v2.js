@@ -1,4 +1,6 @@
-import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20260929-v2.13";
+import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261004-v2.14";
+import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261004-v2.14";
+import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261004-v2.14";
 
 /** Default presentation adapter. Existing DOM controls remain the only writers. */
 export function mountWorkspace(api) {
@@ -6,7 +8,9 @@ export function mountWorkspace(api) {
   const win = api.window || window;
   const host = doc.querySelector("#cockpit-content");
   if (!host || !api.profile?.uid) return null;
-  const state = { route: parseRoute(win.location.hash), query: "", status: "all", month: todayKey().slice(0, 7), timer: 0, disposed: false, lastEntity: "", galleryIndex: new Map(), histories: new Map(), historyTokens: new Map(), moves: [], scrolls: new Map(), navigating: false };
+  let grouping = "type";
+  try { const saved = win.localStorage?.getItem("cockpit-project-grouping"); if (Object.hasOwn(PROJECT_GROUPINGS, saved)) grouping = saved; } catch { /* Private browsers can refuse storage. */ }
+  const state = { route: parseRoute(win.location.hash), query: "", status: "all", grouping, requests: { sources: {} }, month: todayKey().slice(0, 7), timer: 0, disposed: false, lastEntity: "", galleryIndex: new Map(), histories: new Map(), historyTokens: new Map(), moves: [], scrolls: new Map(), navigating: false };
   const listeners = [];
   const on = (target, name, handler, options) => { target.addEventListener(name, handler, options); listeners.push(() => target.removeEventListener(name, handler, options)); };
   const all = (selector, root = doc) => [...root.querySelectorAll(selector)];
@@ -33,6 +37,32 @@ export function mountWorkspace(api) {
   const note = shell.querySelector("[data-v2-note]");
   const cardFor = id => all(".post[data-item-id]", host).find(node => node.dataset.itemId === id);
   const projectFor = id => all(".internal-project,.opportunity", host).find(node => (node.dataset.internalProjectId || node.dataset.opportunityId) === id || node.id === id);
+  let requestPanel, stopRequests;
+  if (api.profile.role === "admin" && api.watchAnnieRequests) {
+    requestPanel = doc.createElement("aside"); requestPanel.className = "v2-annie-panel"; requestPanel.setAttribute("aria-label", "Demandes d’Annie encore à traiter");
+    requestPanel.innerHTML = '<header><span class="v2-eyebrow">Suivi de la direction</span><h2>Demandes d’Annie <span data-annie-count></span></h2><p data-annie-live role="status" aria-live="polite">Chargement…</p></header><div data-annie-requests></div><footer>Les demandes restent ici jusqu’à leur traitement complet.</footer>';
+    shell.append(requestPanel); doc.documentElement.dataset.anniePanel = "true";
+  }
+  function renderRequests() {
+    if (!requestPanel || state.disposed) return;
+    const sources = Object.values(state.requests.sources || {}), loaded = sources.length === 2 && sources.every(s=>s.loaded), error = sources.some(s=>s.error), cached = sources.some(s=>s.fromCache);
+    const rows = pendingAnnieRequests(state.requests);
+    requestPanel.querySelector("[data-annie-count]").textContent = loaded ? String(rows.length) + (sources.some(s=>s.hasMore) ? "+" : "") : "";
+    const status = error ? "Synchronisation à vérifier" : win.navigator?.onLine === false ? "Hors connexion · dernière copie" : !loaded ? "Chargement…" : cached ? "Reconnexion en cours · copie locale" : "En direct";
+    const live = requestPanel.querySelector("[data-annie-live]"); live.textContent = status; live.dataset.connected = status === "En direct";
+    const body = requestPanel.querySelector("[data-annie-requests]");
+    const markup = rows.map(row=>{
+      const section = row.sectionId.replace(/^internal-project-/, "");
+      const project = projectFor(section) || all(".internal-project,.opportunity", host).find(node=>(node.dataset.relatedFeedback || "").split(/\s+/).includes(row.id)), post = (api.getPosts?.() || []).find(p=>p.id === row.sectionId);
+      const title = project?.querySelector("summary strong")?.textContent || post?.title || "Recommandation générale";
+      const hash = project ? routeHash("projets", project.dataset.internalProjectId || project.dataset.opportunityId) : post ? routeHash("publications", post.id) : routeForTarget("", row.sectionId);
+      const when = row.date ? new Date(row.date).toLocaleString("fr-CA", { timeZone: "America/Toronto", dateStyle: "medium", timeStyle: "short" }) : "Date en attente";
+      return `<article class="v2-annie-request" data-request-key="${esc(row.key)}"><p class="v2-request-meta"><time>${esc(when)}</time><span>${esc(row.status)}</span></p><h3>${esc(title)}</h3><p class="v2-request-text">${esc(row.text)}</p>${hash ? `<a data-v2-route href="${esc(hash)}">Ouvrir le contexte →</a>` : '<button type="button" data-v2-general-requests>Voir la demande et son suivi →</button>'}</article>`;
+    }).join("") || `<p class="v2-request-empty">${error ? "Impossible de confirmer toute la liste pour le moment." : loaded ? "Aucune demande d’Annie encore ouverte." : "Chargement des commentaires et recommandations…"}</p>`;
+    // Keep scroll and focused links intact when only connection metadata changes.
+    if (body.dataset.signature !== markup) { body.innerHTML = markup; body.dataset.signature = markup; }
+    requestPanel.querySelector("footer").textContent = sources.some(s=>s.hasMore) ? "Les 80 dernières demandes de chaque source sont affichées. Le suivi complet reste dans Messages actifs et Avis et demandes générales." : "Les demandes restent ici jusqu’à leur traitement complet. Lire ou approuver ne les clôture pas.";
+  }
   function publications() {
     return (api.getPosts?.() || []).map(item => {
       const card = cardFor(item.id);
@@ -234,17 +264,24 @@ export function mountWorkspace(api) {
     note.textContent = "Vue des publications chargées dans le registre. Passées et archives conserve aussi les versions et propositions classées; aucun déplacement automatique.";
   }
   function projectItems() {
-    return all(".internal-project,.opportunity", host).map(node => ({ node, id: node.dataset.internalProjectId || node.dataset.opportunityId, title: node.querySelector(":scope > summary strong")?.textContent || node.id, archived: node.classList.contains("is-archived"), opportunity: node.classList.contains("opportunity"), status: node.querySelector("[data-internal-project-stage-label],[data-opportunity-stage-label]")?.textContent || "", next: node.querySelector(".internal-project-next,.opportunity-verdict")?.textContent || "" }));
+    return all(".internal-project,.opportunity", host).map(node => {
+      const id = node.dataset.internalProjectId || node.dataset.opportunityId, opportunity = node.classList.contains("opportunity"), current = api.getProjectState?.(id, opportunity) || {}, stage = current.stage || node.dataset.initialStage;
+      return { node, id, title: node.querySelector(":scope > summary strong")?.textContent || node.id, archived: node.classList.contains("is-archived") || ["archived", "completed"].includes(stage), opportunity, stage, pinned: node.dataset.projectPinned === "true", type: node.dataset.projectType, theme: node.dataset.projectTheme, priority: current.priority || node.dataset.projectPriority || (/PRIORITÉ ÉLEVÉE/.test(node.querySelector("summary")?.textContent || "") ? "high" : ""), deadline: current.deadline || node.dataset.projectDeadline || "", status: node.querySelector("[data-internal-project-stage-label],[data-opportunity-stage-label]")?.textContent || "", next: node.querySelector(".internal-project-next,.opportunity-verdict")?.textContent || "" };
+    });
   }
   function renderProjects(view) {
-    toolbar.innerHTML = subtabs([["actifs", "Dossiers actifs"], ["calendrier", "Calendrier des projets"], ["occasions", "Occasions"], ["archives", "Archives"]], view) + searchMarkup("Rechercher un projet…");
+    toolbar.innerHTML = subtabs([["actifs", "Dossiers actifs"], ["calendrier", "Calendrier des projets"], ["occasions", "Pistes de financement", "Subventions, prix et fondations à examiner"], ["archives", "Archives"]], view) + `<div class="v2-filters">${searchMarkup("Rechercher un projet…")}${view !== "calendrier" ? `<label>Regrouper par <select data-v2-project-grouping>${Object.entries(PROJECT_GROUPINGS).map(([key,label])=>`<option value="${key}">${label}</option>`).join("")}</select></label>` : ""}</div>`;
+    const select = toolbar.querySelector("[data-v2-project-grouping]"); if (select) select.value = state.grouping;
     if (view === "calendrier") {
       const calendar = host.querySelector(".project-calendar-shell");
       if (calendar) { panel.innerHTML = '<p class="v2-intro">Les échéances, propositions et rendez-vous des projets. Ce calendrier ne déplace aucun post des réseaux sociaux.</p>'; reveal(calendar); }
       else panel.innerHTML = '<p role="status">Chargement du calendrier des projets…</p>';
     } else {
-      const q = state.query.toLocaleLowerCase("fr"); const items = projectItems().filter(p => (view === "archives" ? p.archived : view === "occasions" ? p.opportunity && !p.archived : !p.archived && !p.opportunity) && (!q || `${p.title} ${p.next}`.toLocaleLowerCase("fr").includes(q)));
-      panel.innerHTML = `<div class="v2-project-list">${items.map(item => `<a data-v2-route class="v2-project-tile" href="${routeHash("projets", item.id)}"><span class="v2-state" data-tone="${item.archived ? "muted" : "waiting"}">${esc(item.archived ? "Archivé · conservé" : item.status || "Dossier")}</span><span class="v2-topic-icon">${icon(topicIcon(item.title))}</span><h2>${esc(item.title)}</h2><p>${esc(item.next)}</p><span class="v2-tile-open">Ouvrir le dossier →</span></a>`).join("") || '<p class="v2-empty">Aucun dossier dans cette vue.</p>'}</div>`;
+      const q = state.query.toLocaleLowerCase("fr"); const items = projectItems().filter(p => (view === "archives" ? p.archived : view === "occasions" ? p.opportunity && !p.archived : !p.archived && !p.opportunity) && (!q || `${p.title} ${p.next} ${projectType(p)} ${projectTheme(p)}`.toLocaleLowerCase("fr").includes(q)));
+      const tile = item => `<a data-v2-route class="v2-project-tile" href="${routeHash("projets", item.id)}"><span class="v2-state" data-tone="${item.archived ? "muted" : "waiting"}">${esc(item.archived ? "Archivé · conservé" : item.status || "Dossier")}</span><span class="v2-topic-icon">${icon(topicIcon(item.title))}</span><small class="v2-project-type">${esc(projectType(item))}</small><h2>${esc(item.title)}</h2><p>${esc(item.next)}</p><span class="v2-tile-open">Ouvrir le dossier →</span></a>`;
+      const pinned = view === "actifs" ? items.filter(p=>p.pinned) : [];
+      const groups = groupProjects(items.filter(p=>!pinned.includes(p)),state.grouping,todayKey());
+      panel.innerHTML = `<p class="v2-result-count">${items.length} dossier${items.length===1 ? "" : "s"}${view === "occasions" ? " · Subventions, prix et fondations; admissibilité à vérifier dans chaque fiche." : ""}</p>${pinned.length ? `<section class="v2-project-group v2-project-pinned"><h2>Accès rapides</h2><div class="v2-project-list">${pinned.map(tile).join("")}</div></section>` : ""}${groups.map(group=>`<section class="v2-project-group"><h2>${esc(group.label)} <span>${group.items.length}</span></h2><div class="v2-project-list">${group.items.map(tile).join("")}</div></section>`).join("") || (pinned.length ? "" : '<p class="v2-empty">Aucun dossier dans cette vue.</p>')}`;
     }
     note.textContent = "Les projets archivés restent consultables sans les réactiver. Tous leurs documents, décisions et liens sont conservés.";
   }
@@ -298,6 +335,7 @@ export function mountWorkspace(api) {
   function render({ focus = false } = {}) {
     if (state.disposed || doc.body.classList.contains("cockpit-locked")) return;
     arrangeUtilities();
+    renderRequests();
     state.previews = new Map(); state.mediaRows = new Map();
     for (const row of api.getMedia?.() || []) { const rows = state.mediaRows.get(row.eventId) || []; rows.push(row); state.mediaRows.set(row.eventId, rows); }
     const r = state.route; const space = SPACES[r.space];
@@ -365,6 +403,7 @@ export function mountWorkspace(api) {
     if (link && host.contains(link) && !link.hasAttribute("data-vm-open")) { const href = link.getAttribute("href"); if (href.startsWith("#/")) return; let id; try { id = decodeURIComponent(href.slice(1)); } catch { return; } const hash = routeForTarget("", id); if (hash) { e.preventDefault(); e.stopImmediatePropagation(); go(hash); } }
   }
   function onClick(e) {
+    if (e.target.closest?.("[data-v2-general-requests]")) { const button = doc.getElementById("cockpit-sidebar-toggle"); if (!doc.getElementById("cockpit-sidebar")?.classList.contains("open")) button?.click(); return; }
     const card = e.target.closest?.(".post[data-item-id]");
     if (e.target.closest?.("[data-v2-history]")) { if (card) void showHistory(card); return; }
     if (e.target.closest?.("[data-v2-history-more]")) { if (card) void showHistory(card, false); return; }
@@ -382,6 +421,7 @@ export function mountWorkspace(api) {
   on(doc, "click", captureNavigation, true); on(doc, "click", onClick);
   on(toolbar, "input", e => { if (!e.target.matches("[data-v2-search]")) return; state.query = e.target.value; const position = e.target.selectionStart; render(); const next = toolbar.querySelector("[data-v2-search]"); next?.focus(); try { next?.setSelectionRange(position, position); } catch {} });
   on(toolbar, "change", e => { if (e.target.matches("[data-v2-status]")) { state.status = e.target.value; render(); } });
+  on(toolbar, "change", e => { if (e.target.matches("[data-v2-project-grouping]") && Object.hasOwn(PROJECT_GROUPINGS,e.target.value)) { state.grouping = e.target.value; try { win.localStorage?.setItem("cockpit-project-grouping",state.grouping); } catch {} render(); toolbar.querySelector("[data-v2-project-grouping]")?.focus(); } });
   const onLocation = () => { state.route = parseRoute(win.location.hash); state.query = ""; render({ focus: true }); const y = state.scrolls.get(win.location.hash); if (y) win.scrollTo?.(0, y); };
   on(win, "popstate", onLocation); on(win, "hashchange", onLocation); on(win, "cockpit:data-updated", scheduleRender);
   on(win, "resize", centerCurrentFrame); on(css, "load", centerCurrentFrame);
@@ -399,8 +439,15 @@ export function mountWorkspace(api) {
   });
   observer.observe(host, { childList: true, subtree: true });
   render();
+  const desktop = win.matchMedia?.("(min-width: 1100px)");
+  function watchRequests() {
+    stopRequests?.(); stopRequests = null;
+    if (requestPanel && (desktop?.matches ?? true)) stopRequests = api.watchAnnieRequests(snapshot=>{ state.requests = snapshot; renderRequests(); });
+  }
+  if (desktop) on(desktop,"change",watchRequests);
+  on(win,"online",renderRequests); on(win,"offline",renderRequests); watchRequests();
   return { refresh: scheduleRender, navigate: go, destroy() {
-    state.disposed = true; win.clearTimeout(state.timer); observer.disconnect(); listeners.forEach(remove => remove());
+    state.disposed = true; stopRequests?.(); delete doc.documentElement.dataset.anniePanel; win.clearTimeout(state.timer); observer.disconnect(); listeners.forEach(remove => remove());
     for (const { node, marker } of state.moves.reverse()) { if (marker.isConnected) { marker.replaceWith(node); } }
     all(".v2-publication-body,.v2-thumbnails", host).forEach(node => node.remove());
     all("[data-v2-prepared],[data-v2-slide-hidden],[data-v2-concealed],[data-v2-target],[data-v2-path]", host).forEach(node => ["data-v2-prepared", "data-v2-slide-hidden", "data-v2-concealed", "data-v2-target", "data-v2-path"].forEach(attr => node.removeAttribute(attr)));
