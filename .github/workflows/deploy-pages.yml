@@ -98,6 +98,8 @@ jobs:
           cp cockpit/editorial-cycle-guard.mjs public/
           cp cockpit/workspace-adapter.js public/
           cp cockpit/workspace-v2.js public/
+          cp cockpit/annie-requests.mjs public/
+          cp cockpit/project-list-model.mjs public/
           cp cockpit/workspace-model.mjs public/
           cp cockpit/workspace-v2.css public/
           cp cockpit/content-layout.js public/

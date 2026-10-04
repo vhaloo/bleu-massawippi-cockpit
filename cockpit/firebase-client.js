@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261002-b89";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261004-b90";
+import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261004-v2.14";
 import {
   getAuth,
   setPersistence,
@@ -36,9 +37,9 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261002-b89";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261002-b89";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261002-b89";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261004-b90";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261004-b90";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261004-b90";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -583,6 +584,15 @@ export function subscribeComments(callback, onError) {
   requireConfigured();
   const commentsQuery = query(collection(db, "comments"), orderBy("updatedAt", "desc"), limit(120));
   return trackedOnSnapshot("comments", commentsQuery, (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() })).reverse()), onError);
+}
+
+export function subscribeAnnieRequestSource(kind, callback, onError) {
+  requireConfigured();
+  if (!["comments", "feedback"].includes(kind)) throw new Error("Source de demandes invalide.");
+  const name = kind === "comments" ? "comments" : "cockpitFeedback";
+  const active = kind === "comments" ? where("resolved", "==", false) : where("status", "in", ["open", "in_review"]);
+  const requests = query(collection(db, name), where("authorUid", "==", ANNIE_UID), active, orderBy("createdAt", "desc"), limit(REQUEST_PAGE_SIZE));
+  return trackedOnSnapshot(`annie-requests:${kind}`, requests, snapshot => callback(snapshot.docs.map(item=>({id:item.id,...item.data()})), { fromCache: snapshot.metadata.fromCache }), onError, { includeMetadataChanges: true });
 }
 
 export function subscribeCommentsForSection(sectionId, callback, onError) {

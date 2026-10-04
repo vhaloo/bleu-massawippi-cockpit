@@ -5,6 +5,16 @@ import { buildFeedbackWidget } from "./feedback-widget.mjs";
 document.body.insertAdjacentHTML("afterbegin", fixtureHTML);
 const role = new URLSearchParams(location.search).get("role") === "director" ? "director" : "admin";
 const api = mockAPI(document, window, role);
+if (new URLSearchParams(location.search).has('requests')) {
+  const { ANNIE_UID } = await import('./annie-requests.mjs');
+  const header = document.createElement('p'); header.textContent = 'Simulation locale du panneau · aucun message réel'; document.body.prepend(header);
+  const controls = document.createElement('div'); controls.innerHTML = '<button data-demo-add>Simuler une nouvelle demande</button><button data-demo-done>Simuler le traitement</button>'; document.body.prepend(controls);
+  let emit, rows = [{id:'demo-existing',authorUid:ANNIE_UID,sectionId:'test-first',comment:'Préciser le rôle des rives dans le texte de cette publication.',createdAt:new Date('2026-10-03T15:00Z')}];
+  const publish=()=>emit?.({comments:rows,feedback:[],sources:{comments:{loaded:true,fromCache:false},feedback:{loaded:true,fromCache:false}}});
+  api.watchAnnieRequests=callback=>{emit=callback;publish();return()=>{emit=null}};
+  controls.querySelector('[data-demo-add]').onclick=()=>{rows.unshift({id:'demo-new',authorUid:ANNIE_UID,sectionId:'internal-project-test-project',comment:'Ajouter le document commun dans le projet, puis vérifier le lien.',createdAt:new Date()});publish();};
+  controls.querySelector('[data-demo-done]').onclick=()=>{rows=rows.slice(1);publish();};
+}
 await import("./motion.js");
 dispatchEvent(new CustomEvent("cockpit:session-ready"));
 await import("./theme.js");
