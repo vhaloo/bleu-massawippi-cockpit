@@ -1,6 +1,6 @@
-import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261006-v2.16";
-import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261006-v2.16";
-import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261006-v2.16";
+import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261006-v2.17";
+import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261006-v2.17";
+import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261006-v2.17";
 
 /** Default presentation adapter. Existing DOM controls remain the only writers. */
 export function mountWorkspace(api) {
@@ -176,6 +176,8 @@ export function mountWorkspace(api) {
     const controls = card.querySelector(".cockpit-controls");
     if (!copy || !controls) { delete card.dataset.v2Prepared; return; }
     const body = doc.createElement("div"); body.className = "v2-publication-body";
+    const confirmations = doc.createElement("section"); confirmations.className = "v2-detail-confirmations"; confirmations.setAttribute("aria-label", "Confirmations d’Annie et de Valentin");
+    confirmations.innerHTML = '<h2>Les confirmations de chacun</h2><div data-v2-detail-progress aria-live="polite"></div>';
     const reading = doc.createElement("section"); reading.className = "v2-reading"; reading.setAttribute("aria-label", "Texte proposé et versions");
     reading.innerHTML = `<div class="v2-section-label"><h2>Le texte proposé</h2><button type="button" data-v2-history title="Lire les versions sauvegardées, leur date et leur auteur. Consulter l’historique ne change pas le texte.">Historique du texte</button></div>`;
     move(copy, reading);
@@ -186,17 +188,27 @@ export function mountWorkspace(api) {
     const mediaBody = media?.querySelector(".cockpit-media-body");
     if (mediaBody) { move(mediaBody.querySelector("[data-media-form]"), add); move(mediaBody.querySelector(".cockpit-media-tools"), add); mediaBody.append(add); }
     const decision = doc.createElement("section"); decision.className = "v2-decisions"; move(card.querySelector(".cockpit-workflow"), decision);
+    const ownHeading = doc.createElement("h2"); ownHeading.className = "v2-own-confirmations"; decision.prepend(ownHeading);
     const conversation = doc.createElement("section"); conversation.className = "v2-conversation";
     move(card.querySelector(".cockpit-thread"), conversation); move(card.querySelector(".cockpit-comment-row"), conversation);
     const more = details("Brief, options, avis rapides et informations complémentaires", "v2-more");
     move(card.querySelector(".post-foot"), more); move(brief, more); move(controls, more);
-    body.append(reading, gallery, decision, conversation, more); card.append(body);
+    body.append(confirmations, reading, gallery, decision, conversation, more); card.append(body);
     const copyValue = api.getPosts?.().find(p => p.id === card.dataset.itemId)?.copy || copy.textContent;
     const newsletter = isNewsletter(api.getPosts?.().find(p => p.id === card.dataset.itemId));
     const count = doc.createElement("p"); count.className = "v2-copy-count"; count.textContent = newsletter ? `${copyValue.length.toLocaleString("fr-CA")} caractères · infolettre bilingue · prévue au calendrier, aucun envoi automatique` : `${copyValue.length.toLocaleString("fr-CA")} / 2 200 caractères · texte bilingue complet`;
     if (!newsletter && copyValue.length > 2200) count.dataset.warning = "true"; reading.append(count);
     if (api.profile.role === "admin" && api.openStudio) { const button = doc.createElement("button"); button.type = "button"; button.dataset.v2Edit = ""; button.textContent = "Modifier dans le Studio"; button.title = "Ouvrir cette publication dans l’éditeur. Aucun changement n’est effectué avant l’enregistrement."; reading.querySelector(".v2-section-label").append(button); }
     card.querySelectorAll(".cockpit-workflow-help").forEach(n => { n.open = false; });
+  }
+  function renderDetailProgress(card, item) {
+    const holder = card.querySelector("[data-v2-detail-progress]");
+    if (holder) {
+      const markup = progressMarkup(item);
+      if (holder.innerHTML !== markup) holder.innerHTML = markup;
+    }
+    const heading = card.querySelector(".v2-own-confirmations");
+    if (heading) heading.textContent = `Vos confirmations${api.profile.role === "director" ? " · Annie" : api.profile.role === "admin" ? " · Valentin" : ""}`;
   }
   function enhanceGallery(card) {
     const gallery = card?.querySelector("[data-media-gallery]"); if (!gallery) return;
@@ -364,7 +376,7 @@ export function mountWorkspace(api) {
     } else if (r.space === "publications" && r.id) {
       const item = publications().find(p => p.id === r.id);
       const card = api.ensurePublication?.(r.id) || cardFor(r.id);
-      if (card && item) { transformCard(card); reveal(card); enhanceGallery(card); heading.textContent = item.title; description.textContent = `${prettyDate(item.dateIso)} · ${item.state.label}`; toolbar.innerHTML = `<div class="v2-detail-toolbar">${anchor("← Toutes les publications", "publications", "", "liste")}${anchor("Calendrier", "publications", "", "calendrier", "Retrouver ce mois dans le calendrier illustré des publications.", "socialCalendar")}${statusMarkup(item)}</div>`; state.month = item.dateIso ? item.dateIso.slice(0, 7) : state.month; panel.innerHTML = publicationNavigation(item); const strip = panel.querySelector(".v2-date-filmstrip"); const current = strip?.querySelector('[aria-current="page"]'); if (strip && current) strip.scrollLeft = Math.max(0, current.offsetLeft - strip.offsetLeft - (strip.clientWidth - current.clientWidth) / 2); if (state.lastEntity !== r.id) { state.lastEntity = r.id; win.dispatchEvent(new CustomEvent("cockpit:event-context-request", { detail: { eventId: r.id, source: "workspace-v2" } })); } }
+      if (card && item) { transformCard(card); renderDetailProgress(card, item); reveal(card); enhanceGallery(card); heading.textContent = item.title; description.textContent = `${prettyDate(item.dateIso)} · ${item.state.label}`; toolbar.innerHTML = `<div class="v2-detail-toolbar">${anchor("← Toutes les publications", "publications", "", "liste")}${anchor("Calendrier", "publications", "", "calendrier", "Retrouver ce mois dans le calendrier illustré des publications.", "socialCalendar")}${statusMarkup(item)}</div>`; state.month = item.dateIso ? item.dateIso.slice(0, 7) : state.month; panel.innerHTML = publicationNavigation(item); const strip = panel.querySelector(".v2-date-filmstrip"); const current = strip?.querySelector('[aria-current="page"]'); if (strip && current) strip.scrollLeft = Math.max(0, current.offsetLeft - strip.offsetLeft - (strip.clientWidth - current.clientWidth) / 2); if (state.lastEntity !== r.id) { state.lastEntity = r.id; win.dispatchEvent(new CustomEvent("cockpit:event-context-request", { detail: { eventId: r.id, source: "workspace-v2" } })); } }
       else panel.innerHTML = `<p role="alert">Cette publication n’est pas chargée dans le registre. Rien n’a été supprimé.</p>${anchor("Consulter le registre", "publications")}`;
     } else if (r.space === "publications") renderPublicationList(r.view || "calendrier");
     else if (r.space === "projets" && r.id) {

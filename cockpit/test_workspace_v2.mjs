@@ -169,10 +169,57 @@ check("boîte à idées accessible directement, hors des outils repliés", () =>
   ideas.panel.querySelector('[data-feedback-close]').click(); assert(ideas.panel.hidden); assert.equal(ideaSubmits, 0);
 });
 workspace.navigate("#/publications/test-first");
-check("ordre DOM texte, médias, décisions, conversation et détails préservés", () => {
+check("confirmations puis ordre DOM texte, médias, décisions, conversation et détails préservés", () => {
   const body = document.querySelector('[data-item-id="test-first"] .v2-publication-body');
-  assert.deepEqual([...body.children].map(n => n.className), ["v2-reading", "v2-gallery-column", "v2-decisions", "v2-conversation", "v2-more"]);
+  assert.deepEqual([...body.children].map(n => n.className), ["v2-detail-confirmations", "v2-reading", "v2-gallery-column", "v2-decisions", "v2-conversation", "v2-more"]);
 });
+const detailCard=document.querySelector('[data-item-id="test-first"]');
+const detailOriginalGates=[...detailCard.querySelectorAll('[data-gate]')];
+const detailOld={workflow:api.getWorkflow,media:api.getMediaDecision,content:api.contentApproved,comments:api.getComments};
+let detailWorkflow={stage:'content_review',communicationsTextApproval:{approved:true,copy:fixtures[0].copy,actorUid:'com',decidedAt:'2026-10-06T01:00:00Z'}};
+let detailMedia={communications:{status:'selected',mediaIds:['one'],actorUid:'com',decidedAt:'2026-10-06T01:00:00Z'},direction:{status:'none'}};
+let detailComments=[];
+api.getWorkflow=()=>detailWorkflow;api.getMediaDecision=()=>detailMedia;api.contentApproved=()=>false;api.getComments=()=>detailComments;
+workspace.navigate('#/publications/test-first');
+check('chaque fiche distingue les cinq avis et conserve les boutons originaux',()=>{
+  const summary=detailCard.querySelector('.v2-detail-confirmations');
+  assert.equal(summary.querySelectorAll('[role="progressbar"]').length,2);
+  assert.equal(summary.querySelector('[data-approval-role="direction"]').getAttribute('aria-valuenow'),'0');
+  assert.equal(summary.querySelector('[data-approval-role="direction"]').getAttribute('aria-valuemax'),'2');
+  assert.equal(summary.querySelector('[data-approval-role="communications"]').getAttribute('aria-valuenow'),'2');
+  assert.equal(summary.querySelector('[data-approval-role="communications"]').getAttribute('aria-valuemax'),'3');
+  assert.equal(summary.querySelectorAll('button,input,textarea').length,0);
+  assert.deepEqual([...detailCard.querySelectorAll('[data-gate]')],detailOriginalGates);
+  assert.equal(detailCard.querySelector('.v2-own-confirmations').textContent,'Vos confirmations · Valentin');
+});
+detailMedia={...detailMedia,communications:{status:'none'}};
+window.dispatchEvent(new CustomEvent('cockpit:data-updated'));
+await new Promise(resolve=>setTimeout(resolve,140));
+check('une confirmation changée actualise la fiche ouverte sans navigation ni doublon',()=>{
+  assert.equal(detailCard.querySelector('[data-approval-role="communications"]').getAttribute('aria-valuenow'),'1');
+  assert.equal(detailCard.querySelectorAll('.v2-detail-confirmations').length,1);
+  assert.equal(detailCard.querySelectorAll('.v2-own-confirmations').length,1);
+  assert.deepEqual([...detailCard.querySelectorAll('[data-gate]')],detailOriginalGates);
+});
+detailComments=[{authorUid:'dg',createdAt:'2026-10-06T02:00:00Z'}];
+detailWorkflow={...detailWorkflow,completionOverride:{active:true}};
+window.dispatchEvent(new CustomEvent('cockpit:data-updated'));
+await new Promise(resolve=>setTimeout(resolve,140));
+check('une demande nouvelle et une clôture forcée gardent les avis distincts dans la fiche',()=>{
+  const summary=detailCard.querySelector('.v2-detail-confirmations');
+  assert.equal(summary.querySelector('[data-approval-role="direction"]').getAttribute('aria-valuenow'),'0');
+  assert.equal(summary.querySelector('[data-approval-role="communications"]').getAttribute('aria-valuenow'),'1');
+  assert.equal(summary.querySelector('[data-step="text"]').dataset.complete,'false');
+  assert.equal(summary.querySelector('[data-step="finished"]').dataset.complete,'true');
+  api.profile.role='director';workspace.navigate('#/publications/test-first');
+  assert.equal(detailCard.querySelector('.v2-own-confirmations').textContent,'Vos confirmations · Annie');
+  api.profile.role='admin';
+  assert.equal(JSON.stringify(fixtures),sourceJSON);
+});
+api.getWorkflow=detailOld.workflow;api.contentApproved=detailOld.content;
+if(detailOld.media)api.getMediaDecision=detailOld.media;else delete api.getMediaDecision;
+if(detailOld.comments)api.getComments=detailOld.comments;else delete api.getComments;
+workspace.navigate('#/publications/test-first');
 check("la frise distingue le passé sans désactiver ses liens", () => {
   for (const frame of document.querySelectorAll('.v2-date-frame')) {
     assert.equal(frame.dataset.past, String(isPastDate(frame.dataset.date)));
@@ -284,12 +331,12 @@ check("démontage restaure les nœuds et l’interface classique",()=>{assert(co
 const ui=await fs.readFile(new URL("./cockpit-ui.js",import.meta.url),"utf8");
 const v2=await fs.readFile(new URL("./workspace-v2.js",import.meta.url),"utf8");
 const css=await fs.readFile(new URL("./workspace-v2.css",import.meta.url),"utf8");
-check("petits écrans : texte avant média, puis décisions et conversation", () => {
+check("petits écrans : confirmations puis texte avant média, décisions et conversation", () => {
   const narrow = css.split('@media(max-width:960px)')[1].split('@media')[0];
-  assert(narrow.includes('.v2-reading{grid-row:1}'));
-  assert(narrow.includes('.v2-gallery-column{grid-row:2}'));
-  assert(narrow.includes('.v2-decisions{grid-row:3}'));
-  assert(narrow.includes('.v2-conversation{grid-row:4}'));
+  assert(narrow.includes('.v2-reading{grid-row:2}'));
+  assert(narrow.includes('.v2-gallery-column{grid-row:3}'));
+  assert(narrow.includes('.v2-decisions{grid-row:4}'));
+  assert(narrow.includes('.v2-conversation{grid-row:5}'));
 });
 check("progression vitrée adaptée aux deux thèmes, avec repli et couleurs lisibles", () => {
   const progress = css.match(/#workspace-v2 \.v2-progress\{([^}]+)\}/)[1];

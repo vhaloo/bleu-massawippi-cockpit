@@ -1,4 +1,4 @@
-import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20261006-b92";
+import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20261006-b93";
 import {
   getClientState,
   waitForClientReady,
@@ -39,24 +39,24 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20261006-b92";
-import { createEventContextController } from "./event-context-data.js?v=20261006-b92";
-import { mergeEventWindow } from "./event-context-window.mjs?v=20261006-b92";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20261006-b92";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20261006-b92";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20261006-b92";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20261006-b92";
-import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20261006-b92";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20261006-b92";
-import { setupSectionNavigation } from "./section-navigation.js?v=20261006-b92";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20261006-b92";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20261006-b92";
-import { setupControlHints } from "./control-hints.js?v=20261006-b92";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20261006-b92";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20261006-b92";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20261006-b92";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20261006-b92";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20261006-b92";
+} from "./firebase-client.js?v=20261006-b93";
+import { createEventContextController } from "./event-context-data.js?v=20261006-b93";
+import { mergeEventWindow } from "./event-context-window.mjs?v=20261006-b93";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20261006-b93";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20261006-b93";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20261006-b93";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20261006-b93";
+import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20261006-b93";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20261006-b93";
+import { setupSectionNavigation } from "./section-navigation.js?v=20261006-b93";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20261006-b93";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20261006-b93";
+import { setupControlHints } from "./control-hints.js?v=20261006-b93";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20261006-b93";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20261006-b93";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20261006-b93";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20261006-b93";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20261006-b93";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -2968,7 +2968,7 @@ async function applyProfile(profile) {
   syncCardAccess();
   workspaceV2?.destroy(); workspaceV2 = null;
   try {
-    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20261006-v2.16");
+    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20261006-v2.17");
     setupInterfaceSwitch(profile);
     workspaceV2 = await setupWorkspaceV2(profile, { state, enhanceCards, toast, mediaPreview: mediaPreviewUrl });
   } catch { toast("La V2 est indisponible; le cockpit classique reste actif.", true); }
