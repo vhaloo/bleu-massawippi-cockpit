@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261004-b90";
-import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261004-v2.14";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261006-b91";
+import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261006-v2.15";
 import {
   getAuth,
   setPersistence,
@@ -37,9 +37,9 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261004-b90";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261004-b90";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261004-b90";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261006-b91";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261006-b91";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261006-b91";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -770,7 +770,7 @@ export async function setCompletionOverride(eventId, active, reason, profile) {
 
 export function subscribeWorkflowStates(callback, onError) {
   requireConfigured();
-  const statesQuery = query(collection(db, "workflowStates"), orderBy("updatedAt", "desc"), limit(100));
+  const statesQuery = query(collection(db, "workflowStates"), orderBy("updatedAt", "desc"), limit(120));
   return trackedOnSnapshot("workflowStates", statesQuery, (snapshot) => callback(
     snapshot.docs.map((item) => ({ id: item.id, ...item.data() })),
     { fromCache: snapshot.metadata.fromCache, hasPendingWrites: snapshot.metadata.hasPendingWrites }
@@ -1378,7 +1378,7 @@ export function subscribeMediaDecisions(callback, onError) {
   // Fenêtre M0 bornée et transitoire : un seul listener de résumés, jamais un
   // listener par carte. La projection par fenêtre de dates remplacera ce
   // plafond après validation de parité.
-  const decisionsQuery = query(collection(db, "mediaDecisions"), orderBy("updatedAt", "desc"), limit(80));
+  const decisionsQuery = query(collection(db, "mediaDecisions"), orderBy("updatedAt", "desc"), limit(120));
   return trackedOnSnapshot(
     "mediaDecisions",
     decisionsQuery,

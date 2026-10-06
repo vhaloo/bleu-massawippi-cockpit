@@ -1,5 +1,5 @@
 /** Pure presentation model. Never changes a date, approval, or source object. */
-export const WORKSPACE_VERSION = "20261004-v2.14";
+export const WORKSPACE_VERSION = "20261006-v2.15";
 export const SPACES = Object.freeze({
   accueil: { label: "À faire", icon: "decisions", title: "Un peu de clarté pour avancer.", description: "Vos décisions, les nouveautés et le travail qui vous attend." },
   publications: { label: "Publications", icon: "publications", title: "Les mots et les images du lac.", description: "Le calendrier des réseaux sociaux et des infolettres, les propositions et leur historique." },
@@ -144,6 +144,26 @@ export function publicationProgress({ stage = "proposal", contentApproved = fals
   const attention = ["changes_requested", "media_changes_requested"].includes(stage);
   const tone = finished ? "done" : decision === "rejected" ? "muted" : attention ? "attention" : decision === "deferred" ? "waiting" : text && media ? "ready" : text || media ? "partial" : "waiting";
   return { steps, completed, tone, description: steps.map(step => step.help).join(". ") + "." };
+}
+/** Personal approvals are independent. Completion never supplies a missing vote. */
+export function publicationRoleProgress({ stage = "proposal", contentApproved = false, mediaApproved = false, completionOverride = null, copy = "", textApproval = null, mediaApproval = null, mediaDecision = null, comments = [] } = {}) {
+  const millis = value => value?.toMillis?.() ?? (typeof value === "number" ? value : value?.seconds ? value.seconds * 1000 : Date.parse(value?.__timestamp || value || "") || 0);
+  const needsReview = approval => comments.some(comment => !comment.deleted && !comment.resolved && comment.authorUid !== approval?.actorUid && Math.max(millis(comment.createdAt), millis(comment.updatedAt)) > millis(approval?.decidedAt));
+  const required = Math.max(1, Number(mediaDecision?.requiredMediaCount) || 1);
+  const selected = side => side?.status === "selected" && Array.isArray(side.mediaIds) && new Set(side.mediaIds.filter(id => typeof id === "string" && id.trim())).size >= required;
+  const text = textApproval?.approved === true && String(copy).trim().length > 0 && textApproval.copy === String(copy).trim() && !needsReview(textApproval);
+  const personalMedia = mediaDecision ? mediaDecision.communications : mediaApproval;
+  const image = selected(personalMedia) && !needsReview(personalMedia);
+  // Legacy final visual state is a DG state, never a personal COM approval.
+  const directionImage = mediaDecision ? selected(mediaDecision.direction) : mediaApproved === true;
+  const forced = completionOverride?.active === true;
+  const finished = forced || ["scheduled", "published"].includes(stage);
+  const step = (key, label, complete, person) => ({ key, label, compactLabel:label, complete, help:`${label} ${complete ? "confirmé" : "à confirmer"} côté ${person}` });
+  const roles = [
+    { key:"direction", label:"Annie", steps:[step("text", "Texte", contentApproved === true, "Annie"), step("media", "Image", directionImage, "Annie")] },
+    { key:"communications", label:"Valentin", steps:[step("text", "Texte", text, "Valentin"), step("media", "Image", image, "Valentin"), {key:"finished", label:"Terminé", compactLabel:"Fait", complete:finished, help:forced ? "Clôture forcée par Valentin; avis conservés, aucune diffusion déclarée" : finished ? "Clôture finale enregistrée dans le cockpit" : "Clôture finale réservée à Valentin"}] }
+  ].map(role => ({...role, completed:role.steps.filter(s => s.complete).length, tone:role.steps.every(s => s.complete) ? "done" : role.steps.some(s => s.complete) ? "partial" : "waiting", description:`${role.label} : ${role.steps.map(s => s.help).join(". ")}.`}));
+  return {roles, description:roles.map(role => role.description).join(" ")};
 }
 export function filterPublications(items, { view = "liste", query = "", status = "all", today = todayKey() } = {}) {
   const q = query.trim().toLocaleLowerCase("fr");

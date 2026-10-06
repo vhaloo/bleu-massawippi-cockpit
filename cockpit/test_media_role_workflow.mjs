@@ -67,7 +67,7 @@ assert.match(client, /stage === "content_approved" && \["agreed", "overridden", 
   "Après une nouvelle approbation du texte, un accord média conservé doit redevenir final sans double manipulation.");
 assert.doesNotMatch(client, /adminOverrideApprovesText/,
   "Les deux validations restent distinctes.");
-assert.match(client, /subscribeMediaDecisions[\s\S]*?limit\(80\)/);
+assert.match(client, /subscribeMediaDecisions[\s\S]*?limit\(120\)/);
 assert.doesNotMatch(client + ui, /alt-20260715|nature-alt-20260715-libellule/, "Le code générique ne doit pas fabriquer une approbation spéciale pour la libellule.");
 
 assert.match(mediaUi, /decision\?\.agreement\?\.status === "overridden" \? agreementIds\.includes\(row\.id\)/,

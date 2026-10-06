@@ -1,8 +1,8 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20261004-b90";
-import { fetchPublicationHistoryPage, subscribeAnnieRequestSource } from "./firebase-client.js?v=20261004-b90";
-import { watchAnnieRequests } from "./annie-requests.mjs?v=20261004-v2.14";
-import { openPublicationStudio } from "./editor-studio.js?v=20261004-b90";
-import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20261004-v2.14";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20261006-b91";
+import { fetchPublicationHistoryPage, subscribeAnnieRequestSource } from "./firebase-client.js?v=20261006-b91";
+import { watchAnnieRequests } from "./annie-requests.mjs?v=20261006-v2.15";
+import { openPublicationStudio } from "./editor-studio.js?v=20261006-b91";
+import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20261006-v2.15";
 
 export function setupInterfaceSwitch(profile) {
   if (!profile?.uid) return;
@@ -23,7 +23,7 @@ export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, me
   try {
     const entry = interfaceUrl(location.href, "v2", (globalThis.posts || []).map(post => post.id));
     if (entry !== location.href) history.replaceState(history.state, "", entry);
-    const { mountWorkspace } = await import("./workspace-v2.js?v=20261004-v2.14");
+    const { mountWorkspace } = await import("./workspace-v2.js?v=20261006-v2.15");
     return mountWorkspace({
       profile,
       watchAnnieRequests: onUpdate => watchAnnieRequests({ subscribe: subscribeAnnieRequestSource, onUpdate }),
@@ -31,6 +31,7 @@ export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, me
       getPosts: () => globalThis.posts || [],
       getOriginalPost: id => state.basePosts.find(post => post.id === id),
       getWorkflow: id => state.workflows.get(id),
+      getComments: id => state.commentsByEvent?.get(id) || [],
       getDecision: id => state.decisions.get(id),
       getMedia: () => [...state.mediaByEvent.values()].flat(),
       getMediaDecision: id => state.mediaDecisions.get(id),

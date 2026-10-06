@@ -61,7 +61,7 @@ for (const listener of [
     `Le listener ${listener} doit passer par le registre central.`);
 }
 
-for (const [collectionName, maximum] of [["scheduleItems",120],["comments",120],["workflowStates",100],["opportunityStates",50],["internalProjectStates",50],["editorialDecisions",100],["mediaDecisions",80],["mediaLinks",160]]) {
+for (const [collectionName, maximum] of [["scheduleItems",120],["comments",120],["workflowStates",120],["opportunityStates",50],["internalProjectStates",50],["editorialDecisions",100],["mediaDecisions",120],["mediaLinks",160]]) {
   assert.match(firebase, new RegExp(`collection\\(db, "${collectionName}"\\)[\\s\\S]{0,180}limit\\(${maximum}\\)`),
     `La fenêtre ${collectionName} doit rester bornée à ${maximum} documents.`);
 }

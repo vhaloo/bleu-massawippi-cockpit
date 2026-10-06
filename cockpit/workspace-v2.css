@@ -232,11 +232,18 @@ html[data-workspace="v2"] .project-calendar-shell[data-v2-target]{padding:12px;b
 #workspace-v2 [data-progress-tone="attention"]{--v2-progress-color:#ad4a36}
 #workspace-v2 :is(.v2-calendar-post,.v2-agenda-post)[data-progress-tone]{border-left:4px solid var(--v2-progress-color)!important}
 #workspace-v2 .v2-calendar-status{display:block;margin-top:6px;line-height:1.35}
-#workspace-v2 .v2-progress{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin-top:10px;min-width:0;background:var(--v2-glass);backdrop-filter:blur(10px) saturate(1.15);-webkit-backdrop-filter:blur(10px) saturate(1.15);padding:5px;border:1px solid #91afa740;border-radius:8px;box-shadow:0 1px 3px #0a273026;line-height:1.2;text-shadow:none}
+#workspace-v2 .v2-progress{position:relative;z-index:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px;min-width:0;background:var(--v2-glass);backdrop-filter:blur(10px) saturate(1.15);-webkit-backdrop-filter:blur(10px) saturate(1.15);padding:7px;border:1px solid #91afa740;border-radius:8px;box-shadow:0 1px 3px #0a273026;line-height:1.2;text-shadow:none}
+#workspace-v2 .v2-progress-person{display:block;min-width:0}
+#workspace-v2 .v2-progress-person>strong{display:block;margin-bottom:5px;color:var(--v2-glass-ink)!important;font-size:11px;font-weight:700}
+#workspace-v2 .v2-progress-steps{display:grid;grid-template-columns:repeat(var(--approval-steps),minmax(0,1fr));gap:3px}
 #workspace-v2 .v2-progress-step{display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 0 0;border-top:5px solid var(--v2-glass-line);color:var(--v2-glass-muted)!important;font-size:10px;font-weight:600;min-width:0}
 #workspace-v2 .v2-progress-step b{font-size:11px;line-height:1.05;color:inherit!important}
 #workspace-v2 .v2-progress-step[data-complete="true"]{border-color:var(--v2-progress-color);color:var(--v2-glass-ink)!important}
 #workspace-v2 .v2-progress-compact .v2-progress-step{font-size:9px;letter-spacing:-.02em}
+#workspace-v2 .v2-progress-compact{grid-template-columns:1fr;gap:7px}
+#workspace-v2 .v2-progress-compact .v2-progress-person{display:block}
+#workspace-v2 .v2-progress-compact .v2-progress-person>strong{margin:0 0 4px;font-size:10px}
+#workspace-v2 .v2-progress-step>span{white-space:nowrap}
 #workspace-v2 .v2-calendar-legend{margin:0 0 14px;padding:11px 14px;border:1px solid var(--v2-line);border-radius:11px;background:var(--v2-paper);font-size:11px}
 #workspace-v2 .v2-calendar-legend>div{display:flex;flex-wrap:wrap;gap:7px 16px}
 #workspace-v2 .v2-calendar-legend>div>span{display:flex;align-items:center;gap:6px}
