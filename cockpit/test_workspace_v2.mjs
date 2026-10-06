@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { parseHTML } from "linkedom";
-import { monthDays, validCivilDate, sortPublications, parseRoute, routeHash, filterPublications, todayKey, isPastDate, publicationState, publicationProgress, safeLink, publicationNeighbours, previewCandidates, interfaceUrl, preferredInterface, workspaceIcon } from "./workspace-model.mjs";
+import { monthDays, validCivilDate, sortPublications, parseRoute, routeHash, filterPublications, todayKey, isPastDate, publicationState, publicationProgress, publicationRoleProgress, safeLink, publicationNeighbours, previewCandidates, interfaceUrl, preferredInterface, workspaceIcon } from "./workspace-model.mjs";
 import { fixtures, fixtureHTML, mockAPI } from "./workspace-test-fixture.mjs";
 import { mountWorkspace } from "./workspace-v2.js";
 import { buildFeedbackWidget } from "./feedback-widget.mjs";
@@ -105,6 +105,33 @@ check("les choix classiques et les liens directs restent explicites après recon
   for (const hash of ["#calendrier", "#posts"]) assert.equal(new URL(interfaceUrl(`https://example.org/${hash}`, "v2")).hash, "#/publications?vue=calendrier");
   assert.equal(new URL(interfaceUrl("https://example.org/#/projets/dossier", "v2")).hash, "#/projets/dossier");
 });
+check("avis personnels indépendants, version exacte et deux étapes seulement pour Annie", () => {
+  const legacy=publicationRoleProgress({stage:'published',mediaApproved:true,mediaApproval:{status:'selected',mediaIds:['historique'],actorUid:'com',decidedAt:'2026-10-06T07:00:00Z'}});
+  assert.equal(legacy.roles[1].steps[1].complete,true);
+  assert.equal(legacy.roles[0].steps[1].complete,true);
+  assert.equal(publicationRoleProgress({mediaApproved:true}).roles[1].steps[1].complete,false);
+  const copy='Texte actuel', approval={approved:true,copy,actorUid:'com',decidedAt:'2026-10-06T01:00:00Z'};
+  const com={status:'selected',mediaIds:['image'],actorUid:'com',decidedAt:approval.decidedAt};
+  const input={copy,textApproval:approval,mediaDecision:{communications:com,direction:{status:'none'}},contentApproved:false};
+  const before=JSON.stringify(input), p=publicationRoleProgress(input);
+  assert.deepEqual(p.roles.map(r=>r.steps.map(s=>s.complete)),[[false,false],[true,true,false]]);
+  assert.equal(JSON.stringify(input),before);
+  assert.equal(publicationRoleProgress({...input,copy:'Nouveau texte'}).roles[1].steps[0].complete,false);
+  const dg=publicationRoleProgress({contentApproved:true,mediaDecision:{direction:{status:'selected',mediaIds:['autre']},communications:{status:'none'}}});
+  assert.deepEqual(dg.roles.map(r=>r.completed),[2,0]);
+  const divergent=publicationRoleProgress({...input,contentApproved:true,mediaDecision:{communications:com,direction:{status:'selected',mediaIds:['autre']}}});
+  assert.deepEqual(divergent.roles.map(r=>r.completed),[2,2]);
+  assert(!divergent.roles[0].steps.some(s=>s.key==='finished'));
+});
+check("nouvelle demande à traiter et clôture forcée ne fabriquent pas d'accord", () => {
+  const approval={approved:true,copy:'Texte',actorUid:'com',decidedAt:'2026-10-05T01:00:00Z'};
+  const input={copy:'Texte',textApproval:approval,contentApproved:true,mediaDecision:{communications:{...approval,status:'selected',mediaIds:['image']},direction:{status:'selected',mediaIds:['image']}},comments:[{authorUid:'dg',createdAt:'2026-10-06T01:00:00Z'}]};
+  assert.deepEqual(publicationRoleProgress(input).roles.map(r=>r.completed),[2,0]);
+  assert.equal(publicationRoleProgress({...input,comments:[{...input.comments[0],resolved:true}]}).roles[1].completed,2);
+  assert.equal(publicationRoleProgress({...input,completionOverride:{active:true}}).roles[1].completed,1);
+  const carousel=publicationRoleProgress({...input,comments:[],mediaDecision:{...input.mediaDecision,requiredMediaCount:2}});
+  assert.equal(carousel.roles[0].steps[1].complete,false);assert.equal(carousel.roles[1].steps[1].complete,false);
+});
 const {document,window} = parseHTML("<!doctype html><html><head></head><body>"+fixtureHTML+"</body></html>");
 globalThis.document=document; globalThis.window=window; globalThis.MutationObserver=window.MutationObserver; globalThis.CustomEvent=window.CustomEvent;
 Object.defineProperty(window.HTMLSelectElement.prototype,"value",{configurable:true,get(){return this.getAttribute("data-test-value")||""},set(v){this.setAttribute("data-test-value",v)}});
@@ -182,14 +209,14 @@ check("historique avant/après en lecture seule",()=>{const content=document.que
 workspace.navigate("#/publications?vue=calendrier");
 check("calendrier social distinct et agenda mobile",()=>{assert.equal(document.querySelectorAll(".v2-day").length,42);assert(document.querySelector(".v2-mobile-agenda"));assert(document.querySelector(".project-calendar-shell").closest("[data-v2-concealed]"));});
 check("calendrier illustré et mobile conservent les dates et états lisibles",()=>{assert(document.querySelector(".v2-day.v2-has-photo .v2-background-photo"));assert(document.querySelector(".v2-mobile-agenda .v2-background-photo"));assert(document.querySelector('.v2-tabs [data-icon="socialCalendar"]'));});
-check("légende et trois repères accessibles dans le calendrier et l’agenda", () => {
+check("légende et cinq repères personnels accessibles dans le calendrier et l’agenda", () => {
   assert.equal(document.querySelectorAll('.v2-calendar-legend [data-progress-tone]').length, 5);
   for (const selector of ['.v2-calendar-post', '.v2-agenda-post']) {
     const row = document.querySelector(`${selector}[href="#/publications/test-first"]`);
     assert.equal(row.dataset.progressTone, "partial");
-    assert.equal(row.querySelectorAll('.v2-progress-step').length, 3);
+    assert.equal(row.querySelectorAll('.v2-progress-step').length, 5);
     assert.equal(row.querySelector('[role="progressbar"]').getAttribute('aria-valuenow'), '1');
-    assert(row.querySelector('[role="progressbar"]').getAttribute('aria-valuetext').includes('Texte approuvé'));
+    assert(row.querySelector('[role="progressbar"]').getAttribute('aria-valuetext').includes('Texte confirmé côté Annie'));
     assert.equal(row.querySelector('[data-step="finished"]').dataset.complete, 'false');
   }
 });
@@ -204,11 +231,21 @@ check("le calendrier reflète les nouveaux états sans écrire ni anticiper la p
   workspace.navigate("#/publications?vue=calendrier");
   row = document.querySelector('.v2-calendar-post[href="#/publications/test-first"]');
   assert.equal(row.dataset.progressTone, 'done');
-  assert.equal(row.querySelector('[role="progressbar"]').getAttribute('aria-valuenow'), '3');
+  assert.equal(row.querySelector('[data-approval-role="direction"]').getAttribute('aria-valuenow'), '2');
+  assert.equal(row.querySelector('[data-approval-role="communications"]').getAttribute('aria-valuenow'), '1');
   assert.equal(JSON.stringify(fixtures), sourceJSON);
   api.mediaApproved = oldMedia; api.getWorkflow = oldWorkflow;
   workspace.navigate("#/publications?vue=calendrier");
 });
+workspace.navigate("#/publications?vue=archives");
+check("la liste expose les deux personnes sans ajout de contrôles ni écritures",()=>{
+  const row=document.querySelector('.v2-publication-row');
+  assert.equal(row.querySelectorAll('[role="progressbar"]').length,2);
+  assert.equal(row.querySelector('[data-approval-role="direction"]').getAttribute('aria-valuemax'),'2');
+  assert.equal(row.querySelector('[data-approval-role="communications"]').getAttribute('aria-valuemax'),'3');
+  assert.equal(row.querySelectorAll('button,input').length,0);
+});
+workspace.navigate("#/publications?vue=calendrier");
 check("calendrier, agenda et archives atténuent la date sans toucher aux accords ni aux sources", () => {
   const oldDate = api.dateIso;
   api.dateIso = item => item.id === "test-past" ? "2026-09-01" : item.dateIso;

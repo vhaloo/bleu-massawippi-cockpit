@@ -1,4 +1,4 @@
-import {renderMediaValidationPanel, communicationsApprovalNeedsReview} from "./media-choice-ui.js?v=20261004-b90";
+import {renderMediaValidationPanel, communicationsApprovalNeedsReview} from "./media-choice-ui.js?v=20261006-b91";
 
 const textStages = new Set(["content_approved","media_in_progress","media_review","media_changes_requested","final_approved","scheduled","published"]);
 const finalStages = new Set(["final_approved","scheduled","published"]);
