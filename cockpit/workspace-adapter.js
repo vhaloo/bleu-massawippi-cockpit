@@ -1,8 +1,8 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20261006-b94";
-import { fetchPublicationHistoryPage, subscribeAnnieRequestSource } from "./firebase-client.js?v=20261006-b94";
-import { watchAnnieRequests } from "./annie-requests.mjs?v=20261006-v2.18";
-import { openPublicationStudio } from "./editor-studio.js?v=20261006-b94";
-import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20261006-v2.18";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20261006-b95";
+import { fetchPublicationHistoryPage, subscribeAnnieRequestSource } from "./firebase-client.js?v=20261006-b95";
+import { watchAnnieRequests } from "./annie-requests.mjs?v=20261006-v2.19";
+import { openPublicationStudio } from "./editor-studio.js?v=20261006-b95";
+import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20261006-v2.19";
 
 export function setupInterfaceSwitch(profile) {
   if (!profile?.uid) return;
@@ -23,7 +23,7 @@ export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, me
   try {
     const entry = interfaceUrl(location.href, "v2", (globalThis.posts || []).map(post => post.id));
     if (entry !== location.href) history.replaceState(history.state, "", entry);
-    const { mountWorkspace } = await import("./workspace-v2.js?v=20261006-v2.18");
+    const { mountWorkspace } = await import("./workspace-v2.js?v=20261006-v2.19");
     return mountWorkspace({
       profile,
       watchAnnieRequests: onUpdate => watchAnnieRequests({ subscribe: subscribeAnnieRequestSource, onUpdate }),
