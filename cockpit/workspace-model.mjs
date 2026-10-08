@@ -1,5 +1,5 @@
 /** Pure presentation model. Never changes a date, approval, or source object. */
-export const WORKSPACE_VERSION = "20261006-v2.19";
+export const WORKSPACE_VERSION = "20261008-v2.20";
 export const SPACES = Object.freeze({
   accueil: { label: "À faire", icon: "decisions", title: "Un peu de clarté pour avancer.", description: "Vos décisions, les nouveautés et le travail qui vous attend." },
   publications: { label: "Publications", icon: "publications", title: "Les mots et les images du lac.", description: "Le calendrier des réseaux sociaux et des infolettres, les propositions et leur historique." },
@@ -182,3 +182,27 @@ export function escapeHtml(value) { return String(value ?? "").replace(/[&<>"']/
 
 export const isNewsletter = item => item?.templateId === "newsletter" || item?.editorial?.templateId === "newsletter";
 export const publicationChannelLabel = item => isNewsletter(item) ? "Infolettre" : "Réseaux sociaux";
+
+// Editorial subjects are display metadata. They never supply a validation.
+export const EDITORIAL_THEMES = Object.freeze([
+  { key:"nature", label:"Faune et flore", values:["nature", "faune", "flore", "biodiversite"] },
+  { key:"science", label:"Science et repères", values:["education", "science"] },
+  { key:"prevention", label:"Gestes et prévention", values:["prevention", "nautisme responsable"] },
+  { key:"community", label:"Vie autour du lac", values:["communaute", "humanite", "coulisses", "interaction", "humour"] },
+  { key:"heritage", label:"Paysages et patrimoine", values:["patrimoine", "contemplation"] },
+  { key:"support", label:"Soutien et gratitude", values:["soutien", "gratitude"] },
+  { key:"mission", label:"Mission", values:["mission"] },
+  { key:"newsletter", label:"Infolettres", values:["infolettre"] },
+  { key:"other", label:"Autres thèmes", values:[] }
+].map(theme => Object.freeze({...theme,values:Object.freeze(theme.values)})));
+export function publicationTheme(item = {}) {
+  const detail = String(item.theme || item.editorial?.theme || item.t || "").trim();
+  const normalized = detail.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("fr");
+  const theme = isNewsletter(item) ? EDITORIAL_THEMES.find(t => t.key === "newsletter") : EDITORIAL_THEMES.find(t => t.values.includes(normalized)) || EDITORIAL_THEMES.at(-1);
+  return {key:theme.key,label:theme.label,detail:detail || theme.label};
+}
+export function publicationThemeSummary(items = []) {
+  const counts = new Map();
+  for (const item of items) { const {key} = publicationTheme(item); counts.set(key,(counts.get(key)||0)+1); }
+  return EDITORIAL_THEMES.filter(theme => counts.has(theme.key)).map(theme => ({key:theme.key,label:theme.label,count:counts.get(theme.key)}));
+}
