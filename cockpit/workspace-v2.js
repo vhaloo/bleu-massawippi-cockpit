@@ -1,6 +1,6 @@
-import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261006-v2.19";
-import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261006-v2.19";
-import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261006-v2.19";
+import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261008-v2.20";
+import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261008-v2.20";
+import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261008-v2.20";
 
 /** Default presentation adapter. Existing DOM controls remain the only writers. */
 export function mountWorkspace(api) {
@@ -244,16 +244,20 @@ export function mountWorkspace(api) {
     thumbs.onclick = e => { const b = e.target.closest("[data-v2-thumbnail]"); if (b) show(Number(b.dataset.v2Thumbnail)); };
     show(index, false);
   }
+  function themeMarkup(item) {
+    const theme = publicationTheme(item);
+    return `<small class="v2-theme-chip" data-editorial-theme="${theme.key}" title="${esc(`Thème : ${theme.detail} · ${theme.label}`)}"><i aria-hidden="true"></i>${esc(theme.detail)}</small>`;
+  }
   function calendarDay(day, items) {
     const background = items.length === 1 ? previewFor(items[0]) : null;
     return `<section class="v2-day${day.startsWith(state.month) ? "" : " v2-outside"}${background ? " v2-has-photo" : ""}" data-past="${isPastDate(day)}" ${day === todayKey() ? 'data-today="true"' : ""} aria-label="${esc(prettyDate(day))}">${previewImage(background)}<span class="v2-day-number">${Number(day.slice(-2))}${items.length ? pastMarkup(day) : ""}</span>${items.map(item => {
       const preview = background || previewFor(item);
-      return `<a data-v2-route class="v2-calendar-post${preview ? " v2-has-photo" : ""}" data-past="${isPastDate(item.dateIso)}" data-tone="${esc(item.state.tone)}" data-progress-tone="${item.progress.tone}" href="${routeHash("publications", item.id)}" title="${esc(`${item.title} · ${item.state.label}. ${item.progress.description}${preview ? ` · ${preview.label}` : " · aperçu non chargé"}`)}">${background ? "" : previewImage(preview)}<span><small class="v2-channel">${esc(publicationChannelLabel(item))}</small>${esc(item.title)}<small class="v2-calendar-status">${esc(item.state.label)}</small></span>${progressMarkup(item, true)}</a>`;
+      return `<a data-v2-route class="v2-calendar-post${preview ? " v2-has-photo" : ""}" data-past="${isPastDate(item.dateIso)}" data-tone="${esc(item.state.tone)}" data-progress-tone="${item.progress.tone}" href="${routeHash("publications", item.id)}" title="${esc(`${item.title} · ${item.state.label}. ${item.progress.description}${preview ? ` · ${preview.label}` : " · aperçu non chargé"}`)}">${background ? "" : previewImage(preview)}<span><small class="v2-channel">${esc(publicationChannelLabel(item))}</small>${themeMarkup(item)}${esc(item.title)}<small class="v2-calendar-status">${esc(item.state.label)}</small></span>${progressMarkup(item, true)}</a>`;
     }).join("")}</section>`;
   }
   function agendaItem(item) {
     const preview = previewFor(item);
-    return `<a data-v2-route class="v2-agenda-post${preview ? " v2-has-photo" : ""}" data-past="${isPastDate(item.dateIso)}" data-progress-tone="${item.progress.tone}" href="${routeHash("publications", item.id)}" title="${esc(`${prettyDate(item.dateIso)} — ${item.title}. ${item.progress.description}${preview ? ` · ${preview.label}` : ""}`)}">${previewImage(preview)}<span class="v2-agenda-copy"><small>${esc(prettyDate(item.dateIso))} ${pastMarkup(item.dateIso)}</small><small class="v2-channel">${esc(publicationChannelLabel(item))}</small><b>${esc(item.title)}</b>${statusMarkup(item)}${progressMarkup(item)}</span></a>`;
+    return `<a data-v2-route class="v2-agenda-post${preview ? " v2-has-photo" : ""}" data-past="${isPastDate(item.dateIso)}" data-progress-tone="${item.progress.tone}" href="${routeHash("publications", item.id)}" title="${esc(`${prettyDate(item.dateIso)} — ${item.title}. ${item.progress.description}${preview ? ` · ${preview.label}` : ""}`)}">${previewImage(preview)}<span class="v2-agenda-copy"><small>${esc(prettyDate(item.dateIso))} ${pastMarkup(item.dateIso)}</small><small class="v2-channel">${esc(publicationChannelLabel(item))}</small>${themeMarkup(item)}<b>${esc(item.title)}</b>${statusMarkup(item)}${progressMarkup(item)}</span></a>`;
   }
   function renderPublicationList(view) {
     const items = filterPublications(publications(), { view, query: state.query, status: state.status });
@@ -266,14 +270,17 @@ export function mountWorkspace(api) {
       const legend = doc.createElement("div"); legend.className = "v2-calendar-legend";
       legend.setAttribute("aria-label", "Code couleur et étapes de validation");
       legend.innerHTML = `<div>${[["waiting", "À valider"], ["partial", "Accord partiel"], ["ready", "Prêt à programmer"], ["done", "Terminé"], ["attention", "À ajuster"]].map(([tone, label]) => `<span data-progress-tone="${tone}"><i aria-hidden="true"></i>${label}</span>`).join("")}</div><p><b>Annie :</b> Texte et Image · <b>Valentin :</b> Texte, Image et Terminé. ✓ confirmé, — à confirmer. Chacun donne son avis indépendamment; seul Valentin clôture pour tous. Une date prévue ne termine jamais un post.</p>`;
-      calendar.before(legend);
+      const themes = doc.createElement("section"); themes.className = "v2-theme-legend"; themes.setAttribute("aria-label", "Répartition des thèmes éditoriaux du mois");
+      const summary = publicationThemeSummary(items.filter(item => item.dateIso.startsWith(state.month)));
+      themes.innerHTML = `<h3>Ce mois · thèmes affichés</h3><div>${summary.map(theme => `<span class="v2-theme-chip" data-editorial-theme="${theme.key}"><i aria-hidden="true"></i>${esc(theme.label)} <b>${theme.count}</b></span>`).join("") || '<span>Aucune publication avec ces filtres.</span>'}</div><p>La pastille indique le sujet. Les lignes Annie et Valentin indiquent leurs confirmations.</p>`;
+      calendar.before(themes, legend);
       const scroll = doc.createElement("div"); scroll.className = "v2-calendar-scroll"; scroll.tabIndex = 0; scroll.setAttribute("aria-label", "Calendrier mensuel, défilement horizontal sur petit écran"); calendar.before(scroll); scroll.append(calendar);
       const agenda = doc.createElement("section"); agenda.className = "v2-mobile-agenda";
       const list = items.filter(item => item.dateIso.startsWith(state.month));
       agenda.innerHTML = "<h3>Ce mois, en détail</h3>" + list.map(agendaItem).join("");
       if (!list.length) agenda.innerHTML += "<p>Aucune publication dans ce mois avec ces filtres.</p>";
       panel.append(agenda);
-    } else panel.innerHTML = `<p class="v2-result-count">${items.length} publication${items.length === 1 ? "" : "s"}${view === "reserve" ? " · Les dates et validations ne sont pas modifiées par ce classement de lecture." : ""}</p><div class="v2-publication-list">${items.map(item => `<a data-v2-route class="v2-publication-row" data-past="${isPastDate(item.dateIso)}" href="${routeHash("publications", item.id)}"><div class="v2-date-tile${previewFor(item) ? " v2-has-photo" : ""}">${previewImage(previewFor(item))}<b>${esc(item.dateIso ? item.dateIso.slice(8) : "—")}</b><small>${esc(item.dateIso ? prettyDate(item.dateIso, { month: "short" }) : "à dater")}</small></div><div><small>${esc(publicationChannelLabel(item))} · ${esc(item.t || "Publication")}</small><h2>${esc(item.title)}</h2><p>${esc(prettyDate(item.dateIso))}${item.optionLabel ? ` · ${esc(item.optionLabel)}` : ""} ${pastMarkup(item.dateIso)}</p>${progressMarkup(item)}</div>${statusMarkup(item)}<span aria-hidden="true">→</span></a>`).join("") || '<p class="v2-empty">Aucune publication ne correspond à ces filtres.</p>'}</div>`;
+    } else panel.innerHTML = `<p class="v2-result-count">${items.length} publication${items.length === 1 ? "" : "s"}${view === "reserve" ? " · Les dates et validations ne sont pas modifiées par ce classement de lecture." : ""}</p><div class="v2-publication-list">${items.map(item => `<a data-v2-route class="v2-publication-row" data-past="${isPastDate(item.dateIso)}" href="${routeHash("publications", item.id)}"><div class="v2-date-tile${previewFor(item) ? " v2-has-photo" : ""}">${previewImage(previewFor(item))}<b>${esc(item.dateIso ? item.dateIso.slice(8) : "—")}</b><small>${esc(item.dateIso ? prettyDate(item.dateIso, { month: "short" }) : "à dater")}</small></div><div><small>${esc(publicationChannelLabel(item))}</small>${themeMarkup(item)}<h2>${esc(item.title)}</h2><p>${esc(prettyDate(item.dateIso))}${item.optionLabel ? ` · ${esc(item.optionLabel)}` : ""} ${pastMarkup(item.dateIso)}</p>${progressMarkup(item)}</div>${statusMarkup(item)}<span aria-hidden="true">→</span></a>`).join("") || '<p class="v2-empty">Aucune publication ne correspond à ces filtres.</p>'}</div>`;
     note.textContent = "Vue des publications chargées dans le registre. Passées et archives conserve aussi les versions et propositions classées; aucun déplacement automatique.";
   }
   function projectItems() {

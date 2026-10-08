@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { parseHTML } from "linkedom";
-import { monthDays, validCivilDate, sortPublications, parseRoute, routeHash, filterPublications, todayKey, isPastDate, publicationState, publicationProgress, publicationRoleProgress, safeLink, publicationNeighbours, previewCandidates, interfaceUrl, preferredInterface, workspaceIcon } from "./workspace-model.mjs";
+import { monthDays, validCivilDate, sortPublications, parseRoute, routeHash, filterPublications, todayKey, isPastDate, publicationState, publicationProgress, publicationRoleProgress, publicationTheme, publicationThemeSummary, safeLink, publicationNeighbours, previewCandidates, interfaceUrl, preferredInterface, workspaceIcon } from "./workspace-model.mjs";
 import { fixtures, fixtureHTML, mockAPI } from "./workspace-test-fixture.mjs";
 import { mountWorkspace } from "./workspace-v2.js";
 import { buildFeedbackWidget } from "./feedback-widget.mjs";
@@ -20,6 +20,16 @@ check("clôture forcée distincte des avis et de la diffusion", () => {
 check("calendrier de 42 jours, du lundi au dimanche", () => { for (const month of ["2026-09","2026-12","2027-01","2028-02"]) { const days = monthDays(month); assert.equal(days.length,42); assert.equal(new Date(days[0]+"T12:00Z").getUTCDay(),1); assert.equal(new Set(days).size,42); } });
 check("tri sans mutation et dates invalides en fin", () => { const input = [{id:"z",dateIso:"2026-09-13"},{id:"b",dateIso:"2026-09-01"},{id:"a",dateIso:"2026-09-01"},{id:"invalid",dateIso:"bad"}]; const before=JSON.stringify(input); assert.deepEqual(sortPublications(input).map(p=>p.id),["a","b","z","invalid"]); assert.equal(JSON.stringify(input),before); });
 check("jour civil de Toronto près de minuit UTC", () => assert.equal(todayKey(new Date("2026-09-08T01:00Z")),"2026-09-07"));
+check("les thèmes décrivent le sujet sans déduire un accord du titre", () => {
+  assert.equal(publicationTheme({t:"Éducation"}).key,"science");
+  assert.equal(publicationTheme({editorial:{theme:"Nature"}}).key,"nature");
+  assert.equal(publicationTheme({t:"Contemplation"}).detail,"Contemplation");
+  assert.equal(publicationTheme({templateId:"newsletter",theme:"Mission"}).key,"newsletter");
+  assert.equal(publicationTheme({title:"La grenouille est approuvée",theme:"Sujet inédit"}).key,"other");
+  const items=[{t:"Nature"},{t:"Flore"},{t:"Éducation"},{t:"Sujet inédit"}],before=JSON.stringify(items);
+  assert.deepEqual(publicationThemeSummary(items).map(t=>[t.key,t.count]),[["nature",2],["science",1],["other",1]]);
+  assert.equal(JSON.stringify(items),before);
+});
 check("passé visuel : hier seulement, jamais aujourd’hui, le futur ni une date invalide", () => {
   const today = todayKey(new Date("2026-09-08T01:00Z"));
   assert(isPastDate("2026-09-06", today));
@@ -255,6 +265,16 @@ await new Promise(resolve=>setTimeout(resolve,5));
 check("historique avant/après en lecture seule",()=>{const content=document.querySelector(".v2-text-history").textContent;assert(content.includes("Ancienne formulation"));assert(content.includes("Nouvelle formulation"));assert(content.includes("dossier source"));assert.equal(JSON.stringify(fixtures),sourceJSON);});
 workspace.navigate("#/publications?vue=calendrier");
 check("calendrier social distinct et agenda mobile",()=>{assert.equal(document.querySelectorAll(".v2-day").length,42);assert(document.querySelector(".v2-mobile-agenda"));assert(document.querySelector(".project-calendar-shell").closest("[data-v2-concealed]"));});
+check("thèmes visibles dans le calendrier et l’agenda, séparés des confirmations",()=>{
+  assert.equal(document.querySelectorAll('.v2-calendar-post .v2-theme-chip').length,document.querySelectorAll('.v2-calendar-post').length);
+  assert(document.querySelector('.v2-theme-legend').textContent.includes('thèmes affichés'));
+  for(const selector of ['.v2-calendar-post','.v2-agenda-post']){
+    const row=document.querySelector(`${selector}[href="#/publications/test-first"]`);
+    assert.equal(row.querySelector('.v2-theme-chip').textContent,'Vie du lac');
+    assert.equal(row.querySelectorAll('.v2-progress-person').length,2);
+  }
+  assert.equal(JSON.stringify(fixtures),sourceJSON);
+});
 check("calendrier illustré et mobile conservent les dates et états lisibles",()=>{assert(document.querySelector(".v2-day.v2-has-photo .v2-background-photo"));assert(document.querySelector(".v2-mobile-agenda .v2-background-photo"));assert(document.querySelector('.v2-tabs [data-icon="socialCalendar"]'));});
 check("légende et cinq repères personnels accessibles dans le calendrier et l’agenda", () => {
   assert.equal(document.querySelectorAll('.v2-calendar-legend [data-progress-tone]').length, 5);
