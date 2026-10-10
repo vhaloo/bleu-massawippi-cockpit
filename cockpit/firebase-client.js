@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261008-b96";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261010-b97";
 import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261008-v2.20";
 import {
   getAuth,
@@ -37,9 +37,10 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261008-b96";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261008-b96";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261008-b96";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261010-b97";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261010-b97";
+import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261010-b97";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261010-b97";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -361,19 +362,17 @@ export async function logOut() {
 
 export function subscribeScheduleItems(callback, onError) {
   requireConfigured();
-  const scheduleQuery = query(collection(db, "scheduleItems"), orderBy("dateIso", "asc"), limit(120));
-  const unsubscribe = trackedOnSnapshot(
-    "scheduleItems",
-    scheduleQuery,
-    (snapshot) => {
-      const rows = snapshot.docs
-        .map((item) => ({ id: item.id, ...item.data() }))
-        .sort((a, b) => String(a.dateIso || a.dateKey || "").localeCompare(String(b.dateIso || b.dateKey || "")));
-      callback(rows);
+  return observePaginatedSchedule({
+    pageSize: 120,
+    onRows: callback,
+    onError,
+    subscribePage(cursor, next, error, number) {
+      const constraints = [orderBy("dateIso", "asc"), limit(120)];
+      if (cursor) constraints.push(startAfter(cursor));
+      const scheduleQuery = query(collection(db, "scheduleItems"), ...constraints);
+      return trackedOnSnapshot(`scheduleItems-page-${number + 1}`, scheduleQuery, next, error);
     },
-    onError
-  );
-  return unsubscribe;
+  });
 }
 
 export async function updateScheduleItem(itemId, changes, profile) {
