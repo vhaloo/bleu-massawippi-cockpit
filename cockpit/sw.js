@@ -2,12 +2,12 @@
 // Cela force l’activation du nouveau service worker et purge les modules
 // précédemment mis en cache, notamment firebase-client.js.
 const CACHE_PREFIX = "bleu-massawippi-cockpit-shell-";
-const RELEASE = "20261008-b96";
-const CACHE = "bleu-massawippi-cockpit-shell-v128";
+const RELEASE = "20261010-b97";
+const CACHE = "bleu-massawippi-cockpit-shell-v129";
 const SHELL = [
   './annie-requests.mjs?v=20261008-v2.20', './project-list-model.mjs?v=20261008-v2.20',
   `./feedback-widget.mjs?v=${RELEASE}`, `./editorial-cycle-guard.mjs?v=${RELEASE}`,
-  `./event-context-window.mjs?v=${RELEASE}`,
+  `./event-context-window.mjs?v=${RELEASE}`, `./paginated-schedule.mjs?v=${RELEASE}`, `./inline-media-preview.mjs?v=${RELEASE}`,
   "./workspace-adapter.js?v=20261008-v2.20", "./workspace-v2.js?v=20261008-v2.20", "./workspace-v2.css?v=20261008-v2.20", "./workspace-model.mjs?v=20261008-v2.20",
   "./", "./index.html", `./firebase-config.js?v=${RELEASE}`, `./theme.js?v=${RELEASE}`, `./motion.js?v=${RELEASE}`,
   `./cockpit-ui.js?v=${RELEASE}`, `./content-layout.js?v=${RELEASE}`, `./calendar-export-tools.js?v=${RELEASE}`, `./internal-project-order.js?v=${RELEASE}`, `./firebase-client.js?v=${RELEASE}`, `./project-calendar-model.mjs?v=${RELEASE}`, `./project-calendar.js?v=${RELEASE}`, `./section-navigation.js?v=${RELEASE}`, `./publication-editor-schema.mjs?v=${RELEASE}`, `./editor-studio.js?v=${RELEASE}`, `./control-hints.js?v=${RELEASE}`, `./event-context-data.js?v=${RELEASE}`, `./action-items-ui.js?v=${RELEASE}`, `./notification-recipient.js?v=${RELEASE}`, `./client-health-ui.js?v=${RELEASE}`, `./admin-lazy-data.js?v=${RELEASE}`, `./admin-activity-summary.js?v=${RELEASE}`, `./media-choice-ui.js?v=${RELEASE}`, `./task-progress-ui.js?v=${RELEASE}`, `./completed-task-history.js?v=${RELEASE}`, `./monthly-snapshot-state.js?v=${RELEASE}`, `./view-mode.js?v=${RELEASE}`, `./clarity.css?v=${RELEASE}`, `./project-calendar.css?v=${RELEASE}`, `./view-mode.css?v=${RELEASE}`,

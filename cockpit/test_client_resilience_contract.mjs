@@ -52,8 +52,13 @@ for (const name of writeFunctions) {
     `${name} doit refuser une écriture en mode secours.`);
 }
 
+// Every schedule page uses the same diagnostics registry and bounded query.
+assert.match(firebase, /trackedOnSnapshot\(`scheduleItems-page-\$\{number \+ 1\}`/,
+  "Chaque page du calendrier doit passer par le registre central.");
+assert.match(firebase, /subscribeScheduleItems[\s\S]{0,900}observePaginatedSchedule[\s\S]{0,900}limit\(120\)[\s\S]{0,180}startAfter\(cursor\)/,
+  "Le calendrier complet doit conserver des pages de 120 documents suivies par curseur.");
 for (const listener of [
-  "scheduleItems", "comments", "workflowStates", "opportunityStates",
+  "comments", "workflowStates", "opportunityStates",
   "internalProjectStates", "editorialDecisions", "mediaDecisions", "mediaLinks",
   "tasks", "personalActionItems", "cockpitFeedback", "auditLogs"
 ]) {
@@ -61,7 +66,7 @@ for (const listener of [
     `Le listener ${listener} doit passer par le registre central.`);
 }
 
-for (const [collectionName, maximum] of [["scheduleItems",120],["comments",120],["workflowStates",120],["opportunityStates",50],["internalProjectStates",50],["editorialDecisions",100],["mediaDecisions",120],["mediaLinks",160]]) {
+for (const [collectionName, maximum] of [["comments",120],["workflowStates",120],["opportunityStates",50],["internalProjectStates",50],["editorialDecisions",100],["mediaDecisions",120],["mediaLinks",160]]) {
   assert.match(firebase, new RegExp(`collection\\(db, "${collectionName}"\\)[\\s\\S]{0,180}limit\\(${maximum}\\)`),
     `La fenêtre ${collectionName} doit rester bornée à ${maximum} documents.`);
 }
