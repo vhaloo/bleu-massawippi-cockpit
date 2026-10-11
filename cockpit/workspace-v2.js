@@ -1,6 +1,6 @@
-import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261008-v2.20";
-import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261008-v2.20";
-import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261008-v2.20";
+import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261011-v2.21";
+import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261011-v2.21";
+import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261011-v2.21";
 
 /** Default presentation adapter. Existing DOM controls remain the only writers. */
 export function mountWorkspace(api) {
@@ -325,9 +325,9 @@ export function mountWorkspace(api) {
     }
     if (view === "medias") {
       const media = api.getMedia?.() || [];
-      const items = media.filter(m => !q || `${m.label} ${m.note} ${m.eventId}`.toLocaleLowerCase("fr").includes(q));
+      const items = media.filter(m => m.archived !== true && (!q || `${m.label} ${m.note} ${m.eventId}`.toLocaleLowerCase("fr").includes(q)));
       panel.innerHTML = `<p class="v2-intro">${items.length} média${items.length === 1 ? "" : "s"} dans le cache chargé. Ouvrez une publication pour charger son contexte complet, y compris ses références. Ce nombre n’est pas le total de SharePoint.</p><div class="v2-library-grid">${items.map(m => `<article class="v2-document"><span class="v2-file-kind">${esc(m.kind || "Média")}${m.archived ? " · archivé" : ""}</span>${icon(m.kind === "image" || m.kind === "video" ? "publications" : "document")}<h2>${esc(m.label || "Média lié")}</h2><p>${esc(m.note || "")}</p>${anchor("Voir dans la publication →", "publications", m.eventId)}${safeLink(m.url) ? `<a href="${esc(safeLink(m.url))}" target="_blank" rel="noopener noreferrer">Ouvrir l’original ↗</a>` : ""}</article>`).join("") || '<p class="v2-empty">Aucun média correspondant parmi les éléments chargés.</p>'}</div>`;
-      note.textContent = "Les références seules et les médias archivés ne sont ni supprimés ni approuvés par leur présence dans la bibliothèque."; return;
+      note.textContent = "Cette liste présente les médias actifs chargés. Leur présence ne vaut pas approbation."; return;
     }
     const items = documentItems().filter(item => !q || `${item.label} ${item.project}`.toLocaleLowerCase("fr").includes(q));
     panel.innerHTML = `<p class="v2-result-count">${items.length} référence${items.length === 1 ? "" : "s"} liée${items.length === 1 ? "" : "s"} aux dossiers du cockpit</p><div class="v2-library-grid">${items.map(item => `<article class="v2-document"><span class="v2-file-kind">${item.archived ? "Projet archivé" : "Document / dossier"}</span>${icon(/\.xlsx?/i.test(item.href) ? "list" : "document")}<h2>${esc(item.label)}</h2><p>${esc(item.project)}</p><a href="${esc(item.href)}" target="_blank" rel="noopener noreferrer" title="Ouvrir l’original avec votre session autorisée. Le document n’est pas copié ni déplacé.">Ouvrir l’original ↗</a>${item.owner ? anchor("Voir le contexte du projet", "projets", item.owner) : ""}</article>`).join("")}</div>`;
