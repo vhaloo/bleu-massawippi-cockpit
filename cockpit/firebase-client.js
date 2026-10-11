@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261010-b97";
-import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261008-v2.20";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261011-b98";
+import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261011-v2.21";
 import {
   getAuth,
   setPersistence,
@@ -37,10 +37,10 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261010-b97";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261010-b97";
-import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261010-b97";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261010-b97";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261011-b98";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261011-b98";
+import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261011-b98";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261011-b98";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);

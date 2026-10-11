@@ -342,6 +342,25 @@ check("recommandation conservée en changeant d’espace, sans envoi implicite",
   assert.equal(ideas.panel.querySelector('textarea').value, "Mon idée globale"); assert.equal(ideaSubmits, 0);
 });
 check("bibliothèque garde les liens des originaux",()=>assert(document.querySelector('a[href="https://example.org/archive.pdf"]')));
+check("bibliothèque médias : anciennes versions archivées absentes, même en recherche",()=>{
+  const originalGetMedia=api.getMedia;
+  const media=[
+    {id:"latest",eventId:"test-first",kind:"image",label:"Illustration courante",note:"",url:"https://example.org/current.png",archived:false},
+    {id:"previous",eventId:"test-first",kind:"image",label:"Ancienne version",note:"Historique conservé",url:"https://example.org/old.png",archived:true},
+    {id:"legacy",eventId:"test-second",kind:"image",label:"Photo active",note:"",url:"https://example.org/photo.jpg"}
+  ];
+  const before=JSON.stringify(media);api.getMedia=()=>media;
+  workspace.navigate("#/bibliotheque?vue=medias");
+  assert.equal(document.querySelectorAll('.v2-library-grid .v2-document').length,2);
+  assert(document.querySelector('a[href="https://example.org/current.png"]'));
+  assert(document.querySelector('a[href="https://example.org/photo.jpg"]'));
+  assert(!document.querySelector('a[href="https://example.org/old.png"]'));
+  const search=document.querySelector('[data-v2-search]');search.value="Ancienne";
+  search.dispatchEvent(new window.Event('input',{bubbles:true}));
+  assert.equal(document.querySelectorAll('.v2-library-grid .v2-document').length,0);
+  assert.equal(JSON.stringify(media),before);
+  api.getMedia=originalGetMedia;workspace.navigate("#/bibliotheque");
+});
 workspace.destroy();
 check("retour classique restaure aussi les outils",()=>{assert.equal(utility.parentElement,document.body);utility.click();assert.equal(utilityClicks,2);});
 check("retour V1 conserve la boîte à idées et sa saisie", () => {
