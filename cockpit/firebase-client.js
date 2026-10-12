@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261011-b98";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261011-b99";
 import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261011-v2.21";
 import {
   getAuth,
@@ -37,10 +37,10 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261011-b98";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261011-b98";
-import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261011-b98";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261011-b98";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261011-b99";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261011-b99";
+import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261011-b99";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261011-b99";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -80,6 +80,9 @@ const diagnostics = {
 };
 const activeListenerNames = new Map();
 const REQUEST_TIMEOUT_MS = 15000;
+// Covers the current calendar through January without adding per-card listeners.
+// Keep this summary window bounded; grow via a date projection if it fills.
+const VALIDATION_SUMMARY_LIMIT = 240;
 
 function diagnosticsSnapshot() {
   return Object.freeze({
@@ -769,7 +772,7 @@ export async function setCompletionOverride(eventId, active, reason, profile) {
 
 export function subscribeWorkflowStates(callback, onError) {
   requireConfigured();
-  const statesQuery = query(collection(db, "workflowStates"), orderBy("updatedAt", "desc"), limit(120));
+  const statesQuery = query(collection(db, "workflowStates"), orderBy("updatedAt", "desc"), limit(VALIDATION_SUMMARY_LIMIT));
   return trackedOnSnapshot("workflowStates", statesQuery, (snapshot) => callback(
     snapshot.docs.map((item) => ({ id: item.id, ...item.data() })),
     { fromCache: snapshot.metadata.fromCache, hasPendingWrites: snapshot.metadata.hasPendingWrites }
@@ -1374,10 +1377,9 @@ export async function setMediaRightsConfirmation(mediaId, confirmed, profile) {
 
 export function subscribeMediaDecisions(callback, onError) {
   requireConfigured();
-  // Fenêtre M0 bornée et transitoire : un seul listener de résumés, jamais un
-  // listener par carte. La projection par fenêtre de dates remplacera ce
-  // plafond après validation de parité.
-  const decisionsQuery = query(collection(db, "mediaDecisions"), orderBy("updatedAt", "desc"), limit(120));
+  // One bounded summary listener, shared by both interfaces. The previous
+  // 120-document window hid retained approvals after the calendar expanded.
+  const decisionsQuery = query(collection(db, "mediaDecisions"), orderBy("updatedAt", "desc"), limit(VALIDATION_SUMMARY_LIMIT));
   return trackedOnSnapshot(
     "mediaDecisions",
     decisionsQuery,
