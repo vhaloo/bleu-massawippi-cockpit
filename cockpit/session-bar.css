@@ -1,0 +1,88 @@
+/* Commandes partagées : les mêmes éléments restent dans le flux de la page. */
+#cockpit-session {
+  position: sticky;
+  top: 0;
+  z-index: 35;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 20px;
+  min-height: 64px;
+  padding: 10px max(16px, calc((100% - 1280px) / 2));
+  color: #eff9f8;
+  background: #174852;
+  border-bottom: 1px solid #ffffff24;
+  box-shadow: 0 4px 16px #071e2510;
+  font-size: .81rem;
+  line-height: 1.4;
+}
+
+#cockpit-session-label {
+  flex: 1 1 13rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+#cockpit-session strong { color: inherit; }
+
+#cockpit-session .cockpit-session-actions {
+  display: flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+#cockpit-session .cockpit-session-actions > :is(button, a) {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 0 1 auto;
+  min-width: 44px;
+  min-height: 44px;
+  max-width: 100%;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid #ffffff4d;
+  border-radius: 10px;
+  color: #eff9f8;
+  background: #ffffff0d;
+  box-shadow: none;
+  font-family: inherit;
+  font-size: .78rem;
+  font-weight: 650;
+  line-height: 1.35;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+#cockpit-session .cockpit-session-actions > :is(button, a):hover {
+  background: #ffffff1f;
+  border-color: #ffffffb3;
+}
+#cockpit-session .cockpit-session-actions :is(button, a):focus-visible {
+  outline: 3px solid #f2d59d;
+  outline-offset: 3px;
+}
+#cockpit-session #cockpit-interface-switch { background: #ffffff17; }
+#cockpit-session #cockpit-studio-launch { color: #073a52; background: #dff7f6; border-color: #74c8cf; }
+#cockpit-session #cockpit-studio-launch:hover { background: #fff; border-color: #fff; }
+#cockpit-session #cockpit-logout { border-color: #ffffff26; background: transparent; }
+#cockpit-session .cockpit-theme-toggle.in-session { width: auto; height: auto; z-index: auto; }
+#cockpit-session .vm-toggle { margin: 0; max-width: 100%; flex-wrap: wrap; }
+
+html[data-theme="dark"] #cockpit-session { background: #132f38; }
+html[data-theme="paper"] #cockpit-session { background: #3f624b; color: #fffaf1; }
+
+@media (max-width: 700px) {
+  #cockpit-session { padding: 12px 14px; gap: 10px; font-size: .78rem; }
+  #cockpit-session-label { flex-basis: 100%; }
+  #cockpit-session .cockpit-session-actions { flex-basis: 100%; }
+  #cockpit-session .cockpit-session-actions > :is(button, a) { padding: 9px 10px; }
+}
+
+@media print { #cockpit-session { display: none !important; } }

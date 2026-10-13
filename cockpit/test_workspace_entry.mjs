@@ -46,6 +46,14 @@ for (const item of cases) {
   const initialCopy=JSON.stringify(globalThis.posts), controls=[...document.querySelectorAll("button,input,textarea")], notices=[];
   const current=item.failMount?await adapter({failMount:true}):normal;
   current.setupInterfaceSwitch(profile);
+  if (profile) {
+    const switchLink = document.querySelector("#cockpit-interface-switch");
+    assert.equal(switchLink.parentElement, document.querySelector(".cockpit-session-actions"));
+    assert.equal(switchLink.nextElementSibling.id, "cockpit-logout");
+    current.setupInterfaceSwitch(profile);
+    assert.equal(document.querySelector("#cockpit-interface-switch"), switchLink);
+    assert.equal(document.querySelectorAll("#cockpit-interface-switch").length, 1);
+  }
   const oldWarn=console.warn;if(item.failMount)console.warn=()=>{};
   let workspace;
   try {workspace=await current.setupWorkspaceV2(profile,{state,enhanceCards(){},toast:message=>notices.push(message),mediaPreview(){return "";}});} finally {console.warn=oldWarn;}

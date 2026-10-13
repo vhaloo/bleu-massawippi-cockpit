@@ -13,10 +13,12 @@ assert.ok(releaseMatch, "Le service worker doit déclarer une version de publica
 assert.ok(cacheMatch && Number(cacheMatch[1]) >= 36, "Le cache public doit être incrémenté après une mutation du shell.");
 
 const release = releaseMatch[1];
-for (const resource of ["firebase-config.js", "theme.js", "motion.js", "cockpit-ui.js", "view-mode.js", "clarity.css"]) {
+for (const resource of ["firebase-config.js", "theme.js", "motion.js", "cockpit-ui.js", "view-mode.js", "clarity.css", "session-bar.css"]) {
   assert.match(index, new RegExp(`${resource.replace(".", "\\.")}\\?v=${release}`), `${resource} doit utiliser la version ${release}.`);
 }
 const cockpitUi = fs.readFileSync(new URL("./cockpit-ui.js", import.meta.url), "utf8");
+assert.match(worker, /session-bar\.css\?v=\$\{RELEASE\}/, "Les commandes doivent rester utilisables dans le shell hors ligne.");
+assert.match(deploymentWorkflow, /cp cockpit\/session-bar\.css public\//, "La feuille de commandes doit être livrée en production.");
 const actionItemsUi = fs.readFileSync(new URL("./action-items-ui.js", import.meta.url), "utf8");
 const healthUi = fs.readFileSync(new URL("./client-health-ui.js", import.meta.url), "utf8");
 const adminLazyUi = fs.readFileSync(new URL("./admin-lazy-data.js", import.meta.url), "utf8");

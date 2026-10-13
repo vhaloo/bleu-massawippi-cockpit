@@ -1,15 +1,19 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20261011-b99";
-import { fetchPublicationHistoryPage, subscribeAnnieRequestSource } from "./firebase-client.js?v=20261011-b99";
-import { watchAnnieRequests } from "./annie-requests.mjs?v=20261011-v2.21";
-import { openPublicationStudio } from "./editor-studio.js?v=20261011-b99";
-import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20261011-v2.21";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20261013-b100";
+import { fetchPublicationHistoryPage, subscribeAnnieRequestSource } from "./firebase-client.js?v=20261013-b100";
+import { watchAnnieRequests } from "./annie-requests.mjs?v=20261013-v2.22";
+import { openPublicationStudio } from "./editor-studio.js?v=20261013-b100";
+import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20261013-v2.22";
 
 export function setupInterfaceSwitch(profile) {
   if (!profile?.uid) return;
   const session = document.querySelector("#cockpit-session");
   if (!session) return;
   let link = session.querySelector("#cockpit-interface-switch");
-  if (!link) { link = document.createElement("a"); link.id = "cockpit-interface-switch"; session.append(link); }
+  if (!link) {
+    link = document.createElement("a"); link.id = "cockpit-interface-switch";
+    const actions = session.querySelector(".cockpit-session-actions") || session;
+    actions.insertBefore(link, actions.querySelector("#cockpit-logout"));
+  }
   const isV2 = preferredInterface(location.href) === "v2";
   link.textContent = isV2 ? "↔ Version classique" : "↔ Version 2";
   link.title = isV2 ? "Revenir à la version classique, avec les mêmes textes, médias, commentaires et validations. Enregistrez vos saisies en cours avant de changer d’interface." : "Ouvrir la nouvelle interface. Vous pourrez revenir ici à tout moment; vos dossiers et vos droits restent les mêmes. Enregistrez vos saisies en cours avant de changer d’interface.";
@@ -23,7 +27,7 @@ export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, me
   try {
     const entry = interfaceUrl(location.href, "v2", (globalThis.posts || []).map(post => post.id));
     if (entry !== location.href) history.replaceState(history.state, "", entry);
-    const { mountWorkspace } = await import("./workspace-v2.js?v=20261011-v2.21");
+    const { mountWorkspace } = await import("./workspace-v2.js?v=20261013-v2.22");
     return mountWorkspace({
       profile,
       watchAnnieRequests: onUpdate => watchAnnieRequests({ subscribe: subscribeAnnieRequestSource, onUpdate }),

@@ -32,8 +32,6 @@ const style = document.createElement("style");
 style.id = "cockpit-theme-style";
 style.textContent = `
   .cockpit-theme-toggle { position:fixed; top:98px; right:12px; z-index:2400; border:1px solid rgba(7,58,82,.25); border-radius:999px; padding:8px 12px; background:#fff; color:#073a52; box-shadow:0 5px 18px rgba(0,0,0,.15); font:700 .78rem/1 system-ui,sans-serif; cursor:pointer; }
-  #cockpit-session .cockpit-theme-toggle.in-session { position:static; display:grid; width:40px; min-width:40px; height:40px; padding:0; place-items:center; overflow:hidden; box-shadow:none; font-size:0; }
-  .cockpit-theme-toggle.in-session:before { content:"◐"; font-size:1rem; }
   .cockpit-task-item.workflow-ready { border-color:#8ec8b5; background:#e3f5ee; box-shadow:0 0 0 2px rgba(33,134,109,.13); }
   .cockpit-task-ready { display:inline-flex; margin-bottom:7px; padding:4px 8px; border-radius:999px; color:#155c4e; background:#ccebdc; font-size:.65rem; font-weight:900; }
   .cockpit-task-progress { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; margin:7px 0; }
@@ -182,7 +180,7 @@ style.textContent = `
   [data-theme="dark"] .workflow-node text { fill:#effbfc !important; }
   [data-theme="dark"] .workflow-return { fill:#c4d8dd !important; }
   [data-theme="dark"] .week { color:#fff !important; }
-  @media (max-width:700px) { .cockpit-theme-toggle:not(.in-nav) { top:calc(var(--cockpit-session-height,52px) + 6px); right:8px; padding:8px 10px; } }
+  @media (max-width:700px) { .cockpit-theme-toggle:not(.in-session) { top:98px; right:8px; padding:8px 10px; } }
 `;
 style.textContent += `
   #cockpit-theme-picker{width:min(530px,calc(100% - 28px));max-height:85dvh;padding:26px;border:1px solid #d5cbb9;border-radius:20px;color:#303a30;background:#fffaf1;box-shadow:0 20px 70px #352b3040;font:15px/1.5 system-ui,sans-serif}
@@ -257,21 +255,25 @@ picker.addEventListener("change", event => {
 picker.addEventListener("close", () => button.focus());
 document.body.appendChild(picker);
 
-const compactLayout = matchMedia("(max-width:700px)");
 function placeThemeToggle() {
   const session = document.querySelector("#cockpit-session");
-  const logout = document.querySelector("#cockpit-logout");
-  if (compactLayout.matches && session && logout) {
-    if (button.parentElement !== session) session.insertBefore(button, logout);
+  const actions = session?.querySelector(".cockpit-session-actions") || session;
+  if (actions) {
+    if (button.parentElement !== actions) actions.insertBefore(button, actions.querySelector("#cockpit-interface-switch, #cockpit-logout"));
     button.classList.add("in-session");
   } else {
     if (button.parentElement !== document.body) document.body.appendChild(button);
     button.classList.remove("in-session");
   }
 }
-compactLayout.addEventListener?.("change", placeThemeToggle);
 addEventListener("cockpit:content-ready", placeThemeToggle);
 addEventListener("cockpit:session-ready", placeThemeToggle);
+addEventListener("cockpit:session-ended", () => {
+  // The session node is removed immediately after this event; preserve the picker.
+  document.body.appendChild(button);
+  button.classList.remove("in-session");
+  if (picker.open) picker.close();
+});
 placeThemeToggle();
 setTheme(savedTheme() || (media.matches ? "dark" : "light"));
 media.addEventListener?.("change", (event) => {
