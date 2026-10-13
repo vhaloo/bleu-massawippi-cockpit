@@ -1,6 +1,6 @@
-import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261013-v2.22";
-import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261013-v2.22";
-import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261013-v2.22";
+import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261013-v2.23";
+import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261013-v2.23";
+import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261013-v2.23";
 
 /** Default presentation adapter. Existing DOM controls remain the only writers. */
 export function mountWorkspace(api) {

@@ -13,10 +13,11 @@
     .fixture-note { margin: 20px; padding: 16px; border: 1px solid; border-radius: 12px; }
     #fixture-lifecycle { padding: 12px; display: flex; flex-wrap: wrap; gap: 10px; }
     #fixture-lifecycle button { min-height: 44px; }
+    #cockpit-task-launch, #cockpit-sidebar-toggle { width: 164px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   </style>
   <script type="importmap">{"imports":{
-    "./firebase-client.js?v=20261013-b100":"data:text/javascript,export async function fetchPublicationHistoryPage(){return {items:[],hasMore:false}} export function subscribeAnnieRequestSource(kind,callback){callback([],{fromCache:false});return ()=>{}}",
-    "./editor-studio.js?v=20261013-b100":"data:text/javascript,export function openPublicationStudio(){}"
+    "./firebase-client.js?v=20261013-b101":"data:text/javascript,export async function fetchPublicationHistoryPage(){return {items:[],hasMore:false}} export function subscribeAnnieRequestSource(kind,callback){callback([],{fromCache:false});return ()=>{}}",
+    "./editor-studio.js?v=20261013-b101":"data:text/javascript,export function openPublicationStudio(){}"
   }}</script>
 </head>
 <body>
@@ -26,6 +27,7 @@ import { mountWorkspace } from "./workspace-v2.js";
 import { setupInterfaceSwitch } from "./workspace-adapter.js";
 document.body.insertAdjacentHTML("afterbegin", fixtureHTML);
 globalThis.posts = structuredClone(fixtures);
+document.body.insertAdjacentHTML("beforeend", '<button id="cockpit-feedback-launch">💡 Boîte à idées</button><button id="cockpit-task-launch">À accomplir <span>24</span></button><button id="cockpit-sidebar-toggle">Avis et demandes générales</button>');
 const query = new URLSearchParams(location.search);
 const role = query.get("role") === "director" ? "director" : "admin";
 const api = mockAPI(document, window, role);
