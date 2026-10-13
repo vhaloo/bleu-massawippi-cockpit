@@ -7,7 +7,7 @@
  * intact.
  */
 
-import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20261011-b99";
+import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20261013-b100";
 
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
@@ -504,7 +504,7 @@ function ensureStylesheet() {
   if (document.querySelector(`link[data-module="${MODULE_ID}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = new URL("./view-mode.css?v=20261011-b99", import.meta.url).href;
+  link.href = new URL("./view-mode.css?v=20261013-b100", import.meta.url).href;
   link.dataset.module = MODULE_ID;
   document.head.appendChild(link);
 }
@@ -523,8 +523,8 @@ function ensureToggle() {
   group.innerHTML = `
     <button type="button" data-view-mode="essential" aria-pressed="false">${icon("essential")}<span>Vue essentielle</span></button>
     <button type="button" data-view-mode="complete" aria-pressed="false">${icon("complete")}<span>Vue complète</span></button>`;
-  const logout = session.querySelector("#cockpit-logout");
-  session.insertBefore(group, logout || null);
+  const actions = session.querySelector(".cockpit-session-actions") || session;
+  actions.insertBefore(group, actions.firstElementChild);
   return group;
 }
 

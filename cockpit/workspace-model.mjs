@@ -1,5 +1,5 @@
 /** Pure presentation model. Never changes a date, approval, or source object. */
-export const WORKSPACE_VERSION = "20261011-v2.21";
+export const WORKSPACE_VERSION = "20261013-v2.22";
 export const SPACES = Object.freeze({
   accueil: { label: "À faire", icon: "decisions", title: "Un peu de clarté pour avancer.", description: "Vos décisions, les nouveautés et le travail qui vous attend." },
   publications: { label: "Publications", icon: "publications", title: "Les mots et les images du lac.", description: "Le calendrier des réseaux sociaux et des infolettres, les propositions et leur historique." },

@@ -1,5 +1,5 @@
-import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20261011-b99";
-import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261011-b99";
+import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20261013-b100";
+import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261013-b100";
 import {
   getClientState,
   waitForClientReady,
@@ -40,24 +40,24 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20261011-b99";
-import { createEventContextController } from "./event-context-data.js?v=20261011-b99";
-import { mergeEventWindow } from "./event-context-window.mjs?v=20261011-b99";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20261011-b99";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20261011-b99";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20261011-b99";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20261011-b99";
-import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20261011-b99";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20261011-b99";
-import { setupSectionNavigation } from "./section-navigation.js?v=20261011-b99";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20261011-b99";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20261011-b99";
-import { setupControlHints } from "./control-hints.js?v=20261011-b99";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20261011-b99";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20261011-b99";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20261011-b99";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20261011-b99";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20261011-b99";
+} from "./firebase-client.js?v=20261013-b100";
+import { createEventContextController } from "./event-context-data.js?v=20261013-b100";
+import { mergeEventWindow } from "./event-context-window.mjs?v=20261013-b100";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20261013-b100";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20261013-b100";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20261013-b100";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20261013-b100";
+import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20261013-b100";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20261013-b100";
+import { setupSectionNavigation } from "./section-navigation.js?v=20261013-b100";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20261013-b100";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20261013-b100";
+import { setupControlHints } from "./control-hints.js?v=20261013-b100";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20261013-b100";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20261013-b100";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20261013-b100";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20261013-b100";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20261013-b100";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -109,9 +109,6 @@ style.textContent = `
   .cockpit-login-error { min-height: 20px; margin-top: 10px; color: #a33f35; font-size: .83rem; }
   .cockpit-login-note { margin-top: 17px; padding: 11px; border-radius: 11px; color: #486874; background: #edf7f7; font-size: .78rem; }
   .cockpit-login-reset { display: block; width: 100%; margin-top: 9px; padding: 0; border: 0; color: #0b657d; background: transparent; font-size: .78rem; font-weight: 800; text-align: center; text-decoration: underline; cursor: pointer; }
-  #cockpit-session { position: sticky; top: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px max(16px, calc((100% - 1280px) / 2)); color: #e9fbfb; background: #073a52; font-size: .82rem; box-shadow: 0 7px 18px rgba(7,58,82,.16); }
-  #cockpit-session strong { color: white; }
-  #cockpit-session button { padding: 6px 10px; border: 1px solid rgba(255,255,255,.38); border-radius: 999px; color: #fff; background: transparent; font-size: .76rem; font-weight: 800; cursor: pointer; }
   .cockpit-toast { position: fixed; right: 20px; bottom: 20px; z-index: 1100; max-width: 360px; padding: 12px 15px; border-radius: 13px; color: white; background: #073a52; box-shadow: 0 10px 28px rgba(0,0,0,.2); font-size: .84rem; }
   .cockpit-toast.error { background: #9a4035; }
   .cockpit-controls { margin: 2px 16px 13px 20px; padding: 11px; border: 1px solid #d6e8ea; border-radius: 13px; background: #f7fbfb; }
@@ -396,8 +393,6 @@ style.textContent = `
   #cockpit-credit a:hover,#cockpit-credit a:focus-visible { border-color:#168496; background:#e2f4f5; }
   @media (max-width: 700px) {
     body { padding-bottom: 68px; }
-    #cockpit-session { display:grid; min-height:52px; grid-template-columns:minmax(0,1fr) auto auto; gap:6px; padding:6px 10px; font-size:.72rem; line-height:1.25; }
-    #cockpit-session-label { min-width:0; }
     #cockpit-logout { min-height:40px; padding:6px 11px; border-radius:10px; }
     .nav { top:var(--cockpit-session-height,52px); z-index:19; margin-top:0; }
     .nav .wrap { width:100%; padding:0 6px; scrollbar-width:none; }
@@ -656,7 +651,7 @@ function buildSession() {
   if (session) return session;
   session = document.createElement("div");
   session.id = "cockpit-session";
-  session.innerHTML = `<span id="cockpit-session-label"></span><button id="cockpit-logout" type="button">Se déconnecter</button>`;
+  session.innerHTML = `<span id="cockpit-session-label"></span><div class="cockpit-session-actions" role="group" aria-label="Commandes du cockpit"><button id="cockpit-logout" type="button">Se déconnecter</button></div>`;
   document.body.prepend(session);
   session.querySelector("#cockpit-logout").addEventListener("click", async () => {
     if (demoMode) {
@@ -2971,7 +2966,7 @@ async function applyProfile(profile) {
   syncCardAccess();
   workspaceV2?.destroy(); workspaceV2 = null;
   try {
-    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20261011-v2.21");
+    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20261013-v2.22");
     setupInterfaceSwitch(profile);
     workspaceV2 = await setupWorkspaceV2(profile, { state, enhanceCards, toast, mediaPreview: mediaPreviewUrl });
   } catch { toast("La V2 est indisponible; le cockpit classique reste actif.", true); }

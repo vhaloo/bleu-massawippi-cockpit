@@ -16,6 +16,7 @@ const files = {
   mediaChoice: read("cockpit/media-choice-ui.js"),
   client: read("cockpit/firebase-client.js"),
   theme: read("cockpit/theme.js"),
+  sessionStyle: read("cockpit/session-bar.css"),
   sw: read("cockpit/sw.js"),
   manifest: read("cockpit/manifest.webmanifest"),
   rules: read("cockpit/firestore.rules"),
@@ -164,7 +165,13 @@ critical("A11Y-010", "Dictée disponible dans toutes les zones de commentaire no
 critical("VIS-001", "Modes clair/sombre présents et mémorisés", has(files.theme, /data-theme/) && has(files.theme, /bleu-massawippi-theme/) && has(files.theme, /prefers-color-scheme/), "Le mode sombre ne doit pas être un filtre visuel.");
 critical("VIS-002", "Breakpoints mobile et tablette présents", /@media\s*\(max-width:\s*700px\)/.test(files.ui + files.theme + files.source) && /@media\s*\(max-width:\s*(?:900|980|1000|1100)px\)/.test(files.ui + files.theme + files.source), "Recette obligatoire à 320, 390, 768 et 1440 px.");
 warning("VIS-003", "Protection explicite contre débordement horizontal", /overflow-x:\s*(?:hidden|clip)/.test(files.ui + files.theme + files.viewStyle + files.source), "Ne jamais masquer un débordement qui rend une commande inaccessible.");
-critical("VIS-004", "Bascule de thème compacte dans l’en-tête mobile", /#cockpit-session \.cockpit-theme-toggle\.in-session[^}]*font-size:\s*0/.test(files.theme), "Le libellé du thème ne doit pas déborder sur l’identité de session.");
+critical("VIS-004", "Commandes du thème et de version dans le flux de l’en-tête",
+  /session\?\.querySelector\("\.cockpit-session-actions"\)/.test(files.theme)
+    && /\.cockpit-session-actions\s*\{[^}]*flex-wrap:\s*wrap/.test(files.sessionStyle)
+    && /position:\s*static/.test(files.sessionStyle)
+    && /min-height:\s*44px/.test(files.sessionStyle)
+    && /@media\s*\(max-width:\s*700px\)[\s\S]*flex-basis:\s*100%/.test(files.sessionStyle),
+  "Les libellés restent lisibles; les commandes partagent une zone qui se replie sans couvrir l’identité, avec des cibles d’au moins 44 px.");
 critical("VIS-005", "Sommaire complet confiné sur téléphone", /@media\s*\(max-width:\s*780px\)[\s\S]*?\.nav\s*\{[^}]*overflow-x:\s*hidden[\s\S]*?\.nav \.wrap\s*\{[^}]*overflow-x:\s*auto/.test(files.viewStyle), "La rangée complète doit défiler dans son propre cadre sans élargir la page.");
 critical("VIS-006", "Connexion contenue dans la largeur mobile",
   /\.cockpit-login-card\s*\{[^}]*box-sizing:\s*border-box/.test(files.ui)

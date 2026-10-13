@@ -104,6 +104,7 @@ jobs:
           cp cockpit/project-list-model.mjs public/
           cp cockpit/workspace-model.mjs public/
           cp cockpit/workspace-v2.css public/
+          cp cockpit/session-bar.css public/
           cp cockpit/content-layout.js public/
           cp cockpit/calendar-export-tools.js public/
           cp cockpit/project-calendar.js public/

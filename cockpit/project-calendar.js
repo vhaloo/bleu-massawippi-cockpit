@@ -2,7 +2,7 @@ import {
   addProjectEventProposal,
   subscribeProjectCalendarEvents,
   subscribeProjectEventProposals
-} from "./firebase-client.js?v=20261011-b99";
+} from "./firebase-client.js?v=20261013-b100";
 import {
   PROJECT_EVENT_CATEGORIES,
   PROJECT_EVENT_STAGES,
@@ -14,8 +14,8 @@ import {
   monthGridDates,
   normalizeProjectEventProposal,
   projectEventIcs
-} from "./project-calendar-model.mjs?v=20261011-b99";
-import { navigateToEntity } from "./view-mode.js?v=20261011-b99";
+} from "./project-calendar-model.mjs?v=20261013-b100";
+import { navigateToEntity } from "./view-mode.js?v=20261013-b100";
 
 const calendarState = {
   profile: null,

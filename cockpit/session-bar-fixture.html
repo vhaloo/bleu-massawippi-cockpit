@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Commandes du cockpit — essai local</title>
+  <link rel="stylesheet" href="./session-bar.css">
+  <link rel="stylesheet" href="./view-mode.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.5 "Segoe UI", system-ui, sans-serif; }
+    .vm-panel { padding: 20px; }
+    .fixture-note { margin: 20px; padding: 16px; border: 1px solid; border-radius: 12px; }
+    #fixture-lifecycle { padding: 12px; display: flex; flex-wrap: wrap; gap: 10px; }
+    #fixture-lifecycle button { min-height: 44px; }
+  </style>
+  <script type="importmap">{"imports":{
+    "./firebase-client.js?v=20261013-b100":"data:text/javascript,export async function fetchPublicationHistoryPage(){return {items:[],hasMore:false}} export function subscribeAnnieRequestSource(kind,callback){callback([],{fromCache:false});return ()=>{}}",
+    "./editor-studio.js?v=20261013-b100":"data:text/javascript,export function openPublicationStudio(){}"
+  }}</script>
+</head>
+<body>
+<script type="module">
+import { fixtureHTML, fixtures, mockAPI } from "./workspace-test-fixture.mjs";
+import { mountWorkspace } from "./workspace-v2.js";
+import { setupInterfaceSwitch } from "./workspace-adapter.js";
+document.body.insertAdjacentHTML("afterbegin", fixtureHTML);
+globalThis.posts = structuredClone(fixtures);
+const query = new URLSearchParams(location.search);
+const role = query.get("role") === "director" ? "director" : "admin";
+const api = mockAPI(document, window, role);
+const note = document.createElement("p"); note.className = "fixture-note";
+note.textContent = "Démonstration locale · données synthétiques · aucun accès Firebase";
+document.querySelector("#cockpit-content").prepend(note);
+
+let heightObserver;
+function sessionFixture() {
+  heightObserver?.disconnect();
+  let session = document.querySelector("#cockpit-session");
+  if (!session) { session = document.createElement("div"); session.id = "cockpit-session"; document.body.prepend(session); }
+  session.innerHTML = '<span id="cockpit-session-label"></span><div class="cockpit-session-actions" role="group" aria-label="Commandes du cockpit"><button id="cockpit-logout" type="button">Se déconnecter</button></div>';
+  session.querySelector("#cockpit-session-label").textContent = role === "admin" ? "Connecté : Valentin · démonstration locale" : "Connectée : Annie · démonstration locale";
+  const actions = session.querySelector(".cockpit-session-actions");
+  const view = document.createElement("div"); view.id = "cockpit-view-mode-toggle"; view.className = "vm-toggle";
+  view.innerHTML = '<button type="button">Vue essentielle</button><button type="button" class="is-active">Vue complète</button>';
+  actions.prepend(view);
+  if (role === "admin") {
+    const studio = document.createElement("button"); studio.id = "cockpit-studio-launch";
+    studio.type = "button"; studio.textContent = "✎ Studio"; studio.title = "Studio — essai local";
+    studio.addEventListener("click", () => { studio.dataset.clicked = "true"; });
+    actions.insertBefore(studio, session.querySelector("#cockpit-logout"));
+  }
+  setupInterfaceSwitch(api.profile);
+  session.querySelector("#cockpit-logout").addEventListener("click", () => {
+    dispatchEvent(new CustomEvent("cockpit:session-ended")); heightObserver.disconnect(); session.remove();
+  });
+  const syncHeight = () => document.documentElement.style.setProperty("--cockpit-session-height", `${Math.ceil(session.getBoundingClientRect().height)}px`);
+  heightObserver = new ResizeObserver(syncHeight); heightObserver.observe(session); syncHeight();
+  dispatchEvent(new CustomEvent("cockpit:session-ready"));
+}
+sessionFixture();
+await import("./theme.js");
+if (query.get("interface") !== "classic") {
+  api.watchAnnieRequests = callback => {
+    callback({ comments: [], feedback: [], sources: { comments: { loaded: true, fromCache: false }, feedback: { loaded: true, fromCache: false } } });
+    return () => {};
+  };
+  mountWorkspace(api);
+}
+const controls = document.createElement("div"); controls.id = "fixture-lifecycle";
+controls.innerHTML = '<button id="fixture-reconnect">Reconnecter la démonstration</button>';
+controls.querySelector("button").onclick = sessionFixture;
+document.body.append(controls);
+</script>
+</body>
+</html>
