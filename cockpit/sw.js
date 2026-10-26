@@ -2,8 +2,8 @@
 // Cela force l’activation du nouveau service worker et purge les modules
 // précédemment mis en cache, notamment firebase-client.js.
 const CACHE_PREFIX = "bleu-massawippi-cockpit-shell-";
-const RELEASE = "20261026-b102";
-const CACHE = "bleu-massawippi-cockpit-shell-v134";
+const RELEASE = "20261026-b103";
+const CACHE = "bleu-massawippi-cockpit-shell-v135";
 const SHELL = [
   `./session-bar.css?v=${RELEASE}`,
   './annie-requests.mjs?v=20261013-v2.23', './project-list-model.mjs?v=20261013-v2.23',
