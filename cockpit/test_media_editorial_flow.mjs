@@ -3,13 +3,15 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import {parseHTML} from 'linkedom';
 import * as mediaUI from './media-choice-ui.js';
+import * as videoUI from './sharepoint-video.mjs';
+import {safeInlineMediaPreview} from './inline-media-preview.mjs';
 
 const ui=fs.readFileSync(new URL('./cockpit-ui.js',import.meta.url),'utf8');
 const client=fs.readFileSync(new URL('./firebase-client.js',import.meta.url),'utf8');
 const {document}=parseHTML('<html><body><article class="post" data-item-id="test-post"><div data-media-count></div><div data-media-nav></div><div data-media-gallery></div></article></body></html>');
 const row={id:'media-photo',eventId:'test-post',kind:'image',url:'https://example.org/photo.jpg',label:'Photo de terrain',publicationBlocked:true,rightsStatus:'droits à confirmer',archived:false};
 const state={profile:{uid:'annie',role:'director'},mediaByEvent:new Map([['test-post',[row]]]),commentsByEvent:new Map(),mediaDecisions:new Map(),workflows:new Map([['test-post',{stage:'content_approved'}]]),mediaContextLoading:new Set()};
-const context={...mediaUI,document,state,getPlanItem:()=>({}),safeMediaUrl:v=>v,mediaPreviewUrl:()=>'',stateTimestampMillis:()=>0,workflowTextApprovedStages:new Set(['content_approved']),esc:v=>String(v),mediaKindIcons:{image:'Image'},mediaStageLabels:{},canEdit:()=>true,setupMediaNavigation:()=>{},queueMicrotask};
+const context={...mediaUI,...videoUI,safeInlineMediaPreview,safeMediaPreviewUrl:v=>v,document,state,getPlanItem:()=>({}),safeMediaUrl:v=>v,mediaPreviewUrl:()=>'',stateTimestampMillis:()=>0,workflowTextApprovedStages:new Set(['content_approved']),esc:v=>String(v),mediaKindIcons:{image:'Image'},mediaStageLabels:{},canEdit:()=>true,setupMediaNavigation:()=>{},queueMicrotask};
 vm.createContext(context);
 vm.runInContext(ui.slice(ui.indexOf('function renderMediaForCard('),ui.indexOf('\nfunction setupMediaNavigation(')),context);
 const card=document.querySelector('.post');

@@ -1,5 +1,7 @@
 // Local test harness: production renderers, event handlers and mutations, memory-only transport.
 import * as mediaUI from './media-choice-ui.js';
+import * as videoUI from './sharepoint-video.mjs';
+import {safeInlineMediaPreview} from './inline-media-preview.mjs';
 import {workflowMarkup,renderWorkflowControls} from './task-progress-ui.js';
 export function installMediaValidationFixture({document,window,source,clientSource,role='admin',afterRender=()=>{}, taskError=false}) {
   const profile={uid:`test-${role}`,role,displayLabel:role==='admin'?'Communications test':'Direction test'};
@@ -14,7 +16,7 @@ export function installMediaValidationFixture({document,window,source,clientSour
   workflow.outerHTML=workflowMarkup({id:eventId});
   const events=[],archives=[],writes=[],contextActivations=[];
   const plan={id:eventId,title:'La qualité de l’eau se suit sur le terrain',date:'Jeudi 10 septembre',copy:'Texte de recette FR / EN'};
-  const env={...mediaUI,renderWorkflowControls,document,window,state,queueMicrotask,crypto:globalThis.crypto,db:{},requireWritable:()=>{},recordConfirmedWrites:()=>{},doc:(_db,collection,id)=>`${collection}/${id || 'test-archive'}`,collection:(_db,name)=>name,serverTimestamp:()=>Date.now(),
+  const env={...mediaUI,...videoUI,safeInlineMediaPreview,safeMediaPreviewUrl:v=>v,renderWorkflowControls,document,window,state,queueMicrotask,crypto:globalThis.crypto,db:{},requireWritable:()=>{},recordConfirmedWrites:()=>{},doc:(_db,collection,id)=>`${collection}/${id || 'test-archive'}`,collection:(_db,name)=>name,serverTimestamp:()=>Date.now(),
     runTransaction:async(_db,run)=>{
       const pending=[];
       const result=await run({get:async ref=>{const [collection,id]=ref.split('/');const data=collection==='mediaLinks'?state.mediaByEvent.get(eventId).find(row=>row.id===id):collection==='workflowStates'?state.workflows.get(id):state.mediaDecisions.get(id);return {exists:()=>!!data,data:()=>data};},set:(ref,data,options)=>pending.push({ref,data,options})});
