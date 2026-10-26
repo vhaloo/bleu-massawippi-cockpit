@@ -1,7 +1,7 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20261013-b101";
-import { fetchPublicationHistoryPage, subscribeAnnieRequestSource } from "./firebase-client.js?v=20261013-b101";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20261026-b102";
+import { fetchPublicationHistoryPage, subscribeAnnieRequestSource } from "./firebase-client.js?v=20261026-b102";
 import { watchAnnieRequests } from "./annie-requests.mjs?v=20261013-v2.23";
-import { openPublicationStudio } from "./editor-studio.js?v=20261013-b101";
+import { openPublicationStudio } from "./editor-studio.js?v=20261026-b102";
 import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20261013-v2.23";
 
 export function setupInterfaceSwitch(profile) {

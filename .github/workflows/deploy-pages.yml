@@ -60,6 +60,7 @@ jobs:
           npm --prefix cockpit run test:resilience
           npm --prefix cockpit run test:paginated-schedule
           npm --prefix cockpit run test:inline-media-preview
+          npm --prefix cockpit run test:sharepoint-video
       - name: Vérifier l’absence de secrets locaux
         run: |
           ! git ls-files | grep -E '(^|/)(service-account[^/]*\.json|[^/]*-service-account[^/]*\.json|firebase-config\.local\.js)$'
@@ -132,6 +133,7 @@ jobs:
           cp cockpit/firebase-client.js public/
           cp cockpit/paginated-schedule.mjs public/
           cp cockpit/inline-media-preview.mjs public/
+          cp cockpit/sharepoint-video.mjs public/
           cp cockpit/theme.js public/
           cp cockpit/motion.js public/
           cp cockpit/firebase-config.js public/

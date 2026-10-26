@@ -1,5 +1,6 @@
-import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20261013-b101";
-import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261013-b101";
+import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20261026-b102";
+import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261026-b102";
+import { sharePointVideoMarkup, patchVideoGallery, setupSharePointVideos, setupSharePointVideoLifecycle } from "./sharepoint-video.mjs?v=20261026-b102";
 import {
   getClientState,
   waitForClientReady,
@@ -40,24 +41,24 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20261013-b101";
-import { createEventContextController } from "./event-context-data.js?v=20261013-b101";
-import { mergeEventWindow } from "./event-context-window.mjs?v=20261013-b101";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20261013-b101";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20261013-b101";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20261013-b101";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20261013-b101";
-import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20261013-b101";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20261013-b101";
-import { setupSectionNavigation } from "./section-navigation.js?v=20261013-b101";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20261013-b101";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20261013-b101";
-import { setupControlHints } from "./control-hints.js?v=20261013-b101";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20261013-b101";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20261013-b101";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20261013-b101";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20261013-b101";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20261013-b101";
+} from "./firebase-client.js?v=20261026-b102";
+import { createEventContextController } from "./event-context-data.js?v=20261026-b102";
+import { mergeEventWindow } from "./event-context-window.mjs?v=20261026-b102";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20261026-b102";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20261026-b102";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20261026-b102";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20261026-b102";
+import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20261026-b102";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20261026-b102";
+import { setupSectionNavigation } from "./section-navigation.js?v=20261026-b102";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20261026-b102";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20261026-b102";
+import { setupControlHints } from "./control-hints.js?v=20261026-b102";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20261026-b102";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20261026-b102";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20261026-b102";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20261026-b102";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20261026-b102";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -204,6 +205,19 @@ style.textContent = `
   .cockpit-media-preview { position:relative; display: grid; width:100%; aspect-ratio:4 / 3; min-height:190px; place-items: center; overflow: hidden; color: #0b6077; background:#e5eff1; text-decoration: none; }
   .cockpit-media-preview:focus-visible { outline:3px solid #0b7895; outline-offset:-3px; }
   .cockpit-media-preview img { display: block; width: 100%; height: 100%; object-fit: contain; object-position:center; }
+  .cockpit-media-preview.cockpit-media-video { display:block; aspect-ratio:auto; min-height:0; background:#102f39; color:#fff; }
+  .cockpit-video-screen { position:relative; width:100%; aspect-ratio:var(--video-ratio,1.77778); min-height:220px; max-height:520px; }
+  .cockpit-video-screen iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:#102f39; }
+  .cockpit-media-video .cockpit-video-launch { position:absolute; inset:0; display:grid; place-items:center; width:100%; height:100%; margin:0; padding:0; border:0; border-radius:0; background:#102f39; color:white; cursor:pointer; overflow:hidden; }
+  .cockpit-media-video .cockpit-video-launch img { position:absolute; inset:0; width:100%; height:100%; max-height:none; object-fit:contain; opacity:.72; }
+  .cockpit-video-play { z-index:1; display:grid; place-items:center; width:64px; height:64px; padding-left:4px; border:2px solid #fff; border-radius:50%; background:rgba(9,37,45,.82); font-size:26px; box-shadow:0 3px 24px #0005; }
+  .cockpit-video-label { position:absolute; z-index:1; bottom:20px; padding:7px 14px; border-radius:20px; color:#fff; background:rgba(9,37,45,.9); font-size:14px; font-weight:750; }
+  .cockpit-video-launch:focus-visible,.cockpit-video-close:focus-visible { outline:3px solid #e4b27a; outline-offset:-4px; }
+  .cockpit-media-video .cockpit-video-close { display:block; width:100%; margin:0; padding:10px; border:0; border-radius:0; background:#214551; color:white; font-size:12px; }
+  .cockpit-media-video .cockpit-video-close[hidden] { display:none; }
+  .cockpit-video-help { padding:8px 12px; font-size:11px; line-height:1.5; color:#e0ecee; }
+  .cockpit-video-help summary { cursor:pointer; }
+  .cockpit-video-help p { margin:8px 0 2px; }
   .cockpit-media-enlarge { position:absolute; right:8px; bottom:8px; padding:5px 8px; border:1px solid rgba(255,255,255,.75); border-radius:999px; color:#fff; background:rgba(5,42,55,.82); box-shadow:0 2px 8px rgba(0,0,0,.2); font-size:.62rem; font-weight:900; }
   .cockpit-media-icon { font-size: 2rem; }
   .cockpit-media-open-label { display:block; margin-top:5px; color:#0b6077; font-size:.7rem; font-weight:900; }
@@ -1877,9 +1891,11 @@ function renderMediaForCard(card) {
     return;
   }
   const mediaDrafts = captureMediaDrafts(gallery);
-  gallery.innerHTML = rows.map((row) => {
+  const markup = rows.map((row) => {
     const url = safeMediaUrl(row.url);
     const preview = mediaPreviewUrl(row);
+    const videoPoster = safeInlineMediaPreview(row.previewDataUrl) || (/\.(?:jpe?g|png|webp|gif)(?:$|\?)/i.test(safeMediaPreviewUrl(row.previewUrl || "")) ? safeMediaPreviewUrl(row.previewUrl) : "");
+    const videoPlayer = sharePointVideoMarkup(row, videoPoster);
     const visual = preview
       ? `<img data-media-preview src="${esc(preview)}" alt="${esc(row.label || "Aperçu du média")}" loading="lazy" decoding="async" referrerpolicy="no-referrer"><span class="cockpit-media-enlarge" aria-hidden="true">Agrandir ↗</span>`
       : `<span><span class="cockpit-media-icon" aria-hidden="true">${mediaKindIcons[row.kind] || "🔗"}</span><span class="cockpit-media-open-label">Ouvrir ${row.kind === "image" ? "l’image" : "le média"}</span></span>`;
@@ -1917,7 +1933,7 @@ function renderMediaForCard(card) {
     const canOverride = !isBlocked && !choice.agreementSelected && role === "admin" && textApproved;
     const mediaUpdatedAt = stateTimestampMillis(row.updatedAt || row.createdAt);
     return `<article class="cockpit-media-card ${isFinal ? "is-final" : ""}${choice.communicationsSelected ? " is-recommended" : ""}${choice.directionSelected ? " is-direction-selected" : ""}${choice.divergent && !choice.directionSelected ? " is-divergent" : ""}" data-media-id="${esc(row.id)}" data-media-stage="${esc(row.stage || "reference")}" data-media-updated-at="${mediaUpdatedAt}" data-media-selected-final="${String(isFinal)}" data-media-communications-selected="${String(choice.communicationsSelected)}" data-media-direction-selected="${String(choice.directionSelected)}">
-      <a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>
+      ${videoPlayer || `<a class="cockpit-media-preview" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Ouvrir ${esc(row.label || "le média")} dans une nouvelle fenêtre">${visual}</a>`}
       ${["director","admin"].includes(role) && !isBlocked ? `<button type="button" class="cockpit-media-image-choice${imageChoiceClass}" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}" aria-label="${esc(imageChoiceLabel)} — ${esc(row.label || "média")}">${esc(imageChoiceLabel)}</button>` : ""}
       ${rightsNeedConfirmation ? `<p class="cockpit-media-rights-note">${rightsConfirmed ? "✓ Droits confirmés" : "Droits à vérifier · information, choix du visuel disponible"}</p>` : row.rightsStatus ? `<p class="cockpit-media-rights-note">${esc(row.rightsStatus)}</p>` : ""}
       <details class="cockpit-media-info" open><summary><span>Informations et actions</span><small class="cockpit-media-info-status ${isFinal ? "is-final" : ""}">${infoStatus}</small></summary><div class="cockpit-media-info-body">
@@ -1929,6 +1945,9 @@ function renderMediaForCard(card) {
         ${["director","admin"].includes(role) ? `<button type="button" class="cockpit-media-final-action" data-media-decision="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}" aria-pressed="${myChoiceSelected}"${isBlocked ? " disabled" : ""}>${isBlocked ? "Référence non diffusable" : chooseLabel}</button>${canOverride ? `<button type="button" class="cockpit-media-override-action" data-media-override="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Retenir ce visuel comme décision finale…</button>` : ""}<div class="cockpit-media-comment" data-voice-container><input type="text" maxlength="1000" data-media-comment="${esc(row.id)}" placeholder="Dire quelque chose sur ce média…" aria-label="Commentaire sur ${esc(row.label || "ce média")}"><button type="button" data-dictate aria-pressed="false" aria-label="Dicter un commentaire sur ce média" title="Dicter un commentaire sur ce média">🎙️</button><button type="button" data-save-media-comment="${esc(row.id)}" data-media-label="${esc(row.label || "Média OneDrive")}">Envoyer</button><div class="cockpit-voice-status" data-voice-status aria-live="polite">Cliquez sur le micro pour dicter, ou écrivez votre commentaire.</div></div>` : ""}
     </article>`;
   }).join("");
+  patchVideoGallery(gallery, markup);
+  setupSharePointVideos(gallery);
+  setupSharePointVideoLifecycle(document);
   restoreMediaDrafts(gallery, mediaDrafts);
   synchronizeMediaInfoPanels(gallery);
   gallery.querySelectorAll("img[data-media-preview]").forEach((image) => {

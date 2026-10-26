@@ -10,7 +10,7 @@ const server = http.createServer(async(req,res) => {
   try {
     const url = new URL(req.url, "http://127.0.0.1");
     const relative = decodeURIComponent(url.pathname).replace(/^\/+/, "") || "workspace-fixture.html";
-    if (!allowed.has(relative) && !/^media-previews\/[a-zA-Z0-9_./-]+\.(webp|png|jpg)$/.test(relative)) { res.writeHead(404).end(); return; }
+    if (!allowed.has(relative) && !["sharepoint-video.mjs", "inline-media-preview.mjs", "video-player-fixture.html"].includes(relative) && !/^media-previews\/[a-zA-Z0-9_./-]+\.(webp|png|jpg)$/.test(relative)) { res.writeHead(404).end(); return; }
     const target = path.resolve(root, relative);
     if (!target.startsWith(root + path.sep) || relative.split("/").includes("..")) { res.writeHead(403).end(); return; }
     const content = await fs.readFile(target);
