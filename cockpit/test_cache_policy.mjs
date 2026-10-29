@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {readCachePreference,wantsPersistentCache,CACHE_PREFERENCE_KEY} from './cache-policy.mjs';
+assert.equal(wantsPersistentCache(),true);
+assert.equal(wantsPersistentCache({preference:'persistent'}),true);
+assert.equal(wantsPersistentCache({preference:'memory'}),false);
+assert.equal(wantsPersistentCache({offline:'0'}),false);
+assert.equal(wantsPersistentCache({offline:'1',preference:'memory'}),true);
+assert.equal(wantsPersistentCache({safeMode:true,offline:'0',preference:'memory'}),true);
+assert.equal(readCachePreference({getItem:key=>{assert.equal(key,CACHE_PREFERENCE_KEY);return 'memory';}}),'memory');
+assert.equal(readCachePreference({getItem(){throw Error('stockage indisponible');}}),'memory');
+assert.equal(readCachePreference(null),null);
+console.log('Cache: réutilisation par défaut, choix mémoire, mode secours et stockage bloqué vérifiés.');

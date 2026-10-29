@@ -1,0 +1,20 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><title>Contrôle local du cache partagé</title>
+<body><h1>Contrôle local du cache partagé</h1><pre id="result">Contrôle en cours…</pre>
+<button id="memory">Choisir le mode mémoire</button><button id="forget">Effacer les données de test</button>
+<script>globalThis.COCKPIT_FIREBASE_CONFIG={apiKey:'demo-no-real-api-key',authDomain:'demo-cache.invalid',projectId:'demo-cockpit-cache-audit-20261029',messagingSenderId:'1234567890',appId:'demo:cache:local-only'};</script>
+<script type="module">
+import {getClientState,setPersistentCachePreference,forgetThisDevice} from '../firebase-client.js?v=20261029-b104';
+import {disableNetwork,doc,setDoc,getDocFromCache} from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+const out=document.querySelector('#result');
+try{
+ const {db,persistenceState,persistentCacheRequested}=getClientState();
+ await disableNetwork(db); // Fake project and no request to any Firestore server.
+ const ref=doc(db,'localOnly','cache-proof');
+ const mode=new URL(location.href).searchParams.get('mode')||'read';
+ if(mode==='write')setDoc(ref,{marker:'audit-offline-20261029'}).catch(()=>{});
+ let marker='absent';try{marker=(await getDocFromCache(ref)).data()?.marker||'absent';}catch{}
+ out.textContent=JSON.stringify({persistenceState,persistentCacheRequested,network:'disabled',mode,marker},null,2);
+ document.querySelector('#memory').onclick=()=>{setPersistentCachePreference(false);location.href='?mode=read';};
+ document.querySelector('#forget').onclick=async()=>{await forgetThisDevice();out.textContent='Données de test effacées';};
+}catch(e){out.textContent='ERREUR: '+e.message;}
+</script></body></html>

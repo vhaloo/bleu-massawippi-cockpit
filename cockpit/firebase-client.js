@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261026-b103";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261029-b104";
+import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache } from "./cache-policy.mjs?v=20261029-b104";
 import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261013-v2.23";
 import {
   getAuth,
@@ -37,10 +38,10 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261026-b103";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261026-b103";
-import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261026-b103";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261026-b103";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261029-b104";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261029-b104";
+import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261029-b104";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261029-b104";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -53,13 +54,14 @@ let app;
 let auth;
 let db;
 let persistenceState = "not-configured";
-const CACHE_PREFERENCE_KEY = "bleu-massawippi-firestore-cache-v1";
 const SAFE_MODE_QUERY_KEY = "safe";
 const queryParameters = typeof location !== "undefined" ? new URLSearchParams(location.search) : new URLSearchParams();
 const safeModeRequested = queryParameters.get(SAFE_MODE_QUERY_KEY) === "1";
-const persistentCacheRequested = safeModeRequested
-  || queryParameters.get("offline") === "1"
-  || (typeof localStorage !== "undefined" && localStorage.getItem(CACHE_PREFERENCE_KEY) === "persistent");
+const persistentCacheRequested = wantsPersistentCache({
+  safeMode: safeModeRequested,
+  offline: queryParameters.get("offline") || "",
+  preference: readCachePreference(typeof localStorage !== "undefined" ? localStorage : null)
+});
 let networkReady = Promise.resolve();
 let listenerSequence = 0;
 const diagnosticSubscribers = new Set();
@@ -164,9 +166,8 @@ if (configured) {
       });
       persistenceState = "enabled";
     } else {
-      // Le mode mémoire évite le verrou exclusif IndexedDB lorsque plusieurs
-      // onglets du cockpit sont ouverts. L’authentification reste persistante;
-      // seules les données Firestore sont relues du serveur à chaque onglet.
+      // Memory-only remains available on request. Normal sessions share the
+      // persistent multi-tab cache to avoid downloading unchanged previews again.
       db = initializeFirestore(app, { localCache: memoryLocalCache() });
       persistenceState = "memory";
     }
@@ -280,7 +281,7 @@ export function subscribeClientDiagnostics(callback) {
 export function setPersistentCachePreference(enabled) {
   if (typeof localStorage === "undefined") return;
   if (enabled) localStorage.setItem(CACHE_PREFERENCE_KEY, "persistent");
-  else localStorage.removeItem(CACHE_PREFERENCE_KEY);
+  else localStorage.setItem(CACHE_PREFERENCE_KEY, "memory");
 }
 
 export function requestSafeMode(enabled) {
@@ -297,7 +298,7 @@ export async function forgetThisDevice() {
   try { await disableNetwork(db); } catch (error) { recordClientError(error); }
   await terminate(db);
   await clearIndexedDbPersistence(db);
-  if (typeof localStorage !== "undefined") localStorage.removeItem(CACHE_PREFERENCE_KEY);
+  if (typeof localStorage !== "undefined") localStorage.setItem(CACHE_PREFERENCE_KEY, "memory");
   diagnostics.networkState = "cleared";
   diagnostics.persistenceState = "cleared";
   emitDiagnostics();
