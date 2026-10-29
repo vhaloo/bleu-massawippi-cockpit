@@ -131,6 +131,7 @@ jobs:
           cp cockpit/view-mode.js public/
           cp cockpit/view-mode.css public/
           cp cockpit/firebase-client.js public/
+          cp cockpit/cache-policy.mjs public/
           cp cockpit/paginated-schedule.mjs public/
           cp cockpit/inline-media-preview.mjs public/
           cp cockpit/sharepoint-video.mjs public/
