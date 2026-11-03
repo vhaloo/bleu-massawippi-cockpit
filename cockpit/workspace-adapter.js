@@ -1,8 +1,8 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20261029-b104";
-import { fetchPublicationHistoryPage, subscribeAnnieRequestSource } from "./firebase-client.js?v=20261029-b104";
-import { watchAnnieRequests } from "./annie-requests.mjs?v=20261013-v2.23";
-import { openPublicationStudio } from "./editor-studio.js?v=20261029-b104";
-import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20261013-v2.23";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20261102-b105";
+import { fetchPublicationHistoryPage, subscribeAnnieRequestSource, fetchPhilanthropyDashboard, fetchPhilanthropyTrackingState, setOpportunityStage } from "./firebase-client.js?v=20261102-b105";
+import { watchAnnieRequests } from "./annie-requests.mjs?v=20261102-v2.24";
+import { openPublicationStudio } from "./editor-studio.js?v=20261102-b105";
+import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20261102-v2.24";
 
 export function setupInterfaceSwitch(profile) {
   if (!profile?.uid) return;
@@ -18,6 +18,8 @@ export function setupInterfaceSwitch(profile) {
   link.textContent = isV2 ? "↔ Version classique" : "↔ Version 2";
   link.title = isV2 ? "Revenir à la version classique, avec les mêmes textes, médias, commentaires et validations. Enregistrez vos saisies en cours avant de changer d’interface." : "Ouvrir la nouvelle interface. Vous pourrez revenir ici à tout moment; vos dossiers et vos droits restent les mêmes. Enregistrez vos saisies en cours avant de changer d’interface.";
   const update = () => { link.href = interfaceUrl(location.href, isV2 ? "classic" : "v2", (globalThis.posts || []).map(p => p.id)); };
+  let philanthropyLink = session.querySelector("#cockpit-philanthropy-link");
+  if (!philanthropyLink && !isV2) { philanthropyLink = document.createElement("a"); philanthropyLink.id = "cockpit-philanthropy-link"; philanthropyLink.textContent = "Philanthropie"; philanthropyLink.title = "Résultats, objectifs, pistes, suivi et documents de financement"; const target = new URL(location.href); target.searchParams.set("interface","v2"); target.hash = "#/philanthropie"; philanthropyLink.href = target.href; link.before(philanthropyLink); }
   update(); link.onpointerenter = update; link.onfocus = update; link.onclick = update;
 }
 
@@ -27,11 +29,13 @@ export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, me
   try {
     const entry = interfaceUrl(location.href, "v2", (globalThis.posts || []).map(post => post.id));
     if (entry !== location.href) history.replaceState(history.state, "", entry);
-    const { mountWorkspace } = await import("./workspace-v2.js?v=20261013-v2.23");
+    const { mountWorkspace } = await import("./workspace-v2.js?v=20261102-v2.24");
     return mountWorkspace({
       profile,
       watchAnnieRequests: onUpdate => watchAnnieRequests({ subscribe: subscribeAnnieRequestSource, onUpdate }),
       getProjectState: (id, opportunity) => (opportunity ? state.opportunities : state.internalProjects)?.get(id),
+      loadPhilanthropy: fetchPhilanthropyDashboard,
+      savePhilanthropyStage: async (id, stage) => { await setOpportunityStage(id, stage, profile); return fetchPhilanthropyTrackingState(id); },
       getPosts: () => globalThis.posts || [],
       getOriginalPost: id => state.basePosts.find(post => post.id === id),
       getWorkflow: id => state.workflows.get(id),

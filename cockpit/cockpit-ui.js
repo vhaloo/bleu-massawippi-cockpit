@@ -1,6 +1,6 @@
-import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20261029-b104";
-import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261029-b104";
-import { sharePointVideoMarkup, patchVideoGallery, setupSharePointVideos, setupSharePointVideoLifecycle } from "./sharepoint-video.mjs?v=20261029-b104";
+import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20261102-b105";
+import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261102-b105";
+import { sharePointVideoMarkup, patchVideoGallery, setupSharePointVideos, setupSharePointVideoLifecycle } from "./sharepoint-video.mjs?v=20261102-b105";
 import {
   getClientState,
   waitForClientReady,
@@ -41,24 +41,24 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20261029-b104";
-import { createEventContextController } from "./event-context-data.js?v=20261029-b104";
-import { mergeEventWindow } from "./event-context-window.mjs?v=20261029-b104";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20261029-b104";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20261029-b104";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20261029-b104";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20261029-b104";
-import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20261029-b104";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20261029-b104";
-import { setupSectionNavigation } from "./section-navigation.js?v=20261029-b104";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20261029-b104";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20261029-b104";
-import { setupControlHints } from "./control-hints.js?v=20261029-b104";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20261029-b104";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20261029-b104";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20261029-b104";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20261029-b104";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20261029-b104";
+} from "./firebase-client.js?v=20261102-b105";
+import { createEventContextController } from "./event-context-data.js?v=20261102-b105";
+import { mergeEventWindow } from "./event-context-window.mjs?v=20261102-b105";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20261102-b105";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20261102-b105";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20261102-b105";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20261102-b105";
+import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20261102-b105";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20261102-b105";
+import { setupSectionNavigation } from "./section-navigation.js?v=20261102-b105";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20261102-b105";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20261102-b105";
+import { setupControlHints } from "./control-hints.js?v=20261102-b105";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20261102-b105";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20261102-b105";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20261102-b105";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20261102-b105";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20261102-b105";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -2986,7 +2986,7 @@ async function applyProfile(profile) {
   syncCardAccess();
   workspaceV2?.destroy(); workspaceV2 = null;
   try {
-    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20261013-v2.23");
+    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20261102-v2.24");
     setupInterfaceSwitch(profile);
     workspaceV2 = await setupWorkspaceV2(profile, { state, enhanceCards, toast, mediaPreview: mediaPreviewUrl });
   } catch { toast("La V2 est indisponible; le cockpit classique reste actif.", true); }

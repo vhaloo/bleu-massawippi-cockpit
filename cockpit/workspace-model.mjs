@@ -1,12 +1,14 @@
 /** Pure presentation model. Never changes a date, approval, or source object. */
-export const WORKSPACE_VERSION = "20261013-v2.23";
+export const WORKSPACE_VERSION = "20261102-v2.24";
 export const SPACES = Object.freeze({
   accueil: { label: "À faire", icon: "decisions", title: "Un peu de clarté pour avancer.", description: "Vos décisions, les nouveautés et le travail qui vous attend." },
   publications: { label: "Publications", icon: "publications", title: "Les mots et les images du lac.", description: "Le calendrier des réseaux sociaux et des infolettres, les propositions et leur historique." },
   projets: { label: "Projets", icon: "folder", title: "Chaque dossier, à sa place.", description: "Les projets, leurs échéances, leurs documents et les décisions à prendre." },
+  philanthropie: { label: "Philanthropie", icon: "heart", title: "Philanthropie", description: "Les résultats, les objectifs et les leviers pour financer la mission dans la durée." },
   bibliotheque: { label: "Bibliothèque", icon: "library", title: "Retrouver le bon document.", description: "Les références du cockpit restent liées à leur dossier et à leur original." }
 });
 const ICONS = Object.freeze({
+  heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',
   decisions: '<path d="M9 5h11M9 12h11M9 19h11M2 5l2 2 3-4M2 12l2 2 3-4M2 19l2 2 3-4"/>',
   publications: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="m4 16 5-5 4 4 3-3 4 4M7 7h.01"/>',
   folder: '<path d="M3 6a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v10H3Z"/>',

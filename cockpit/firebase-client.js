@@ -1,7 +1,7 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261029-b104";
-import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache } from "./cache-policy.mjs?v=20261029-b104";
-import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261013-v2.23";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261102-b105";
+import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache } from "./cache-policy.mjs?v=20261102-b105";
+import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261102-v2.24";
 import {
   getAuth,
   setPersistence,
@@ -38,10 +38,10 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261029-b104";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261029-b104";
-import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261029-b104";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261029-b104";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261102-b105";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261102-b105";
+import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261102-b105";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261102-b105";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -781,6 +781,28 @@ export function subscribeWorkflowStates(callback, onError) {
 }
 
 const opportunityStages = new Set(["watch", "research", "active", "submitted", "completed"]);
+
+export async function fetchPhilanthropyDashboard() {
+  requireConfigured();
+  const snapshot = await withTimeout(getDoc(doc(db, "privateContent", "philanthropie")), "Les repères de philanthropie ne répondent pas. Réessayez.");
+  if (!snapshot.exists()) throw new Error("Les repères de philanthropie ne sont pas encore disponibles.");
+  const data = snapshot.data();
+  const ids = [...new Set([...(data.actions || []).map(x=>x.stateId),...(data.watchlist || []).map(x=>x.id)])].filter(id=>/^[a-z0-9-]{3,80}$/i.test(id));
+  if (ids.length > 40) throw new Error("Le portefeuille de suivi dépasse la borne prévue.");
+  const trackingStates = {};
+  for (let offset = 0; offset < ids.length; offset += 10) {
+    const states = await withTimeout(getDocs(query(collection(db,"opportunityStates"),where("opportunityId","in",ids.slice(offset,offset+10)),limit(10))), "Le suivi des démarches ne répond pas. Réessayez.");
+    states.docs.forEach(item=>{trackingStates[item.id]=item.data();});
+  }
+  return {...data,trackingStates};
+}
+
+export async function fetchPhilanthropyTrackingState(id) {
+  requireConfigured();
+  if (!/^philanthropie-[a-z0-9-]{3,60}$/.test(String(id || ""))) throw new Error("Démarche invalide.");
+  const snapshot = await getDoc(doc(db,"opportunityStates",id));
+  return snapshot.exists() ? snapshot.data() : null;
+}
 
 export async function setOpportunityStage(opportunityId, stage, profile) {
   requireWritable();

@@ -171,7 +171,7 @@ check('messages et actions accessibles directement depuis chaque espace',()=>{
     assert(document.querySelector('.v2-global-actions a[href="#/accueil/decisions"]'));
   }
 });
-check("montage de la V2 et quatre espaces",()=>{assert.equal(document.documentElement.dataset.workspace,"v2");assert.equal(document.querySelectorAll("[data-v2-space]").length,4);});
+check("montage de la V2 et cinq espaces",()=>{assert.equal(document.documentElement.dataset.workspace,"v2");assert.equal(document.querySelectorAll("[data-v2-space]").length,5);assert(document.querySelector('[data-v2-space="philanthropie"]'));});
 check("outils originaux regroupés sans superposition ni perte de gestionnaire",()=>{assert(utility.closest('.v2-utilities'));utility.click();assert.equal(utilityClicks,1);assert(!utility.closest('details').open);});
 check("boîte à idées accessible directement, hors des outils repliés", () => {
   assert(ideas.launch.closest('.v2-global-actions')); assert(!ideas.launch.closest('details'));
