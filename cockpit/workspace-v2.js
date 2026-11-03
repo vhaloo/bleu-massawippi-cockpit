@@ -1,6 +1,8 @@
-import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261013-v2.23";
-import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261013-v2.23";
-import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261013-v2.23";
+import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261102-v2.24";
+import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261102-v2.24";
+import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261102-v2.24";
+
+import { mountPhilanthropy } from "./philanthropy-ui.mjs?v=20261102-v1";
 
 /** Default presentation adapter. Existing DOM controls remain the only writers. */
 export function mountWorkspace(api) {
@@ -35,6 +37,9 @@ export function mountWorkspace(api) {
   const toolbar = shell.querySelector("[data-v2-toolbar]");
   const panel = shell.querySelector("[data-v2-panel]");
   const note = shell.querySelector("[data-v2-note]");
+  const philanthropyHost = doc.createElement("section"); philanthropyHost.className = "philanthropy-workspace"; philanthropyHost.hidden = true; panel.after(philanthropyHost);
+  const philanthropyCss = doc.createElement("link"); philanthropyCss.rel = "stylesheet"; philanthropyCss.href = new URL("./philanthropy.css?v=20261102-v1", import.meta.url).href; doc.head.append(philanthropyCss);
+  const philanthropy = mountPhilanthropy({root:philanthropyHost, api, profile:api.profile, window:win});
   const cardFor = id => all(".post[data-item-id]", host).find(node => node.dataset.itemId === id);
   const projectFor = id => all(".internal-project,.opportunity", host).find(node => (node.dataset.internalProjectId || node.dataset.opportunityId) === id || node.id === id);
   let requestPanel, stopRequests;
@@ -361,6 +366,7 @@ export function mountWorkspace(api) {
     const r = state.route; const space = SPACES[r.space];
     all(".v2-classic-link,.v2-portable-tools a", shell).forEach(link => { link.href = interfaceUrl(win.location.href, "classic", (api.getPosts?.() || []).map(p => p.id)); });
     resetVisibility(); toolbar.replaceChildren(); panel.replaceChildren();
+    philanthropyHost.hidden = r.space !== "philanthropie"; panel.hidden = r.space === "philanthropie";
     note.textContent = "Version 2 · données partagées avec le cockpit classique.";
     note.title = "Les commentaires, choix et validations sont réels et restent visibles dans les deux interfaces. Aucun contenu n’est envoyé aux réseaux sociaux.";
     shell.dataset.space = r.space; heading.textContent = space.title; description.textContent = space.description;
@@ -391,6 +397,7 @@ export function mountWorkspace(api) {
       if (project) { reveal(project); heading.textContent = project.querySelector("summary strong")?.textContent || "Projet"; description.textContent = project.classList.contains("is-archived") ? "Dossier archivé · consultation sans réactivation" : "Synthèse, actions, documents et échanges"; toolbar.innerHTML = `<div class="v2-detail-toolbar">${anchor("← Tous les projets", "projets")}${anchor("Calendrier des projets", "projets", "", "calendrier")}<button type="button" data-v2-project-docs title="Afficher les documents et liens conservés dans ce dossier">Documents de ce projet ↓</button></div>`; }
       else panel.innerHTML = '<p role="alert">Ce projet n’est pas chargé. Revenez à la liste pour le retrouver.</p>';
     } else if (r.space === "projets") renderProjects(r.view || "actifs");
+    else if (r.space === "philanthropie") philanthropy.show(r.view || "ensemble");
     else if (r.space === "bibliotheque" && r.id) { const target = doc.getElementById(r.id); reveal(target); heading.textContent = target?.querySelector("h2,h3,summary")?.textContent || "Guide et méthode"; toolbar.innerHTML = anchor("← Guides et méthodes", "bibliotheque", "", "guides"); }
     else renderLibrary(r.view || "documents");
     if (!(r.space === "publications" && r.id)) state.lastEntity = "";
@@ -467,7 +474,7 @@ export function mountWorkspace(api) {
   if (desktop) on(desktop,"change",watchRequests);
   on(win,"online",renderRequests); on(win,"offline",renderRequests); watchRequests();
   return { refresh: scheduleRender, navigate: go, destroy() {
-    state.disposed = true; stopRequests?.(); delete doc.documentElement.dataset.anniePanel; win.clearTimeout(state.timer); observer.disconnect(); listeners.forEach(remove => remove());
+    state.disposed = true; philanthropy.destroy(); philanthropyCss.remove(); stopRequests?.(); delete doc.documentElement.dataset.anniePanel; win.clearTimeout(state.timer); observer.disconnect(); listeners.forEach(remove => remove());
     for (const { node, marker } of state.moves.reverse()) { if (marker.isConnected) { marker.replaceWith(node); } }
     all(".v2-publication-body,.v2-thumbnails", host).forEach(node => node.remove());
     all("[data-v2-prepared],[data-v2-slide-hidden],[data-v2-concealed],[data-v2-target],[data-v2-path]", host).forEach(node => ["data-v2-prepared", "data-v2-slide-hidden", "data-v2-concealed", "data-v2-target", "data-v2-path"].forEach(attr => node.removeAttribute(attr)));

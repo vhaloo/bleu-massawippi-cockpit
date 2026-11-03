@@ -56,6 +56,7 @@ jobs:
           npm --prefix cockpit run test:media-rules
           npm --prefix cockpit run test:view-mode
           npm --prefix cockpit run test:workspace-v2
+          npm --prefix cockpit run test:philanthropy
           npm --prefix cockpit run test:theme
           npm --prefix cockpit run test:resilience
           npm --prefix cockpit run test:paginated-schedule
@@ -101,6 +102,9 @@ jobs:
           cp cockpit/editorial-cycle-guard.mjs public/
           cp cockpit/workspace-adapter.js public/
           cp cockpit/workspace-v2.js public/
+          cp cockpit/philanthropy-ui.mjs public/
+          cp cockpit/philanthropy-model.mjs public/
+          cp cockpit/philanthropy.css public/
           cp cockpit/annie-requests.mjs public/
           cp cockpit/project-list-model.mjs public/
           cp cockpit/workspace-model.mjs public/

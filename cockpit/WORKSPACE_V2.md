@@ -4,7 +4,7 @@
 
 - Par défaut après connexion : la V2, sur « À faire » si aucun lien direct n’est demandé. Les liens `?interface=v2` existants restent valides.
 - Version classique : bouton « Version classique » ou `?interface=classic`; ce choix explicite est conservé lors du rechargement de ce lien. Les bascules conservent la fiche ciblée.
-- Routes : `#/accueil`, `#/publications`, `#/projets`, `#/bibliotheque`.
+- Routes : `#/accueil`, `#/publications`, `#/projets`, `#/philanthropie`, `#/bibliotheque`.
 - Deux calendriers indépendants : `#/publications?vue=calendrier` et `#/projets?vue=calendrier`.
 - Le lien « Version classique » précise `interface=classic`. Il ne restaure pas une ancienne base de données.
 - La barre de session propose la bascule à tout compte autorisé, y compris la direction; le retour conserve la publication consultée. Enregistrer les saisies en cours avant un changement complet d’interface.
@@ -83,7 +83,17 @@ La dictée est conservée avec son repli clavier. Elle dépend des capacités du
 
 La matrice d’audit des 64 capacités reste le registre de suivi. Les tests du pilote prouvent les invariants et parcours couverts, pas une garantie absolue d’absence de tout défaut.
 
-## Rollback
+## Philanthropie — 2 novembre 2026
+
+Une section commune réunit la vue d’ensemble, les leviers, le plan d’action, les programmes, le simulateur et les documents. Les données financières et leurs sources sont exclusivement dans `privateContent/philanthropie`, lisible après connexion selon les droits existants. Aucun montant privé, contact, registre ou document interne n’est incorporé aux modules publics ni aux fixtures. La lecture est déclenchée seulement à l’ouverture de la section, une fois par consultation ou sur Actualiser; aucun listener supplémentaire par ligne.
+
+Les comparaisons annuelles portent sur des exercices de même durée. Les données provisoires affichent leur période et leur source. Les encaissements, sommes attendues, objectifs, dons en nature et hypothèses restent distincts. Le simulateur est local à la consultation et ne modifie pas les chiffres constatés. Les exports d’actions et de documents utilisent les mêmes filtres que l’affichage.
+
+Le suivi des démarches utilise `opportunityStates/philanthropie-*` via `setOpportunityStage`, avec les rôles et archives existants. Seul un clic explicite Enregistrer modifie l’étape; aucun envoi, accord éditorial ou financement obtenu n’en est déduit. Les dossiers de programmes déjà présents restent reliés à leurs projets et à leurs états existants. Le lien Philanthropie est disponible aussi dans la barre classique et ouvre la même section V2.
+
+`npm run test:philanthropy` couvre les calculs, scénarios, filtres, exports, chargement à la demande, erreurs, rôles et suivi explicite. Le serveur local standard utilise uniquement une fixture synthétique; les données réelles ne vont pas dans Git. Le document privé est versionné et peut être retiré indépendamment du code de présentation. Aucune migration ni nouvelle règle Firestore n’est nécessaire.
+
+## Rollback du pilote
 
 1. Revenir à la version classique : pas de migration, aucun retour en arrière des commentaires ou choix.
 2. Pour retirer techniquement le pilote, revert du commit de livraison puis nouvelle version de shell/cache; ne jamais réimporter une vieille base.
