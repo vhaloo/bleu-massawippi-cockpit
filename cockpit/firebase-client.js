@@ -1,7 +1,7 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261105-b107";
-import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache } from "./cache-policy.mjs?v=20261105-b107";
-import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261105-v2.26";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261105-b108";
+import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery } from "./cache-policy.mjs?v=20261105-b108";
+import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261105-v2.27";
 import {
   getAuth,
   setPersistence,
@@ -38,11 +38,11 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261105-b107";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261105-b107";
-import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261105-b107";
-import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261105-b107";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261105-b107";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261105-b108";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261105-b108";
+import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261105-b108";
+import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261105-b108";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261105-b108";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -58,10 +58,14 @@ let persistenceState = "not-configured";
 const SAFE_MODE_QUERY_KEY = "safe";
 const queryParameters = typeof location !== "undefined" ? new URLSearchParams(location.search) : new URLSearchParams();
 const safeModeRequested = queryParameters.get(SAFE_MODE_QUERY_KEY) === "1";
+const authCacheRecoveryStorage = (() => {
+  try { return globalThis.sessionStorage || null; } catch { return null; }
+})();
 const persistentCacheRequested = wantsPersistentCache({
   safeMode: safeModeRequested,
   offline: queryParameters.get("offline") || "",
-  preference: readCachePreference(typeof localStorage !== "undefined" ? localStorage : null)
+  preference: readAuthCacheRecovery(authCacheRecoveryStorage) ? "memory"
+    : readCachePreference(typeof localStorage !== "undefined" ? localStorage : null)
 });
 let networkReady = Promise.resolve();
 let listenerSequence = 0;
@@ -256,6 +260,16 @@ async function getProfile(user) {
 
 export function getClientState() {
   return { configured, persistenceState, persistentCacheRequested, safeMode: safeModeRequested, auth, db };
+}
+
+export function requestProfileCacheRecovery(error) {
+  return prepareAuthCacheRecovery({
+    storage: authCacheRecoveryStorage,
+    persistentCacheRequested,
+    safeMode: safeModeRequested,
+    offline: queryParameters.get("offline") || "",
+    error
+  });
 }
 
 export async function waitForClientReady() {
