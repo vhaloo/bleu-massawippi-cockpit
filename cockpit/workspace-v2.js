@@ -405,10 +405,10 @@ export function mountWorkspace(api) {
     if (focus) { heading.focus({ preventScroll: true }); win.scrollTo?.({ top: 0, behavior: "instant" }); announce(`${SPACES[r.space].label} · ${heading.textContent}`); }
   }
   function scheduleRender() { if (!state.timer) state.timer = win.setTimeout(() => { state.timer = 0; render(); }, 100); }
-  function go(hash) {
+  function go(hash, { focus = true } = {}) {
     const currentKey = win.location.hash; state.scrolls.set(currentKey, win.scrollY || 0);
     state.route = parseRoute(hash); state.query = ""; state.status = "all";
-    win.history.pushState(null, "", hash); render({ focus: true });
+    win.history.pushState(null, "", hash); render({ focus });
   }
   function routeForTarget(type, id) {
     if (type === "schedule" || type === "publication" || cardFor(id) || api.getPosts?.().some(p => p.id === id)) return routeHash("publications", id);
@@ -423,7 +423,7 @@ export function mountWorkspace(api) {
       e.preventDefault(); e.stopImmediatePropagation(); onClick(e); return;
     }
     const direct = e.target.closest?.("a[data-v2-route]");
-    if (direct) { e.preventDefault(); e.stopImmediatePropagation(); go(direct.getAttribute("href")); return; }
+    if (direct) { e.preventDefault(); e.stopImmediatePropagation(); const philanthropyTab = direct.getAttribute("role") === "tab" && direct.closest(".phi-tabs"); go(direct.getAttribute("href"), { focus: !philanthropyTab }); if (philanthropyTab) philanthropyHost.querySelector('[role="tab"][aria-selected="true"]')?.focus({ preventScroll: true }); return; }
     const target = e.target.closest?.("[data-vm-target],[data-open-task],[data-open-related-project],[data-open-monthly-post]");
     if (target) { const id = target.dataset.vmTarget || target.dataset.taskTarget || target.dataset.openRelatedProject || target.dataset.openMonthlyPost || ""; const type = target.dataset.vmEntityType || target.dataset.taskTargetType || (target.dataset.openRelatedProject ? "project" : "schedule"); const hash = routeForTarget(type, id); if (hash) { e.preventDefault(); if (target.dataset.vmMedia) state.galleryIndex.set(id, target.dataset.vmMedia); go(hash); if (!target.hasAttribute("data-vm-target")) e.stopImmediatePropagation(); return; } }
     const link = e.target.closest?.('a[href^="#"]');
