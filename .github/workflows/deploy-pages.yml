@@ -57,6 +57,7 @@ jobs:
           npm --prefix cockpit run test:view-mode
           npm --prefix cockpit run test:workspace-v2
           npm --prefix cockpit run test:philanthropy
+          npm --prefix cockpit run test:members
           npm --prefix cockpit run test:theme
           npm --prefix cockpit run test:resilience
           npm --prefix cockpit run test:paginated-schedule
@@ -104,6 +105,8 @@ jobs:
           cp cockpit/workspace-v2.js public/
           cp cockpit/philanthropy-ui.mjs public/
           cp cockpit/philanthropy-model.mjs public/
+          cp cockpit/members-model.mjs public/
+          cp cockpit/members-ui.mjs public/
           cp cockpit/philanthropy.css public/
           cp cockpit/annie-requests.mjs public/
           cp cockpit/project-list-model.mjs public/

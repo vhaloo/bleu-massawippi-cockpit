@@ -1,5 +1,5 @@
 /** Private evidence stays in Firestore. This module contains presentation rules only. */
-export const PHILANTHROPY_VIEWS = Object.freeze({ensemble:'Vue d’ensemble', leviers:'Leviers', actions:'Plan d’action', programmes:'Programmes', scenarios:'Simulateur', documents:'Documents'});
+export const PHILANTHROPY_VIEWS = Object.freeze({ensemble:'Vue d’ensemble', membres:'Membres', leviers:'Leviers', actions:'Plan d’action', programmes:'Programmes', scenarios:'Simulateur', documents:'Documents'});
 export const PHILANTHROPY_STAGES = Object.freeze({watch:'Proposition', research:'À approfondir', active:'En cours', submitted:'Transmis', completed:'Clos'});
 export const normalizeSearch = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 export const escape = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
