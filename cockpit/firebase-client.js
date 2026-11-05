@@ -1,7 +1,7 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261103-b106";
-import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache } from "./cache-policy.mjs?v=20261103-b106";
-import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261103-v2.25";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261105-b107";
+import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache } from "./cache-policy.mjs?v=20261105-b107";
+import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261105-v2.26";
 import {
   getAuth,
   setPersistence,
@@ -38,10 +38,11 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261103-b106";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261103-b106";
-import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261103-b106";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261103-b106";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261105-b107";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261105-b107";
+import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261105-b107";
+import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261105-b107";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261105-b107";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -242,20 +243,15 @@ async function getProfile(user) {
     active: false
   };
   if (!db) return fallback;
-  try {
-    const snapshot = await withTimeout(getDoc(doc(db, "users", user.uid)), "Le profil Firebase ne répond pas.");
-    if (!snapshot.exists()) return fallback;
-    const profile = { ...fallback, ...snapshot.data(), uid: user.uid };
-    return {
-      ...profile,
-      role: roles.has(profile.role) ? profile.role : "viewer",
-      active: profile.active === true,
-      displayLabel: String(profile.displayLabel || fallback.displayLabel).slice(0, 120)
-    };
-  } catch (error) {
-    console.warn("Profil Firebase indisponible", error);
-    throw error;
-  }
+  const snapshot = await withTimeout(getDoc(doc(db, "users", user.uid)), "Le profil Firebase ne répond pas.");
+  if (!snapshot.exists()) return fallback;
+  const profile = { ...fallback, ...snapshot.data(), uid: user.uid };
+  return {
+    ...profile,
+    role: roles.has(profile.role) ? profile.role : "viewer",
+    active: profile.active === true,
+    displayLabel: String(profile.displayLabel || fallback.displayLabel).slice(0, 120)
+  };
 }
 
 export function getClientState() {
@@ -336,14 +332,13 @@ export function observeAuth(callback) {
     callback(null, null, new Error("Firebase non configuré."));
     return () => {};
   }
-  return onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      callback(null, null, null);
-      return;
-    }
-    getProfile(user)
-      .then((profile) => callback(user, profile, null))
-      .catch((error) => callback(user, null, error));
+  return observeAuthProfiles({
+    subscribe: (listener) => onAuthStateChanged(auth, listener),
+    getCurrentUser: () => auth.currentUser,
+    readProfile: getProfile,
+    refreshToken: (user) => withTimeout(user.getIdToken(true), "Le renouvellement de la session ne répond pas. Réessayez."),
+    callback,
+    onFailure: (error) => console.warn("Profil Firebase indisponible", error)
   });
 }
 
