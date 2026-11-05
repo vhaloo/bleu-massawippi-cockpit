@@ -33,6 +33,30 @@ def name_key(value):
     return " ".join(sorted(re.findall(r"[a-z0-9]+", "".join(c for c in value if not unicodedata.combining(c)))))
 
 
+def resolve_legacy_ids(rows, history):
+    by_name = defaultdict(list)
+    index = {row["id"]: row for row in rows}
+    for row in rows:
+        by_name[name_key(row["name"])].append(row["id"])
+    result = {}
+    for h in history:
+        if not text(h[0]).startswith("AP-") or text(h[7]) not in ["FR", "EN", "À confirmer"]:
+            continue
+        possible = list(by_name[name_key(text(h[1]) + " " + text(h[2]))])
+        if len(possible) > 1 and text(h[4]):
+            email_matches = [cid for cid in possible if index[cid]["email"].casefold() == text(h[4]).casefold()]
+            if len(email_matches) == 1:
+                possible = email_matches
+        if len(possible) > 1 and text(h[3]):
+            phone = re.sub(r"\D", "", text(h[3]))[-10:]
+            phone_matches = [cid for cid in possible if re.sub(r"\D", "", index[cid]["phone"])[-10:] == phone]
+            if len(phone) == 10 and len(phone_matches) == 1:
+                possible = phone_matches
+        if len(possible) == 1:
+            result[text(h[0])] = possible[0]
+    return result
+
+
 def build(workbook, metadata):
     import openpyxl
     blob = workbook.read_bytes()
@@ -79,15 +103,7 @@ def build(workbook, metadata):
             "sourceRow": source_row})
     # Historique includes several old layouts. Keep their actual headers and
     # section names, rather than reinterpreting all rows as a single table.
-    by_name = defaultdict(list)
-    for row in rows:
-        by_name[name_key(row["name"])].append(row["id"])
-    legacy_ids = {}
-    for h in history:
-        if text(h[0]).startswith("AP-") and text(h[7]) in ["FR", "EN", "À confirmer"]:
-            possible = by_name[name_key(text(h[1]) + " " + text(h[2]))]
-            if len(possible) == 1:
-                legacy_ids[text(h[0])] = possible[0]
+    legacy_ids = resolve_legacy_ids(rows, history)
     section, headers, history_count = "Historique", [], 0
     for source_row, h in enumerate(history, 1):
         first = text(h[0])
@@ -131,7 +147,8 @@ def build(workbook, metadata):
         r["hasInKind"] = any((p["netCents"] or 0) > 0 and p["kind"] == "Nature" for p in r["payments"])
         r["needsReview"] = bool(r["identityNote"] or r["related"])
         r["payments"].sort(key=lambda p: (p["date"], p["key"]), reverse=True)
-    snapshot_id = "registre-" + sha[:20]
+    reviewed_rows_hash = hashlib.sha256(json.dumps(rows, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    snapshot_id = "registre-" + reviewed_rows_hash[:20]
     chunks = [{"id": f"philanthropie-membres-{i // 100 + 1:02d}", "data": {"schemaVersion": 1,
                "snapshotId": snapshot_id, "rows": rows[i:i + 100]}} for i in range(0, len(rows), 100)]
     if len(chunks) > 20:
