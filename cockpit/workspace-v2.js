@@ -1,8 +1,8 @@
-import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261105-v2.27";
-import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261105-v2.27";
-import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261105-v2.27";
+import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261105-v2.28";
+import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261105-v2.28";
+import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261105-v2.28";
 
-import { mountPhilanthropy } from "./philanthropy-ui.mjs?v=20261105-v4";
+import { mountPhilanthropy } from "./philanthropy-ui.mjs?v=20261105-v5";
 
 /** Default presentation adapter. Existing DOM controls remain the only writers. */
 export function mountWorkspace(api) {
@@ -38,7 +38,7 @@ export function mountWorkspace(api) {
   const panel = shell.querySelector("[data-v2-panel]");
   const note = shell.querySelector("[data-v2-note]");
   const philanthropyHost = doc.createElement("section"); philanthropyHost.className = "philanthropy-workspace"; philanthropyHost.hidden = true; panel.after(philanthropyHost);
-  const philanthropyCss = doc.createElement("link"); philanthropyCss.rel = "stylesheet"; philanthropyCss.href = new URL("./philanthropy.css?v=20261105-v4", import.meta.url).href; doc.head.append(philanthropyCss);
+  const philanthropyCss = doc.createElement("link"); philanthropyCss.rel = "stylesheet"; philanthropyCss.href = new URL("./philanthropy.css?v=20261105-v5", import.meta.url).href; doc.head.append(philanthropyCss);
   const philanthropy = mountPhilanthropy({root:philanthropyHost, api, profile:api.profile, window:win});
   const cardFor = id => all(".post[data-item-id]", host).find(node => node.dataset.itemId === id);
   const projectFor = id => all(".internal-project,.opportunity", host).find(node => (node.dataset.internalProjectId || node.dataset.opportunityId) === id || node.id === id);
@@ -405,10 +405,10 @@ export function mountWorkspace(api) {
     if (focus) { heading.focus({ preventScroll: true }); win.scrollTo?.({ top: 0, behavior: "instant" }); announce(`${SPACES[r.space].label} · ${heading.textContent}`); }
   }
   function scheduleRender() { if (!state.timer) state.timer = win.setTimeout(() => { state.timer = 0; render(); }, 100); }
-  function go(hash) {
+  function go(hash, { focus = true } = {}) {
     const currentKey = win.location.hash; state.scrolls.set(currentKey, win.scrollY || 0);
     state.route = parseRoute(hash); state.query = ""; state.status = "all";
-    win.history.pushState(null, "", hash); render({ focus: true });
+    win.history.pushState(null, "", hash); render({ focus });
   }
   function routeForTarget(type, id) {
     if (type === "schedule" || type === "publication" || cardFor(id) || api.getPosts?.().some(p => p.id === id)) return routeHash("publications", id);
@@ -423,7 +423,7 @@ export function mountWorkspace(api) {
       e.preventDefault(); e.stopImmediatePropagation(); onClick(e); return;
     }
     const direct = e.target.closest?.("a[data-v2-route]");
-    if (direct) { e.preventDefault(); e.stopImmediatePropagation(); go(direct.getAttribute("href")); return; }
+    if (direct) { e.preventDefault(); e.stopImmediatePropagation(); const philanthropyTab = direct.getAttribute("role") === "tab" && direct.closest(".phi-tabs"); go(direct.getAttribute("href"), { focus: !philanthropyTab }); if (philanthropyTab) philanthropyHost.querySelector('[role="tab"][aria-selected="true"]')?.focus({ preventScroll: true }); return; }
     const target = e.target.closest?.("[data-vm-target],[data-open-task],[data-open-related-project],[data-open-monthly-post]");
     if (target) { const id = target.dataset.vmTarget || target.dataset.taskTarget || target.dataset.openRelatedProject || target.dataset.openMonthlyPost || ""; const type = target.dataset.vmEntityType || target.dataset.taskTargetType || (target.dataset.openRelatedProject ? "project" : "schedule"); const hash = routeForTarget(type, id); if (hash) { e.preventDefault(); if (target.dataset.vmMedia) state.galleryIndex.set(id, target.dataset.vmMedia); go(hash); if (!target.hasAttribute("data-vm-target")) e.stopImmediatePropagation(); return; } }
     const link = e.target.closest?.('a[href^="#"]');

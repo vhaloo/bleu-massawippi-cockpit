@@ -1,7 +1,7 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261105-b108";
-import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261105-b108";
-import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261105-v2.27";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261105-b109";
+import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261105-b109";
+import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261105-v2.28";
 import {
   getAuth,
   setPersistence,
@@ -30,6 +30,7 @@ import {
   onSnapshot,
   doc,
   getDoc,
+  getDocFromServer,
   getDocs,
   setDoc,
   updateDoc,
@@ -38,11 +39,11 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261105-b108";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261105-b108";
-import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261105-b108";
-import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261105-b108";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261105-b108";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261105-b109";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261105-b109";
+import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261105-b109";
+import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261105-b109";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261105-b109";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -812,6 +813,24 @@ export async function fetchPhilanthropyTrackingState(id) {
   if (!/^philanthropie-[a-z0-9-]{3,60}$/.test(String(id || ""))) throw new Error("Démarche invalide.");
   const snapshot = await getDoc(doc(db,"opportunityStates",id));
   return snapshot.exists() ? snapshot.data() : null;
+}
+
+/** One manifest + at most 20 bounded chunks, only when the member view opens.
+ * Server reads avoid presenting an old cached snapshot as a fresh refresh.
+ * No listeners, local mirror or Graph credential is created for each contact.
+ */
+export async function fetchPhilanthropyMembers() {
+  requireConfigured();
+  const snapshot = await withTimeout(getDocFromServer(doc(db,"privateContent","philanthropie-membres")), "Le registre des membres ne répond pas. Réessayez.");
+  if (!snapshot.exists()) throw new Error("Le registre détaillé n’a pas encore été intégré.");
+  const manifest = snapshot.data(), ids = manifest.chunkIds;
+  if (manifest.schemaVersion !== 1 || !Array.isArray(ids) || ids.length < 1 || ids.length > 20 || new Set(ids).size !== ids.length || ids.some(id=>!/^philanthropie-membres-\d{2}$/.test(id))) throw new Error("Index du registre invalide; aucune fiche n’a été chargée.");
+  const chunks = await withTimeout(Promise.all(ids.map(async id=>{
+    const item = await getDocFromServer(doc(db,"privateContent",id));
+    if (!item.exists()) throw new Error("Une partie du registre est absente. Actualisez pour réessayer.");
+    return {id,data:item.data()};
+  })), "La lecture des fiches a pris trop de temps. La version précédente est conservée.");
+  return {manifest,chunks};
 }
 
 export async function setOpportunityStage(opportunityId, stage, profile) {
