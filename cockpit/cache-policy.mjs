@@ -14,6 +14,10 @@ export function readAuthCacheRecovery(storage) {
   catch { return false; }
 }
 
+export function clearAuthCacheRecovery(storage) {
+  try { storage?.removeItem(AUTH_CACHE_RECOVERY_KEY); } catch {}
+}
+
 /** Isolate this tab after a persistent-cache auth failure; retain the disk cache. */
 export function prepareAuthCacheRecovery({storage,persistentCacheRequested=false,safeMode=false,offline='',error}={}) {
   if (!persistentCacheRequested || safeMode || offline === '1'

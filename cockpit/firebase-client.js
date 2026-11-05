@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261105-b108";
-import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery } from "./cache-policy.mjs?v=20261105-b108";
+import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261105-b108";
 import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261105-v2.27";
 import {
   getAuth,
@@ -292,6 +292,7 @@ export function setPersistentCachePreference(enabled) {
   if (typeof localStorage === "undefined") return;
   if (enabled) localStorage.setItem(CACHE_PREFERENCE_KEY, "persistent");
   else localStorage.setItem(CACHE_PREFERENCE_KEY, "memory");
+  clearAuthCacheRecovery(authCacheRecoveryStorage);
 }
 
 export function requestSafeMode(enabled) {
