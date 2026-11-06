@@ -1,6 +1,6 @@
-import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261105-v2.28";
-import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261105-v2.28";
-import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261105-v2.28";
+import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261105-v2.29";
+import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261105-v2.29";
+import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261105-v2.29";
 
 import { mountPhilanthropy } from "./philanthropy-ui.mjs?v=20261105-v5";
 
@@ -25,12 +25,11 @@ export function mountWorkspace(api) {
   if (!css) { css = doc.createElement("link"); css.id = "workspace-v2-style"; css.rel = "stylesheet"; css.href = new URL(`./workspace-v2.css?v=${WORKSPACE_VERSION}`, import.meta.url).href; doc.head.append(css); }
   doc.documentElement.dataset.workspace = "v2";
   const shell = doc.createElement("div"); shell.id = "workspace-v2";
-  const classic = new URL(interfaceUrl(win.location.href, "classic", (api.getPosts?.() || []).map(post => post.id)));
-  shell.innerHTML = `<aside class="v2-sidebar"><a class="v2-brand" href="#/accueil" data-v2-route title="Retour à votre tableau de travail"><span class="v2-brand-mark" aria-hidden="true">≈</span><span>BLEU MASSAWIPPI<small>Le cockpit · Version 2</small></span></a><nav aria-label="Espaces de travail">${Object.entries(SPACES).map(([key, val]) => `<a data-v2-route href="${routeHash(key)}" data-v2-space="${key}" title="${esc(val.description)}"><span aria-hidden="true">${icon(val.icon)}</span>${val.label}</a>`).join("")}</nav><div class="v2-side-bottom"><p>Mêmes dossiers.<br>Une autre façon d’avancer.</p><a class="v2-classic-link" href="${esc(classic.href)}" title="Revenir à l’interface habituelle. Vos textes, choix et commentaires restent enregistrés dans la même base.">↩ Version classique</a><button type="button" data-v2-help title="Comprendre les espaces, les validations, les galeries et le retour à la version classique">${icon("help")} Aide à la navigation</button></div></aside><header class="v2-heading"><div><p class="v2-eyebrow">Notre espace de travail</p><h1 tabindex="-1" data-v2-title></h1><p data-v2-description></p></div><span class="v2-wave" aria-hidden="true">∿<br>∿</span></header><div class="v2-toolbar" data-v2-toolbar></div><section class="v2-panel" data-v2-panel></section><p class="v2-connection-note" data-v2-note>Les actions de cette V2 utilisent les données réelles du cockpit. Rien n’est envoyé aux réseaux sociaux.</p>`;
+  shell.innerHTML = `<aside class="v2-sidebar"><a class="v2-brand" href="#/accueil" data-v2-route title="Retour à votre tableau de travail"><span class="v2-brand-mark" aria-hidden="true">≈</span><span>BLEU MASSAWIPPI<small>Le Cockpit</small></span></a><nav aria-label="Espaces de travail">${Object.entries(SPACES).map(([key, val]) => `<a data-v2-route href="${routeHash(key)}" data-v2-space="${key}" title="${esc(val.description)}"><span aria-hidden="true">${icon(val.icon)}</span>${val.label}</a>`).join("")}</nav><div class="v2-side-bottom"><p>Le lac au cœur<br>de nos actions.</p><button type="button" data-v2-help title="Comprendre les espaces, les validations, les galeries et le retour à la version classique">${icon("help")} Aide à la navigation</button></div></aside><header class="v2-heading"><div><p class="v2-eyebrow">Notre espace de travail</p><h1 tabindex="-1" data-v2-title></h1><p data-v2-description></p></div><span class="v2-wave" aria-hidden="true">∿<br>∿</span></header><div class="v2-toolbar" data-v2-toolbar></div><section class="v2-panel" data-v2-panel></section><p class="v2-connection-note" data-v2-note>Les textes, les médias et les validations sont partagés dans votre espace de travail.</p>`;
   host.before(shell);
   const footer = host.querySelector("footer"); if (footer && !footer.id) footer.id = "v2-classic-footer";
   const portable = doc.createElement("div"); portable.className = "v2-portable-tools";
-  portable.innerHTML = `<button type="button" data-v2-help title="Ouvrir les explications de navigation et des validations">Aide</button><a href="${esc(classic.href)}" title="Revenir au cockpit habituel, avec les mêmes données">Version classique ↗</a>`;
+  portable.innerHTML = `<button type="button" data-v2-help title="Ouvrir les explications de navigation et des validations">Aide</button>`;
   shell.querySelector(".v2-heading").append(portable);
   const heading = shell.querySelector("[data-v2-title]");
   const description = shell.querySelector("[data-v2-description]");
@@ -160,19 +159,10 @@ export function mountWorkspace(api) {
       const journal = doc.getElementById("cockpit-sidebar-toggle");
       if (journal) { journal.textContent = "Avis et demandes générales"; move(journal, actions); }
     }
-    const controls = ["cockpit-health-launch", "cockpit-motion-toggle"].map(id => doc.getElementById(id)).filter(Boolean);
-    if (!controls.length) return;
-    let dock = shell.querySelector(".v2-utilities");
-    if (!dock) {
-      dock = details("Outils et préférences", "v2-utilities");
-      dock.querySelector("summary").title = "Retrouver la liste des tâches, le journal, le diagnostic et les préférences sans masquer les textes ni les images. La boîte à idées reste accessible directement au-dessus.";
-      dock.querySelector("summary").insertAdjacentHTML("afterbegin", icon("tools"));
-      const group = doc.createElement("div"); group.className = "v2-utility-buttons"; dock.append(group);
-      toolbar.before(dock);
-    }
-    const group = dock.querySelector(".v2-utility-buttons");
-    controls.forEach(node => move(node, group));
+    const studio = doc.getElementById("cockpit-studio-launch");
+    if (studio) move(studio, shell.querySelector(".v2-global-actions"));
   }
+
   function transformCard(card) {
     if (!card || card.dataset.v2Prepared) return;
     card.dataset.v2Prepared = "true";
@@ -367,7 +357,7 @@ export function mountWorkspace(api) {
     all(".v2-classic-link,.v2-portable-tools a", shell).forEach(link => { link.href = interfaceUrl(win.location.href, "classic", (api.getPosts?.() || []).map(p => p.id)); });
     resetVisibility(); toolbar.replaceChildren(); panel.replaceChildren();
     philanthropyHost.hidden = r.space !== "philanthropie"; panel.hidden = r.space === "philanthropie";
-    note.textContent = "Version 2 · données partagées avec le cockpit classique.";
+    note.textContent = "Les confirmations restent propres à chaque personne.";
     note.title = "Les commentaires, choix et validations sont réels et restent visibles dans les deux interfaces. Aucun contenu n’est envoyé aux réseaux sociaux.";
     shell.dataset.space = r.space; heading.textContent = space.title; description.textContent = space.description;
     all("[data-v2-space]", shell).forEach(n => { if (n.dataset.v2Space === r.space) n.setAttribute("aria-current", "page"); else n.removeAttribute("aria-current"); });
@@ -441,7 +431,7 @@ export function mountWorkspace(api) {
     if (e.target.closest?.("[data-v2-project-docs]")) { const project = projectFor(state.route.id); const target = project?.querySelector('.internal-project-documents, .internal-project-files, .document-card, a[href*="sharepoint"]'); if (target) { for (let n = target; n && n !== project; n = n.parentElement) if (n.tagName === "DETAILS") n.open = true; target.scrollIntoView?.({ behavior: "smooth", block: "center" }); target.focus?.({ preventScroll: true }); } return; }
     if (e.target.closest?.("[data-v2-help]")) {
       const help = doc.createElement("dialog"); help.className = "v2-help-dialog";
-      help.innerHTML = `<h2>Un cockpit, deux interfaces</h2><p>Cette V2 est une autre présentation des mêmes dossiers. Les choix, commentaires et validations sont réels et sont aussi visibles dans la version classique.</p><dl><dt>À faire</dt><dd>Vos validations personnelles et les messages récents.</dd><dt>Publications</dt><dd>Un calendrier commun aux réseaux sociaux et aux infolettres. Ouvrez une publication pour lire son texte, parcourir toutes les images, consulter l’historique ou déplier les informations complémentaires.</dd><dt>Projets</dt><dd>Les dossiers et leur calendrier distinct. Les archives restent accessibles.</dd><dt>Bibliothèque</dt><dd>Les documents, médias chargés et guides, avec leurs liens d’origine.</dd></dl><p>Les boutons nomment leurs actions. Sur ordinateur, laissez le pointeur dessus pour plus de détails. Sur mobile, les informations et aides dépliables restent accessibles au toucher. Aucun message n’est envoyé automatiquement.</p><p>Le Studio reste réservé aux communications. Revenir à la version classique ne restaure pas une ancienne base : vos nouveaux travaux sont conservés.</p><form method="dialog"><button>J’ai compris</button></form>`;
+      help.innerHTML = `<h2>Vos repères dans le Cockpit</h2><p>Un espace commun pour les publications, les projets, les documents et la philanthropie. Les confirmations restent indépendantes pour Annie et Valentin.</p><dl><dt>À faire</dt><dd>Vos validations personnelles et les messages récents.</dd><dt>Publications</dt><dd>Un calendrier commun aux réseaux sociaux et aux infolettres. Ouvrez une publication pour lire son texte, parcourir toutes les images, consulter l’historique ou déplier les informations complémentaires.</dd><dt>Projets</dt><dd>Les dossiers et leur calendrier distinct. Les archives restent accessibles.</dd><dt>Bibliothèque</dt><dd>Les documents, médias chargés et guides, avec leurs liens d’origine.</dd></dl><p>Les boutons nomment leurs actions. Sur ordinateur, laissez le pointeur dessus pour plus de détails. Sur mobile, les informations et aides dépliables restent accessibles au toucher. Aucun message n’est envoyé automatiquement.</p><p>Le Studio reste réservé aux communications. Votre menu de compte, en haut à droite, regroupe les paramètres et les outils. La version classique y reste disponible si nécessaire.</p><form method="dialog"><button>J’ai compris</button></form>`;
       doc.body.append(help); help.addEventListener("close", () => help.remove(), { once: true }); help.showModal();
     }
   }

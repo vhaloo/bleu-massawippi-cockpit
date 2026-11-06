@@ -21,9 +21,11 @@ function setTheme(theme, persist = false) {
   }
   const button = document.querySelector("[data-theme-toggle]");
   if (!button) return;
-  button.setAttribute("aria-label", `Choisir le thème — ${THEMES[theme]}`);
-  button.title = `Thème : ${THEMES[theme]}`;
-  button.textContent = `◐ ${THEMES[theme]}`;
+  if (!button.hasAttribute("data-account-settings")) {
+    button.setAttribute("aria-label", `Choisir le thème — ${THEMES[theme]}`);
+    button.title = `Thème : ${THEMES[theme]}`;
+    button.textContent = `◐ ${THEMES[theme]}`;
+  }
   button.dataset.currentTheme = theme;
   document.querySelectorAll('[name="cockpit-display-theme"]').forEach(input => { input.checked = input.value === theme; });
 }
@@ -247,19 +249,19 @@ picker.innerHTML = `<h2 id="cockpit-theme-title">Votre espace, vos couleurs</h2>
   <fieldset><legend>Thème d’écran</legend>
     <label><input type="radio" name="cockpit-display-theme" value="light"><span class="theme-swatch" data-swatch="light"></span><span><b>Clair</b><small>Blanc lumineux et bleu du lac.</small></span></label>
     <label><input type="radio" name="cockpit-display-theme" value="dark"><span class="theme-swatch" data-swatch="dark"></span><span><b>Sombre</b><small>Bleu profond et accents d’eau.</small></span></label>
-    <label><input type="radio" name="cockpit-display-theme" value="paper"><span class="theme-swatch" data-swatch="paper"></span><span><b>Crème–terracotta</b><small>Papier chaud, terre cuite et verts de forêt, comme l’Atlas Bleu.</small></span></label>
+    <label><input type="radio" name="cockpit-display-theme" value="paper"><span class="theme-swatch" data-swatch="paper"></span><span><b>Crème–terracotta</b><small>Papier chaud, terre cuite et verts de forêt.</small></span></label>
   </fieldset><form method="dialog"><button type="submit">Terminé</button></form>`;
 picker.addEventListener("change", event => {
   if (event.target.name === "cockpit-display-theme") setTheme(event.target.value, true);
 });
-picker.addEventListener("close", () => button.focus());
+picker.addEventListener("close", () => (document.querySelector("#cockpit-account-trigger") || button).focus());
 document.body.appendChild(picker);
 
 function placeThemeToggle() {
   const session = document.querySelector("#cockpit-session");
-  const actions = session?.querySelector(".cockpit-session-actions") || session;
+  const actions = session?.querySelector("[data-account-settings-slot]") || session?.querySelector(".cockpit-session-actions") || session;
   if (actions) {
-    if (button.parentElement !== actions) actions.insertBefore(button, actions.querySelector("#cockpit-interface-switch, #cockpit-logout"));
+    if (button.parentElement !== actions) actions.insertBefore(button, actions.querySelector(":scope > #cockpit-interface-switch, :scope > #cockpit-logout"));
     button.classList.add("in-session");
   } else {
     if (button.parentElement !== document.body) document.body.appendChild(button);

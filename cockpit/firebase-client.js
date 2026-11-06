@@ -1,7 +1,7 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261105-b109";
-import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261105-b109";
-import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261105-v2.28";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261105-b110";
+import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261105-b110";
+import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261105-v2.29";
 import {
   getAuth,
   setPersistence,
@@ -39,11 +39,11 @@ import {
   addDoc,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261105-b109";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261105-b109";
-import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261105-b109";
-import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261105-b109";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261105-b109";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261105-b110";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261105-b110";
+import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261105-b110";
+import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261105-b110";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261105-b110";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);

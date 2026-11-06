@@ -56,6 +56,7 @@ jobs:
           npm --prefix cockpit run test:media-rules
           npm --prefix cockpit run test:view-mode
           npm --prefix cockpit run test:workspace-v2
+          npm --prefix cockpit run test:account-menu
           npm --prefix cockpit run test:philanthropy
           npm --prefix cockpit run test:members
           python3 -m unittest discover -s cockpit -p test_member_import.py
@@ -138,6 +139,8 @@ jobs:
           cp cockpit/monthly-snapshot-state.js public/
           cp cockpit/view-mode.js public/
           cp cockpit/view-mode.css public/
+          cp cockpit/account-menu.mjs public/
+          cp cockpit/account-menu.css public/
           cp cockpit/firebase-client.js public/
           cp cockpit/auth-profile-session.mjs public/
           cp cockpit/cache-policy.mjs public/
