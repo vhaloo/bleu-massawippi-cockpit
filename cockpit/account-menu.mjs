@@ -25,7 +25,7 @@ export function mountAccountMenu({ document: doc = document, window: win = windo
     const marker = doc.createComment('account-menu: original position'); node.before(marker);
     moves.push({ node, marker }); parent.append(node);
   };
-  const style = doc.createElement('link'); style.rel = 'stylesheet'; style.href = new URL('./account-menu.css?v=20261106-b111', import.meta.url).href; doc.head.append(style);
+  const style = doc.createElement('link'); style.rel = 'stylesheet'; style.href = new URL('./account-menu.css?v=20261106-b112', import.meta.url).href; doc.head.append(style);
   session.classList.add('has-account-menu');
   doc.documentElement.classList.add('cockpit-account-ready');
   const brand = doc.createElement('a'); brand.className = 'account-brand'; brand.href = classic ? '#top' : '#/accueil';

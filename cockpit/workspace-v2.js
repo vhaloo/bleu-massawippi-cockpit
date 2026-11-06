@@ -1,10 +1,10 @@
-import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261106-v2.30";
-import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261106-v2.30";
-import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261106-v2.30";
+import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261106-v2.31";
+import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261106-v2.31";
+import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261106-v2.31";
 
 import { mountPhilanthropy } from "./philanthropy-ui.mjs?v=20261105-v5";
-import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261106-b111";
-import { mediaPreviewRevision } from "./media-catalog.mjs?v=20261106-b111";
+import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261106-b112";
+import { mediaPreviewRevision } from "./media-catalog.mjs?v=20261106-b112";
 
 /** Default presentation adapter. Existing DOM controls remain the only writers. */
 export function mountWorkspace(api) {

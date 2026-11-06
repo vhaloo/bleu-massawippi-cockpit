@@ -6,7 +6,7 @@ Le menu Administration est réservé au profil administrateur de Valentin, ident
 
 - Les compteurs de session proviennent du SDK et ne représentent ni tous les clients ni une facture. Les tailles d'instantanés livrés ne sont jamais assimilées à des lectures facturées.
 - Cloud Monitoring fournit des périodes complètes de 24 heures UTC, sur 14 jours. Le choix de 7 jours filtre ce relevé. Les jauges montrent le maximum journalier; les compteurs sont additionnés sur la période. Une série absente reste absente, sans zéro inventé.
-- Les montants proviennent d'un relevé de facturation explicitement daté et libellé en devise; ils ne constituent pas une preuve de prélèvement bancaire. Un budget est un seuil d'alerte, pas une limite de dépenses.
+- Les montants proviennent d'un relevé de facturation explicitement daté et libellé en devise; ils ne constituent pas une preuve de prélèvement bancaire. Le budget existant est un seuil d'alerte sans plafond actif. Ne pas confondre cette observation avec une impossibilité générale de configurer des plafonds dans un service.
 - Le suivi des sauvegardes reprend un manifeste effectivement finalisé. Les copies et la restauration nécessitent le PC; les originaux de travail restent sur SharePoint.
 
 ## Lecture et confidentialité
@@ -23,7 +23,17 @@ Prérequis : Node 22 ou ultérieur, connexion humaine Firebase CLI 15.23.0 exist
 node collect_infrastructure.mjs --cli-home="CHEMIN_FIREBASE_TOOLS" --output="DOSSIER_PRIVE"
 ```
 
-Options facultatives : `--billing-source=JSON_VERIFIE`, `--backup-source=MANIFESTE_RESUME_VERIFIE`, `--optimization-source=COMPARAISON_VERIFIEE`. Ces données doivent garder leur propre date, méthode et provenance. Ne pas remplacer un relevé financier ancien par une extrapolation présentée comme observée. Les sorties restent privées.
+Options facultatives : `--billing-source=JSON_VERIFIE`, `--backup-source=MANIFESTE_RESUME_VERIFIE`, `--optimization-source=COMPARAISON_VERIFIEE`, `--investigation-source=DIAGNOSTIC_SOURCE`. Ces données doivent garder leur propre date, méthode et provenance. Ne pas remplacer un relevé financier ancien par une extrapolation présentée comme observée. Les sorties restent privées.
+
+La collecte choisit une seule ressource canonique par descripteur avant de sommer les compteurs. `api/request_count` est exporté sous les anciens et nouveaux noms de ressources : les additionner doublerait ce seul graphique. Les lectures de documents gardent leur propre ressource; ne pas diviser tous les indicateurs par deux. Les mesures réservées à Enterprise et absentes d'une base Standard sont indiquées comme non applicables.
+
+Le diagnostic des coûts conserve des constats vérifiés, interprétations et limites explicites. Les journaux historiques absents ne permettent pas d'inventer l'auteur d'une requête. Les dates de facturation et les intervalles UTC Monitoring sont distincts. Les quantités de transfert affichées ne signifient pas que chaque octet était payant après application des franchises.
+
+Les compteurs locaux de sources ne conservent que noms de famille et tailles estimées des changements SDK décodés; aucun contenu ni identifiant d'événement n'est retenu. Les acquittements de métadonnées ne recomptent pas une requête complète. Deux signaux préviennent Valentin : plus de 32 Mio de valeurs serveur livrées en dix minutes, ou plus de 60 démarrages d'abonnements en cinq minutes. Ce sont des seuils de diagnostic, pas des estimations de facture ni une coupure des fonctions. Les tableaux de mesures restent bornés en mémoire, sans nouvelles écritures Firestore.
+
+Le script historique `backup_firestore.mjs` relit tous les octets. Il s'arrête désormais avant toute connexion sans `--allow-full-download`. L'API de restauration et les fonctions de sauvegarde restent disponibles; le flux normal passe par la sauvegarde incrémentale existante, qui conserve aussi les sous-collections. Ne pas supprimer les appels de découverte de sous-collections : une modification d'enfant ne change pas l'horodatage du parent.
+
+Les originaux et hautes résolutions restent sur SharePoint. Des icônes et petits aperçus peuvent rester sur l'hébergement statique, ou dans la base lorsqu'ils sont chargés à la demande, suivant leur confidentialité et leur utilité. Une petite image privée ne doit pas être déposée publiquement pour obtenir une économie marginale.
 
 ## Mise à jour du panneau — modification privée explicite
 

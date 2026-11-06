@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {canonicalMetricResource, cloudMetricQuery} from './cloud-metric-query.mjs';
+const interval={startTime:'2026-01-01T00:00:00Z',endTime:'2026-01-15T00:00:00Z'};
+const requests={type:'firestore.googleapis.com/api/request_count',metricKind:'DELTA',monitoredResourceTypes:['datastore_request','firestore.googleapis.com/Database']};
+const q=cloudMetricQuery(requests,interval);
+assert.equal(canonicalMetricResource(requests),'firestore.googleapis.com/Database');
+assert.equal(q.get('filter'),'metric.type="firestore.googleapis.com/api/request_count" AND resource.type="firestore.googleapis.com/Database"');
+assert.equal(q.get('aggregation.crossSeriesReducer'),'REDUCE_SUM');
+const reads={type:'firestore.googleapis.com/document/read_count',metricKind:'DELTA',monitoredResourceTypes:['firestore_instance']};
+assert(cloudMetricQuery(reads,interval).get('filter').includes('resource.type="firestore_instance"'),'Read totals retain their own single valid resource, not an arbitrary halving.');
+const gauge={...requests,metricKind:'GAUGE'};
+assert.equal(cloudMetricQuery(gauge,interval).get('aggregation.crossSeriesReducer'),'REDUCE_MAX');
+assert.equal(cloudMetricQuery(gauge,interval).get('aggregation.perSeriesAligner'),'ALIGN_MAX');
+assert.throws(()=>cloudMetricQuery({...requests,monitoredResourceTypes:['unknown','other']},interval),/ambigu/);
+assert.throws(()=>cloudMetricQuery(requests,{...interval,startTime:interval.endTime}),/ambigu/);
+const values=[{resource:'datastore_request',value:23},{resource:'firestore.googleapis.com/Database',value:23}];
+assert.equal(values.filter(row=>row.resource===canonicalMetricResource(requests)).reduce((n,row)=>n+row.value,0),23,'Legacy aliases are never summed together.');
+console.log('Cloud metrics: one canonical resource per descriptor, no alias double counting, correct read resource, sum/max and fail-closed unknown resource verified.');

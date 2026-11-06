@@ -1,7 +1,8 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261106-b111";
-import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261106-b111";
-import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261106-v2.30";
+import {createReadDiagnostics} from './read-diagnostics.mjs?v=20261106-b112';
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261106-b112";
+import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261106-b112";
+import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261106-v2.31";
 import {
   getAuth,
   setPersistence,
@@ -41,14 +42,14 @@ import {
   serverTimestamp,
   Timestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261106-b111";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261106-b111";
-import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261106-b111";
-import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261106-b111";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261106-b111";
-import { mediaCatalogQuery, mediaCatalogMarker, mediaPreviewRevision, mediaCatalogCache, clearMediaCatalogCache, observeMediaCatalog, decodeFirestoreValue } from "./media-catalog.mjs?v=20261106-b111";
-import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261106-b111";
-import { INFRASTRUCTURE_ADMIN_UID, INFRASTRUCTURE_DOCUMENT } from "./infrastructure-model.mjs?v=20261106-b111";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261106-b112";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261106-b112";
+import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261106-b112";
+import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261106-b112";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261106-b112";
+import { mediaCatalogQuery, mediaCatalogMarker, mediaPreviewRevision, mediaCatalogCache, clearMediaCatalogCache, observeMediaCatalog, decodeFirestoreValue } from "./media-catalog.mjs?v=20261106-b112";
+import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261106-b112";
+import { INFRASTRUCTURE_ADMIN_UID, INFRASTRUCTURE_DOCUMENT } from "./infrastructure-model.mjs?v=20261106-b112";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -96,6 +97,7 @@ const diagnostics = {
   lastErrorMessage: ""
 };
 const activeListenerNames = new Map();
+const readDiagnostics=createReadDiagnostics();
 const REQUEST_TIMEOUT_MS = 15000;
 // Covers the current calendar through January without adding per-card listeners.
 // Keep this summary window bounded; grow via a date projection if it fills.
@@ -104,6 +106,7 @@ const VALIDATION_SUMMARY_LIMIT = 240;
 function diagnosticsSnapshot() {
   return Object.freeze({
     ...diagnostics,
+    ...readDiagnostics.snapshot(),
     persistenceState,
     listenerNames: [...activeListenerNames.values()].sort()
   });
@@ -132,6 +135,7 @@ function recordConfirmedWrites(count = 1) {
 }
 
 function trackedOnSnapshot(name, reference, onNext, onError, { includeMetadataChanges = false } = {}) {
+  readDiagnostics.listenerStarted();
   const listenerId = `${String(name || "listener").slice(0, 80)}#${++listenerSequence}`;
   activeListenerNames.set(listenerId, String(name || "listener").slice(0, 80));
   diagnostics.activeListeners = activeListenerNames.size;
@@ -141,6 +145,7 @@ function trackedOnSnapshot(name, reference, onNext, onError, { includeMetadataCh
     reference,
     { includeMetadataChanges },
     (snapshot) => {
+      readDiagnostics.record(name,snapshot);
       const size = Number.isFinite(snapshot?.size) ? snapshot.size : snapshot?.exists?.() ? 1 : 0;
       diagnostics.deliveredDocuments += size;
       if (snapshot?.metadata?.fromCache) diagnostics.deliveredFromCache += size;
@@ -332,6 +337,7 @@ export async function fetchPrivateContent() {
   requireConfigured();
   await waitForClientReady();
   const snapshot = await withTimeout(getDoc(doc(db, "privateContent", "plan")), "Le contenu sécurisé ne répond pas après 15 secondes. Réessayez.");
+  readDiagnostics.record('plan',snapshot);emitDiagnostics();
   if (!snapshot.exists()) {
     throw new Error("Le contenu sécurisé n’a pas encore été préparé.");
   }
@@ -810,6 +816,7 @@ const opportunityStages = new Set(["watch", "research", "active", "submitted", "
 export async function fetchPhilanthropyDashboard() {
   requireConfigured();
   const snapshot = await withTimeout(getDoc(doc(db, "privateContent", "philanthropie")), "Les repères de philanthropie ne répondent pas. Réessayez.");
+  readDiagnostics.record('philanthropie',snapshot);emitDiagnostics();
   if (!snapshot.exists()) throw new Error("Les repères de philanthropie ne sont pas encore disponibles.");
   const data = snapshot.data();
   const ids = [...new Set([...(data.actions || []).map(x=>x.stateId),...(data.watchlist || []).map(x=>x.id)])].filter(id=>/^[a-z0-9-]{3,80}$/i.test(id));
@@ -836,11 +843,13 @@ export async function fetchPhilanthropyTrackingState(id) {
 export async function fetchPhilanthropyMembers() {
   requireConfigured();
   const snapshot = await withTimeout(getDocFromServer(doc(db,"privateContent","philanthropie-membres")), "Le registre des membres ne répond pas. Réessayez.");
+  readDiagnostics.record('registre',snapshot);emitDiagnostics();
   if (!snapshot.exists()) throw new Error("Le registre détaillé n’a pas encore été intégré.");
   const manifest = snapshot.data(), ids = manifest.chunkIds;
   if (manifest.schemaVersion !== 1 || !Array.isArray(ids) || ids.length < 1 || ids.length > 20 || new Set(ids).size !== ids.length || ids.some(id=>!/^philanthropie-membres-\d{2}$/.test(id))) throw new Error("Index du registre invalide; aucune fiche n’a été chargée.");
   const chunks = await withTimeout(Promise.all(ids.map(async id=>{
     const item = await getDocFromServer(doc(db,"privateContent",id));
+    readDiagnostics.record('registre',item);emitDiagnostics();
     if (!item.exists()) throw new Error("Une partie du registre est absente. Actualisez pour réessayer.");
     return {id,data:item.data()};
   })), "La lecture des fiches a pris trop de temps. La version précédente est conservée.");
@@ -1518,6 +1527,7 @@ export async function fetchMediaPreview(id, revision='') {
     let snapshot; try { snapshot=await getDocFromCache(reference); } catch {}
     if(!snapshot?.exists() || (revision && mediaPreviewRevision(snapshot.data())!==revision)) {
       diagnostics.mediaPreviewNetworkRequests++; emitDiagnostics(); snapshot=await getDoc(reference);
+      readDiagnostics.record('apercus',snapshot);emitDiagnostics();
     } else { diagnostics.mediaPreviewCacheHits++; emitDiagnostics(); }
     if(auth.currentUser?.uid!==uid || !snapshot.exists()) return '';
     const row={id,...snapshot.data()};

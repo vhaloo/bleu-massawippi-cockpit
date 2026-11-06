@@ -1,5 +1,5 @@
-import { fetchCompletedActionTasksPage } from "./firebase-client.js?v=20261106-b111";
-import { renderCompletedActionTaskCard } from "./task-progress-ui.js?v=20261106-b111";
+import { fetchCompletedActionTasksPage } from "./firebase-client.js?v=20261106-b112";
+import { renderCompletedActionTaskCard } from "./task-progress-ui.js?v=20261106-b112";
 
 const historyState = {
   profile: null,

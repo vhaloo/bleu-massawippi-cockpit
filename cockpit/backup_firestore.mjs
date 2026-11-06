@@ -101,11 +101,12 @@ export async function createBackup({ db, projectId, outputRoot, now = new Date()
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.has("help")) {
-    console.log("Usage: node backup_firestore.mjs [--output=CHEMIN]\nCrée une sauvegarde logique complète, y compris les sous-collections. Cette commande lit chaque document une fois.");
+    console.log("Usage: node backup_firestore.mjs --allow-full-download [--output=CHEMIN]\nExport logique historique : relit entièrement chaque document et ses sous-collections. Pour la sauvegarde courante incrémentale, utiliser le MCP de sauvegarde ou Outils internes Cockpit/cockpit.ps1 backup. Le drapeau explicite évite un téléchargement intégral accidentel.");
     return;
   }
-  const unknown = [...args.keys()].filter((key) => !["help", "output"].includes(key));
+  const unknown = [...args.keys()].filter((key) => !["help", "output", "allow-full-download"].includes(key));
   if (unknown.length) throw new Error(`Option inconnue : --${unknown.join(", --")}`);
+  if (args.get('allow-full-download')!==true) throw new Error('Export intégral non lancé : il relit tous les octets. Utiliser la sauvegarde incrémentale habituelle, ou --allow-full-download pour cet export explicite. Aucune connexion effectuée.');
   const app = getApps().length ? getApp() : initializeApp({ credential: applicationDefault() });
   const db = getFirestore(app);
   const projectId = app.options.projectId || process.env.GCLOUD_PROJECT || process.env.GOOGLE_CLOUD_PROJECT || await app.options.credential?.getProjectId?.();
