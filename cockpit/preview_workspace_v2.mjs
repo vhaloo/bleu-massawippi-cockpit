@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 const root = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 8766);
 const allowed = new Set(["philanthropy-model.mjs","philanthropy-ui.mjs","philanthropy.css","annie-requests.mjs","project-list-model.mjs","workspace-fixture.html","session-bar-fixture.html","workspace-entry-fixture.html","workspace-test-fixture.mjs","workspace-adapter.js","workspace-v2.js","workspace-v2.css","workspace-model.mjs","calendar-export-tools.js","motion.js","theme.js","feedback-widget.mjs","media-validation-fixture.html","media-validation-test-fixture.mjs","media-choice-ui.js","cockpit-ui.js","firebase-client.js","clarity.css","session-bar.css","view-mode.css","task-progress-ui.js"]);
+for (const name of ["account-menu.mjs", "account-menu.css", "account-menu-fixture.html", "view-mode.js", "notification-recipient.js"]) allowed.add(name);
 allowed.add("philanthropy-test-fixture.mjs");
 for (const name of ["members-model.mjs", "members-ui.mjs", "members-test-fixture.mjs"]) allowed.add(name);
 const mime = {".html":"text/html; charset=utf-8",".mjs":"text/javascript; charset=utf-8",".js":"text/javascript; charset=utf-8",".css":"text/css; charset=utf-8",".webp":"image/webp",".png":"image/png",".jpg":"image/jpeg"};

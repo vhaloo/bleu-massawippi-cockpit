@@ -1,8 +1,11 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20261105-b109";
-import { fetchPublicationHistoryPage, subscribeAnnieRequestSource, fetchPhilanthropyDashboard, fetchPhilanthropyMembers, fetchPhilanthropyTrackingState, setOpportunityStage } from "./firebase-client.js?v=20261105-b109";
-import { watchAnnieRequests } from "./annie-requests.mjs?v=20261105-v2.28";
-import { openPublicationStudio } from "./editor-studio.js?v=20261105-b109";
-import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20261105-v2.28";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20261105-b110";
+import { fetchPublicationHistoryPage, subscribeAnnieRequestSource, fetchPhilanthropyDashboard, fetchPhilanthropyMembers, fetchPhilanthropyTrackingState, setOpportunityStage } from "./firebase-client.js?v=20261105-b110";
+import { watchAnnieRequests } from "./annie-requests.mjs?v=20261105-v2.29";
+import { openPublicationStudio } from "./editor-studio.js?v=20261105-b110";
+import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20261105-v2.29";
+import { mountAccountMenu } from "./account-menu.mjs?v=20261105-b110";
+
+let accountMenu = null;
 
 export function setupInterfaceSwitch(profile) {
   if (!profile?.uid) return;
@@ -15,12 +18,19 @@ export function setupInterfaceSwitch(profile) {
     actions.insertBefore(link, actions.querySelector("#cockpit-logout"));
   }
   const isV2 = preferredInterface(location.href) === "v2";
-  link.textContent = isV2 ? "↔ Version classique" : "↔ Version 2";
+  link.textContent = isV2 ? "Ouvrir la version classique ↗" : "Revenir au Cockpit ↗";
   link.title = isV2 ? "Revenir à la version classique, avec les mêmes textes, médias, commentaires et validations. Enregistrez vos saisies en cours avant de changer d’interface." : "Ouvrir la nouvelle interface. Vous pourrez revenir ici à tout moment; vos dossiers et vos droits restent les mêmes. Enregistrez vos saisies en cours avant de changer d’interface.";
   const update = () => { link.href = interfaceUrl(location.href, isV2 ? "classic" : "v2", (globalThis.posts || []).map(p => p.id)); };
   let philanthropyLink = session.querySelector("#cockpit-philanthropy-link");
   if (!philanthropyLink && !isV2) { philanthropyLink = document.createElement("a"); philanthropyLink.id = "cockpit-philanthropy-link"; philanthropyLink.textContent = "Philanthropie"; philanthropyLink.title = "Résultats, objectifs, pistes, suivi et documents de financement"; const target = new URL(location.href); target.searchParams.set("interface","v2"); target.hash = "#/philanthropie"; philanthropyLink.href = target.href; link.before(philanthropyLink); }
   update(); link.onpointerenter = update; link.onfocus = update; link.onclick = update;
+  if (accountMenu?.element?.closest('#cockpit-session') !== session || accountMenu?.profileKey !== `${profile.uid}:${profile.role}`) { accountMenu?.destroy(); accountMenu = null; }
+  if (!accountMenu) {
+    const instance = mountAccountMenu({ profile, classic: !isV2 });
+    accountMenu = instance;
+    if (instance) window.addEventListener('cockpit:session-ended', () => { instance.destroy({ sessionEnded: true }); if (accountMenu === instance) accountMenu = null; }, { once: true });
+  }
+  accountMenu?.refresh();
 }
 
 export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, mediaPreview }) {
@@ -29,7 +39,7 @@ export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, me
   try {
     const entry = interfaceUrl(location.href, "v2", (globalThis.posts || []).map(post => post.id));
     if (entry !== location.href) history.replaceState(history.state, "", entry);
-    const { mountWorkspace } = await import("./workspace-v2.js?v=20261105-v2.28");
+    const { mountWorkspace } = await import("./workspace-v2.js?v=20261105-v2.29");
     return mountWorkspace({
       profile,
       watchAnnieRequests: onUpdate => watchAnnieRequests({ subscribe: subscribeAnnieRequestSource, onUpdate }),

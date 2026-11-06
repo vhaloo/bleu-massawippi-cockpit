@@ -7,7 +7,7 @@
  * intact.
  */
 
-import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20261105-b109";
+import { notificationDecisionToken, notificationOwnerKey, notificationRecipientMatches, notificationSystemTag } from "./notification-recipient.js?v=20261105-b110";
 
 const MODULE_ID = "cockpit-view-mode";
 const STORAGE_PREFIX = "bleu-massawippi-view-mode";
@@ -329,6 +329,8 @@ async function toggleSystemNotifications(control) {
 }
 
 function ensureAttentionControls() {
+  const accountControls = document.querySelector('[data-account-slot="notifications"] [data-vm-attention-controls]');
+  if (accountControls) return accountControls;
   const panel = document.querySelector("#vm-panel-decision");
   const body = panel?.querySelector(":scope > .vm-panel-body");
   if (!panel || !body) return null;
@@ -504,7 +506,7 @@ function ensureStylesheet() {
   if (document.querySelector(`link[data-module="${MODULE_ID}"]`)) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = new URL("./view-mode.css?v=20261105-b109", import.meta.url).href;
+  link.href = new URL("./view-mode.css?v=20261105-b110", import.meta.url).href;
   link.dataset.module = MODULE_ID;
   document.head.appendChild(link);
 }

@@ -16,7 +16,7 @@ async function adapter({ failMount = false } = {}) {
     };
     if (failMount && file === "./workspace-v2.js") return JSON.stringify(moduleUrl('throw new Error("Échec de chargement simulé");'));
     if (stubs[file]) return JSON.stringify(moduleUrl(stubs[file]));
-    assert(["./calendar-export-tools.js", "./workspace-model.mjs", "./workspace-v2.js", "./annie-requests.mjs"].includes(file), `Import inattendu : ${file}`);
+    assert(["./calendar-export-tools.js", "./workspace-model.mjs", "./workspace-v2.js", "./annie-requests.mjs", "./account-menu.mjs"].includes(file), `Import inattendu : ${file}`);
     return JSON.stringify(new URL(specifier, import.meta.url).href);
   });
   return import(moduleUrl(adapted));
@@ -48,8 +48,8 @@ for (const item of cases) {
   current.setupInterfaceSwitch(profile);
   if (profile) {
     const switchLink = document.querySelector("#cockpit-interface-switch");
-    assert.equal(switchLink.parentElement, document.querySelector(".cockpit-session-actions"));
-    assert.equal(switchLink.nextElementSibling.id, "cockpit-logout");
+    assert(switchLink.isConnected);
+    assert(document.querySelector("#cockpit-account-trigger"));
     current.setupInterfaceSwitch(profile);
     assert.equal(document.querySelector("#cockpit-interface-switch"), switchLink);
     assert.equal(document.querySelectorAll("#cockpit-interface-switch").length, 1);
@@ -59,12 +59,13 @@ for (const item of cases) {
   try {workspace=await current.setupWorkspaceV2(profile,{state,enhanceCards(){},toast:message=>notices.push(message),mediaPreview(){return "";}});} finally {console.warn=oldWarn;}
   if(item.signedOut||item.classic||item.failMount){
     assert.equal(document.querySelector("#workspace-v2"),null);
-    if(item.failMount){assert.equal(url.searchParams.get("interface"),"classic");assert.equal(url.hash,"#test-first");assert.equal(notices.length,1);assert.match(document.querySelector("#cockpit-interface-switch").textContent,/Version 2/);}
+    if(item.failMount){assert.equal(url.searchParams.get("interface"),"classic");assert.equal(url.hash,"#test-first");assert.equal(notices.length,1);assert.match(document.querySelector("#cockpit-interface-switch").textContent,/Revenir au Cockpit/);}
     else {assert.equal(changes.length,0);assert.equal(notices.length,0);}
   } else {
     assert.equal(document.documentElement.dataset.workspace,"v2");assert.equal(url.hash,item.hash);assert.equal(url.searchParams.get("interface"),"v2");
     assert.equal(url.searchParams.get("source"),item.suffix.includes("source=application")?"application":null);
-    const link=document.querySelector(".v2-classic-link");assert.equal(new URL(link.href).searchParams.get("interface"),"classic");
+    assert.equal(document.querySelector(".v2-classic-link"),null);
+    const link=document.querySelector("#cockpit-interface-switch");assert.equal(new URL(link.href).searchParams.get("interface"),"classic");
     assert.equal(document.querySelector("#workspace-v2").dataset.space,item.hash.includes("publications")?"publications":item.hash.includes("projets")?"projets":"accueil");
   }
   assert.equal(JSON.stringify(globalThis.posts),initialCopy);assert(controls.every(node=>node.isConnected));

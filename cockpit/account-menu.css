@@ -1,0 +1,80 @@
+/* Shared account menu, including the explicit classic interface. */
+:root{--account-ink:#193f48;--account-muted:#597078;--account-paper:#fff;--account-soft:#f2f6f5;--account-line:#cbdad8;--account-accent:#176d66;--account-tint:#e6f2ee;--account-shadow:0 18px 64px #102f4026}
+.cockpit-account-ready #cockpit-install-launch{display:none!important}
+[data-theme="paper"]{--account-ink:#333e32;--account-muted:#686d5d;--account-paper:#fffaf1;--account-soft:#f4efe5;--account-line:#d7cdbd;--account-accent:#8b472e;--account-tint:#f5e8da;--account-shadow:0 18px 64px #48372b26}
+[data-theme="dark"]{--account-ink:#eaf4f1;--account-muted:#b6cdcb;--account-paper:#172f37;--account-soft:#203d44;--account-line:#536f75;--account-accent:#91dfcd;--account-tint:#244c4d;--account-shadow:0 18px 64px #0007}
+#cockpit-session.has-account-menu{gap:12px;min-height:72px;padding-top:10px;padding-bottom:10px;justify-content:space-between;position:sticky;top:0;z-index:75;border-bottom:1px solid var(--account-line);background:var(--account-paper);color:var(--account-ink);box-shadow:0 2px 12px #102f4009}
+html[data-workspace="v2"] #cockpit-session.has-account-menu{position:sticky;padding-top:10px;padding-bottom:10px}
+#cockpit-session.has-account-menu #cockpit-session-label{position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden;white-space:nowrap}
+#cockpit-session.has-account-menu .cockpit-session-actions{flex:0 1 auto;min-width:0;flex-wrap:nowrap;margin-left:auto;gap:10px}
+#cockpit-session.has-account-menu .account-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--account-ink);font:650 13px/1.3 system-ui,sans-serif;min-height:44px;flex-shrink:0}
+.account-brand>span:first-child{font:32px/1 Georgia,serif;color:var(--account-accent)}
+.account-brand small{display:block;color:var(--account-muted);font-size:11px;font-weight:450;letter-spacing:.05em}
+.account-menu{position:relative;min-width:0;font:14px/1.5 system-ui,sans-serif;color:var(--account-ink)}
+.account-menu [hidden]{display:none!important}
+#cockpit-session .account-menu .account-trigger{position:static;display:flex;align-items:center;gap:10px;max-width:100%;min-height:46px;border:1px solid var(--account-line);border-radius:999px;background:var(--account-soft);color:var(--account-ink);padding:4px 12px 4px 5px;font:650 13px/1.3 system-ui,sans-serif;cursor:pointer;box-shadow:none}
+.account-trigger [data-account-name]{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.account-avatar{display:grid;place-items:center;flex-shrink:0;width:34px;height:34px;border-radius:50%;color:var(--account-accent);background:var(--account-tint);font-size:12px;letter-spacing:.02em}
+.account-menu svg,.account-settings svg{width:20px;height:20px;flex-shrink:0;vertical-align:middle}
+.account-trigger>svg{width:16px;height:16px;color:var(--account-muted);transition:transform .16s ease}
+.account-trigger[aria-expanded="true"]>svg{transform:rotate(180deg)}
+.account-popup{position:absolute;top:calc(100% + 9px);right:0;width:min(296px,calc(100vw - 28px));padding:8px;border:1px solid var(--account-line);border-radius:17px;background:var(--account-paper);color:var(--account-ink);box-shadow:var(--account-shadow);z-index:100}
+.account-identity{padding:10px 12px 15px;overflow-wrap:anywhere}
+.account-identity strong,.account-identity small{display:block}
+.account-identity small{color:var(--account-muted);font-size:12px;margin-top:3px}
+#cockpit-session .account-popup :is(button,a){display:flex;align-items:center;gap:12px;width:100%;min-height:46px;margin:0;padding:10px 12px;border:0;border-radius:9px;background:transparent;color:var(--account-ink);box-shadow:none;text-align:left;white-space:normal;font:550 13px/1.4 system-ui,sans-serif;cursor:pointer;text-decoration:none}
+#cockpit-session .account-popup :is(button,a):hover{background:var(--account-soft);color:var(--account-ink)}
+.account-popup .cockpit-theme-toggle.in-session{position:static!important;inset:auto!important;transform:none!important}
+.account-menu-divider{height:1px;background:var(--account-line);margin:5px 8px}
+.account-menu :is(button,a):focus-visible,.account-settings :is(button,a,input,[role="tabpanel"]):focus-visible{outline:3px solid var(--account-accent)!important;outline-offset:3px}
+#cockpit-theme-picker.account-settings{box-sizing:border-box;width:min(850px,calc(100% - 40px));max-width:850px;max-height:min(830px,calc(100dvh - 48px));padding:0;border:1px solid var(--account-line);border-radius:23px;color:var(--account-ink);background:var(--account-paper);box-shadow:var(--account-shadow);font:14px/1.55 system-ui,sans-serif;overflow:hidden}
+#cockpit-theme-picker.account-settings[open]{display:flex;flex-direction:column}
+.account-settings *, .account-menu *{box-sizing:border-box}
+#cockpit-theme-picker.account-settings::backdrop{background:#102a35a6;backdrop-filter:blur(5px)}
+.account-settings-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:26px 26px 22px;border-bottom:1px solid var(--account-line);flex-shrink:0}
+#cockpit-theme-picker.account-settings h2{font:500 28px/1.2 Georgia,serif;color:var(--account-ink);letter-spacing:-.02em}
+#cockpit-theme-picker.account-settings p{margin:7px 0 14px;color:var(--account-muted);font-size:13px}
+#cockpit-theme-picker.account-settings .account-settings-heading p{margin:8px 0 0}
+#cockpit-theme-picker.account-settings button{position:static;width:auto;min-height:44px;margin:0;border:1px solid var(--account-line);border-radius:10px;background:var(--account-soft);color:var(--account-ink);padding:9px 13px;font:600 13px/1.4 system-ui,sans-serif;cursor:pointer;box-shadow:none;white-space:normal}
+#cockpit-theme-picker.account-settings .account-close{display:grid;place-items:center;min-width:44px;width:44px;padding:9px;background:transparent;border-color:transparent}
+.account-settings-body{display:grid;grid-template-columns:166px minmax(0,1fr);min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.account-settings-tabs{display:flex;flex-direction:column;align-items:stretch;gap:6px;background:var(--account-soft);border-right:1px solid var(--account-line);padding:18px 12px}
+#cockpit-theme-picker.account-settings .account-settings-tabs button{display:flex;align-items:center;gap:9px;justify-content:flex-start;text-align:left;border-color:transparent;background:transparent;padding:10px;font-size:12px}
+#cockpit-theme-picker.account-settings .account-settings-tabs button[aria-selected="true"]{color:var(--account-accent);border-color:var(--account-line);background:var(--account-paper);box-shadow:0 2px 6px #102f4007}
+.account-settings [role="tabpanel"]{padding:24px;min-width:0}
+.account-settings [hidden]{display:none!important}
+#cockpit-theme-picker.account-settings fieldset{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;border:0;padding:0;margin:0}
+#cockpit-theme-picker.account-settings legend{font-size:15px;font-weight:700;padding:0;margin-bottom:12px;color:var(--account-ink)}
+#cockpit-theme-picker.account-settings label{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:13px 11px;border:1px solid var(--account-line);border-radius:12px;color:var(--account-ink);background:var(--account-paper)}
+#cockpit-theme-picker.account-settings label input{position:absolute;right:11px;top:12px;width:17px;height:17px;margin:0;accent-color:var(--account-accent)}
+#cockpit-theme-picker.account-settings label:has(input:checked){background:var(--account-tint);border-color:var(--account-accent);box-shadow:inset 0 -3px var(--account-accent)}
+#cockpit-theme-picker.account-settings .theme-swatch{width:38px;height:42px;border-radius:7px}
+#cockpit-theme-picker.account-settings label b{display:block;font-size:12px;line-height:1.4}
+#cockpit-theme-picker.account-settings small{color:var(--account-muted);font-size:11px;line-height:1.5}
+#cockpit-theme-picker.account-settings label small{margin-top:5px}
+.account-setting-block{border-top:1px solid var(--account-line);padding-top:18px;margin-top:22px}
+#cockpit-theme-picker.account-settings h3{font-size:15px;line-height:1.4;color:var(--account-ink);margin:0 0 7px;font-weight:700}
+.account-settings [data-account-slot="interface"]{margin:12px 0 8px}
+.account-settings [data-account-slot="interface"] a,.account-settings [data-account-slot="philanthropy"] a{display:inline-flex;align-items:center;min-height:44px;gap:8px;padding:9px 13px;border:1px solid var(--account-line);border-radius:10px;color:var(--account-accent);background:var(--account-soft);text-decoration:none;font-weight:650}
+#cockpit-theme-picker.account-settings #cockpit-motion-toggle{display:flex!important;align-items:center;gap:10px;position:static!important;inset:auto!important;width:auto!important;height:auto!important;max-width:100%;padding:9px 13px!important;border:1px solid var(--account-line)!important;border-radius:10px!important;background:var(--account-soft)!important;color:var(--account-ink)!important;transform:none!important;overflow:hidden;isolation:isolate}
+#cockpit-theme-picker.account-settings #cockpit-motion-toggle::before,#cockpit-theme-picker.account-settings #cockpit-motion-toggle::after{content:none!important;display:none!important}
+#cockpit-theme-picker.account-settings .cockpit-motion-label{position:static!important;width:auto!important;height:auto!important;margin:0!important;clip:auto!important;clip-path:none!important;white-space:normal!important;overflow:visible!important;font-size:13px}
+#cockpit-theme-picker.account-settings :is(#cockpit-health-launch,#cockpit-install-shortcut){position:static!important;inset:auto!important;transform:none!important;max-width:100%;width:auto!important;height:auto!important;min-height:44px;padding:9px 13px!important;border-radius:10px!important}
+#cockpit-theme-picker.account-settings .vm-toggle{flex-wrap:wrap;display:flex;margin:0;padding:4px;background:var(--account-soft);border:1px solid var(--account-line);border-radius:10px}
+#cockpit-theme-picker.account-settings .vm-toggle button[aria-pressed="true"]{background:var(--account-tint);color:var(--account-accent)}
+.account-help-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px 0}
+.account-help-grid article{padding:14px;border:1px solid var(--account-line);background:var(--account-soft);border-radius:12px}
+.account-help-grid b{font-size:13px;color:var(--account-ink)}
+#cockpit-theme-picker.account-settings .account-help-grid p{font-size:12px;margin:6px 0 0}
+#cockpit-theme-picker.account-settings form{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:15px 24px;margin:0;border-top:1px solid var(--account-line);flex-shrink:0;background:var(--account-paper)}
+#cockpit-theme-picker.account-settings form>button{background:var(--account-accent);border-color:var(--account-accent);color:var(--account-paper);min-width:90px}
+#cockpit-theme-picker.account-settings .vm-attention-controls{display:grid;gap:18px;padding:15px;border:1px solid var(--account-line);border-radius:12px;background:var(--account-soft);color:var(--account-ink);margin-top:16px}
+.account-settings .vm-attention-state{display:flex;gap:10px;align-items:flex-start}
+.account-settings .vm-attention-state small{display:block;margin-top:5px}
+.account-settings .vm-attention-actions{display:flex;flex-wrap:wrap;gap:8px}
+.account-settings .vm-attention-dot:not([hidden]){display:block;width:8px;height:8px;flex-shrink:0;border-radius:50%;background:var(--account-accent);margin-top:7px}
+@media(min-width:701px){html[data-workspace="v2"] #cockpit-session.has-account-menu .account-brand{display:none}}
+@media(max-width:700px){#cockpit-session.has-account-menu,html[data-workspace="v2"] #cockpit-session.has-account-menu{padding:8px 14px;min-height:64px}#cockpit-session.has-account-menu .cockpit-session-actions{width:auto;flex:0 1 auto}#cockpit-session.has-account-menu .account-brand{font-size:11px;gap:7px}.account-brand small{font-size:10px}.account-trigger [data-account-name]{max-width:130px}#cockpit-theme-picker.account-settings{width:calc(100% - 20px);max-height:calc(100dvh - 24px);border-radius:18px}.account-settings-heading{padding:19px 17px 15px}#cockpit-theme-picker.account-settings h2{font-size:24px}.account-settings-body{grid-template-columns:minmax(0,1fr)}.account-settings-tabs{flex-direction:row;gap:5px;padding:9px;border-right:0;border-bottom:1px solid var(--account-line);position:sticky;top:0;z-index:1}#cockpit-theme-picker.account-settings .account-settings-tabs button{flex:1;justify-content:center;flex-direction:column;font-size:11px;gap:3px;padding:7px 3px;min-height:57px}.account-settings [role="tabpanel"]{padding:19px 16px}#cockpit-theme-picker.account-settings form{padding:12px 16px;gap:12px}#cockpit-theme-picker.account-settings .account-local-note{font-size:10px;max-width:220px}}
+@media(max-width:420px){.account-trigger [data-account-name]{max-width:98px}#cockpit-session.has-account-menu .account-brand>span:first-child{display:none}.account-avatar{width:30px;height:30px}#cockpit-session .account-menu .account-trigger{gap:7px;font-size:12px;padding-right:8px}#cockpit-theme-picker.account-settings fieldset{gap:7px}#cockpit-theme-picker.account-settings label{padding:11px 8px;gap:10px}#cockpit-theme-picker.account-settings label small{display:none}#cockpit-theme-picker.account-settings label input{right:7px;top:10px}.account-help-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.account-trigger>svg{transition:none}}
+@media print{.account-menu,.account-settings,#cockpit-session.has-account-menu{display:none!important}}

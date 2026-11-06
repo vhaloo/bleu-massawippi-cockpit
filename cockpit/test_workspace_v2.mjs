@@ -172,7 +172,7 @@ check('messages et actions accessibles directement depuis chaque espace',()=>{
   }
 });
 check("montage de la V2 et cinq espaces",()=>{assert.equal(document.documentElement.dataset.workspace,"v2");assert.equal(document.querySelectorAll("[data-v2-space]").length,5);assert(document.querySelector('[data-v2-space="philanthropie"]'));});
-check("outils originaux regroupés sans superposition ni perte de gestionnaire",()=>{assert(utility.closest('.v2-utilities'));utility.click();assert.equal(utilityClicks,1);assert(!utility.closest('details').open);});
+check("les préférences sont confiées au menu de compte sans perdre leur gestionnaire",()=>{assert.equal(document.querySelector('.v2-utilities'),null);assert(utility.isConnected);utility.click();assert.equal(utilityClicks,1);});
 check("boîte à idées accessible directement, hors des outils repliés", () => {
   assert(ideas.launch.closest('.v2-global-actions')); assert(!ideas.launch.closest('details'));
   ideas.launch.click(); assert(!ideas.panel.hidden); ideas.panel.querySelector('textarea').value = "Mon idée globale";
@@ -406,7 +406,7 @@ check("la fiche mobile rapproche la frise et la publication",()=>assert(css.incl
 check("les pseudo-éléments d’animation ne peuvent plus couvrir la page",()=>{assert(css.includes('.v2-utility-buttons>button{position:relative!important'));assert.match(css,/#cockpit-motion-toggle::after\{content:none!important;display:none!important\}/);});
 const directorWorkspace=mountWorkspace({...api,profile:{uid:"director-test",role:"director"}});
 directorWorkspace.navigate("#/publications/test-first");
-check("Annie garde les mêmes fonctions de lecture sans accès au Studio",()=>{assert(document.querySelector('[data-v2-history]'));assert(!document.querySelector('[data-v2-edit]'));assert(!document.querySelector('[data-v2-studio]'));assert(document.querySelector('.v2-classic-link'));});
+check("Annie garde les mêmes fonctions de lecture sans accès au Studio",()=>{assert(document.querySelector('[data-v2-history]'));assert(!document.querySelector('[data-v2-edit]'));assert(!document.querySelector('[data-v2-studio]'));assert.equal(document.querySelector('.v2-classic-link'),null);});
 check("Annie peut ouvrir sa boîte globale dans toutes les vues de la V2", () => {
   for (const route of ['#/accueil', '#/publications?vue=calendrier', '#/projets', '#/bibliotheque']) {
     directorWorkspace.navigate(route); assert(ideas.launch.closest('.v2-global-actions')); ideas.launch.click(); assert(!ideas.panel.hidden);
