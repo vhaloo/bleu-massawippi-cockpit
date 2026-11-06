@@ -645,7 +645,7 @@ export function buildSummary(rowsByCollection, metadata) {
   const tasks = rowsByCollection.tasks || [];
   const actionItems = rowsByCollection.actionItems || [];
   const changeArchive = rowsByCollection.changeArchive || [];
-  const contentVersions = rowsByCollection.privateContentVersions || [];
+  const contentVersions = (rowsByCollection.privateContentVersions || []).filter(row => row.kind !== 'admin-infrastructure');
   const mediaLinks = rowsByCollection.mediaLinks || [];
   const mediaDecisions = rowsByCollection.mediaDecisions || [];
   const workflowStates = rowsByCollection.workflowStates || [];

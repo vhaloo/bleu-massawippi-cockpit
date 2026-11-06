@@ -1,8 +1,10 @@
-import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261105-v2.29";
-import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261105-v2.29";
-import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261105-v2.29";
+import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261106-v2.30";
+import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261106-v2.30";
+import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261106-v2.30";
 
 import { mountPhilanthropy } from "./philanthropy-ui.mjs?v=20261105-v5";
+import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261106-b111";
+import { mediaPreviewRevision } from "./media-catalog.mjs?v=20261106-b111";
 
 /** Default presentation adapter. Existing DOM controls remain the only writers. */
 export function mountWorkspace(api) {
@@ -86,15 +88,16 @@ export function mountWorkspace(api) {
     const rows = state.mediaRows?.get(item.id) || [];
     const choice = api.getMediaDecision?.(item.id);
     for (const candidate of previewCandidates(rows, choice)) {
-      const url = safeLink(api.mediaPreview?.(candidate.row) || candidate.row.previewUrl);
-      if (url) { const result = { ...candidate, url }; state.previews?.set(item.id, result); return result; }
+      const source = api.mediaPreview?.(candidate.row) || candidate.row.previewUrl;
+      const url = safeInlineMediaPreview(source) || safeLink(source);
+      if (url) { const result = { ...candidate, url, mediaId:candidate.row.id, revision:mediaPreviewRevision(candidate.row) }; state.previews?.set(item.id, result); return result; }
     }
     // The original gallery remains a valid cached preview source, not a new read.
     const cards = all(".cockpit-media-card", cardFor(item.id) || doc.createElement("div"));
     const selected = cards.find(n => n.dataset.mediaDirectionSelected === "true") || cards.find(n => n.dataset.mediaCommunicationsSelected === "true") || cards[0];
     const source = selected?.querySelector("img[data-media-preview],.cockpit-media-preview img")?.getAttribute("src");
     if (!source) return null;
-    const url = safeLink(new URL(source, win.location.href).href);
+    const url = safeInlineMediaPreview(source) || safeLink(new URL(source, win.location.href).href);
     const result = url ? { url, label: selected.dataset.mediaDirectionSelected === "true" ? "Choix de la direction" : selected.dataset.mediaCommunicationsSelected === "true" ? "Recommandation des communications" : "Proposition · choix à confirmer" } : null;
     state.previews?.set(item.id, result); return result;
   }
@@ -103,7 +106,7 @@ export function mountWorkspace(api) {
     const current = strip?.querySelector('[aria-current="page"]');
     if (strip && current) strip.scrollLeft += current.getBoundingClientRect().left - strip.getBoundingClientRect().left - (strip.clientWidth - current.clientWidth) / 2;
   }
-  const previewImage = preview => preview ? `<img class="v2-background-photo" src="${esc(preview.url)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : "";
+  const previewImage = preview => preview ? `<img class="v2-background-photo" src="${esc(preview.url)}"${preview.mediaId ? ` data-lazy-media-id="${esc(preview.mediaId)}" data-lazy-media-revision="${esc(preview.revision)}"` : ''} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : "";
   function publicationNavigation(item) {
     const neighbours = publicationNeighbours(publications(), item.id);
     if (!neighbours.items.length) return "";
@@ -217,7 +220,7 @@ export function mountWorkspace(api) {
       thumbs.dataset.signature = signature;
       thumbs.innerHTML = items.map((item, i) => {
         const image = item.querySelector("img"); const title = image?.alt || item.querySelector(".cockpit-media-meta b")?.textContent || `Média ${i + 1}`;
-        return `<button type="button" data-v2-thumbnail="${i}" title="${esc(`Afficher la proposition ${i + 1} : ${title}`)}" aria-label="${esc(`Proposition ${i + 1} : ${title}`)}">${image ? `<img src="${esc(image.getAttribute("src"))}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '<span aria-hidden="true">▧</span>'}<small>${i + 1}${item.dataset.mediaDirectionSelected === "true" ? " · DG ✓" : item.dataset.mediaCommunicationsSelected === "true" ? " · COM ✓" : ""}</small></button>`;
+        return `<button type="button" data-v2-thumbnail="${i}" title="${esc(`Afficher la proposition ${i + 1} : ${title}`)}" aria-label="${esc(`Proposition ${i + 1} : ${title}`)}">${image ? `<img src="${esc(image.getAttribute("src"))}"${image.dataset.lazyMediaId ? ` data-lazy-media-id="${esc(image.dataset.lazyMediaId)}" data-lazy-media-revision="${esc(image.dataset.lazyMediaRevision || "")}"` : ""} alt="" loading="lazy" referrerpolicy="no-referrer">` : '<span aria-hidden="true">▧</span>'}<small>${i + 1}${item.dataset.mediaDirectionSelected === "true" ? " · DG ✓" : item.dataset.mediaCommunicationsSelected === "true" ? " · COM ✓" : ""}</small></button>`;
       }).join("");
     }
     const selectedId = state.galleryIndex.get(card.dataset.itemId)

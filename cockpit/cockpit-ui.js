@@ -1,6 +1,8 @@
-import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20261105-b110";
-import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261105-b110";
-import { sharePointVideoMarkup, patchVideoGallery, setupSharePointVideos, setupSharePointVideoLifecycle } from "./sharepoint-video.mjs?v=20261105-b110";
+import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20261106-b111";
+import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261106-b111";
+import { mediaPreviewRevision } from "./media-catalog.mjs?v=20261106-b111";
+import { observeLazyMediaPreviews, MEDIA_PREVIEW_PLACEHOLDER } from "./lazy-media-preview.mjs?v=20261106-b111";
+import { sharePointVideoMarkup, patchVideoGallery, setupSharePointVideos, setupSharePointVideoLifecycle } from "./sharepoint-video.mjs?v=20261106-b111";
 import {
   getClientState,
   waitForClientReady,
@@ -28,6 +30,8 @@ import {
   setMediaRightsConfirmation,
   subscribeMediaDecisions,
   subscribeMediaLinks,
+  fetchMediaPreview,
+  cachedMediaPreview,
   subscribeComments,
   updateOwnComment,
   archiveOwnComment,
@@ -42,30 +46,31 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20261105-b110";
-import { createEventContextController } from "./event-context-data.js?v=20261105-b110";
-import { mergeEventWindow } from "./event-context-window.mjs?v=20261105-b110";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20261105-b110";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20261105-b110";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20261105-b110";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20261105-b110";
-import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20261105-b110";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20261105-b110";
-import { setupSectionNavigation } from "./section-navigation.js?v=20261105-b110";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20261105-b110";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20261105-b110";
-import { setupControlHints } from "./control-hints.js?v=20261105-b110";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20261105-b110";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20261105-b110";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20261105-b110";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20261105-b110";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20261105-b110";
+} from "./firebase-client.js?v=20261106-b111";
+import { createEventContextController } from "./event-context-data.js?v=20261106-b111";
+import { mergeEventWindow } from "./event-context-window.mjs?v=20261106-b111";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20261106-b111";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20261106-b111";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20261106-b111";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20261106-b111";
+import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20261106-b111";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20261106-b111";
+import { setupSectionNavigation } from "./section-navigation.js?v=20261106-b111";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20261106-b111";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20261106-b111";
+import { setupControlHints } from "./control-hints.js?v=20261106-b111";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20261106-b111";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20261106-b111";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20261106-b111";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20261106-b111";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20261106-b111";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
 const DATE_ELEVATOR_COMPACT_MAX = 1599;
 const state = { user: null, profile: null, rows: new Map(), basePosts: [], editorialSignature: "[]", mediaByEvent: new Map(), mediaContextLoading: new Set(), mediaDecisions: new Map(), commentsByEvent: new Map(), workflows: new Map(), opportunities: new Map(), internalProjects: new Map(), decisions: new Map(), mediaConfig: null, tasks: [], tasksUnsubscribe: null, scheduleUnsubscribe: null, mediaUnsubscribe: null, mediaDecisionUnsubscribe: null, commentsUnsubscribe: null, workflowUnsubscribe: null, opportunityUnsubscribe: null, internalProjectUnsubscribe: null, decisionUnsubscribe: null, contentLoaded: false };
 let eventContextController = null;
+let stopLazyPreviews = null;
 let workspaceV2 = null;
 let activeRecognition = null;
 let activeTextarea = null;
@@ -1847,8 +1852,9 @@ function safeMediaPreviewUrl(value) {
 function mediaPreviewUrl(row) {
   const url = safeMediaUrl(row.url);
   if (!url || row.kind !== "image") return "";
-  const inlinePreview = safeInlineMediaPreview(row.previewDataUrl);
+  const inlinePreview = safeInlineMediaPreview(row.previewDataUrl) || cachedMediaPreview(row.id, mediaPreviewRevision(row));
   if (inlinePreview) return inlinePreview;
+  if (row.previewDataSha256) return MEDIA_PREVIEW_PLACEHOLDER;
   const dedicatedPreview = safeMediaPreviewUrl(row.previewUrl || "");
   if (/\.(?:jpe?g|png|webp|gif)(?:$|\?)/i.test(dedicatedPreview)) return dedicatedPreview;
   const parsed = new URL(url);
@@ -1896,7 +1902,7 @@ function renderMediaForCard(card) {
   const markup = rows.map((row) => {
     const url = safeMediaUrl(row.url);
     const preview = mediaPreviewUrl(row);
-    const videoPoster = safeInlineMediaPreview(row.previewDataUrl) || (/\.(?:jpe?g|png|webp|gif)(?:$|\?)/i.test(safeMediaPreviewUrl(row.previewUrl || "")) ? safeMediaPreviewUrl(row.previewUrl) : "");
+    const videoPoster = safeInlineMediaPreview(row.previewDataUrl) || cachedMediaPreview(row.id, mediaPreviewRevision(row)) || (row.previewDataSha256 ? MEDIA_PREVIEW_PLACEHOLDER : (/\.(?:jpe?g|png|webp|gif)(?:$|\?)/i.test(safeMediaPreviewUrl(row.previewUrl || "")) ? safeMediaPreviewUrl(row.previewUrl) : ""));
     const videoPlayer = sharePointVideoMarkup(row, videoPoster);
     const visual = preview
       ? `<img data-media-preview src="${esc(preview)}" alt="${esc(row.label || "Aperçu du média")}" loading="lazy" decoding="async" referrerpolicy="no-referrer"><span class="cockpit-media-enlarge" aria-hidden="true">Agrandir ↗</span>`
@@ -1948,6 +1954,14 @@ function renderMediaForCard(card) {
     </article>`;
   }).join("");
   patchVideoGallery(gallery, markup);
+  const rowsById = new Map(rows.map(row=>[row.id,row]));
+  gallery.querySelectorAll('[data-media-id]').forEach(node=>{
+    const row=rowsById.get(node.dataset.mediaId);
+    if(!row || safeInlineMediaPreview(row.previewDataUrl) || cachedMediaPreview(row.id,mediaPreviewRevision(row))) return;
+    node.querySelectorAll('img[data-media-preview],.cockpit-video-launch img').forEach(image=>{
+      image.dataset.lazyMediaId=row.id; image.dataset.lazyMediaRevision=mediaPreviewRevision(row);
+    });
+  });
   setupSharePointVideos(gallery);
   setupSharePointVideoLifecycle(document);
   restoreMediaDrafts(gallery, mediaDrafts);
@@ -2987,7 +3001,7 @@ async function applyProfile(profile) {
   syncCardAccess();
   workspaceV2?.destroy(); workspaceV2 = null;
   try {
-    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20261105-v2.29");
+    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20261106-v2.30");
     setupInterfaceSwitch(profile);
     workspaceV2 = await setupWorkspaceV2(profile, { state, enhanceCards, toast, mediaPreview: mediaPreviewUrl });
   } catch { toast("La V2 est indisponible; le cockpit classique reste actif.", true); }
@@ -2997,6 +3011,7 @@ async function applyProfile(profile) {
 function applySignedOut(message = "") {
   if (activeRecognition) stopDictation("Session fermée.");
   stopEventContext();
+  stopLazyPreviews?.(); stopLazyPreviews = null;
   state.profile = null;
   state.user = null;
   state.rows = new Map();
@@ -3070,6 +3085,8 @@ function syncWorkflow(rows, meta) {
 }
 
 function subscribeRemoteData() {
+  stopLazyPreviews?.();
+  stopLazyPreviews = observeLazyMediaPreviews({root:document,load:fetchMediaPreview});
   if (!configured || !state.profile) return;
   state.scheduleUnsubscribe?.();
   state.scheduleUnsubscribe = subscribeScheduleItems((rows) => {

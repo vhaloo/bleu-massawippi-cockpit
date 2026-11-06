@@ -9,7 +9,7 @@ const icons = {
   close: '<path d="m6 6 12 12M6 18 18 6"/>'
 };
 const icon = name => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name] || icons.settings}</svg>`;
-const controlSelector = '[data-theme-toggle],#cockpit-theme-picker,#cockpit-motion-toggle,#cockpit-install-shortcut,#cockpit-health-launch,#cockpit-view-mode-toggle,[data-vm-attention-controls],#cockpit-logout,#cockpit-interface-switch,#cockpit-philanthropy-link';
+const controlSelector = '[data-theme-toggle],#cockpit-theme-picker,#cockpit-motion-toggle,#cockpit-install-shortcut,#cockpit-health-launch,#cockpit-view-mode-toggle,[data-vm-attention-controls],#cockpit-logout,#cockpit-interface-switch,#cockpit-philanthropy-link,#cockpit-administration-launch';
 
 export function mountAccountMenu({ document: doc = document, window: win = window, profile, classic = false } = {}) {
   const session = doc.querySelector('#cockpit-session');
@@ -25,7 +25,7 @@ export function mountAccountMenu({ document: doc = document, window: win = windo
     const marker = doc.createComment('account-menu: original position'); node.before(marker);
     moves.push({ node, marker }); parent.append(node);
   };
-  const style = doc.createElement('link'); style.rel = 'stylesheet'; style.href = new URL('./account-menu.css?v=20261105-b110', import.meta.url).href; doc.head.append(style);
+  const style = doc.createElement('link'); style.rel = 'stylesheet'; style.href = new URL('./account-menu.css?v=20261106-b111', import.meta.url).href; doc.head.append(style);
   session.classList.add('has-account-menu');
   doc.documentElement.classList.add('cockpit-account-ready');
   const brand = doc.createElement('a'); brand.className = 'account-brand'; brand.href = classic ? '#top' : '#/accueil';
@@ -36,6 +36,7 @@ export function mountAccountMenu({ document: doc = document, window: win = windo
     <div id="cockpit-account-popup" class="account-popup" role="menu" aria-label="Menu du compte" hidden>
       <div class="account-identity" role="presentation"><strong data-account-name></strong><small data-account-role></small></div>
       <div data-account-settings-slot></div>
+      <div data-account-administration-slot></div>
       <button type="button" role="menuitem" data-account-help>${icon('help')}<span>Aide et outils</span></button>
       <div class="account-menu-divider" role="separator"></div><div data-account-logout-slot></div>
     </div>`;
@@ -49,6 +50,7 @@ export function mountAccountMenu({ document: doc = document, window: win = windo
   const close = (focus = false) => { popup.hidden = true; trigger.setAttribute('aria-expanded', 'false'); if (focus && trigger.isConnected) trigger.focus({ preventScroll: true }); };
   const open = (last = false) => { popup.hidden = false; trigger.setAttribute('aria-expanded', 'true'); (last ? items().at(-1) : items()[0])?.focus(); };
   on(trigger, 'click', () => popup.hidden ? open() : close());
+  on(popup, 'click', event => { if(event.target.closest('#cockpit-administration-launch')) close(); });
   on(trigger, 'keydown', event => { if (['ArrowDown', 'ArrowUp'].includes(event.key)) { event.preventDefault(); open(event.key === 'ArrowUp'); } });
   on(popup, 'keydown', event => {
     if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(true); return; }
@@ -124,6 +126,8 @@ export function mountAccountMenu({ document: doc = document, window: win = windo
       move(theme, host.querySelector('[data-account-settings-slot]'));
     }
     const logout = doc.querySelector('#cockpit-logout');
+    const administration = doc.querySelector('#cockpit-administration-launch');
+    if(profile.role === 'admin' && profile.uid === '6FAy9GJU5qTUlHNelXvtHBsVH3k1') move(administration, host.querySelector('[data-account-administration-slot]'));
     if (logout) { logout.setAttribute('role', 'menuitem'); move(logout, host.querySelector('[data-account-logout-slot]')); if (!logout.querySelector('svg')) logout.insertAdjacentHTML('afterbegin', icon('exit')); }
     if (!dialog) return;
     for (const [selector, slot] of [['#cockpit-motion-toggle','motion'], ['#cockpit-view-mode-toggle','view'], ['#cockpit-interface-switch','interface'], ['#cockpit-install-shortcut','install'], ['#cockpit-health-launch','health'], ['[data-vm-attention-controls]','notifications'], ['#cockpit-philanthropy-link','philanthropy']]) {

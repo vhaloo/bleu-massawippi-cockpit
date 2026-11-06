@@ -59,7 +59,7 @@ assert.match(firebase, /subscribeScheduleItems[\s\S]{0,900}observePaginatedSched
   "Le calendrier complet doit conserver des pages de 120 documents suivies par curseur.");
 for (const listener of [
   "comments", "workflowStates", "opportunityStates",
-  "internalProjectStates", "editorialDecisions", "mediaDecisions", "mediaLinks",
+  "internalProjectStates", "editorialDecisions", "mediaDecisions", "mediaLinks:change-marker",
   "tasks", "personalActionItems", "cockpitFeedback", "auditLogs"
 ]) {
   assert.match(firebase, new RegExp(`trackedOnSnapshot\\(\\s*"${listener}"`),
@@ -68,7 +68,7 @@ for (const listener of [
 
 assert.match(firebase, /const VALIDATION_SUMMARY_LIMIT = 240;/,
   "Les confirmations du calendrier étendu restent dans une fenêtre fixe, sans listener par carte.");
-for (const [collectionName, maximum] of [["comments",120],["workflowStates","VALIDATION_SUMMARY_LIMIT"],["opportunityStates",50],["internalProjectStates",50],["editorialDecisions",100],["mediaDecisions","VALIDATION_SUMMARY_LIMIT"],["mediaLinks",160]]) {
+for (const [collectionName, maximum] of [["comments",120],["workflowStates","VALIDATION_SUMMARY_LIMIT"],["opportunityStates",50],["internalProjectStates",50],["editorialDecisions",100],["mediaDecisions","VALIDATION_SUMMARY_LIMIT"],["mediaLinks",1]]) {
   assert.match(firebase, new RegExp(`collection\\(db, "${collectionName}"\\)[\\s\\S]{0,180}limit\\(${maximum}\\)`),
     `La fenêtre ${collectionName} doit rester bornée à ${maximum} documents.`);
 }
