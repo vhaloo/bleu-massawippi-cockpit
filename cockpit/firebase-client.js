@@ -1,7 +1,7 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261105-b110";
-import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261105-b110";
-import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261105-v2.29";
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261106-b111";
+import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261106-b111";
+import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261106-v2.30";
 import {
   getAuth,
   setPersistence,
@@ -30,6 +30,7 @@ import {
   onSnapshot,
   doc,
   getDoc,
+  getDocFromCache,
   getDocFromServer,
   getDocs,
   setDoc,
@@ -37,13 +38,17 @@ import {
   writeBatch,
   runTransaction,
   addDoc,
-  serverTimestamp
+  serverTimestamp,
+  Timestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261105-b110";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261105-b110";
-import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261105-b110";
-import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261105-b110";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261105-b110";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261106-b111";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261106-b111";
+import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261106-b111";
+import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261106-b111";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261106-b111";
+import { mediaCatalogQuery, mediaCatalogMarker, mediaPreviewRevision, mediaCatalogCache, clearMediaCatalogCache, observeMediaCatalog, decodeFirestoreValue } from "./media-catalog.mjs?v=20261106-b111";
+import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261106-b111";
+import { INFRASTRUCTURE_ADMIN_UID, INFRASTRUCTURE_DOCUMENT } from "./infrastructure-model.mjs?v=20261106-b111";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -81,6 +86,10 @@ const diagnostics = {
   deliveredDocuments: 0,
   deliveredFromCache: 0,
   confirmedWrites: 0,
+  mediaCatalogQueries: 0,
+  mediaCatalogResponseBytes: 0,
+  mediaPreviewNetworkRequests: 0,
+  mediaPreviewCacheHits: 0,
   lastServerSyncAt: "",
   lastErrorAt: "",
   lastErrorCode: "",
@@ -306,6 +315,9 @@ export function requestSafeMode(enabled) {
 
 export async function forgetThisDevice() {
   requireConfigured();
+  clearMediaCatalogCache(typeof localStorage === 'undefined' ? null : localStorage);
+  mediaPreviewCache.clear();
+  infrastructureSnapshotCache.clear();
   try { await signOut(auth); } catch (error) { recordClientError(error); }
   try { await disableNetwork(db); } catch (error) { recordClientError(error); }
   await terminate(db);
@@ -372,6 +384,8 @@ export async function sendPasswordReset(email) {
 
 export async function logOut() {
   requireConfigured();
+  mediaPreviewCache.clear();
+  infrastructureSnapshotCache.clear();
   return signOut(auth);
 }
 
@@ -1479,15 +1493,84 @@ export async function setMediaFinalChoice(mediaId, selected, profile) {
   recordConfirmedWrites(2);
 }
 
+// One full live record invalidates a server-projected catalogue. The existing
+// per-event listener still supplies the complete, authoritative open gallery.
+const mediaPreviewCache = new Map();
+const mediaPreviewRequests = new Map();
+function previewKey(id, revision) { return `${auth?.currentUser?.uid || ''}:${id}:${revision}`; }
+function rememberMediaPreview(row) {
+  const preview=safeInlineMediaPreview(row.previewDataUrl);
+  if(preview) {
+    mediaPreviewCache.set(previewKey(row.id,mediaPreviewRevision(row)),preview);
+    if(mediaPreviewCache.size>128) mediaPreviewCache.delete(mediaPreviewCache.keys().next().value);
+  }
+  return preview;
+}
+export function cachedMediaPreview(id, revision) { return mediaPreviewCache.get(previewKey(id,revision)) || ''; }
+export async function fetchMediaPreview(id, revision='') {
+  requireConfigured();
+  if(!/^[A-Za-z0-9_-]{1,200}$/.test(id) || !auth.currentUser || safeModeRequested) return '';
+  const uid=auth.currentUser.uid, key=previewKey(id,revision);
+  if(mediaPreviewCache.has(key)) return mediaPreviewCache.get(key);
+  if(mediaPreviewRequests.has(key)) return mediaPreviewRequests.get(key);
+  const request=(async()=>{
+    const reference=doc(db,'mediaLinks',id);
+    let snapshot; try { snapshot=await getDocFromCache(reference); } catch {}
+    if(!snapshot?.exists() || (revision && mediaPreviewRevision(snapshot.data())!==revision)) {
+      diagnostics.mediaPreviewNetworkRequests++; emitDiagnostics(); snapshot=await getDoc(reference);
+    } else { diagnostics.mediaPreviewCacheHits++; emitDiagnostics(); }
+    if(auth.currentUser?.uid!==uid || !snapshot.exists()) return '';
+    const row={id,...snapshot.data()};
+    if(revision && mediaPreviewRevision(row)!==revision) return '';
+    return rememberMediaPreview(row);
+  })().finally(()=>mediaPreviewRequests.delete(key));
+  mediaPreviewRequests.set(key,request); return request;
+}
+async function loadMediaCatalog(user, signal, since='') {
+  await waitForClientReady();
+  const endpoint=`https://firestore.googleapis.com/v1/projects/${encodeURIComponent(config.projectId)}/databases/(default)/documents:runQuery`;
+  const requestController=new AbortController();
+  const abort=()=>requestController.abort();
+  signal.addEventListener('abort',abort,{once:true});
+  if(signal.aborted) abort();
+  const timer=setTimeout(()=>requestController.abort(new Error('Délai de lecture des médias dépassé.')),REQUEST_TIMEOUT_MS);
+  try {
+  for(let attempt=0;attempt<2;attempt++) {
+    if(auth.currentUser?.uid!==user.uid) throw new DOMException('Session fermée.','AbortError');
+    const token=await user.getIdToken(attempt===1);
+    const response=await fetch(endpoint,{method:'POST',credentials:'omit',signal:requestController.signal,
+      headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(mediaCatalogQuery(since))});
+    if(response.status===401 && attempt===0) continue;
+    if(!response.ok) {
+      const error=new Error('Le catalogue des médias ne répond pas. Réessayez dans quelques instants.');
+      error.code=response.status===403 ? 'permission-denied' : response.status===401 ? 'unauthenticated' : `http-${response.status}`;
+      throw error;
+    }
+    const text=await response.text();
+    diagnostics.mediaCatalogQueries++;
+    diagnostics.mediaCatalogResponseBytes+=new TextEncoder().encode(text).byteLength;
+    emitDiagnostics();
+    return JSON.parse(text);
+  }
+  } finally { clearTimeout(timer); signal.removeEventListener('abort',abort); }
+}
 export function subscribeMediaLinks(callback, onError) {
   requireConfigured();
-  const mediaQuery = query(collection(db, "mediaLinks"), orderBy("updatedAt", "desc"), limit(160));
-  return trackedOnSnapshot(
-    "mediaLinks",
-    mediaQuery,
-    (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
-    onError
-  );
+  const user=auth.currentUser;
+  if(!user) throw new Error('Connexion requise pour les médias.');
+  let storage; try { storage=localStorage; } catch {}
+  return observeMediaCatalog({
+    cache:mediaCatalogCache(storage,config.projectId,user.uid,persistentCacheRequested),
+    timestamp:value=>new Timestamp(Math.floor(Date.parse(value)/1000),Number((value.match(/\.(\d+)Z$/)?.[1] || '').padEnd(9,'0'))),
+    load:(signal,since)=>loadMediaCatalog(user,signal,since), onRows:callback,
+    onError:error=>{recordClientError(error);onError?.(error);},
+    watch:(next,error)=>trackedOnSnapshot("mediaLinks:change-marker",
+      query(collection(db, "mediaLinks"), orderBy("updatedAt", "desc"), limit(1)), snapshot=>{
+        const item=snapshot.docs[0], row=item ? {id:item.id,...item.data()} : null;
+        if(row) rememberMediaPreview(row);
+        next({token:mediaCatalogMarker(row),fromCache:snapshot.metadata.fromCache,pendingWrites:snapshot.metadata.hasPendingWrites});
+      },error,{includeMetadataChanges:true})
+  });
 }
 
 export function subscribeMediaLinksForEvent(eventId, callback, onError) {
@@ -1500,6 +1583,45 @@ export function subscribeMediaLinksForEvent(eventId, callback, onError) {
     (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
     onError
   );
+}
+
+// This existing collection is readable only by an active administrator in the
+// deployed rules. The snapshot contains no cloud credentials; its producer runs
+// separately with the existing human CLI login. No privilege is added here.
+const infrastructureSnapshotCache=new Map();
+function infrastructureReference() {
+  requireConfigured();
+  if(auth.currentUser?.uid!==INFRASTRUCTURE_ADMIN_UID) throw new Error('Administration réservée à Valentin.');
+  return doc(db,'privateContentVersions',INFRASTRUCTURE_DOCUMENT);
+}
+async function readInfrastructureDocument(id,signal) {
+  infrastructureReference();
+  if(!/^admin-infrastructure-[A-Za-z0-9_-]{1,100}$/.test(id))throw new Error('Référence d’infrastructure invalide.');
+  const user=auth.currentUser,token=await user.getIdToken();
+  const response=await fetch(`https://firestore.googleapis.com/v1/projects/${encodeURIComponent(config.projectId)}/databases/(default)/documents/privateContentVersions/${id}`,{headers:{Authorization:`Bearer ${token}`},credentials:'omit',cache:'no-store',signal});
+  if(!response.ok)throw new Error(`Lecture d’infrastructure refusée (${response.status}).`);
+  const raw=await response.json();if(auth.currentUser?.uid!==user.uid)throw new DOMException('Session fermée.','AbortError');
+  return Object.fromEntries(Object.entries(raw.fields||{}).map(([key,value])=>[key,decodeFirestoreValue(value)]));
+}
+export function subscribeAdminInfrastructure(callback,onError) {
+  let stopped=false,generation=0,controller=null,latest='';
+  const stop=trackedOnSnapshot('admin-infrastructure',infrastructureReference(),snapshot=>{
+    if(snapshot.metadata.fromCache || stopped)return;
+    const id=snapshot.data()?.versionId || '';
+    if(!id){callback(null);return;}if(id===latest)return;latest=id;
+    controller?.abort();controller=new AbortController();const current=++generation;
+    const cached=infrastructureSnapshotCache.get(id);
+    const request=cached?Promise.resolve(cached):readInfrastructureDocument(id,controller.signal).then(row=>row.snapshot||null);
+    request.then(value=>{if(stopped||current!==generation)return;infrastructureSnapshotCache.clear();infrastructureSnapshotCache.set(id,value);callback(value);}).catch(error=>{if(!stopped&&error.name!=='AbortError')onError?.(error);});
+  },onError,{includeMetadataChanges:true});
+  return()=>{stopped=true;generation++;controller?.abort();stop();};
+}
+export async function refreshAdminInfrastructure() {
+  const pointer=await readInfrastructureDocument(INFRASTRUCTURE_DOCUMENT,AbortSignal.timeout(15000));
+  if(!pointer.versionId)return null;
+  const row=await readInfrastructureDocument(pointer.versionId,AbortSignal.timeout(15000));
+  infrastructureSnapshotCache.clear();infrastructureSnapshotCache.set(pointer.versionId,row.snapshot||null);
+  return row.snapshot||null;
 }
 
 export async function writeAuditLog(sectionId, action, profile) {

@@ -5,9 +5,12 @@ import {
   setPersistentCachePreference,
   requestSafeMode,
   forgetThisDevice
-} from "./firebase-client.js?v=20261105-b110";
+} from "./firebase-client.js?v=20261106-b111";
+import { subscribeAdminInfrastructure, refreshAdminInfrastructure } from "./firebase-client.js?v=20261106-b111";
+import { mountInfrastructure } from "./infrastructure-ui.mjs?v=20261106-b111";
 
 let unsubscribeDiagnostics = null;
+let infrastructure = null;
 
 function ensureStyles() {
   if (document.querySelector("#cockpit-health-styles")) return;
@@ -59,6 +62,7 @@ function render(snapshot = getClientDiagnostics()) {
 
 export function buildHealthWidget(profile) {
   if (profile?.role !== "admin" || document.querySelector("#cockpit-health-launch")) return;
+  infrastructure ||= mountInfrastructure({profile,subscribeSnapshot:subscribeAdminInfrastructure,refreshSnapshot:refreshAdminInfrastructure,subscribeDiagnostics:subscribeClientDiagnostics,getDiagnostics:getClientDiagnostics});
   ensureStyles();
   const { safeMode, persistentCacheRequested } = getClientState();
   const launch = document.createElement("button");
@@ -89,6 +93,7 @@ export function buildHealthWidget(profile) {
 }
 
 export function clearHealthWidget() {
+  infrastructure?.destroy(); infrastructure=null;
   unsubscribeDiagnostics?.();
   unsubscribeDiagnostics = null;
   document.querySelector("#cockpit-health-launch")?.remove();
