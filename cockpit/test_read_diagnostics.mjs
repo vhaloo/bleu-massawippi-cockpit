@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {createReadDiagnostics} from './read-diagnostics.mjs';
+let time=0;const meter=createReadDiagnostics({now:()=>time}),doc=value=>({data:()=>value});
+const data={title:'été',value:'image'.repeat(12)},bytes=new TextEncoder().encode(JSON.stringify(data)).byteLength;
+meter.listenerStarted();meter.record('mediaLinks:private-event-id',{metadata:{fromCache:false},docChanges:()=>[{type:'added',doc:doc(data)}]});
+assert.equal(meter.snapshot().sdkServerApproxBytes,bytes);
+meter.record('mediaLinks:other-event',{metadata:{fromCache:false},docs:[doc(data)],docChanges:()=>[]});
+assert.equal(meter.snapshot().sdkServerApproxBytes,bytes,'A metadata-only callback never counts the full query again.');
+meter.record('mediaLinks:other-event',{metadata:{fromCache:false},docChanges:()=>[{type:'removed',doc:doc(data)}]});
+assert.equal(meter.snapshot().sdkServerApproxBytes,bytes,'Removed document bodies are not redelivered values.');
+meter.record('plan',{metadata:{fromCache:true},exists:()=>true,data:()=>data});
+assert.equal(meter.snapshot().sdkCacheApproxBytes,bytes);assert.equal(meter.snapshot().sdkServerApproxBytes,bytes);
+const stored=JSON.stringify(meter.snapshot());assert(!stored.includes('private-event-id'));assert(!stored.includes('été'));assert(!stored.includes(data.value));
+const snap=meter.snapshot();snap.readSources[0].serverApproxBytes=0;assert.equal(meter.snapshot().readSources[0].serverApproxBytes,bytes,'Exposed counters cannot mutate the meter.');
+meter.record('bad',{exists:()=>true,data:()=>{throw Error('invalid');}});
+time=5*60000+1;assert.equal(meter.snapshot().listenerStartsRecent,0);assert.equal(meter.snapshot().sdkRecentServerApproxBytes,bytes);
+time=10*60000+1;assert.equal(meter.snapshot().sdkRecentServerApproxBytes,0);assert.equal(meter.snapshot().sdkServerApproxBytes,bytes);
+for(let i=0;i<4000;i++){meter.listenerStarted();meter.record('mediaLinks',{exists:()=>true,data:()=>data});}
+assert.equal(meter.snapshot().listenerStartsRecent,256);assert(meter.snapshot().sdkRecentServerApproxBytes<=2048*bytes);
+console.log('Read diagnostics: incremental changes, metadata acknowledgements, removed documents, cache/server split, UTF-8 size, private-value exclusion, snapshots and bounded rolling windows verified.');

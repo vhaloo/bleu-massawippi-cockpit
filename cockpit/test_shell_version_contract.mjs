@@ -54,6 +54,8 @@ for (const resource of ["firebase-config.js", "theme.js", "motion.js", "cockpit-
   assert.match(deploymentWorkflow, new RegExp(`cp cockpit/${resource.replace(".", "\\.")} public/`), `${resource} doit faire partie de l’artefact GitHub Pages.`);
 }
 const firebaseVersion = cockpitUi.match(/firebase-client\.js\?v=([^"']+)/)?.[1];
+assert.match(worker, /read-diagnostics\.mjs/, 'Local diagnostics must also load with an offline shell.');
+assert.match(deploymentWorkflow, /cp cockpit\/read-diagnostics\.mjs public\//, 'Deploy the diagnostic module actually imported by the client.');
 assert.ok(firebaseVersion, "Le module principal doit versionner explicitement le client Firebase.");
 assert.match(actionItemsUi, new RegExp(`firebase-client\\.js\\?v=${firebaseVersion}`), "Les deux modules UI doivent partager le même singleton Firebase.");
 assert.match(healthUi, new RegExp(`firebase-client\\.js\\?v=${firebaseVersion}`), "Le diagnostic doit partager le même singleton Firebase.");

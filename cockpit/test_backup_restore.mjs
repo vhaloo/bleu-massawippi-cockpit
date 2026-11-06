@@ -3,6 +3,9 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { createBackup } from "./backup_firestore.mjs";
+import {spawnSync} from 'node:child_process';
+const refusedExport=spawnSync(process.execPath,['backup_firestore.mjs'],{cwd:new URL('.',import.meta.url),encoding:'utf8'});
+assert.equal(refusedExport.status,1);assert(refusedExport.stderr.includes('Aucune connexion effectuée'),'A default legacy export must stop before reading credentials or Firestore.');
 import { decodeBackupValue, encodeBackupValue } from "./firestore_backup_codec.mjs";
 import { restoreDocuments, verifyBackup } from "./restore_firestore_backup.mjs";
 
