@@ -58,4 +58,14 @@ intersect(images.slice(0,2).map(target=>({target,isIntersecting:true})));await t
 resolvePreview('data:image/jpeg;base64,/9j/AAAA//k=');await tick();assert.equal(images[0].src,images[1].src);assert(!images[0].hasAttribute('data-lazy-media-id'));assert.equal(images[2].src,'');
 const late=document.createElement('img');late.dataset.lazyMediaId='late';document.body.append(late);mutate();intersect([{target:late,isIntersecting:true}]);await tick();late.remove();resolvePreview('late');await tick();assert.equal(late.src,'');
 stopImages();assert.equal(disconnected,2);
+// Recycled DOM images must be observed again after the media version changes.
+const dom2=parseHTML('<html><body>'+Array.from({length:8},(_,i)=>`<img data-lazy-media-id="image-${i}" data-lazy-media-revision="one">`).join('')+'</body></html>').document;
+let io2,mo2;const running=[],seen=[];
+const stop2=observeLazyMediaPreviews({root:dom2,load:(id,revision)=>new Promise(resolve=>running.push({id,revision,resolve})),
+ observerFactory:fn=>{io2=fn;return{observe:x=>seen.push(x.dataset.lazyMediaRevision),unobserve(){},disconnect(){}};},
+ mutationFactory:fn=>{mo2=fn;return{observe(){},disconnect(){}};}});
+const imgs=[...dom2.querySelectorAll('img')];io2(imgs.map(target=>({target,isIntersecting:true})));await tick();assert.equal(running.length,3,'At most three visible previews in flight');
+imgs[7].remove();running[0].resolve('first');await tick();assert.equal(running.length,4);assert.equal(imgs[0].src,'first');
+imgs[0].dataset.lazyMediaId='image-0';imgs[0].dataset.lazyMediaRevision='two';mo2();assert.equal(seen.at(-1),'two','Reused element re-observed with its new revision');
+stop2();running.slice(1).forEach(job=>job.resolve('discarded'));await tick();assert.equal(running.length,4,'Unmount clears queued network work');
 console.log('Media catalogue: projected fields, privacy/cache isolation, cold/warm/offline behavior, concurrent edits, bounded retry, cancellation and visible-only deduplicated previews verified.');

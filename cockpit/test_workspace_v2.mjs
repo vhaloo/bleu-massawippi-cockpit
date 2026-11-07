@@ -155,6 +155,16 @@ let ideaSubmits = 0;
 const ideas = buildFeedbackWidget({ document, formMarkup: '<form data-feedback-form="cockpit"><textarea></textarea><button type="submit">Envoyer</button></form>', onSubmit: () => ideaSubmits++ });
 let clicked=0; const originalChoose=document.querySelector('[data-choose="one"]'); originalChoose.addEventListener("click",()=>clicked++);
 const workspace=mountWorkspace(api);
+check('raccourcis mobiles dépliables sans recopier les contrôles',()=>{
+  const toggle=document.querySelector('.v2-shortcuts-toggle');
+  const shortcuts=document.getElementById(toggle.getAttribute('aria-controls'));
+  const children=[...shortcuts.children];
+  assert.equal(toggle.getAttribute('aria-expanded'),'false');
+  toggle.click();assert.equal(toggle.getAttribute('aria-expanded'),'true');
+  assert(shortcuts.parentElement.hasAttribute('data-expanded'));
+  toggle.click();assert.equal(toggle.getAttribute('aria-expanded'),'false');
+  assert.deepEqual([...shortcuts.children],children);
+});
 workspace.navigate('#/accueil/messages');
 const oldMessagePanel=document.getElementById('vm-panel-message');
 oldMessagePanel.outerHTML='<section class="vm-panel" id="vm-panel-message"><h2>Messages actualisés</h2><p>Une demande non traitée.</p></section>';
@@ -258,6 +268,17 @@ check("frise et flèches naviguent sans réécrire la publication", () => {
   assert.equal(JSON.stringify(fixtures), sourceJSON);
 });
 check("les contrôles sont déplacés, jamais copiés ni perdus",()=>{assert(controls.every(n=>n.isConnected));assert.equal(document.querySelector('[data-choose="one"]'),originalChoose);originalChoose.click();assert.equal(clicked,1);});
+check('le calendrier attend la miniature sans charger un original SharePoint protégé',()=>{
+  const oldMedia=api.getMedia,oldPreview=api.mediaPreview;
+  api.getMedia=()=>[{id:'protected',eventId:'test-first',kind:'image',previewUrl:'https://tenant.sharepoint.com/original-6000px.jpg'}];
+  api.mediaPreview=row=>row.previewUrl;
+  workspace.navigate('#/publications/test-first');
+  const image=document.querySelector('.v2-date-frame[data-date="2026-09-10"] img');
+  assert(image.src.includes('media-preview-placeholder.svg'));
+  assert.equal(image.dataset.lazyMediaId,'protected');
+  assert(originalChoose.isConnected);
+  api.getMedia=oldMedia;api.mediaPreview=oldPreview;workspace.navigate('#/publications/test-first');
+});
 check("galerie complète et une seule proposition visible",()=>{const card=document.querySelector('[data-item-id="test-first"]');assert.equal(card.querySelectorAll("[data-v2-thumbnail]").length,4);assert.equal(card.querySelectorAll("[data-v2-slide-hidden]").length,3);card.querySelector('[data-v2-thumbnail="2"]').click();assert(!card.querySelector('[data-media-id="three"]').hasAttribute("data-v2-slide-hidden"));assert.equal(clicked,1);});
 check("saisie et informations détaillées conservées après navigation",()=>{const input=document.querySelector('[data-item-id="test-first"] [data-comment]');input.value="Brouillon non envoyé";workspace.navigate("#/projets");workspace.navigate("#/publications/test-first");assert.equal(input.value,"Brouillon non envoyé");assert(input.isConnected);assert(document.querySelector(".v2-more [data-decision]"));});
 document.querySelector('[data-item-id="test-first"] [data-v2-history]').click();

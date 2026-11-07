@@ -2,10 +2,11 @@
 // Cela force l’activation du nouveau service worker et purge les modules
 // précédemment mis en cache, notamment firebase-client.js.
 const CACHE_PREFIX = "bleu-massawippi-cockpit-shell-";
-const RELEASE = "20261106-b112";
-const CACHE = "bleu-massawippi-cockpit-shell-v144";
+const RELEASE = "20261106-b113";
+const CACHE = "bleu-massawippi-cockpit-shell-v145";
 const SHELL = [
   `./read-diagnostics.mjs?v=${RELEASE}`,
+  `./versioned-content.mjs?v=${RELEASE}`,
   `./infrastructure-model.mjs?v=${RELEASE}`, `./infrastructure-ui.mjs?v=${RELEASE}`, `./infrastructure.css?v=${RELEASE}`,
   `./media-catalog.mjs?v=${RELEASE}`, `./lazy-media-preview.mjs?v=${RELEASE}`, "./media-preview-placeholder.svg",
   `./account-menu.mjs?v=${RELEASE}`, `./account-menu.css?v=${RELEASE}`,
@@ -14,10 +15,10 @@ const SHELL = [
   `./cache-policy.mjs?v=${RELEASE}`,
   `./auth-profile-session.mjs?v=${RELEASE}`,
   `./session-bar.css?v=${RELEASE}`,
-  './annie-requests.mjs?v=20261106-v2.31', './project-list-model.mjs?v=20261106-v2.31',
+  './annie-requests.mjs?v=20261106-v2.32', './project-list-model.mjs?v=20261106-v2.32',
   `./feedback-widget.mjs?v=${RELEASE}`, `./editorial-cycle-guard.mjs?v=${RELEASE}`,
   `./event-context-window.mjs?v=${RELEASE}`, `./paginated-schedule.mjs?v=${RELEASE}`, `./inline-media-preview.mjs?v=${RELEASE}`, `./sharepoint-video.mjs?v=${RELEASE}`,
-  "./workspace-adapter.js?v=20261106-v2.31", "./workspace-v2.js?v=20261106-v2.31", "./workspace-v2.css?v=20261106-v2.31", "./workspace-model.mjs?v=20261106-v2.31",
+  "./workspace-adapter.js?v=20261106-v2.32", "./workspace-v2.js?v=20261106-v2.32", "./workspace-v2.css?v=20261106-v2.32", "./workspace-model.mjs?v=20261106-v2.32",
   "./", "./index.html", `./firebase-config.js?v=${RELEASE}`, `./theme.js?v=${RELEASE}`, `./motion.js?v=${RELEASE}`,
   `./cockpit-ui.js?v=${RELEASE}`, `./content-layout.js?v=${RELEASE}`, `./calendar-export-tools.js?v=${RELEASE}`, `./internal-project-order.js?v=${RELEASE}`, `./firebase-client.js?v=${RELEASE}`, `./project-calendar-model.mjs?v=${RELEASE}`, `./project-calendar.js?v=${RELEASE}`, `./section-navigation.js?v=${RELEASE}`, `./publication-editor-schema.mjs?v=${RELEASE}`, `./editor-studio.js?v=${RELEASE}`, `./control-hints.js?v=${RELEASE}`, `./event-context-data.js?v=${RELEASE}`, `./action-items-ui.js?v=${RELEASE}`, `./notification-recipient.js?v=${RELEASE}`, `./client-health-ui.js?v=${RELEASE}`, `./admin-lazy-data.js?v=${RELEASE}`, `./admin-activity-summary.js?v=${RELEASE}`, `./media-choice-ui.js?v=${RELEASE}`, `./task-progress-ui.js?v=${RELEASE}`, `./completed-task-history.js?v=${RELEASE}`, `./monthly-snapshot-state.js?v=${RELEASE}`, `./view-mode.js?v=${RELEASE}`, `./clarity.css?v=${RELEASE}`, `./project-calendar.css?v=${RELEASE}`, `./view-mode.css?v=${RELEASE}`,
   "./manifest.webmanifest", "./icon.svg", "./icons.svg", "./assets/brand/logo-bleu-massawippi-2024.png", "./assets/brand/cockpit-bleu-massawippi-lockup.svg", "./assets/brand/cockpit-bleu-massawippi-icon-192.png", "./assets/brand/cockpit-bleu-massawippi-icon-512.png", "./assets/strategy/reperes-cockpit-2x2.webp"
@@ -46,19 +47,27 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const requestUrl = new URL(event.request.url);
   const sameOrigin = requestUrl.origin === self.location.origin;
+  // Authenticated Microsoft/Firebase traffic never goes through a public cache.
+  if (!sameOrigin) return;
   const shellRequest = sameOrigin && (event.request.mode === "navigate" || ["script", "style", "worker"].includes(event.request.destination));
-  event.respondWith(fetch(event.request, shellRequest ? { cache:"no-store" } : undefined).then((response) => {
+  const immutableShell = event.request.mode !== 'navigate' && !/\.html$/.test(requestUrl.pathname)
+    && SHELL.some(resource => new URL(resource,self.registration.scope).href === requestUrl.href);
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE);
+    if (immutableShell) { const cached = await cache.match(event.request); if (cached) return cached; }
+    return fetch(event.request, shellRequest ? { cache:"no-store" } : undefined).then((response) => {
     if (response.ok && sameOrigin) {
       const copy = response.clone();
-      caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+      event.waitUntil(cache.put(event.request, copy).catch(()=>{}));
     }
     return response;
   }).catch(async () => {
-    const cached = await caches.match(event.request, { ignoreSearch: true });
+    const cached = await cache.match(event.request);
     if (cached) return cached;
-    if (event.request.mode === "navigate") return caches.match("./index.html");
+    if (event.request.mode === "navigate") { const page = await cache.match("./index.html"); if (page) return page; }
     return new Response("Ressource indisponible hors connexion.", { status: 503, headers: { "Content-Type": "text/plain; charset=utf-8" } });
-  }));
+  });
+  })());
 });
 
 self.addEventListener("notificationclick", (event) => {
