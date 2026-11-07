@@ -53,4 +53,20 @@ Tout producteur de médias doit mettre `updatedAt` à l'heure serveur, y compris
 
 ## Vérifications et retour arrière
 
+### Sobriété de la coque et du contenu — b113
+
+`versioned-content.mjs` met en cache privé uniquement les documents `plan` et `philanthropie`. Le registre nominatif et le relevé d’administration ne passent pas par ce cache. La clé contient le projet et l’utilisateur; la préférence mémoire seule évite l’écriture IndexedDB. « Oublier cet appareil » vide aussi ce cache.
+
+À chaque réutilisation **en ligne**, une lecture REST projetée contrôle les droits et l’`updateTime` exact du document, nanosecondes comprises. Une version identique évite de télécharger de nouveau le contenu. Une version différente déclenche une lecture complète. Un refus du serveur ne sert jamais silencieusement l’ancienne copie. Le mode de secours/hors connexion demeure explicite. Une lecture de version reste une lecture Firestore; ce changement réduit surtout les octets transférés, pas nécessairement le nombre de lectures.
+
+Les nouvelles mesures `contentVersionChecks`, `contentDownloads`, `contentCacheHits` et `contentResponseBytes` restent locales et apparaissent dans Administration → Cette session. Les octets des corps REST sont distincts des estimations SDK et des montants facturés.
+
+Les fichiers statiques **de la version exacte** de la coque sont repris du service worker. La page d’entrée reste vérifiée sur le réseau; les requêtes Microsoft/Firebase et les écritures ne passent jamais par ce cache public. Les essais locaux couvrent aussi le démarrage hors connexion. Garder les versions des imports, du service worker et de l’artefact de déploiement cohérentes à chaque livraison.
+
+Les aperçus attendent la visibilité, partagent les demandes identiques et limitent les téléchargements simultanés à trois. Une image réutilisée avec une nouvelle révision est observée de nouveau. Le calendrier ne charge pas d’original SharePoint haute résolution en arrière-plan; le lien d’origine reste dans la galerie. Les raccourcis sont repliables sur mobile et les alertes laissent accessible la navigation du bas.
+
+Ajouter `test:versioned-content` et `test_shell_cache.mjs` aux contrôles ci-dessous. Une modification pure du client ne nécessite pas une nouvelle exportation intégrale de la base : conserver la sauvegarde vérifiée existante, le commit de départ et un complément local des fichiers modifiés.
+
+**Gratuité :** Spark limite les services aux quotas gratuits et peut interrompre le service lorsqu’ils sont dépassés. Blaze garde une facturation possible au-delà des franchises; ni ce cache, ni les compteurs, ni une alerte de budget ne constituent un plafond bancaire. Ne pas basculer un projet ayant déjà dépassé sa franchise mensuelle sans exposer le risque d’interruption et obtenir la décision correspondante. Sources : [forfaits Firebase](https://firebase.google.com/docs/projects/billing/firebase-pricing-plans), [quotas Firestore](https://firebase.google.com/docs/firestore/quotas).
+
 Exécuter `test:media-catalog`, `test:infrastructure`, `test:resilience`, `test:workspace-v2`, `test:media-rules`, puis l'audit complet. Les nouveaux fichiers sont explicitement copiés dans le workflow Pages. Les règles restent inchangées. Le retour arrière du code rétablit le chargement antérieur sans migration de données. Les relevés privés peuvent rester archivés sans affecter les publications; conserver le manifeste de sauvegarde et le commit de départ.

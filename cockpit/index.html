@@ -12,20 +12,34 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./assets/brand/cockpit-bleu-massawippi-icon-192.png">
-  <link rel="stylesheet" href="./clarity.css?v=20261106-b112">
-  <link rel="stylesheet" href="./project-calendar.css?v=20261106-b112">
+  <link rel="stylesheet" href="./clarity.css?v=20261106-b113">
+  <link rel="stylesheet" href="./project-calendar.css?v=20261106-b113">
   <title>Cockpit Communication Bleu Massawippi</title>
-<link rel="stylesheet" href="./session-bar.css?v=20261106-b112">
+<link rel="stylesheet" href="./session-bar.css?v=20261106-b113">
 </head>
 <body>
+  <section id="cockpit-boot" role="status" aria-live="polite" style="max-width:420px;margin:15vh auto;padding:28px;color:#173b44;background:#fffefa;border:1px solid #d5e1dc;border-radius:20px;font:16px/1.6 system-ui,sans-serif">
+    <span style="font-size:12px;letter-spacing:.12em;font-weight:700;color:#146c70">BLEU MASSAWIPPI</span>
+    <h1 style="font:500 30px/1.2 Georgia,serif;margin:12px 0">Votre espace de travail</h1>
+    <p data-boot-message>Ouverture du Cockpit…</p>
+    <p data-boot-retry hidden><a href="./actualiser.html" style="color:#146c70;font-weight:650">Réessayer le chargement →</a></p>
+  </section>
+  <script>
+    (() => {
+      const boot=document.getElementById('cockpit-boot');
+      const timer=setTimeout(()=>{if(!boot.isConnected)return;boot.querySelector('[data-boot-message]').textContent='Le chargement prend plus de temps que prévu. Vérifiez votre connexion, puis réessayez si nécessaire.';boot.querySelector('[data-boot-retry]').hidden=false;},15000);
+      const observer=new MutationObserver(()=>{if(document.getElementById('cockpit-login')||document.getElementById('cockpit-session')){clearTimeout(timer);observer.disconnect();boot.remove();}});
+      observer.observe(document.body,{childList:true});
+    })();
+  </script>
   <a class="cockpit-skip-link" href="#cockpit-content">Aller au contenu principal</a>
   <main id="cockpit-content" tabindex="-1"></main>
   <div id="cockpit-announcer" class="cockpit-visually-hidden" aria-live="polite" aria-atomic="true"></div>
   <noscript>Ce cockpit nécessite JavaScript pour ouvrir une session sécurisée.</noscript>
-  <script src="./firebase-config.js?v=20261106-b112"></script>
+  <script src="./firebase-config.js?v=20261106-b113"></script>
   <script>
     (() => {
-      const release = "20261106-b112";
+      const release = "20261106-b113";
       const releaseRank = (value) => {
         const match = /^(\d{8})-b(\d+)$/.exec(String(value || ""));
         return match ? [Number(match[1]), Number(match[2])] : null;
@@ -91,9 +105,9 @@
       });
     })();
   </script>
-  <script type="module" src="./theme.js?v=20261106-b112"></script>
-  <script type="module" src="./motion.js?v=20261106-b112"></script>
-  <script type="module" src="./cockpit-ui.js?v=20261106-b112"></script>
-  <script type="module" src="./view-mode.js?v=20261106-b112"></script>
+  <script type="module" src="./theme.js?v=20261106-b113"></script>
+  <script type="module" src="./motion.js?v=20261106-b113"></script>
+  <script type="module" src="./cockpit-ui.js?v=20261106-b113"></script>
+  <script type="module" src="./view-mode.js?v=20261106-b113"></script>
 </body>
 </html>

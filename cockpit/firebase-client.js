@@ -1,8 +1,9 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import {createReadDiagnostics} from './read-diagnostics.mjs?v=20261106-b112';
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261106-b112";
-import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261106-b112";
-import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261106-v2.31";
+import {createReadDiagnostics} from './read-diagnostics.mjs?v=20261106-b113';
+import {createContentStore, createVersionedContentReader} from './versioned-content.mjs?v=20261106-b113';
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261106-b113";
+import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261106-b113";
+import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261106-v2.32";
 import {
   getAuth,
   setPersistence,
@@ -42,14 +43,14 @@ import {
   serverTimestamp,
   Timestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261106-b112";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261106-b112";
-import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261106-b112";
-import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261106-b112";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261106-b112";
-import { mediaCatalogQuery, mediaCatalogMarker, mediaPreviewRevision, mediaCatalogCache, clearMediaCatalogCache, observeMediaCatalog, decodeFirestoreValue } from "./media-catalog.mjs?v=20261106-b112";
-import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261106-b112";
-import { INFRASTRUCTURE_ADMIN_UID, INFRASTRUCTURE_DOCUMENT } from "./infrastructure-model.mjs?v=20261106-b112";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261106-b113";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261106-b113";
+import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261106-b113";
+import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261106-b113";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261106-b113";
+import { mediaCatalogQuery, mediaCatalogMarker, mediaPreviewRevision, mediaCatalogCache, clearMediaCatalogCache, observeMediaCatalog, decodeFirestoreValue } from "./media-catalog.mjs?v=20261106-b113";
+import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261106-b113";
+import { INFRASTRUCTURE_ADMIN_UID, INFRASTRUCTURE_DOCUMENT } from "./infrastructure-model.mjs?v=20261106-b113";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -91,6 +92,10 @@ const diagnostics = {
   mediaCatalogResponseBytes: 0,
   mediaPreviewNetworkRequests: 0,
   mediaPreviewCacheHits: 0,
+  contentVersionChecks: 0,
+  contentDownloads: 0,
+  contentCacheHits: 0,
+  contentResponseBytes: 0,
   lastServerSyncAt: "",
   lastErrorAt: "",
   lastErrorCode: "",
@@ -99,6 +104,53 @@ const diagnostics = {
 const activeListenerNames = new Map();
 const readDiagnostics=createReadDiagnostics();
 const REQUEST_TIMEOUT_MS = 15000;
+let contentIndexedDB; try { contentIndexedDB = globalThis.indexedDB; } catch {}
+const contentStore = createContentStore(contentIndexedDB);
+const contentReader = createVersionedContentReader({
+  project: config.projectId, currentUser: () => auth?.currentUser,
+  persistent: () => persistentCacheRequested, store: contentStore,
+  onMetric: ({kind}) => {
+    if (kind === 'download') diagnostics.contentDownloads++;
+    else diagnostics.contentCacheHits++;
+    emitDiagnostics();
+  },
+  request: async (id, {user, metadataOnly}) => {
+    const url = new URL(`https://firestore.googleapis.com/v1/projects/${encodeURIComponent(config.projectId)}/databases/(default)/documents/privateContent/${id}`);
+    if (metadataOnly) url.searchParams.set('mask.fieldPaths', 'updatedAt');
+    const signal = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const token = await user.getIdToken(attempt === 1);
+      const response = await fetch(url, { headers: {Authorization: `Bearer ${token}`}, credentials:'omit', cache:'no-store', signal });
+      if (response.status === 401 && attempt === 0) continue;
+      if (!response.ok) {
+        const error = new Error('Le contenu sécurisé ne peut pas être vérifié. Réessayez.');
+        error.code = response.status === 403 ? 'permission-denied' : response.status === 401 ? 'unauthenticated' : `http-${response.status}`;
+        throw error;
+      }
+      const text = await response.text();
+      diagnostics.contentResponseBytes += new TextEncoder().encode(text).byteLength;
+      if (metadataOnly) diagnostics.contentVersionChecks++;
+      diagnostics.lastServerSyncAt = new Date().toISOString(); emitDiagnostics();
+      return JSON.parse(text);
+    }
+  }
+});
+
+async function readVersionedContent(id) {
+  await waitForClientReady();
+  let raw;
+  try { raw = await contentReader.read(id, {offline: safeModeRequested || globalThis.navigator?.onLine === false}); }
+  catch (error) {
+    // Preserve the old explicit rescue path for already cached pre-upgrade data.
+    // No automatic stale fallback after a permission/server error.
+    if (safeModeRequested) {
+      const legacy = await getDocFromCache(doc(db, 'privateContent', id));
+      if (legacy.exists()) return legacy.data();
+    }
+    recordClientError(error); throw error;
+  }
+  return Object.fromEntries(Object.entries(raw.fields).map(([key,value]) => [key, decodeFirestoreValue(value, iso => Timestamp.fromDate(new Date(iso)))]));
+}
 // Covers the current calendar through January without adding per-card listeners.
 // Keep this summary window bounded; grow via a date projection if it fills.
 const VALIDATION_SUMMARY_LIMIT = 240;
@@ -324,6 +376,7 @@ export async function forgetThisDevice() {
   mediaPreviewCache.clear();
   infrastructureSnapshotCache.clear();
   try { await signOut(auth); } catch (error) { recordClientError(error); }
+  await contentStore.clear();
   try { await disableNetwork(db); } catch (error) { recordClientError(error); }
   await terminate(db);
   await clearIndexedDbPersistence(db);
@@ -335,13 +388,7 @@ export async function forgetThisDevice() {
 
 export async function fetchPrivateContent() {
   requireConfigured();
-  await waitForClientReady();
-  const snapshot = await withTimeout(getDoc(doc(db, "privateContent", "plan")), "Le contenu sécurisé ne répond pas après 15 secondes. Réessayez.");
-  readDiagnostics.record('plan',snapshot);emitDiagnostics();
-  if (!snapshot.exists()) {
-    throw new Error("Le contenu sécurisé n’a pas encore été préparé.");
-  }
-  const data = snapshot.data();
+  const data = await readVersionedContent('plan');
   if (typeof data.html !== "string" || typeof data.css !== "string" || typeof data.script !== "string") {
     throw new Error("Le contenu sécurisé est incomplet.");
   }
@@ -390,6 +437,7 @@ export async function sendPasswordReset(email) {
 
 export async function logOut() {
   requireConfigured();
+  contentStore.clearMemory();
   mediaPreviewCache.clear();
   infrastructureSnapshotCache.clear();
   return signOut(auth);
@@ -815,10 +863,7 @@ const opportunityStages = new Set(["watch", "research", "active", "submitted", "
 
 export async function fetchPhilanthropyDashboard() {
   requireConfigured();
-  const snapshot = await withTimeout(getDoc(doc(db, "privateContent", "philanthropie")), "Les repères de philanthropie ne répondent pas. Réessayez.");
-  readDiagnostics.record('philanthropie',snapshot);emitDiagnostics();
-  if (!snapshot.exists()) throw new Error("Les repères de philanthropie ne sont pas encore disponibles.");
-  const data = snapshot.data();
+  const data = await readVersionedContent('philanthropie');
   const ids = [...new Set([...(data.actions || []).map(x=>x.stateId),...(data.watchlist || []).map(x=>x.id)])].filter(id=>/^[a-z0-9-]{3,80}$/i.test(id));
   if (ids.length > 40) throw new Error("Le portefeuille de suivi dépasse la borne prévue.");
   const trackingStates = {};

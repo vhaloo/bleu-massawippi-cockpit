@@ -1,10 +1,11 @@
-import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261106-v2.31";
-import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261106-v2.31";
-import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261106-v2.31";
+import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261106-v2.32";
+import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261106-v2.32";
+import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261106-v2.32";
 
 import { mountPhilanthropy } from "./philanthropy-ui.mjs?v=20261105-v5";
-import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261106-b112";
-import { mediaPreviewRevision } from "./media-catalog.mjs?v=20261106-b112";
+import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261106-b113";
+import { mediaPreviewRevision } from "./media-catalog.mjs?v=20261106-b113";
+import { MEDIA_PREVIEW_PLACEHOLDER } from "./lazy-media-preview.mjs?v=20261106-b113";
 
 /** Default presentation adapter. Existing DOM controls remain the only writers. */
 export function mountWorkspace(api) {
@@ -106,7 +107,14 @@ export function mountWorkspace(api) {
     const current = strip?.querySelector('[aria-current="page"]');
     if (strip && current) strip.scrollLeft += current.getBoundingClientRect().left - strip.getBoundingClientRect().left - (strip.clientWidth - current.clientWidth) / 2;
   }
-  const previewImage = preview => preview ? `<img class="v2-background-photo" src="${esc(preview.url)}"${preview.mediaId ? ` data-lazy-media-id="${esc(preview.mediaId)}" data-lazy-media-revision="${esc(preview.revision)}"` : ''} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : "";
+  function previewImage(preview) {
+    if (!preview) return '';
+    let source = preview.url;
+    // Calendar tiles must not download a protected full-size SharePoint original.
+    // Their lazy preview is independent; the open gallery keeps its original link.
+    if (preview.mediaId && new URL(source, win.location.href).hostname.endsWith('.sharepoint.com')) source = MEDIA_PREVIEW_PLACEHOLDER;
+    return `<img class="v2-background-photo" src="${esc(source)}"${preview.mediaId ? ` data-lazy-media-id="${esc(preview.mediaId)}" data-lazy-media-revision="${esc(preview.revision)}"` : ''} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`;
+  }
   function publicationNavigation(item) {
     const neighbours = publicationNeighbours(publications(), item.id);
     if (!neighbours.items.length) return "";
@@ -154,7 +162,12 @@ export function mountWorkspace(api) {
       if (!actions) {
         actions = doc.createElement("div"); actions.className = "v2-global-actions";
         actions.innerHTML = `${anchor("Messages actifs", "accueil", "messages")}${anchor("À traiter", "accueil", "decisions")}`;
-        shell.querySelector(".v2-heading").after(actions);
+        const utilities = doc.createElement('section'); utilities.className = 'v2-shortcuts';
+        const toggle = doc.createElement('button'); toggle.type = 'button'; toggle.className = 'v2-shortcuts-toggle';
+        toggle.textContent = 'Raccourcis de travail'; toggle.setAttribute('aria-expanded','false');
+        actions.id = 'v2-work-shortcuts'; toggle.setAttribute('aria-controls',actions.id);
+        toggle.addEventListener('click', () => { const open = toggle.getAttribute('aria-expanded') !== 'true'; toggle.setAttribute('aria-expanded',String(open)); utilities.toggleAttribute('data-expanded',open); });
+        utilities.append(toggle,actions); shell.querySelector(".v2-heading").after(utilities);
       }
       if (feedback) move(feedback, actions);
       const tasks = doc.getElementById("cockpit-task-launch");

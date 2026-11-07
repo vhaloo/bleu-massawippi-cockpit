@@ -2,3 +2,5 @@
 .infra-notices{position:fixed;z-index:150;bottom:16px;right:16px;width:min(390px,calc(100vw - 32px));display:grid;gap:8px;max-height:70dvh;overflow:auto}.infra-notices .infra-notice{position:static;width:100%;box-sizing:border-box}@media(max-width:540px){.infra-notices{bottom:8px;right:8px;width:calc(100vw - 16px)}}
 
 .infra-evidence{display:inline-block;margin:0 0 10px!important;border-radius:20px;padding:4px 9px;background:#e2f0e8;color:#235747!important;font-weight:600;font-size:.67rem!important}.infra-evidence[data-level=inference]{background:#fff0cc;color:#77581a!important}.infra-evidence[data-level=unknown]{background:#ecebef;color:#605c70!important}.infra-chart>small{font-size:.68rem;color:var(--infra-muted);line-height:1.5;overflow-wrap:anywhere}
+/* Keep the mobile workspace navigation reachable when an alert appears. */
+@media(max-width:1000px){html[data-workspace="v2"] .infra-notices{bottom:calc(88px + env(safe-area-inset-bottom));max-height:45dvh;overflow:auto;overscroll-behavior:contain}}
