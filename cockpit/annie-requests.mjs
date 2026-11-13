@@ -10,6 +10,7 @@ export function pendingAnnieRequests({ comments = [], feedback = [] } = {}) {
   for (const [kind, items] of [["comment", comments], ["feedback", feedback]]) {
     for (const item of items) {
       if (item.authorUid !== ANNIE_UID || item.deleted === true || item.resolved === true || ["done", "closed", "archived"].includes(item.status)) continue;
+      if(String(item.sectionId||'').startsWith('phi-priority-') && String(item.comment||'').startsWith('Priorité philanthropie : RETIRÉE\n')) continue;
       const text = String(kind === "comment" ? item.comment || "" : item.message || "").trim();
       if (!text || !item.id) continue;
       const key = `${kind}:${item.id}`;

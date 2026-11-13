@@ -11,7 +11,7 @@ async function adapter({ failMount = false } = {}) {
   const adapted = source.replace(/(["'])(\.\/[^"']+)\1/g, (_match, _quote, specifier) => {
     const file = specifier.split("?")[0];
     const stubs = {
-      "./firebase-client.js": "export async function fetchPublicationHistoryPage(){return {items:[],hasMore:false}} export function subscribeAnnieRequestSource(kind,callback){callback([],{fromCache:false});return ()=>{}} export async function fetchPhilanthropyDashboard(){throw new Error('Données privées absentes de la fixture')} export async function fetchPhilanthropyMembers(){throw new Error('Registre privé absent de la fixture')} export async function fetchPhilanthropyTrackingState(){return null} export async function setOpportunityStage(){}",
+      "./firebase-client.js": "export async function fetchPublicationHistoryPage(){return {items:[],hasMore:false}} export function subscribeAnnieRequestSource(kind,callback){callback([],{fromCache:false});return ()=>{}} export async function fetchPhilanthropyDashboard(){throw new Error('Données privées absentes de la fixture')} export async function fetchPhilanthropyPriorities(){return []} export async function setPhilanthropyPriority(){} export async function fetchPhilanthropyMembers(){throw new Error('Registre privé absent de la fixture')} export async function fetchPhilanthropyTrackingState(){return null} export async function setOpportunityStage(){}",
       "./editor-studio.js": "export function openPublicationStudio(){}"
     };
     if (failMount && file === "./workspace-v2.js") return JSON.stringify(moduleUrl('throw new Error("Échec de chargement simulé");'));

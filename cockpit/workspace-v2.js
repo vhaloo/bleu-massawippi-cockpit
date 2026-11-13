@@ -1,11 +1,11 @@
-import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261112-v2.34";
-import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261112-v2.34";
-import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261112-v2.34";
+import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publicationTheme, publicationThemeSummary, escapeHtml as esc, routeHash, parseRoute, prettyDate, todayKey, isPastDate, monthDays, shiftMonth, filterPublications, publicationState, publicationProgress, publicationRoleProgress, safeLink, workspaceIcon as icon, topicIcon, publicationNeighbours, previewCandidates, interfaceUrl } from "./workspace-model.mjs?v=20261112-v2.35";
+import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261112-v2.35";
+import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261112-v2.35";
 
-import { mountPhilanthropy } from "./philanthropy-ui.mjs?v=20261112-visual2";
-import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261112-b115";
-import { mediaPreviewRevision } from "./media-catalog.mjs?v=20261112-b115";
-import { MEDIA_PREVIEW_PLACEHOLDER } from "./lazy-media-preview.mjs?v=20261112-b115";
+import { mountPhilanthropy } from "./philanthropy-ui.mjs?v=20261112-visual3";
+import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261112-b116";
+import { mediaPreviewRevision } from "./media-catalog.mjs?v=20261112-b116";
+import { MEDIA_PREVIEW_PLACEHOLDER } from "./lazy-media-preview.mjs?v=20261112-b116";
 
 /** Default presentation adapter. Existing DOM controls remain the only writers. */
 export function mountWorkspace(api) {
@@ -40,7 +40,7 @@ export function mountWorkspace(api) {
   const panel = shell.querySelector("[data-v2-panel]");
   const note = shell.querySelector("[data-v2-note]");
   const philanthropyHost = doc.createElement("section"); philanthropyHost.className = "philanthropy-workspace"; philanthropyHost.hidden = true; panel.after(philanthropyHost);
-  const philanthropyCss = doc.createElement("link"); philanthropyCss.rel = "stylesheet"; philanthropyCss.href = new URL("./philanthropy.css?v=20261112-visual2", import.meta.url).href; doc.head.append(philanthropyCss);
+  const philanthropyCss = doc.createElement("link"); philanthropyCss.rel = "stylesheet"; philanthropyCss.href = new URL("./philanthropy.css?v=20261112-visual3", import.meta.url).href; doc.head.append(philanthropyCss);
   const philanthropy = mountPhilanthropy({root:philanthropyHost, api, profile:api.profile, window:win});
   const cardFor = id => all(".post[data-item-id]", host).find(node => node.dataset.itemId === id);
   const projectFor = id => all(".internal-project,.opportunity", host).find(node => (node.dataset.internalProjectId || node.dataset.opportunityId) === id || node.id === id);
@@ -62,7 +62,7 @@ export function mountWorkspace(api) {
       const section = row.sectionId.replace(/^internal-project-/, "");
       const project = projectFor(section) || all(".internal-project,.opportunity", host).find(node=>(node.dataset.relatedFeedback || "").split(/\s+/).includes(row.id)), post = (api.getPosts?.() || []).find(p=>p.id === row.sectionId);
       const title = project?.querySelector("summary strong")?.textContent || post?.title || "Recommandation générale";
-      const hash = project ? routeHash("projets", project.dataset.internalProjectId || project.dataset.opportunityId) : post ? routeHash("publications", post.id) : routeForTarget("", row.sectionId);
+      const hash = /^phi-priority-(program|action)-/.test(row.sectionId) ? routeHash('philanthropie','',row.sectionId.startsWith('phi-priority-program-')?'programmes':'actions') : project ? routeHash("projets", project.dataset.internalProjectId || project.dataset.opportunityId) : post ? routeHash("publications", post.id) : routeForTarget("", row.sectionId);
       const when = row.date ? new Date(row.date).toLocaleString("fr-CA", { timeZone: "America/Toronto", dateStyle: "medium", timeStyle: "short" }) : "Date en attente";
       return `<article class="v2-annie-request" data-request-key="${esc(row.key)}"><p class="v2-request-meta"><time>${esc(when)}</time><span>${esc(row.status)}</span></p><h3>${esc(title)}</h3><p class="v2-request-text">${esc(row.text)}</p>${hash ? `<a data-v2-route href="${esc(hash)}">Ouvrir le contexte →</a>` : '<button type="button" data-v2-general-requests>Voir la demande et son suivi →</button>'}</article>`;
     }).join("") || `<p class="v2-request-empty">${error ? "Impossible de confirmer toute la liste pour le moment." : loaded ? "Aucune demande d’Annie encore ouverte." : "Chargement des commentaires et recommandations…"}</p>`;

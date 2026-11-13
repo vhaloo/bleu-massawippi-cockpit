@@ -1,0 +1,33 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {parseHTML} from 'linkedom';
+import {prioritySection,priorityText,priorityActive,prioritySignals,assertPriorityWrite} from './philanthropy-priorities.mjs';
+import {philanthropyFixture} from './philanthropy-test-fixture.mjs';
+import {mountPhilanthropy} from './philanthropy-ui.mjs';
+const section=prioritySection('program','demo');
+const annie={id:'annie',sectionId:section,authorUid:'annie',authorLabel:'Annie',comment:priorityText(true,'Démo')};
+assert(priorityActive(annie));assert.equal(prioritySignals([annie],section).length,1);
+assert.throws(()=>assertPriorityWrite(annie,{section,uid:'valentin',expected:true,active:false}));
+assert.equal(assertPriorityWrite(annie,{section,uid:'annie',expected:false,active:true}),false);
+assert.throws(()=>assertPriorityWrite({...annie,resolved:true},{section,uid:'annie',expected:true,active:false}));
+const data=philanthropyFixture(),pristine=JSON.stringify(data);let rows=[annie],writes=0,reads=0,release,fail=false;
+const {document,window}=parseHTML('<html><body><main></main></body></html>'),root=document.querySelector('main');
+const api={loadPhilanthropy:async()=>data,loadPhilanthropyPriorities:async()=>{reads++;return [...rows]},savePhilanthropyPriority:async(kind,id,title,active,expected)=>{writes++;await new Promise(r=>release=r);if(fail)throw Error('Réseau interrompu');const row={id:'valentin',sectionId:prioritySection(kind,id),authorUid:'valentin',authorLabel:'Valentin',comment:priorityText(active,title)};rows=rows.filter(x=>x.authorUid!=='valentin');rows.push(row);return row;}};
+const widget=mountPhilanthropy({root,window,profile:{uid:'valentin',role:'admin'},api});
+const settle=()=>new Promise(r=>setTimeout(r,0));
+widget.show('programmes');await settle();await settle();
+assert(root.textContent.includes('Priorité signalée par Annie'));assert.equal(writes,0);
+let btn=root.querySelector('[data-phi-priority]');btn.click();btn.click();assert.equal(writes,1);assert(root.querySelector('[data-phi-priority]').disabled);release();await settle();assert(root.textContent.includes('Retirer mon signal'));
+root.querySelector('[data-phi-priority]').click();release();await settle();assert(priorityActive(rows.find(x=>x.authorUid==='annie')));assert(!priorityActive(rows.find(x=>x.authorUid==='valentin')));
+root.querySelector('[data-phi-refresh]').click();await settle();await settle();assert.equal(reads,2);assert(root.textContent.includes('Priorité signalée par Annie'));
+fail=true;root.querySelector('[data-phi-priority]').click();release();await settle();assert(root.textContent.includes('Réseau interrompu'));assert(root.querySelector('[data-phi-priority]').disabled);
+assert.equal(JSON.stringify(data),pristine);widget.destroy();
+const viewer=mountPhilanthropy({root,window,profile:{uid:'viewer',role:'viewer'},api});viewer.show('programmes');await settle();assert.equal(root.querySelector('[data-phi-priority]'),null);viewer.destroy();
+console.log('PASS priority signals: authors isolated, repeated clicks, persistence, failure, roles, no content mutation');
+
+const client=fs.readFileSync(new URL('./firebase-client.js',import.meta.url),'utf8');
+assert.match(client,/withTimeout\(getDocsFromServer\(query\(collection\(db,'comments'\),where\('sectionId','in'/);
+
+rows=[{id:'valentin',sectionId:section,authorUid:'valentin',authorLabel:'Valentin',comment:priorityText(true,'Démo'),resolved:true}];
+const archivedWidget=mountPhilanthropy({root,window,profile:{uid:'valentin',role:'admin'},api});archivedWidget.show('programmes');await settle();await settle();
+assert(root.querySelector('[data-phi-priority]').disabled);assert(root.textContent.includes('Signal archivé dans le suivi général; réouverture à vérifier.'));archivedWidget.destroy();

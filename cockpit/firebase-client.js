@@ -1,9 +1,10 @@
+import { prioritySection, priorityText, assertPriorityWrite } from './philanthropy-priorities.mjs?v=20261112-priority1';
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import {createReadDiagnostics} from './read-diagnostics.mjs?v=20261112-b115';
-import {createContentStore, createVersionedContentReader} from './versioned-content.mjs?v=20261112-b115';
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261112-b115";
-import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261112-b115";
-import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261112-v2.34";
+import {createReadDiagnostics} from './read-diagnostics.mjs?v=20261112-b116';
+import {createContentStore, createVersionedContentReader} from './versioned-content.mjs?v=20261112-b116';
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261112-b116";
+import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261112-b116";
+import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261112-v2.35";
 import {
   getAuth,
   setPersistence,
@@ -35,6 +36,7 @@ import {
   getDocFromCache,
   getDocFromServer,
   getDocs,
+  getDocsFromServer,
   setDoc,
   updateDoc,
   writeBatch,
@@ -43,14 +45,14 @@ import {
   serverTimestamp,
   Timestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261112-b115";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261112-b115";
-import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261112-b115";
-import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261112-b115";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261112-b115";
-import { mediaCatalogQuery, mediaCatalogMarker, mediaPreviewRevision, mediaCatalogCache, clearMediaCatalogCache, observeMediaCatalog, decodeFirestoreValue } from "./media-catalog.mjs?v=20261112-b115";
-import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261112-b115";
-import { INFRASTRUCTURE_ADMIN_UID, INFRASTRUCTURE_DOCUMENT } from "./infrastructure-model.mjs?v=20261112-b115";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261112-b116";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261112-b116";
+import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261112-b116";
+import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261112-b116";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261112-b116";
+import { mediaCatalogQuery, mediaCatalogMarker, mediaPreviewRevision, mediaCatalogCache, clearMediaCatalogCache, observeMediaCatalog, decodeFirestoreValue } from "./media-catalog.mjs?v=20261112-b116";
+import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261112-b116";
+import { INFRASTRUCTURE_ADMIN_UID, INFRASTRUCTURE_DOCUMENT } from "./infrastructure-model.mjs?v=20261112-b116";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
@@ -2210,4 +2212,39 @@ export function subscribeAuditLogs(callback, onError) {
     (snapshot) => callback(snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))),
     onError
   );
+}
+
+/** Bounded read of explicit human priority signals; no write on opening a view. */
+export async function fetchPhilanthropyPriorities(sections, profile) {
+  requireConfigured();
+  if(!['admin','director'].includes(profile?.role)) return [];
+  const ids=[...new Set(sections)];
+  if(ids.length>170||ids.some(id=>!/^phi-priority-(program|action)-[a-z0-9-]{1,90}$/i.test(id)))throw Error('Portefeuille de priorités invalide.');
+  const rows=[];
+  for(let i=0;i<ids.length;i+=10){
+    const snap=await withTimeout(getDocsFromServer(query(collection(db,'comments'),where('sectionId','in',ids.slice(i,i+10)),limit(100))),'Les priorités ne répondent pas. Actualisez.');
+    if(snap.size>=100)throw Error('Trop de signaux pour garantir un affichage complet.');
+    snap.docs.forEach(d=>rows.push({id:d.id,...d.data()}));
+  }
+  return rows;
+}
+export async function setPhilanthropyPriority(kind,id,title,active,expected,profile){
+  requireWritable();
+  if(!['admin','director'].includes(profile?.role)||!profile.uid)throw Error('Ce compte ne peut pas signaler une priorité.');
+  const section=prioritySection(kind,id);
+  const ref=doc(db,'comments',section+'--'+encodeURIComponent(profile.uid));
+  const archive=doc(collection(db,'changeArchive'));
+  let changed=false;
+  await runTransaction(db,async tx=>{
+    const snap=await tx.get(ref),before=snap.exists()?snap.data():null;
+    changed=assertPriorityWrite(before,{section,uid:profile.uid,active,expected});
+    if(!changed)return;
+    const comment=priorityText(active,title),now=serverTimestamp();
+    if(before)tx.update(ref,{comment,updatedAt:now,updatedBy:profile.uid});
+    else tx.set(ref,{sectionId:section,comment,quickTag:null,dictated:false,authorUid:profile.uid,authorLabel:String(profile.displayLabel||'Utilisateur').slice(0,120),deleted:false,resolved:false,resolvedAt:null,resolvedBy:'',resolvedByLabel:'',createdAt:now,updatedAt:now,updatedBy:profile.uid});
+    tx.set(archive,changeArchiveEntry('comment',ref.id,active?'priorité signalée':'signal de priorité retiré',{comment:before?.comment||''},{comment,sectionId:section},profile));
+  });
+  if(changed)recordConfirmedWrites(2);
+  const saved=await getDoc(ref);
+  return saved.exists()?{id:saved.id,...saved.data()}:null;
 }
