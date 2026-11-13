@@ -61,3 +61,6 @@
 #workspace-v2 .phi-mission-banner h2{color:var(--v2-paper)!important}
 
 @media print{.phi-more::details-content,.phi-source::details-content{content-visibility:visible!important;display:block!important}}
+
+.phi-priority{margin:.6rem 0;padding:.65rem;border-left:3px solid #be923e;background:#fbf7eb;border-radius:.35rem}.phi-priority p:empty{display:none}.phi-priority small{display:block;font-size:.75rem;margin-top:.35rem}.phi-priority button[aria-pressed="true"]{background:#e6d69b;color:#26362c}.phi-priority-filter{margin:.75rem 0}.phi-priority-filter input{width:auto;margin-right:.4rem}
+.phi-priority,.phi-priority p,.phi-priority small{color:#26362c!important}.phi-priority-filter label{display:flex;align-items:center;gap:.4rem}

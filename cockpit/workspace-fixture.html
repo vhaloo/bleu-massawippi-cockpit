@@ -24,6 +24,18 @@ buildFeedbackWidget({ document, formMarkup: '<form data-feedback-form="cockpit">
 const { philanthropyFixture } = await import('./philanthropy-test-fixture.mjs');
 const { memberFixture } = await import('./members-test-fixture.mjs');
 const philanthropicStages = new Map();
+const {prioritySection,priorityText,assertPriorityWrite}=await import('./philanthropy-priorities.mjs?v=20261112-priority1');
+const priorityStorage='cockpit-synthetic-priorities-v1';
+let syntheticPriorityRows=JSON.parse(sessionStorage.getItem(priorityStorage)||'[]');
+api.loadPhilanthropyPriorities=async()=>[...syntheticPriorityRows];
+api.savePhilanthropyPriority=async(kind,id,title,active,expected)=>{
+ const section=prioritySection(kind,id),uid=api.profile.uid;
+ const before=syntheticPriorityRows.find(r=>r.sectionId===section&&r.authorUid===uid);
+ assertPriorityWrite(before,{section,uid,active,expected});
+ const row={id:section+'--'+uid,sectionId:section,authorUid:uid,authorLabel:'Simulation locale',comment:priorityText(active,title)};
+ syntheticPriorityRows=syntheticPriorityRows.filter(r=>!(r.sectionId===section&&r.authorUid===uid));syntheticPriorityRows.push(row);
+ sessionStorage.setItem(priorityStorage,JSON.stringify(syntheticPriorityRows));return row;
+};
 api.loadPhilanthropy = async () => philanthropyFixture();
 api.loadMembers = async () => memberFixture();
 api.savePhilanthropyStage = async (id,stage) => { philanthropicStages.set(id,{stage}); };

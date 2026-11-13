@@ -111,6 +111,7 @@ jobs:
           cp cockpit/philanthropy-ui.mjs public/
           cp cockpit/philanthropy-model.mjs public/
           cp cockpit/philanthropy-opportunities.mjs public/
+          cp cockpit/philanthropy-priorities.mjs public/
           cp cockpit/members-model.mjs public/
           cp cockpit/members-ui.mjs public/
           cp cockpit/philanthropy.css public/

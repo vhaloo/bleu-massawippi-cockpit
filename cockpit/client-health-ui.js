@@ -5,9 +5,9 @@ import {
   setPersistentCachePreference,
   requestSafeMode,
   forgetThisDevice
-} from "./firebase-client.js?v=20261112-b115";
-import { subscribeAdminInfrastructure, refreshAdminInfrastructure } from "./firebase-client.js?v=20261112-b115";
-import { mountInfrastructure } from "./infrastructure-ui.mjs?v=20261112-b115";
+} from "./firebase-client.js?v=20261112-b116";
+import { subscribeAdminInfrastructure, refreshAdminInfrastructure } from "./firebase-client.js?v=20261112-b116";
+import { mountInfrastructure } from "./infrastructure-ui.mjs?v=20261112-b116";
 
 let unsubscribeDiagnostics = null;
 let infrastructure = null;
