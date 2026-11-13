@@ -1,9 +1,9 @@
-import { parsePlanDate } from "./calendar-export-tools.js?v=20261112-b114";
-import { fetchPublicationHistoryPage, subscribeAnnieRequestSource, fetchPhilanthropyDashboard, fetchPhilanthropyMembers, fetchPhilanthropyTrackingState, setOpportunityStage } from "./firebase-client.js?v=20261112-b114";
-import { watchAnnieRequests } from "./annie-requests.mjs?v=20261112-v2.33";
-import { openPublicationStudio } from "./editor-studio.js?v=20261112-b114";
-import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20261112-v2.33";
-import { mountAccountMenu } from "./account-menu.mjs?v=20261112-b114";
+import { parsePlanDate } from "./calendar-export-tools.js?v=20261112-b115";
+import { fetchPublicationHistoryPage, subscribeAnnieRequestSource, fetchPhilanthropyDashboard, fetchPhilanthropyMembers, fetchPhilanthropyTrackingState, setOpportunityStage } from "./firebase-client.js?v=20261112-b115";
+import { watchAnnieRequests } from "./annie-requests.mjs?v=20261112-v2.34";
+import { openPublicationStudio } from "./editor-studio.js?v=20261112-b115";
+import { interfaceUrl, preferredInterface } from "./workspace-model.mjs?v=20261112-v2.34";
+import { mountAccountMenu } from "./account-menu.mjs?v=20261112-b115";
 
 let accountMenu = null;
 
@@ -39,7 +39,7 @@ export async function setupWorkspaceV2(profile, { state, enhanceCards, toast, me
   try {
     const entry = interfaceUrl(location.href, "v2", (globalThis.posts || []).map(post => post.id));
     if (entry !== location.href) history.replaceState(history.state, "", entry);
-    const { mountWorkspace } = await import("./workspace-v2.js?v=20261112-v2.33");
+    const { mountWorkspace } = await import("./workspace-v2.js?v=20261112-v2.34");
     return mountWorkspace({
       profile,
       watchAnnieRequests: onUpdate => watchAnnieRequests({ subscribe: subscribeAnnieRequestSource, onUpdate }),

@@ -1,8 +1,8 @@
-import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20261112-b114";
-import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261112-b114";
-import { mediaPreviewRevision } from "./media-catalog.mjs?v=20261112-b114";
-import { observeLazyMediaPreviews, MEDIA_PREVIEW_PLACEHOLDER } from "./lazy-media-preview.mjs?v=20261112-b114";
-import { sharePointVideoMarkup, patchVideoGallery, setupSharePointVideos, setupSharePointVideoLifecycle } from "./sharepoint-video.mjs?v=20261112-b114";
+import { buildFeedbackWidget } from "./feedback-widget.mjs?v=20261112-b115";
+import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261112-b115";
+import { mediaPreviewRevision } from "./media-catalog.mjs?v=20261112-b115";
+import { observeLazyMediaPreviews, MEDIA_PREVIEW_PLACEHOLDER } from "./lazy-media-preview.mjs?v=20261112-b115";
+import { sharePointVideoMarkup, patchVideoGallery, setupSharePointVideos, setupSharePointVideoLifecycle } from "./sharepoint-video.mjs?v=20261112-b115";
 import {
   getClientState,
   waitForClientReady,
@@ -46,24 +46,24 @@ import {
   subscribeInternalProjectStates,
   setEditorialDecision,
   subscribeEditorialDecisions
-} from "./firebase-client.js?v=20261112-b114";
-import { createEventContextController } from "./event-context-data.js?v=20261112-b114";
-import { mergeEventWindow } from "./event-context-window.mjs?v=20261112-b114";
-import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20261112-b114";
-import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20261112-b114";
-import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20261112-b114";
-import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20261112-b114";
-import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20261112-b114";
-import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20261112-b114";
-import { setupSectionNavigation } from "./section-navigation.js?v=20261112-b114";
-import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20261112-b114";
-import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20261112-b114";
-import { setupControlHints } from "./control-hints.js?v=20261112-b114";
-import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20261112-b114";
-import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20261112-b114";
-import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20261112-b114";
-import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20261112-b114";
-import { positionStrategyContextAtBottom } from "./content-layout.js?v=20261112-b114";
+} from "./firebase-client.js?v=20261112-b115";
+import { createEventContextController } from "./event-context-data.js?v=20261112-b115";
+import { mergeEventWindow } from "./event-context-window.mjs?v=20261112-b115";
+import { clearPersonalActionItems, setupPersonalActionItems } from "./action-items-ui.js?v=20261112-b115";
+import { buildHealthWidget, clearHealthWidget } from "./client-health-ui.js?v=20261112-b115";
+import { startAdminLazyData, scheduleAdminLazyDataStop, clearAdminLazyData } from "./admin-lazy-data.js?v=20261112-b115";
+import { buildMediaChoiceModel, mediaAgreementPresentation, mediaImageChoicePresentation, mediaRightsNeedsConfirmation, mediaSelectionBlocked, synchronizeMediaInfoPanels, captureMediaDrafts, restoreMediaDrafts, renderMediaValidationPanel, openMediaValidationPanel, communicationsApprovalNeedsReview } from "./media-choice-ui.js?v=20261112-b115";
+import { workflowMarkup, renderWorkflowControls, actionTaskEmptyMarkup, actionTaskEstimate, actionTaskPriority, actionTaskShouldRemain, renderActionTaskCard, visibleActionTaskTarget, workflowSyncIsUsable } from "./task-progress-ui.js?v=20261112-b115";
+import { clearCompletedTaskHistory, completedTaskHistoryMarkup, invalidateCompletedTaskHistory, setupCompletedTaskHistory } from "./completed-task-history.js?v=20261112-b115";
+import { setupSectionNavigation } from "./section-navigation.js?v=20261112-b115";
+import { editorialRowsSignature, mergePostsWithScheduleRows } from "./publication-editor-schema.mjs?v=20261112-b115";
+import { destroyPublicationStudio, initPublicationStudio, refreshPublicationStudio } from "./editor-studio.js?v=20261112-b115";
+import { setupControlHints } from "./control-hints.js?v=20261112-b115";
+import { classifyMonthlyPostState, monthlyPostStates } from "./monthly-snapshot-state.js?v=20261112-b115";
+import { setInternalProjectArchiveVisibility, sortInternalProjectsByUrgency } from "./internal-project-order.js?v=20261112-b115";
+import { clearProjectCalendar, setupProjectCalendar } from "./project-calendar.js?v=20261112-b115";
+import { buildPostCalendarIcs, buildWeeklyCoordinationIcs, downloadCalendarFile, parsePlanDate, profileTaskLabel } from "./calendar-export-tools.js?v=20261112-b115";
+import { positionStrategyContextAtBottom } from "./content-layout.js?v=20261112-b115";
 
 const { configured, safeMode } = getClientState();
 const demoMode = new URLSearchParams(location.search).get("demo") === "1";
@@ -3001,7 +3001,7 @@ async function applyProfile(profile) {
   syncCardAccess();
   workspaceV2?.destroy(); workspaceV2 = null;
   try {
-    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20261112-v2.33");
+    const { setupInterfaceSwitch, setupWorkspaceV2 } = await import("./workspace-adapter.js?v=20261112-v2.34");
     setupInterfaceSwitch(profile);
     workspaceV2 = await setupWorkspaceV2(profile, { state, enhanceCards, toast, mediaPreview: mediaPreviewUrl });
   } catch { toast("La V2 est indisponible; le cockpit classique reste actif.", true); }

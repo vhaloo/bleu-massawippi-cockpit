@@ -1,9 +1,9 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import {createReadDiagnostics} from './read-diagnostics.mjs?v=20261112-b114';
-import {createContentStore, createVersionedContentReader} from './versioned-content.mjs?v=20261112-b114';
-import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261112-b114";
-import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261112-b114";
-import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261112-v2.33";
+import {createReadDiagnostics} from './read-diagnostics.mjs?v=20261112-b115';
+import {createContentStore, createVersionedContentReader} from './versioned-content.mjs?v=20261112-b115';
+import { mediaSelectionBlocked } from "./media-choice-ui.js?v=20261112-b115";
+import { CACHE_PREFERENCE_KEY, readCachePreference, wantsPersistentCache, readAuthCacheRecovery, prepareAuthCacheRecovery, clearAuthCacheRecovery } from "./cache-policy.mjs?v=20261112-b115";
+import { ANNIE_UID, REQUEST_PAGE_SIZE } from "./annie-requests.mjs?v=20261112-v2.34";
 import {
   getAuth,
   setPersistence,
@@ -43,14 +43,14 @@ import {
   serverTimestamp,
   Timestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261112-b114";
-import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261112-b114";
-import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261112-b114";
-import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261112-b114";
-import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261112-b114";
-import { mediaCatalogQuery, mediaCatalogMarker, mediaPreviewRevision, mediaCatalogCache, clearMediaCatalogCache, observeMediaCatalog, decodeFirestoreValue } from "./media-catalog.mjs?v=20261112-b114";
-import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261112-b114";
-import { INFRASTRUCTURE_ADMIN_UID, INFRASTRUCTURE_DOCUMENT } from "./infrastructure-model.mjs?v=20261112-b114";
+import { normalizePublicationDraft, schedulePayloadFromDraft, validatePublicationDraft } from "./publication-editor-schema.mjs?v=20261112-b115";
+import { assertPublicationNotCompleted } from "./editorial-cycle-guard.mjs?v=20261112-b115";
+import { observePaginatedSchedule } from "./paginated-schedule.mjs?v=20261112-b115";
+import { observeAuthProfiles } from "./auth-profile-session.mjs?v=20261112-b115";
+import { normalizeProjectCalendarEvent, normalizeProjectEventProposal } from "./project-calendar-model.mjs?v=20261112-b115";
+import { mediaCatalogQuery, mediaCatalogMarker, mediaPreviewRevision, mediaCatalogCache, clearMediaCatalogCache, observeMediaCatalog, decodeFirestoreValue } from "./media-catalog.mjs?v=20261112-b115";
+import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261112-b115";
+import { INFRASTRUCTURE_ADMIN_UID, INFRASTRUCTURE_DOCUMENT } from "./infrastructure-model.mjs?v=20261112-b115";
 const config = globalThis.COCKPIT_FIREBASE_CONFIG || {};
 const required = ["apiKey", "authDomain", "projectId", "messagingSenderId", "appId"];
 const roles = new Set(["director", "admin", "viewer"]);
