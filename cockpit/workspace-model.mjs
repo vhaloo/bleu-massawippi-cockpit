@@ -1,10 +1,10 @@
 /** Pure presentation model. Never changes a date, approval, or source object. */
-export const WORKSPACE_VERSION = "20261106-v2.32";
+export const WORKSPACE_VERSION = "20261112-v2.33";
 export const SPACES = Object.freeze({
   accueil: { label: "À faire", icon: "decisions", title: "Un peu de clarté pour avancer.", description: "Vos décisions, les nouveautés et le travail qui vous attend." },
   publications: { label: "Publications", icon: "publications", title: "Les mots et les images du lac.", description: "Le calendrier des réseaux sociaux et des infolettres, les propositions et leur historique." },
   projets: { label: "Projets", icon: "folder", title: "Chaque dossier, à sa place.", description: "Les projets, leurs échéances, leurs documents et les décisions à prendre." },
-  philanthropie: { label: "Philanthropie", icon: "heart", title: "Philanthropie", description: "Les résultats, les objectifs et les leviers pour financer la mission dans la durée." },
+  philanthropie: { label: "Philanthropie", icon: "heart", title: "Philanthropie", description: "Les occasions, les stratégies et les démarches pour financer la mission dans la durée." },
   bibliotheque: { label: "Bibliothèque", icon: "library", title: "Retrouver le bon document.", description: "Les références du cockpit restent liées à leur dossier et à leur original." }
 });
 const ICONS = Object.freeze({

@@ -110,6 +110,7 @@ jobs:
           cp cockpit/workspace-v2.js public/
           cp cockpit/philanthropy-ui.mjs public/
           cp cockpit/philanthropy-model.mjs public/
+          cp cockpit/philanthropy-opportunities.mjs public/
           cp cockpit/members-model.mjs public/
           cp cockpit/members-ui.mjs public/
           cp cockpit/philanthropy.css public/

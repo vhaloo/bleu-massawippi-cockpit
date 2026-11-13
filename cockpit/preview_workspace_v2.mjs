@@ -8,7 +8,8 @@ const allowed = new Set(["philanthropy-model.mjs","philanthropy-ui.mjs","philant
 for (const name of ["account-menu.mjs", "account-menu.css", "account-menu-fixture.html", "view-mode.js", "notification-recipient.js"]) allowed.add(name);
 allowed.add("philanthropy-test-fixture.mjs");
 for (const name of ["members-model.mjs", "members-ui.mjs", "members-test-fixture.mjs"]) allowed.add(name);
-const mime = {".html":"text/html; charset=utf-8",".mjs":"text/javascript; charset=utf-8",".js":"text/javascript; charset=utf-8",".css":"text/css; charset=utf-8",".webp":"image/webp",".png":"image/png",".jpg":"image/jpeg"};
+for (const name of ["media-catalog.mjs", "lazy-media-preview.mjs", "media-preview-placeholder.svg", "philanthropy-opportunities.mjs", "assets/brand/logo-bleu-massawippi-2024.png", "assets/projects/poesie-du-lac/poesie-au-bord-du-bleu-lac-massawippi-photo-dji-0100-preview.webp", "assets/philanthropy/opportunites.svg", "assets/philanthropy/strategies.svg", "assets/philanthropy/demarches.svg"]) allowed.add(name);
+const mime = {".svg":"image/svg+xml",".html":"text/html; charset=utf-8",".mjs":"text/javascript; charset=utf-8",".js":"text/javascript; charset=utf-8",".css":"text/css; charset=utf-8",".webp":"image/webp",".png":"image/png",".jpg":"image/jpeg"};
 const server = http.createServer(async(req,res) => {
   try {
     const url = new URL(req.url, "http://127.0.0.1");
