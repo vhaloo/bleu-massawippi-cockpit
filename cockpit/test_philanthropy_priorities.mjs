@@ -17,6 +17,8 @@ const widget=mountPhilanthropy({root,window,profile:{uid:'valentin',role:'admin'
 const settle=()=>new Promise(r=>setTimeout(r,0));
 widget.show('programmes');await settle();await settle();
 assert(root.textContent.includes('Priorité signalée par Annie'));assert.equal(writes,0);
+assert(!root.textContent.includes('Signal partagé avec Annie et Valentin'));
+assert.equal(root.querySelector('.phi-priority small'),null);
 let btn=root.querySelector('[data-phi-priority]');btn.click();btn.click();assert.equal(writes,1);assert(root.querySelector('[data-phi-priority]').disabled);release();await settle();assert(root.textContent.includes('Retirer mon signal'));
 root.querySelector('[data-phi-priority]').click();release();await settle();assert(priorityActive(rows.find(x=>x.authorUid==='annie')));assert(!priorityActive(rows.find(x=>x.authorUid==='valentin')));
 root.querySelector('[data-phi-refresh]').click();await settle();await settle();assert.equal(reads,2);assert(root.textContent.includes('Priorité signalée par Annie'));

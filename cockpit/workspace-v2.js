@@ -2,7 +2,7 @@ import { SPACES, WORKSPACE_VERSION, isNewsletter, publicationChannelLabel, publi
 import { pendingAnnieRequests } from "./annie-requests.mjs?v=20261112-v2.35";
 import { groupProjects, PROJECT_GROUPINGS, projectType, projectTheme } from "./project-list-model.mjs?v=20261112-v2.35";
 
-import { mountPhilanthropy } from "./philanthropy-ui.mjs?v=20261112-visual3";
+import { mountPhilanthropy } from "./philanthropy-ui.mjs?v=20261113-visual4";
 import { safeInlineMediaPreview } from "./inline-media-preview.mjs?v=20261112-b116";
 import { mediaPreviewRevision } from "./media-catalog.mjs?v=20261112-b116";
 import { MEDIA_PREVIEW_PLACEHOLDER } from "./lazy-media-preview.mjs?v=20261112-b116";
@@ -40,7 +40,7 @@ export function mountWorkspace(api) {
   const panel = shell.querySelector("[data-v2-panel]");
   const note = shell.querySelector("[data-v2-note]");
   const philanthropyHost = doc.createElement("section"); philanthropyHost.className = "philanthropy-workspace"; philanthropyHost.hidden = true; panel.after(philanthropyHost);
-  const philanthropyCss = doc.createElement("link"); philanthropyCss.rel = "stylesheet"; philanthropyCss.href = new URL("./philanthropy.css?v=20261112-visual3", import.meta.url).href; doc.head.append(philanthropyCss);
+  const philanthropyCss = doc.createElement("link"); philanthropyCss.rel = "stylesheet"; philanthropyCss.href = new URL("./philanthropy.css?v=20261113-visual4", import.meta.url).href; doc.head.append(philanthropyCss);
   const philanthropy = mountPhilanthropy({root:philanthropyHost, api, profile:api.profile, window:win});
   const cardFor = id => all(".post[data-item-id]", host).find(node => node.dataset.itemId === id);
   const projectFor = id => all(".internal-project,.opportunity", host).find(node => (node.dataset.internalProjectId || node.dataset.opportunityId) === id || node.id === id);

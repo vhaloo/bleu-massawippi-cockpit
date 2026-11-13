@@ -3,7 +3,7 @@
 // précédemment mis en cache, notamment firebase-client.js.
 const CACHE_PREFIX = "bleu-massawippi-cockpit-shell-";
 const RELEASE = "20261112-b116";
-const CACHE = "bleu-massawippi-cockpit-shell-v148";
+const CACHE = "bleu-massawippi-cockpit-shell-v149";
 const SHELL = [
   `./read-diagnostics.mjs?v=${RELEASE}`,
   `./versioned-content.mjs?v=${RELEASE}`,
@@ -11,9 +11,9 @@ const SHELL = [
   `./media-catalog.mjs?v=${RELEASE}`, `./lazy-media-preview.mjs?v=${RELEASE}`, "./media-preview-placeholder.svg",
   `./account-menu.mjs?v=${RELEASE}`, `./account-menu.css?v=${RELEASE}`,
   "./members-ui.mjs?v=20261105-v5", "./members-model.mjs?v=20261105-v5",
-  "./philanthropy-opportunities.mjs?v=20261112-visual3",
+  "./philanthropy-opportunities.mjs?v=20261113-visual4",
   "./philanthropy-priorities.mjs?v=20261112-priority1",
-  "./philanthropy-ui.mjs?v=20261112-visual3", "./philanthropy-model.mjs?v=20261112-visual3", "./philanthropy.css?v=20261112-visual3",
+  "./philanthropy-ui.mjs?v=20261113-visual4", "./philanthropy-model.mjs?v=20261113-visual4", "./philanthropy.css?v=20261113-visual4",
   `./cache-policy.mjs?v=${RELEASE}`,
   `./auth-profile-session.mjs?v=${RELEASE}`,
   `./session-bar.css?v=${RELEASE}`,

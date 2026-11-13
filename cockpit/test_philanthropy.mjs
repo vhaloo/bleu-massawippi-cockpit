@@ -75,4 +75,26 @@ check('reprise après erreur et échappement des données',()=>{assert.equal(roo
 const unsafe={...philanthropyFixture(),priorities:[{title:'<img src=x onerror=alert(1)>',summary:'Texte'}]};
 const escaping=mountPhilanthropy({root,window,profile:{role:'admin'},api:{loadPhilanthropy:async()=>unsafe}});escaping.show('ensemble');await settle();
 check('les libellés privés ne deviennent pas du HTML actif',()=>{assert.equal(root.querySelector('img[src=x]'),null);assert.equal(root.querySelector('[onerror]'),null);assert(root.textContent.includes('<img src=x'));});escaping.destroy();
+const clarityData=philanthropyFixture();let clarityWrites=0;
+const clarity=mountPhilanthropy({root,window,profile:{role:'director'},api:{loadPhilanthropy:async()=>clarityData,savePhilanthropyStage:async()=>{clarityWrites++;},getProjectState:id=>id==='philanthropie-registre'?{stage:'active',updatedAt:'2026-11-13T12:00:00Z'}:null}});
+clarity.show('actions');await settle();
+check('accès au dossier visible et état suivi distinct de la commande de modification',()=>{
+ const card=root.querySelector('[data-phi-row="registre"]'),cta=card.querySelector('.phi-dossier-cta');
+ assert.equal(cta.getAttribute('href'),'#/projets/demo-relations');assert(cta.hasAttribute('data-v2-route'));
+ assert(cta.textContent.includes('Voir le dossier et son suivi'));assert(cta.getAttribute('aria-label').includes('Rapprocher le registre'));
+ assert.equal(card.querySelector('.phi-stage-readout strong').textContent,'En cours');
+ assert(card.textContent.includes('Modifier l’étape du dossier'));assert(card.textContent.includes('Examiner la pièce de démonstration.'));
+ assert.equal(card.querySelectorAll('a[href="#/projets/demo-relations"]').length,1);assert.equal(clarityWrites,0);
+});
+clarity.show('programmes');
+check('fiche occasion distingue repère documentaire et dossier lié, garde conditions et sources',()=>{
+ const card=root.querySelector('[data-phi-program]');assert(card.querySelector('.phi-status-caption').textContent.includes('Piste'));
+ assert.equal(card.querySelector('.phi-dossier-cta').getAttribute('href'),'#/projets/demo-programme');
+ assert(card.querySelector('.phi-program-conditions summary').textContent.startsWith('Afficher'));assert(card.querySelector('.phi-source'));
+ assert.equal(card.querySelectorAll('a[href="#/projets/demo-programme"]').length,1);
+});clarity.destroy();
+const missingData=philanthropyFixture();delete missingData.programs[0].projectId;delete missingData.programs[0].status;delete missingData.actions[0].stage;
+const missing=mountPhilanthropy({root,window,profile:{role:'director'},api:{loadPhilanthropy:async()=>missingData}});missing.show('programmes');await settle();
+check('aucun lien ni état inventé quand les renseignements manquent',()=>{assert.equal(root.querySelector('.phi-dossier-cta'),null);assert(root.textContent.includes('Aucun dossier de suivi lié'));assert.equal(root.querySelector('.phi-status-caption'),null);});
+missing.show('actions');check('étape non renseignée reste explicite',()=>assert.equal(root.querySelector('.phi-stage-readout strong').textContent,'Non renseignée'));missing.destroy();
 console.log(`Philanthropie : ${checks} contrôles réussis.`);
