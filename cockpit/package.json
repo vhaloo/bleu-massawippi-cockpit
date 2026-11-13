@@ -86,7 +86,7 @@
     "test:inline-media-preview": "node test_inline_media_preview.mjs",
     "test:sharepoint-video": "node test_sharepoint_video.mjs",
     "test:members": "node --check members-model.mjs && node --check members-ui.mjs && node test_members.mjs",
-    "test:philanthropy": "node --check philanthropy-model.mjs && node --check philanthropy-ui.mjs && node test_philanthropy.mjs",
+    "test:philanthropy": "node --check philanthropy-model.mjs && node --check philanthropy-ui.mjs && node test_philanthropy.mjs && node test_philanthropy_opportunities.mjs",
     "test:auth-session": "node test_auth_profile_session.mjs",
     "test:media-catalog": "node --check media-catalog.mjs && node --check lazy-media-preview.mjs && node test_media_catalog.mjs",
     "test:infrastructure": "node --check infrastructure-model.mjs && node --check infrastructure-ui.mjs && node test_infrastructure.mjs && node test_cloud_metric_query.mjs && node test_read_diagnostics.mjs"

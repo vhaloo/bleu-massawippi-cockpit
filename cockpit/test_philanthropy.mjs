@@ -39,7 +39,20 @@ const monthly=root.querySelector('[data-phi-scenario-field="monthlyDonors"]');mo
 check('recalcul pendant la saisie : pas besoin de quitter le champ',()=>{assert.equal(root.querySelector('[data-phi-scenario-field="monthlyDonors"]').value,'50');assert(root.querySelector('.phi-simulation-results').textContent.includes('3\u00a0000'));assert.equal(reads,1);assert.equal(writes,0);});
 const incomplete=root.querySelector('[data-phi-scenario-field="monthlyDonors"]');incomplete.value='';incomplete.dispatchEvent(new window.Event('input',{bubbles:true}));
 check('une saisie en cours vide reste éditable sans fausse valeur zéro',()=>{assert.equal(incomplete.value,'');assert(root.querySelector('.phi-simulation-results').textContent.includes('3\u00a0000'));incomplete.dispatchEvent(new window.Event('change',{bubbles:true}));assert.equal(incomplete.value,'50');});
+widget.show('ensemble');
+check('orientation visuelle distingue appuis, stratégies et démarches',()=>{assert.equal(root.querySelectorAll('.phi-pathway').length,3);assert(root.querySelector('.phi-brand'));assert(root.querySelector('.phi-lake-photo img'));});
 widget.show('programmes');
+check('toutes les occasions sont accessibles avant filtrage',()=>assert.equal(root.querySelectorAll('[data-phi-program]').length,data.programs.length));
+const programSearch=root.querySelector('[data-phi-filter=programs][data-phi-key=search]');programSearch.value='aucun-programme-de-ce-nom';programSearch.dispatchEvent(new window.Event('input',{bubbles:true}));
+check('zéro résultat explicite, données et lecture privée préservées',()=>{assert.equal(root.querySelectorAll('[data-phi-program]').length,0);assert(root.textContent.includes('Aucune occasion'));assert.equal(reads,1);assert.equal(writes,0);assert.equal(JSON.stringify(data),before);});
+root.querySelector('[data-phi-clear-programs]').click();
+check('réinitialiser rétablit toutes les occasions sans nouvelle lecture',()=>{assert.equal(root.querySelectorAll('[data-phi-program]').length,data.programs.length);assert.equal(reads,1);});
+
+let exportedBlob;const originalCreate=URL.createObjectURL,originalRevoke=URL.revokeObjectURL;
+URL.createObjectURL=blob=>{exportedBlob=blob;return 'blob:synthetic-test'};URL.revokeObjectURL=()=>{};
+root.querySelector('[data-phi-export="programs"]').click();await settle();
+const opportunityCSV=await exportedBlob.text();URL.createObjectURL=originalCreate;URL.revokeObjectURL=originalRevoke;
+check('export des occasions : sources, exclusions et pièces conservées sans écriture',()=>{assert(opportunityCSV.includes('Programme de démonstration'));assert(opportunityCSV.includes('Dépenses sans lien.'));assert(opportunityCSV.includes('Budget documenté.'));assert.equal(reads,1);assert.equal(writes,0);});
 check('programme : critères, exclusions, calendrier et documents restent reliés',()=>{assert(root.textContent.includes('Dépenses sans lien.'));assert(root.textContent.includes('Budget documenté.'));assert(root.querySelector('a[href="#/projets/demo-programme"]'));assert(root.querySelector('a[href="https://example.org/budget.pdf"]'));});
 widget.show('documents');
 check('chaque document a sa couverture et son usage sans requête d’image',()=>{assert.equal(root.querySelectorAll('.phi-document-art').length,2);assert.equal(root.querySelectorAll('img').length,0);assert(root.textContent.includes('Excel Web'));assert(root.textContent.includes('Lire les coûts.'));});
@@ -61,5 +74,5 @@ check('erreur de lecture explicite, sans faux montant nul',()=>{assert(root.quer
 check('reprise après erreur et échappement des données',()=>{assert.equal(root.querySelectorAll('.phi-metric').length,3);assert.equal(root.querySelector('[role="alert"]'),null);});retry.destroy();
 const unsafe={...philanthropyFixture(),priorities:[{title:'<img src=x onerror=alert(1)>',summary:'Texte'}]};
 const escaping=mountPhilanthropy({root,window,profile:{role:'admin'},api:{loadPhilanthropy:async()=>unsafe}});escaping.show('ensemble');await settle();
-check('les libellés privés ne deviennent pas du HTML actif',()=>{assert.equal(root.querySelector('img'),null);assert(root.textContent.includes('<img src=x'));});escaping.destroy();
+check('les libellés privés ne deviennent pas du HTML actif',()=>{assert.equal(root.querySelector('img[src=x]'),null);assert.equal(root.querySelector('[onerror]'),null);assert(root.textContent.includes('<img src=x'));});escaping.destroy();
 console.log(`Philanthropie : ${checks} contrôles réussis.`);
